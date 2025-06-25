@@ -1,0 +1,383 @@
+<script setup>
+
+const emit = defineEmits([
+  'tabData',
+])
+
+definePage({
+  meta: {
+    action: ['admin-view-roles', 'admin-create-roles'],
+    subject: ['View Roles', 'Create Roles'],
+    title: 'Roles',
+  },
+})
+
+import AddEditRoleDialog from '@/views/admin/roles/AddEditRoleDialog.vue'
+import { can } from '@layouts/plugins/casl'
+
+const isAddNewRoleDrawerVisible = ref(false)
+const isRoleDialogVisible = ref(false)
+
+import Swal from 'sweetalert2'
+
+const searchQuery = ref('')
+const selectedStatus = ref()
+const selectedRows = ref([])
+
+// Data table options
+const itemsPerPage = ref(10)
+const page = ref(1)
+const sortBy = ref()
+const orderBy = ref()
+const roleDetail = ref()
+const panel = ref()
+
+const updateOptions = options => {
+  sortBy.value = options.sortBy[0]?.key
+  orderBy.value = options.sortBy[0]?.order
+}
+
+const headers = [
+  {
+    title: 'Name',
+    key: 'name',
+  },
+  {
+    title: 'Modules',
+    key: 'modules',
+  },
+  {
+    title: 'Description',
+    key: 'description',
+  },
+  {
+    title: 'Redirect URL',
+    key: 'redirectURL',
+  },
+  {
+    title: 'Admins',
+    key: 'admins',
+    sortable: false,
+  },
+  {
+    title: 'Active',
+    key: 'status',
+  },
+  {
+    title: 'Created At',
+    key: 'createdAt',
+  },
+  {
+    title: 'Updated At',
+    key: 'updatedAt',
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    sortable: false,
+  },
+]
+
+const {
+  data: roleData,
+  execute: fetchRoles,
+} = await useApi(createUrl('/admin/roles', {
+  query: {
+    search: searchQuery,
+    status: selectedStatus,
+    itemsPerPage,
+    page,
+    sortBy,
+    orderBy,
+  },
+}))
+
+const roles = computed(() => roleData.value.roles)
+const totalRoles = computed(() => roleData.value.total)
+
+const commonsync = await $api('/admin/permissions').catch(err => console.log(err))
+
+const permissions = computed(() => commonsync.permissions)
+
+const modifyRole = async userData => {
+  // refetch Role
+  fetchRoles()
+  emit('tabData')
+}
+
+const editRole = async value => {
+  roleDetail.value = value
+  
+  isRoleDialogVisible.value = true
+}
+
+const deleteRole = async id => {
+  Swal.fire({
+    title: 'Are You Sure?',
+    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    // eslint-disable-next-line global-require
+    icon: 'warning',
+    reverseButtons: true,
+    showCancelButton: true,
+    cancelButtonText: 'No, Cancel',
+    confirmButtonText: 'Yes, Delete!',
+    customClass: {
+      confirmButton: 'btn btn-primary ml-1',
+      cancelButton: 'btn btn-outline-primary',
+    },
+    buttonsStyling: false,
+  })
+    .then(async result => {
+      if (result.value) {
+        await $api(`/admin/roles/${ id }`, { method: 'DELETE' })
+        fetchRoles()
+        emit('tabData')
+      }
+    })  
+}
+
+const resolveStatusVariantAndIcon = status => {
+  if (status === 'Active')
+    return {
+      variant: 'success',
+      title: 'Yes',
+    }
+  
+  return {
+    variant: 'secondary',
+    title: 'No',
+  }
+}
+</script>
+
+<template>
+  <section>
+    <VCard id="invoice-list">
+      <VCardText class="d-flex justify-space-between align-center flex-wrap">
+        <VRow>
+          <VCol cols="12">
+            <h5 class="text-h5 mb-1">
+              Roles
+            </h5>
+          </VCol>
+        </VRow>
+      </VCardText>
+      <VDivider />
+      <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
+        <div class="d-flex gap-4 align-center flex-wrap">
+          <div class="d-flex align-center gap-2">
+            <span>Show</span>
+            <AppSelect
+              :model-value="itemsPerPage"
+              :items="[
+                { value: 10, title: '10' },
+                { value: 25, title: '25' },
+                { value: 50, title: '50' },
+                { value: 100, title: '100' },
+              ]"
+              style="inline-size: 5.5rem;"
+              @update:model-value="itemsPerPage = parseInt($event, 10)"
+            />
+          </div>
+          <!-- 👉 Create invoice -->
+          <VBtn
+            v-if="can('admin-create-roles', 'Create Roles')"
+            prepend-icon="tabler-plus"
+            @click="isAddNewRoleDrawerVisible = true"
+          >
+            Create Roles
+          </VBtn>
+        </div>
+
+        <div class="d-flex align-center flex-wrap gap-4">
+          <!-- 👉 Search  -->
+          <div class="invoice-list-filter">
+            <AppTextField
+              v-model="searchQuery"
+              placeholder="Search Role"
+            />
+          </div>
+        </div>
+      </VCardText>
+
+      <VDivider />
+      
+      <VExpansionPanels
+        v-if="can('admin-view-roles', 'View Roles')"
+        v-model="panel"
+      >
+        <VExpansionPanel>
+          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+
+          <VExpansionPanelText>
+            <VCardText>
+              <VRow>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppTextField
+                    v-model="searchQuery"
+                    placeholder="Search Role"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedStatus"
+                    :items="[
+                      { value: 'Active', title: 'Active' },
+                      { value: 'Inactive', title: 'Inactive' },
+                    ]"
+                    placeholder="Status"
+                    clearable
+                  />
+                </VCol>
+              </VRow>
+            </VCardText>
+          </VExpansionPanelText>
+        </VExpansionPanel>
+      </VExpansionPanels>
+
+      <VDivider v-if="can('admin-view-roles', 'View Roles')" />
+
+      <!-- SECTION Datatable -->
+      <VDataTableServer
+        v-if="can('admin-view-roles', 'View Roles')"
+        v-model="selectedRows"
+        v-model:items-per-page="itemsPerPage"
+        v-model:page="page"
+        :items-length="totalRoles"
+        :headers="headers"
+        :items="roles"
+        item-value="id"
+        class="text-no-wrap"
+        @update:options="updateOptions"
+      >
+        <!-- id -->
+        <template #[`item.id`]="{ item }">
+          {{ item.id }}
+        </template>
+
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          {{ item.name }}
+        </template>
+
+        <!-- modules -->
+        <template #[`item.modules`]="{ item }">
+          {{ item.modules }}
+        </template>
+
+        <!-- redirectURL -->
+        <template #[`item.redirectURL`]="{ item }">
+          {{ item.redirectURL }}
+        </template>
+
+        <!-- description -->
+        <template #[`item.description`]="{ item }">
+          {{ item.description }}
+        </template>
+
+        <!-- admins -->
+        <template #[`item.admins`]="{ item }">
+          {{ item.admins.length }}
+        </template>
+
+        <!-- status -->
+        <template #[`item.status`]="{ item }">
+          <VChip
+            label
+            :color="resolveStatusVariantAndIcon(item.status).variant"
+            size="small"
+          >
+            {{ resolveStatusVariantAndIcon(item.status).title }}
+          </VChip>
+        </template>
+
+        <!-- Created At -->
+        <template #[`item.createdAt`]="{ item }">
+          {{ formatDateWithTime(item.createdAt) }}
+        </template>
+
+        <!-- Updated At -->
+        <template #[`item.updatedAt`]="{ item }">
+          {{ formatDateWithTime(item.updatedAt) }}
+        </template>
+
+        <!-- Actions -->
+        <template #[`item.actions`]="{ item }">
+          <VBtn
+            icon
+            variant="text"
+            color="medium-emphasis"
+          >
+            <VIcon icon="tabler-dots-vertical" />
+            <VMenu activator="parent">
+              <VList>
+                <VListItem
+                  v-if="can('admin-update-roles', 'Update Roles')"
+                  @click="editRole(item)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-pencil" />
+                  </template>
+                  <VListItemTitle>Edit</VListItemTitle>
+                </VListItem>
+
+                <VListItem
+                  v-if="can('admin-delete-roles', 'Delete Roles')"
+                  @click="deleteRole(item._id)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-trash" />
+                  </template>
+                  <VListItemTitle>Delete</VListItemTitle>
+                </VListItem>
+              </VList>
+            </VMenu>
+          </VBtn>
+        </template>
+
+        <!-- pagination -->
+        <template #bottom>
+          <TablePagination
+            v-model:page="page"
+            :items-per-page="itemsPerPage"
+            :total-items="totalRoles"
+          />
+        </template>
+      </VDataTableServer>
+    <!-- !SECTION -->
+    </VCard>
+    <!-- 👉 Add New User -->
+    <AddEditRoleDialog
+      v-if="isAddNewRoleDrawerVisible"
+      v-model:is-dialog-visible="isAddNewRoleDrawerVisible"
+      v-model:permissions="permissions"
+      @user-data="modifyRole"
+    />
+
+    <AddEditRoleDialog
+      v-if="isRoleDialogVisible"
+      v-model:is-dialog-visible="isRoleDialogVisible"
+      v-model:permissions="permissions"
+      v-model:role="roleDetail"
+      @user-data="modifyRole"
+    />
+  </section>
+</template>
+
+<style lang="scss">
+#invoice-list {
+  .invoice-list-actions {
+    inline-size: 8rem;
+  }
+
+  .invoice-list-filter {
+    inline-size: 12rem;
+  }
+}
+</style>

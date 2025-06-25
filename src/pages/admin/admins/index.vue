@@ -1,0 +1,419 @@
+<script setup>
+definePage({
+  meta: {
+    action: ['admin-view-admins', 'admin-create-admins'],
+    subject: ['View Admins', 'Create Admins'],
+    title: 'Admins',
+  },
+})
+
+import AddNewAdminDrawer from '@/views/admin/admins/AddNewAdminDrawer.vue'
+import ResetPasswordDrawer from '@/views/admin/admins/ResetPasswordDrawer.vue'
+import { can } from '@layouts/plugins/casl'
+
+import Swal from 'sweetalert2'
+
+const searchQuery = ref('')
+const selectedRole = ref()
+const selectedStatus = ref()
+const selectedRows = ref([])
+
+// Data table options
+const itemsPerPage = ref(10)
+const page = ref(1)
+const sortBy = ref()
+const orderBy = ref()
+const isAdminDialogVisible = ref(false)
+const isAddNewAdminDrawerVisible = ref(false)
+const isResetPasswordDrawerVisible = ref(false)
+const adminDetail = ref()
+const panel = ref()
+
+const updateOptions = options => {
+  sortBy.value = options.sortBy[0]?.key
+  orderBy.value = options.sortBy[0]?.order
+}
+
+const headers = [
+  {
+    title: 'Name',
+    key: 'name',
+  },
+  {
+    title: 'Email',
+    key: 'email',
+  },
+  {
+    title: 'Position',
+    key: 'position',
+  },
+  {
+    title: 'Active',
+    key: 'status',
+  },
+  {
+    title: 'Role',
+    key: 'roles',
+    sortable: false,
+  },
+  {
+    title: 'created by',
+    key: 'createdBy.name',
+    sortable: true,
+  },
+  {
+    title: 'Created At',
+    key: 'createdAt',
+  },
+  {
+    title: 'Updated At',
+    key: 'updatedAt',
+  },
+  {
+    title: 'Actions',
+    key: 'actions',
+    sortable: false,
+  },
+]
+
+const {
+  data: customerData,
+  execute: fetchAdmins,
+} = await useApi(createUrl('/admin/admins', {
+  query: {
+    search: searchQuery,
+    status: selectedStatus,
+    // eslint-disable-next-line camelcase
+    role_id: selectedRole,
+    itemsPerPage,
+    page,
+    sortBy,
+    orderBy,
+  },
+}))
+
+const admins = computed(() => customerData.value.admins)
+const totalAdmins = computed(() => customerData.value.total)
+
+const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
+
+const roleOptions = computed(() => commonsync.roleOptions)
+
+const roles = roleOptions.value.map(item => ({
+  value: item._id,
+  title: item.name
+}))
+
+const resolveStatusVariantAndIcon = status => {
+  if (status === 'Active')
+    return {
+      variant: 'success',
+      title: 'Yes',
+    }
+  
+  return {
+    variant: 'secondary',
+    title: 'No',
+  }
+}
+
+const modifyAdmin = async userData => {
+  // refetch User
+  fetchAdmins()
+}
+
+const editAdmin = async value => {
+  const data = await $api(`/admin/admins/${ value._id }`).catch(err => console.log(err))
+
+  adminDetail.value = data
+  adminDetail.value.roles = data.roles.map(role => role._id)
+  
+  isAdminDialogVisible.value = true
+}
+
+const deleteAdmin = async id => {
+  Swal.fire({
+    title: 'Are You Sure?',
+    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    // eslint-disable-next-line global-require
+    icon: 'warning',
+    reverseButtons: true,
+    showCancelButton: true,
+    cancelButtonText: 'No, Cancel',
+    confirmButtonText: 'Yes, Delete!',
+    customClass: {
+      confirmButton: 'btn btn-primary ml-1',
+      cancelButton: 'btn btn-outline-primary',
+    },
+    buttonsStyling: false,
+  })
+    .then(async result => {
+      if (result.value) {
+        await $api(`/admin/admins/${ id }`, { method: 'DELETE' })
+        fetchAdmins()
+      }
+    })  
+}
+
+const resetPassword = val => {
+  adminDetail.value = val
+  isResetPasswordDrawerVisible.value = true
+}
+</script>
+
+<template>
+  <section>
+    <VCard id="invoice-list">
+      <VCardText class="d-flex justify-space-between align-center flex-wrap">
+        <VRow>
+          <VCol cols="12">
+            <h5 class="text-h5 mb-1">
+              Admins
+            </h5>
+          </VCol>
+        </VRow>
+      </VCardText>
+
+      <VDivider />
+
+      <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
+        <div class="d-flex gap-4 align-center flex-wrap">
+          <div class="d-flex align-center gap-2">
+            <span>Show</span>
+            <AppSelect
+              :model-value="itemsPerPage"
+              :items="[
+                { value: 10, title: '10' },
+                { value: 25, title: '25' },
+                { value: 50, title: '50' },
+                { value: 100, title: '100' },
+              ]"
+              style="inline-size: 5.5rem;"
+              @update:model-value="itemsPerPage = parseInt($event, 10)"
+            />
+          </div>
+          <!-- 👉 Create Admin -->
+          <VBtn
+            v-if="can('admin-create-admins', 'Create Admins')"
+            prepend-icon="tabler-plus"
+            @click="isAddNewAdminDrawerVisible = true"
+          >
+            Create Admin
+          </VBtn>
+        </div>
+
+        <div class="d-flex align-center flex-wrap gap-4" />
+      </VCardText>
+
+      <VDivider />
+      
+      <VExpansionPanels
+        v-if="can('admin-view-admins', 'View Admins')"
+        v-model="panel"
+      >
+        <VExpansionPanel>
+          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+
+          <VExpansionPanelText>
+            <VCardText>
+              <VRow>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppTextField
+                    v-model="searchQuery"
+                    placeholder="Search User"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <!-- 👉 Select status -->
+                  <AppAutocomplete
+                    v-model="selectedRole"
+                    :items="roles"
+                    placeholder="Role"
+                    clearable
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedStatus"
+                    :items="[
+                      { value: 'Active', title: 'Active' },
+                      { value: 'Inactive', title: 'Inactive' },
+                    ]"
+                    placeholder="Status"
+                    clearable
+                  />
+                </VCol>
+              </VRow>
+            </VCardText>
+          </VExpansionPanelText>
+        </VExpansionPanel>
+      </VExpansionPanels>
+
+      <VDivider v-if="can('admin-view-admins', 'View Admins')" />
+
+      <!-- SECTION Datatable -->
+      <VDataTableServer
+        v-if="can('admin-view-admins', 'View Admins')"
+        v-model="selectedRows"
+        v-model:items-per-page="itemsPerPage"
+        v-model:page="page"
+        :items-length="totalAdmins"
+        :headers="headers"
+        :items="admins"
+        item-value="id"
+        class="text-no-wrap"
+        @update:options="updateOptions"
+      >
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          {{ item.name }}
+        </template>
+
+        <!-- email -->
+        <template #[`item.email`]="{ item }">
+          {{ item.email }}
+        </template>
+
+        <!-- position -->
+        <template #[`item.position`]="{ item }">
+          {{ item.position }}
+        </template>
+
+        <!-- status -->
+        <template #[`item.status`]="{ item }">
+          <VChip
+            label
+            :color="resolveStatusVariantAndIcon(item.status).variant"
+            size="small"
+          >
+            {{ resolveStatusVariantAndIcon(item.status).title }}
+          </VChip>
+        </template>
+
+        <!-- roles -->
+        <template #[`item.roles`]="{ item }">
+          <VChip
+            v-for="(role, roleindex) in item.roles"
+            :key="roleindex"
+            label
+            color="success"
+            size="small"
+            class="roles"
+          >
+            {{ role.name }}
+          </VChip>
+        </template>
+
+        <!-- Created At -->
+        <template #[`item.createdAt`]="{ item }">
+          {{ formatDateWithTime(item.createdAt) }}
+        </template>
+
+        <!-- Updated At -->
+        <template #[`item.updatedAt`]="{ item }">
+          {{ formatDateWithTime(item.updatedAt) }}
+        </template>
+
+        <!-- Actions -->
+        <template #[`item.actions`]="{ item }">
+          <VBtn
+            icon
+            variant="text"
+            color="medium-emphasis"
+          >
+            <VIcon icon="tabler-dots-vertical" />
+            <VMenu activator="parent">
+              <VList>
+                <VListItem
+                  v-if="can('admin-update-admins', 'Update Admins')"
+                  @click="resetPassword(item)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-password-user" />
+                  </template>
+                  <VListItemTitle>Reset Password</VListItemTitle>
+                </VListItem>
+
+                <VListItem
+                  v-if="can('admin-update-admins', 'Update Admins')"
+                  @click="editAdmin(item)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-pencil" />
+                  </template>
+                  <VListItemTitle>Edit</VListItemTitle>
+                </VListItem>
+
+                <VListItem
+                  v-if="can('admin-delete-admins', 'Delete Admins')"
+                  @click="deleteAdmin(item._id)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-trash" />
+                  </template>
+                  <VListItemTitle>Delete</VListItemTitle>
+                </VListItem>
+              </VList>
+            </VMenu>
+          </VBtn>
+        </template>
+
+        <!-- pagination -->
+        <template #bottom>
+          <TablePagination
+            v-model:page="page"
+            :items-per-page="itemsPerPage"
+            :total-items="totalAdmins"
+          />
+        </template>
+      </VDataTableServer>
+    <!-- !SECTION -->
+    </VCard>
+    <!-- 👉 Reset Password -->
+    <ResetPasswordDrawer
+      v-if="isResetPasswordDrawerVisible"
+      v-model:is-drawer-open="isResetPasswordDrawerVisible"
+      v-model:admin="adminDetail"
+      @user-data="modifyAdmin"
+    />
+    <AddNewAdminDrawer
+      v-if="isAddNewAdminDrawerVisible"
+      v-model:isDrawerOpen="isAddNewAdminDrawerVisible"
+      v-model:roles="roles"
+      @user-data="modifyAdmin"
+    />
+
+    <AddNewAdminDrawer
+      v-if="isAdminDialogVisible"
+      v-model:isDrawerOpen="isAdminDialogVisible"
+      v-model:roles="roles"
+      v-model:admin="adminDetail"
+      @user-data="modifyAdmin"
+    />
+  </section>
+</template>
+
+<style lang="scss">
+#invoice-list {
+  .invoice-list-actions {
+    inline-size: 8rem;
+  }
+
+  .invoice-list-filter {
+    inline-size: 12rem;
+  }
+
+  .roles {
+    margin-inline-end: 5px;
+  }
+}
+</style>

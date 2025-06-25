@@ -1,0 +1,68 @@
+// Write your overrides
+.swal2-popup.swal2-modal.swal2-show {
+  padding: 50px;
+}
+.swal2-header {
+  padding: 0;
+}
+.swal2-image {
+  max-width: 100%;
+  margin: 0 0 17px;
+}
+h2#swal2-title {
+  font-size: 21px;
+  line-height: 25px;
+  font-weight: 500;
+  color: #000;
+  margin: 0 0 17px;
+}
+.swal2-html-container {
+  padding: 0;
+}
+div#swal2-html-container {
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0 0 27px;
+  color: #333;
+}
+div#swal2-html-container strong {
+  font-weight: 700;
+}
+[dir] .swal2-actions {
+    margin: 0;
+}
+[class^=swal2] {
+  -webkit-tap-highlight-color: transparent;
+}
+.swal2-actions {
+  margin: 0;
+  display: flex;
+  z-index: 1;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+}
+.swal2-actions .btn {
+  text-align: center;
+  border: 1px solid transparent;
+  padding: 0.386rem 1.3rem;
+  border-radius: .358rem;
+}
+button.swal2-confirm.btn.btn-primary {
+  border-color: #d91b35 !important;
+  background-color: #d91b35 !important;
+  color: #fff !important;
+}
+
+button.swal2-cancel.btn.btn-outline-primary {
+  border-color: #104d9d !important;
+  background-color: #104d9d !important;
+  color: #fff !important;
+}
+
+.swal2-popup.swal2-modal.swal2-show {
+  padding: 50px 45px;
+}
