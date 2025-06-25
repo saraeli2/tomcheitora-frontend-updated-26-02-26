@@ -47,7 +47,7 @@ export const setupGuards = router => {
             return isLoggedIn
                 ? { name: 'not-authorized' }
                 : {
-                    name: 'login',
+                    name: 'admin-login',
                     query: {
                         ...to.query,
                         to: to.fullPath !== '/' ? to.path : undefined,

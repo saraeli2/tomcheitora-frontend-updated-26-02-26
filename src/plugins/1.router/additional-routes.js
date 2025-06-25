@@ -7,6 +7,15 @@ export const redirects = [
   {
     path: '/',
     name: 'index',
+    component: () => import('@/pages/index.vue'),
+    meta: {
+      public: true,
+      layout: 'default', // or 'blank' if you don’t want sidebar/navbar
+    }
+  },
+  {
+    path: '/admin',
+    name: 'admin',
     redirect: to => {
       // TODO: Get type from backend
       const authStore = useAuthStore()
@@ -15,6 +24,6 @@ export const redirects = [
         return { name: 'admin-dashboards' }
       
       return { name: 'admin-login', query: to.query }
-    },
+    }
   },
 ]
