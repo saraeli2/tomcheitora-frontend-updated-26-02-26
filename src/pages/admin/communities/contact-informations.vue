@@ -1,21 +1,23 @@
 <script setup>
-const emit = defineEmits([
-  'tabData',
-])
-
-definePage({
-  meta: {
-    action: ['admin-view-roles', 'admin-create-roles'],
-    subject: ['View Roles', 'Create Roles'],
-    title: 'Roles',
+const props = defineProps({
+  communityid: {
+    type: String,
+    required: true,
   },
 })
 
-import AddEditRoleDialog from '@/views/admin/roles/AddEditRoleDialog.vue'
+definePage({
+  meta: {
+    action: ['admin-view-communities', 'admin-create-communities'],
+    subject: ['View Community', 'Create Community'],
+    title: 'Community',
+  },
+})
+
+import AddNewContactInfoDrawer from '@/views/admin/communities/AddNewContactInfoDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
-const isAddNewRoleDrawerVisible = ref(false)
-const isRoleDialogVisible = ref(false)
+const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
@@ -28,7 +30,10 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const roleDetail = ref()
+const isContactInfoDialogVisible = ref(false)
+const isAddNewContactInfoDrawerVisible = ref(false)
+const contactInformationDetail = ref()
+const selectedCommunityID = ref(props.communityid)
 const panel = ref()
 
 const updateOptions = options => {
@@ -38,29 +43,24 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Name',
-    key: 'name',
+    title: 'First Name',
+    key: 'firstName',
   },
   {
-    title: 'Modules',
-    key: 'modules',
+    title: 'Last Name',
+    key: 'lastName',
   },
   {
-    title: 'Description',
-    key: 'description',
+    title: 'Phone1',
+    key: 'phone1',
   },
   {
-    title: 'Redirect URL',
-    key: 'redirectURL',
+    title: 'Phone2',
+    key: 'phone2',
   },
   {
-    title: 'Admins',
-    key: 'admins',
-    sortable: false,
-  },
-  {
-    title: 'Active',
-    key: 'status',
+    title: 'Email',
+    key: 'email',
   },
   {
     title: 'Created At',
@@ -78,12 +78,13 @@ const headers = [
 ]
 
 const {
-  data: roleData,
-  execute: fetchRoles,
-} = await useApi(createUrl('/admin/roles', {
+  data: customerData,
+  execute: fetchCommunities,
+} = await useApi(createUrl('/admin/contact-informations', {
   query: {
-    search: searchQuery,
+    keyword: searchQuery,
     status: selectedStatus,
+    communityID: selectedCommunityID,
     itemsPerPage,
     page,
     sortBy,
@@ -91,26 +92,34 @@ const {
   },
 }))
 
-const roles = computed(() => roleData.value.roles)
-const totalRoles = computed(() => roleData.value.total)
+const contactInformations = computed(() => customerData.value.contactInformations)
+const totalContactInformations = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/permissions').catch(err => console.log(err))
-
-const permissions = computed(() => commonsync.permissions)
-
-const modifyRole = async userData => {
-  // refetch Role
-  fetchRoles()
-  emit('tabData')
-}
-
-const editRole = async value => {
-  roleDetail.value = value
+const resolveStatusVariantAndIcon = status => {
+  if (status === 'Active')
+    return {
+      variant: 'success',
+      title: 'Yes',
+    }
   
-  isRoleDialogVisible.value = true
+  return {
+    variant: 'secondary',
+    title: 'No',
+  }
 }
 
-const deleteRole = async id => {
+const modifyContactInfo = async userData => {
+  // refetch ContactInfo
+  fetchCommunities()
+}
+
+const editContactInfo = async value => {
+  contactInformationDetail.value = value
+  
+  isContactInfoDialogVisible.value = true
+}
+
+const deleteContactInfo = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -128,24 +137,10 @@ const deleteRole = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/roles/${ id }`, { method: 'DELETE' })
-        fetchRoles()
-        emit('tabData')
+        await $api(`/admin/contact-informations/${ id }`, { method: 'DELETE' })
+        fetchCommunities()
       }
     })  
-}
-
-const resolveStatusVariantAndIcon = status => {
-  if (status === 'Active')
-    return {
-      variant: 'success',
-      title: 'Yes',
-    }
-  
-  return {
-    variant: 'secondary',
-    title: 'No',
-  }
 }
 </script>
 
@@ -156,12 +151,14 @@ const resolveStatusVariantAndIcon = status => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Roles
+              Contact Informations
             </h5>
           </VCol>
         </VRow>
       </VCardText>
+
       <VDivider />
+
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
@@ -178,13 +175,13 @@ const resolveStatusVariantAndIcon = status => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create invoice -->
+          <!-- 👉 Create ContactInfo -->
           <VBtn
-            v-if="can('admin-create-roles', 'Create Roles')"
+            v-if="can('admin-create-communities', 'Create Community')"
             prepend-icon="tabler-plus"
-            @click="isAddNewRoleDrawerVisible = true"
+            @click="isAddNewContactInfoDrawerVisible = true"
           >
-            Create Roles
+            Create Contact Information
           </VBtn>
         </div>
 
@@ -194,7 +191,7 @@ const resolveStatusVariantAndIcon = status => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-roles', 'View Roles')"
+        v-if="can('admin-view-communities', 'View Community')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -209,21 +206,7 @@ const resolveStatusVariantAndIcon = status => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Role"
-                  />
-                </VCol>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppAutocomplete
-                    v-model="selectedStatus"
-                    :items="[
-                      { value: 'Active', title: 'Active' },
-                      { value: 'Inactive', title: 'Inactive' },
-                    ]"
-                    placeholder="Status"
-                    clearable
+                    placeholder="Search Contact Information"
                   />
                 </VCol>
               </VRow>
@@ -232,60 +215,44 @@ const resolveStatusVariantAndIcon = status => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-roles', 'View Roles')" />
+      <VDivider v-if="can('admin-view-communities', 'View Community')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-roles', 'View Roles')"
+        v-if="can('admin-view-communities', 'View Community')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalRoles"
+        :items-length="totalContactInformations"
         :headers="headers"
-        :items="roles"
+        :items="contactInformations"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- id -->
-        <template #[`item.id`]="{ item }">
-          {{ item.id }}
+        <!-- firstName -->
+        <template #[`item.firstName`]="{ item }">
+          {{ item.firstName }}
         </template>
 
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          {{ item.name }}
+        <!-- lastName -->
+        <template #[`item.lastName`]="{ item }">
+          {{ item.lastName }}
         </template>
 
-        <!-- modules -->
-        <template #[`item.modules`]="{ item }">
-          {{ item.modules }}
+        <!-- phone1 -->
+        <template #[`item.phone1`]="{ item }">
+          {{ item.phone1 }}
         </template>
 
-        <!-- redirectURL -->
-        <template #[`item.redirectURL`]="{ item }">
-          {{ item.redirectURL }}
+        <!-- phone2 -->
+        <template #[`item.phone2`]="{ item }">
+          {{ item.phone2 }}
         </template>
 
-        <!-- description -->
-        <template #[`item.description`]="{ item }">
-          {{ item.description }}
-        </template>
-
-        <!-- admins -->
-        <template #[`item.admins`]="{ item }">
-          {{ item.admins.length }}
-        </template>
-
-        <!-- status -->
-        <template #[`item.status`]="{ item }">
-          <VChip
-            label
-            :color="resolveStatusVariantAndIcon(item.status).variant"
-            size="small"
-          >
-            {{ resolveStatusVariantAndIcon(item.status).title }}
-          </VChip>
+        <!-- email -->
+        <template #[`item.email`]="{ item }">
+          {{ item.email }}
         </template>
 
         <!-- Created At -->
@@ -309,8 +276,8 @@ const resolveStatusVariantAndIcon = status => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-roles', 'Update Roles')"
-                  @click="editRole(item)"
+                  v-if="can('admin-update-communities', 'Update Community')"
+                  @click="editContactInfo(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -319,8 +286,8 @@ const resolveStatusVariantAndIcon = status => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-roles', 'Delete Roles')"
-                  @click="deleteRole(item._id)"
+                  v-if="can('admin-delete-communities', 'Delete Community')"
+                  @click="deleteContactInfo(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -337,26 +304,25 @@ const resolveStatusVariantAndIcon = status => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalRoles"
+            :total-items="totalContactInformations"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <!-- 👉 Add New User -->
-    <AddEditRoleDialog
-      v-if="isAddNewRoleDrawerVisible"
-      v-model:is-dialog-visible="isAddNewRoleDrawerVisible"
-      v-model:permissions="permissions"
-      @user-data="modifyRole"
+    <AddNewContactInfoDrawer
+      v-if="isAddNewContactInfoDrawerVisible"
+      v-model:is-drawer-open="isAddNewContactInfoDrawerVisible"
+      v-model:communityid="selectedCommunityID"
+      @user-data="modifyContactInfo"
     />
 
-    <AddEditRoleDialog
-      v-if="isRoleDialogVisible"
-      v-model:is-dialog-visible="isRoleDialogVisible"
-      v-model:permissions="permissions"
-      v-model:role="roleDetail"
-      @user-data="modifyRole"
+    <AddNewContactInfoDrawer
+      v-if="isContactInfoDialogVisible"
+      v-model:is-drawer-open="isContactInfoDialogVisible"
+      v-model:contact-information="contactInformationDetail"
+      v-model:communityid="selectedCommunityID"
+      @user-data="modifyContactInfo"
     />
   </section>
 </template>

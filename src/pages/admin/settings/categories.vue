@@ -1,21 +1,16 @@
 <script setup>
-const emit = defineEmits([
-  'tabData',
-])
-
 definePage({
   meta: {
-    action: ['admin-view-roles', 'admin-create-roles'],
-    subject: ['View Roles', 'Create Roles'],
-    title: 'Roles',
+    action: ['admin-view-categories', 'admin-create-categories'],
+    subject: ['View Categories', 'Create Categories'],
+    title: 'Categories',
   },
 })
 
-import AddEditRoleDialog from '@/views/admin/roles/AddEditRoleDialog.vue'
+import AddNewCategoryDrawer from '@/views/admin/settings/AddNewCategoryDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
-const isAddNewRoleDrawerVisible = ref(false)
-const isRoleDialogVisible = ref(false)
+const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
@@ -28,7 +23,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const roleDetail = ref()
+const isCategoryDialogVisible = ref(false)
+const isAddNewCategoryDrawerVisible = ref(false)
+const categoryDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -38,25 +35,12 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Name',
-    key: 'name',
+    title: 'Title',
+    key: 'title',
   },
   {
-    title: 'Modules',
-    key: 'modules',
-  },
-  {
-    title: 'Description',
-    key: 'description',
-  },
-  {
-    title: 'Redirect URL',
-    key: 'redirectURL',
-  },
-  {
-    title: 'Admins',
-    key: 'admins',
-    sortable: false,
+    title: 'Slug',
+    key: 'slug',
   },
   {
     title: 'Active',
@@ -78,11 +62,11 @@ const headers = [
 ]
 
 const {
-  data: roleData,
-  execute: fetchRoles,
-} = await useApi(createUrl('/admin/roles', {
+  data: customerData,
+  execute: fetchCategories,
+} = await useApi(createUrl('/admin/settings/categories', {
   query: {
-    search: searchQuery,
+    keyword: searchQuery,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -91,26 +75,34 @@ const {
   },
 }))
 
-const roles = computed(() => roleData.value.roles)
-const totalRoles = computed(() => roleData.value.total)
+const categories = computed(() => customerData.value.categories)
+const totalCategories = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/permissions').catch(err => console.log(err))
-
-const permissions = computed(() => commonsync.permissions)
-
-const modifyRole = async userData => {
-  // refetch Role
-  fetchRoles()
-  emit('tabData')
-}
-
-const editRole = async value => {
-  roleDetail.value = value
+const resolveStatusVariantAndIcon = status => {
+  if (status === 'Active')
+    return {
+      variant: 'success',
+      title: 'Yes',
+    }
   
-  isRoleDialogVisible.value = true
+  return {
+    variant: 'secondary',
+    title: 'No',
+  }
 }
 
-const deleteRole = async id => {
+const modifyCategory = async userData => {
+  // refetch Category
+  fetchCategories()
+}
+
+const editCategory = async value => {
+  categoryDetail.value = value
+  
+  isCategoryDialogVisible.value = true
+}
+
+const deleteCategory = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -128,24 +120,10 @@ const deleteRole = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/roles/${ id }`, { method: 'DELETE' })
-        fetchRoles()
-        emit('tabData')
+        await $api(`/admin/settings/categories/${ id }`, { method: 'DELETE' })
+        fetchCategories()
       }
     })  
-}
-
-const resolveStatusVariantAndIcon = status => {
-  if (status === 'Active')
-    return {
-      variant: 'success',
-      title: 'Yes',
-    }
-  
-  return {
-    variant: 'secondary',
-    title: 'No',
-  }
 }
 </script>
 
@@ -156,12 +134,14 @@ const resolveStatusVariantAndIcon = status => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Roles
+              Categories
             </h5>
           </VCol>
         </VRow>
       </VCardText>
+
       <VDivider />
+
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
@@ -178,13 +158,13 @@ const resolveStatusVariantAndIcon = status => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create invoice -->
+          <!-- 👉 Create Category -->
           <VBtn
-            v-if="can('admin-create-roles', 'Create Roles')"
+            v-if="can('admin-create-categories', 'Create Categories')"
             prepend-icon="tabler-plus"
-            @click="isAddNewRoleDrawerVisible = true"
+            @click="isAddNewCategoryDrawerVisible = true"
           >
-            Create Roles
+            Create Category
           </VBtn>
         </div>
 
@@ -194,7 +174,7 @@ const resolveStatusVariantAndIcon = status => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-roles', 'View Roles')"
+        v-if="can('admin-view-categories', 'View Categories')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -209,7 +189,7 @@ const resolveStatusVariantAndIcon = status => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Role"
+                    placeholder="Search Category"
                   />
                 </VCol>
                 <VCol
@@ -219,8 +199,8 @@ const resolveStatusVariantAndIcon = status => {
                   <AppAutocomplete
                     v-model="selectedStatus"
                     :items="[
-                      { value: 'Active', title: 'Active' },
-                      { value: 'Inactive', title: 'Inactive' },
+                      { value: 1, title: 'Active' },
+                      { value: 0, title: 'Inactive' },
                     ]"
                     placeholder="Status"
                     clearable
@@ -232,49 +212,29 @@ const resolveStatusVariantAndIcon = status => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-roles', 'View Roles')" />
+      <VDivider v-if="can('admin-view-categories', 'View Categories')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-roles', 'View Roles')"
+        v-if="can('admin-view-categories', 'View Categories')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalRoles"
+        :items-length="totalCategories"
         :headers="headers"
-        :items="roles"
+        :items="categories"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- id -->
-        <template #[`item.id`]="{ item }">
-          {{ item.id }}
+        <!-- title -->
+        <template #[`item.title`]="{ item }">
+          {{ item.title }}
         </template>
 
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          {{ item.name }}
-        </template>
-
-        <!-- modules -->
-        <template #[`item.modules`]="{ item }">
-          {{ item.modules }}
-        </template>
-
-        <!-- redirectURL -->
-        <template #[`item.redirectURL`]="{ item }">
-          {{ item.redirectURL }}
-        </template>
-
-        <!-- description -->
-        <template #[`item.description`]="{ item }">
-          {{ item.description }}
-        </template>
-
-        <!-- admins -->
-        <template #[`item.admins`]="{ item }">
-          {{ item.admins.length }}
+        <!-- slug -->
+        <template #[`item.slug`]="{ item }">
+          {{ item.slug }}
         </template>
 
         <!-- status -->
@@ -309,8 +269,8 @@ const resolveStatusVariantAndIcon = status => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-roles', 'Update Roles')"
-                  @click="editRole(item)"
+                  v-if="can('admin-update-categories', 'Update Categories')"
+                  @click="editCategory(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -319,8 +279,8 @@ const resolveStatusVariantAndIcon = status => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-roles', 'Delete Roles')"
-                  @click="deleteRole(item._id)"
+                  v-if="can('admin-delete-categories', 'Delete Categories')"
+                  @click="deleteCategory(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -337,26 +297,23 @@ const resolveStatusVariantAndIcon = status => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalRoles"
+            :total-items="totalCategories"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <!-- 👉 Add New User -->
-    <AddEditRoleDialog
-      v-if="isAddNewRoleDrawerVisible"
-      v-model:is-dialog-visible="isAddNewRoleDrawerVisible"
-      v-model:permissions="permissions"
-      @user-data="modifyRole"
+    <AddNewCategoryDrawer
+      v-if="isAddNewCategoryDrawerVisible"
+      v-model:is-drawer-open="isAddNewCategoryDrawerVisible"
+      @user-data="modifyCategory"
     />
 
-    <AddEditRoleDialog
-      v-if="isRoleDialogVisible"
-      v-model:is-dialog-visible="isRoleDialogVisible"
-      v-model:permissions="permissions"
-      v-model:role="roleDetail"
-      @user-data="modifyRole"
+    <AddNewCategoryDrawer
+      v-if="isCategoryDialogVisible"
+      v-model:is-drawer-open="isCategoryDialogVisible"
+      v-model:category="categoryDetail"
+      @user-data="modifyCategory"
     />
   </section>
 </template>

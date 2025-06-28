@@ -15,6 +15,7 @@ const props = defineProps({
     type: Object,
     required: false,
     default: () => ({
+      // eslint-disable-next-line camelcase
       _id: '',
       name: '',
       modules: '',
@@ -66,12 +67,12 @@ watch(isSelectAll, val => {
   var checkedval = []
   if (val) {
     props.permissions.forEach(category => {
-        const key = Object.keys(category)[0]
-        const permissions = category[key]
+      const key = Object.keys(category)[0]
+      const permissions = category[key]
 
-        permissions.forEach(permission => {
-          checkedval.push(permission._id)
-        })
+      permissions.forEach(permission => {
+        checkedval.push(permission._id)
+      })
     })
   }
 
@@ -244,26 +245,27 @@ const onReset = () => {
                 :key="index"
                 cols="12"
               >
-                <template v-for="(options, secondIndex) in mainKey"
-                      :key="secondIndex"
-                      >
-                <h5 class="text-h5 my-6">
-                  {{ secondIndex }}
-                </h5>
+                <template
+                  v-for="(options, secondIndex) in mainKey"
+                  :key="secondIndex"
+                >
+                  <h5 class="text-h5 my-6">
+                    {{ secondIndex }}
+                  </h5>
 
-                <VRow class="ma-0 mt-n1">
-                  <VCol
-                    v-for="(option, key) in options"
-                    :key="key"
-                    cols="3"
-                  >
-                    <VCheckbox
-                      v-model="permissionData"
-                      :value="option._id"
-                      :label="option.name"
-                    />
-                  </VCol>
-                </VRow>
+                  <VRow class="ma-0 mt-n1">
+                    <VCol
+                      v-for="(option, key) in options"
+                      :key="key"
+                      cols="3"
+                    >
+                      <VCheckbox
+                        v-model="permissionData"
+                        :value="option._id"
+                        :label="option.name"
+                      />
+                    </VCol>
+                  </VRow>
                 </template>
               </VCol>
             </VCol>

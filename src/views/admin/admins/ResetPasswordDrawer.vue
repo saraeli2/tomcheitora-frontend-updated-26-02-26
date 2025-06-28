@@ -11,7 +11,8 @@ const props = defineProps({
     type: Object,
     required: false,
     default: () => ({
-      id: '',
+      // eslint-disable-next-line camelcase
+      _id: '',
       name: '',
       email: '',
       position: '',

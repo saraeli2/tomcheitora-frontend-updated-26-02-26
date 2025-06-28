@@ -47,6 +47,16 @@ export const integerValidator = value => {
   return /^-?\d+$/.test(String(value)) || 'This field must be an integer'
 }
 
+// 👉 Numeric Validator
+export const numericValidator = value => {
+  if (isEmpty(value))
+    return true
+  if (Array.isArray(value))
+    return value.every(val => /^-?\d+(\.\d+)?$/.test(String(val))) || 'This field must be a number'
+  
+  return /^-?\d+(\.\d+)?$/.test(String(value)) || 'This field must be a number'
+}
+
 // 👉 Regex Validator
 export const regexValidator = (value, regex) => {
   if (isEmpty(value))

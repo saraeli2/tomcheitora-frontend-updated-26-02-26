@@ -4,21 +4,15 @@
     <span class="d-flex align-center text-medium-emphasis">
       &copy;
       {{ new Date().getFullYear() }}
-      Made With
-      <VIcon
-        icon="tabler-heart-filled"
-        color="error"
-        size="1.25rem"
-        class="mx-1"
-      />
-      By <a
-        href="https://pixinvent.com"
+      Developed by <a
+        href="https://www.annanovas.com"
         target="_blank"
         rel="noopener noreferrer"
         class="text-primary ms-1"
-      >Pixinvent</a>
+      >Annanovas IT Ltd.</a>
     </span>
     <!-- 👉 Footer: right content -->
+    <!--
     <span class="d-md-flex gap-x-4 text-primary d-none">
       <a
         href="https://themeforest.net/licenses/standard"
@@ -37,5 +31,6 @@
         target="noopener noreferrer"
       >Support</a>
     </span>
+    -->
   </div>
 </template>

@@ -1,20 +1,20 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-admins', 'admin-create-admins'],
-    subject: ['View Admins', 'Create Admins'],
-    title: 'Admins',
+    action: ['admin-view-communities', 'admin-create-communities'],
+    subject: ['View Community', 'Create Community'],
+    title: 'Community',
   },
 })
 
-import AddNewAdminDrawer from '@/views/admin/admins/AddNewAdminDrawer.vue'
-import ResetPasswordDrawer from '@/views/admin/admins/ResetPasswordDrawer.vue'
+import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
 import { can } from '@layouts/plugins/casl'
+
+const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
 const searchQuery = ref('')
-const selectedRole = ref()
 const selectedStatus = ref()
 const selectedRows = ref([])
 
@@ -23,10 +23,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isAdminDialogVisible = ref(false)
-const isAddNewAdminDrawerVisible = ref(false)
-const isResetPasswordDrawerVisible = ref(false)
-const adminDetail = ref()
+const isCommunityDialogVisible = ref(false)
+const isAddNewCommunityDrawerVisible = ref(false)
+const communityDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -36,20 +35,8 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'First Name',
-    key: 'firstName',
-  },
-  {
-    title: 'Last Name',
-    key: 'lastName',
-  },
-  {
-    title: 'Email',
-    key: 'email',
-  },
-  {
-    title: 'Position',
-    key: 'position',
+    title: 'Name',
+    key: 'name',
   },
   {
     title: 'City ID',
@@ -68,26 +55,16 @@ const headers = [
     key: 'houseNumber',
   },
   {
-    title: 'Phone 1',
-    key: 'phone1',
+    title: 'Discount Type',
+    key: 'discountType',
   },
   {
-    title: 'Phone 2',
-    key: 'phone2',
+    title: 'Discount',
+    key: 'discount',
   },
   {
     title: 'Active',
     key: 'status',
-  },
-  {
-    title: 'Role',
-    key: 'roles',
-    sortable: false,
-  },
-  {
-    title: 'created by',
-    key: 'createdBy.name',
-    sortable: true,
   },
   {
     title: 'Created At',
@@ -106,13 +83,11 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchAdmins,
-} = await useApi(createUrl('/admin/admins', {
+  execute: fetchCommunities,
+} = await useApi(createUrl('/admin/communities', {
   query: {
-    search: searchQuery,
+    keyword: searchQuery,
     status: selectedStatus,
-    // eslint-disable-next-line camelcase
-    role_id: selectedRole,
     itemsPerPage,
     page,
     sortBy,
@@ -120,17 +95,8 @@ const {
   },
 }))
 
-const admins = computed(() => customerData.value.admins)
-const totalAdmins = computed(() => customerData.value.total)
-
-const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
-
-const roleOptions = computed(() => commonsync.roleOptions)
-
-const roles = roleOptions.value.map(item => ({
-  value: item._id,
-  title: item.name
-}))
+const communities = computed(() => customerData.value.communities)
+const totalCommunities = computed(() => customerData.value.total)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -145,21 +111,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyAdmin = async userData => {
-  // refetch User
-  fetchAdmins()
+const modifyCommunity = async userData => {
+  // refetch Community
+  fetchCommunities()
 }
 
-const editAdmin = async value => {
-  const data = await $api(`/admin/admins/${ value._id }`).catch(err => console.log(err))
-
-  adminDetail.value = data
-  adminDetail.value.roles = data.roles.map(role => role._id)
+const editCommunity = async value => {
+  communityDetail.value = value
   
-  isAdminDialogVisible.value = true
+  isCommunityDialogVisible.value = true
 }
 
-const deleteAdmin = async id => {
+const deleteCommunity = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -177,15 +140,10 @@ const deleteAdmin = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/admins/${ id }`, { method: 'DELETE' })
-        fetchAdmins()
+        await $api(`/admin/communities/${ id }`, { method: 'DELETE' })
+        fetchCommunities()
       }
     })  
-}
-
-const resetPassword = val => {
-  adminDetail.value = val
-  isResetPasswordDrawerVisible.value = true
 }
 </script>
 
@@ -196,7 +154,7 @@ const resetPassword = val => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Admins
+              Community
             </h5>
           </VCol>
         </VRow>
@@ -220,13 +178,13 @@ const resetPassword = val => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Admin -->
+          <!-- 👉 Create Community -->
           <VBtn
-            v-if="can('admin-create-admins', 'Create Admins')"
+            v-if="can('admin-create-communities', 'Create Community')"
             prepend-icon="tabler-plus"
-            @click="isAddNewAdminDrawerVisible = true"
+            @click="isAddNewCommunityDrawerVisible = true"
           >
-            Create Admin
+            Create Community
           </VBtn>
         </div>
 
@@ -236,7 +194,7 @@ const resetPassword = val => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-admins', 'View Admins')"
+        v-if="can('admin-view-communities', 'View Community')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -251,19 +209,7 @@ const resetPassword = val => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search User"
-                  />
-                </VCol>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <!-- 👉 Select status -->
-                  <AppAutocomplete
-                    v-model="selectedRole"
-                    :items="roles"
-                    placeholder="Role"
-                    clearable
+                    placeholder="Search Community"
                   />
                 </VCol>
                 <VCol
@@ -273,8 +219,8 @@ const resetPassword = val => {
                   <AppAutocomplete
                     v-model="selectedStatus"
                     :items="[
-                      { value: 'Active', title: 'Active' },
-                      { value: 'Inactive', title: 'Inactive' },
+                      { value: 1, title: 'Active' },
+                      { value: 0, title: 'Inactive' },
                     ]"
                     placeholder="Status"
                     clearable
@@ -286,43 +232,26 @@ const resetPassword = val => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-admins', 'View Admins')" />
+      <VDivider v-if="can('admin-view-communities', 'View Community')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-admins', 'View Admins')"
+        v-if="can('admin-view-communities', 'View Community')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalAdmins"
+        :items-length="totalCommunities"
         :headers="headers"
-        :items="admins"
+        :items="communities"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- firstName -->
-        <template #[`item.firstName`]="{ item }">
-          <RouterLink :to="{ name: 'admin-admins-detail-id', params: { id: item._id } }">
-            {{ item.firstName }}
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          <RouterLink :to="{ name: 'admin-communities-detail-id', params: { id: item._id } }">
+            {{ item.name }}
           </RouterLink>
-        </template>
-
-        <!-- lastName -->
-        <template #[`item.lastName`]="{ item }">
-          <RouterLink :to="{ name: 'admin-admins-detail-id', params: { id: item._id } }">
-            {{ item.lastName }}
-          </RouterLink>
-        </template>
-
-        <!-- email -->
-        <template #[`item.email`]="{ item }">
-          {{ item.email }}
-        </template>
-
-        <!-- position -->
-        <template #[`item.position`]="{ item }">
-          {{ item.position }}
         </template>
 
         <!-- cityId -->
@@ -345,14 +274,14 @@ const resetPassword = val => {
           {{ item.houseNumber }}
         </template>
 
-        <!-- phone1 -->
-        <template #[`item.phone1`]="{ item }">
-          {{ item.phone1 }}
+        <!-- discountType -->
+        <template #[`item.discountType`]="{ item }">
+          {{ item.discountType }}
         </template>
 
-        <!-- phone2 -->
-        <template #[`item.phone2`]="{ item }">
-          {{ item.phone2 }}
+        <!-- discount -->
+        <template #[`item.discount`]="{ item }">
+          {{ item.discount }}
         </template>
 
         <!-- status -->
@@ -363,20 +292,6 @@ const resetPassword = val => {
             size="small"
           >
             {{ resolveStatusVariantAndIcon(item.status).title }}
-          </VChip>
-        </template>
-
-        <!-- roles -->
-        <template #[`item.roles`]="{ item }">
-          <VChip
-            v-for="(role, roleindex) in item.roles"
-            :key="roleindex"
-            label
-            color="success"
-            size="small"
-            class="roles"
-          >
-            {{ role.name }}
           </VChip>
         </template>
 
@@ -393,7 +308,6 @@ const resetPassword = val => {
         <!-- Actions -->
         <template #[`item.actions`]="{ item }">
           <VBtn
-            v-if="item.email != 'dev@annanovas.com'"
             icon
             variant="text"
             color="medium-emphasis"
@@ -402,7 +316,7 @@ const resetPassword = val => {
             <VMenu activator="parent">
               <VList>
 
-                <VListItem :to="{ name: 'admin-admins-detail-id', params: { id: item._id } }">
+                <VListItem :to="{ name: 'admin-communities-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
@@ -410,18 +324,8 @@ const resetPassword = val => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-admins', 'Update Admins')"
-                  @click="resetPassword(item)"
-                >
-                  <template #prepend>
-                    <VIcon icon="tabler-password-user" />
-                  </template>
-                  <VListItemTitle>Reset Password</VListItemTitle>
-                </VListItem>
-
-                <VListItem
-                  v-if="can('admin-update-admins', 'Update Admins')"
-                  @click="editAdmin(item)"
+                  v-if="can('admin-update-communities', 'Update Community')"
+                  @click="editCommunity(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -430,8 +334,8 @@ const resetPassword = val => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-admins', 'Delete Admins')"
-                  @click="deleteAdmin(item._id)"
+                  v-if="can('admin-delete-communities', 'Delete Community')"
+                  @click="deleteCommunity(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -448,32 +352,23 @@ const resetPassword = val => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalAdmins"
+            :total-items="totalCommunities"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <!-- 👉 Reset Password -->
-    <ResetPasswordDrawer
-      v-if="isResetPasswordDrawerVisible"
-      v-model:is-drawer-open="isResetPasswordDrawerVisible"
-      v-model:admin="adminDetail"
-      @user-data="modifyAdmin"
-    />
-    <AddNewAdminDrawer
-      v-if="isAddNewAdminDrawerVisible"
-      v-model:is-drawer-open="isAddNewAdminDrawerVisible"
-      v-model:roles="roles"
-      @user-data="modifyAdmin"
+    <AddNewCommunityDrawer
+      v-if="isAddNewCommunityDrawerVisible"
+      v-model:is-drawer-open="isAddNewCommunityDrawerVisible"
+      @user-data="modifyCommunity"
     />
 
-    <AddNewAdminDrawer
-      v-if="isAdminDialogVisible"
-      v-model:is-drawer-open="isAdminDialogVisible"
-      v-model:roles="roles"
-      v-model:admin="adminDetail"
-      @user-data="modifyAdmin"
+    <AddNewCommunityDrawer
+      v-if="isCommunityDialogVisible"
+      v-model:is-drawer-open="isCommunityDialogVisible"
+      v-model:community="communityDetail"
+      @user-data="modifyCommunity"
     />
   </section>
 </template>
@@ -486,10 +381,6 @@ const resetPassword = val => {
 
   .invoice-list-filter {
     inline-size: 12rem;
-  }
-
-  .roles {
-    margin-inline-end: 5px;
   }
 }
 </style>
