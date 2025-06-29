@@ -1,22 +1,21 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-admins'],
-    subject: ['View Admins'],
-    navActiveLink: 'admin-admins',
-    title: 'Admin Details',
+    action: ['admin-view-users'],
+    subject: ['View Users'],
+    navActiveLink: 'admin-users',
+    title: 'User Details',
   },
 })
 
-import AddNewAdminDrawer from '@/views/admin/admins/AddNewAdminDrawer.vue'
-import ResetPasswordDrawer from '@/views/admin/admins/ResetPasswordDrawer.vue'
+import AddNewUserDrawer from '@/views/admin/users/AddNewUserDrawer.vue'
+import KidModule from '@/pages/admin/users/kids.vue'
 
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
-const isAdminDialogVisible = ref(false)
-const isResetPasswordDrawerVisible = ref(false)
+const isUserDialogVisible = ref(false)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -31,25 +30,37 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const route = useRoute('admin-admins-detail-id')
+const route = useRoute('admin-users-detail-id')
 const router = useRouter()
 
 const userTab = ref(0)
 
 const {
-  data: adminDetail, execute: fetchAdmins,
-} = await useApi(createUrl(`/admin/admins/${ route.params.id }`))
+  data: adminDetail, execute: fetchUsers,
+} = await useApi(createUrl(`/admin/users/${ route.params.id }`))
 
 const adminData = computed(() => adminDetail.value)
+const adminFromData = computed(() => adminDetail.value)
+
+adminFromData.value.communityID = adminData.value.communityID._id
+
+const commonsync = await $api('/admin/communities/respond-with/extra-options').catch(err => console.log(err))
+
+const communityOptions = computed(() => commonsync.communityOptions)
+
+const communities = communityOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
 
 const reloadTab = ref(true)
 
-const modifyAdmin = async userData => {
+const modifyUser = async userData => {
   // refetch Organization
-  fetchAdmins()
+  fetchUsers()
 }
 
-const deleteAdmin = async () => {
+const deleteUser = async () => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -67,8 +78,8 @@ const deleteAdmin = async () => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/admins/${ route.params.id }`, { method: 'DELETE' })
-        router.push({ name: 'admin-admins' })
+        await $api(`/admin/users/${ route.params.id }`, { method: 'DELETE' })
+        router.push({ name: 'admin-users' })
       }
     })
 }
@@ -101,7 +112,7 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Admins', to: { name: 'admin-admins' }, class: 'text-primary' }, { title: 'Admin Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
+            :items="[{ title: 'Users', to: { name: 'admin-users' }, class: 'text-primary' }, { title: 'User Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
           />
         </VCol>
       </VRow>
@@ -111,7 +122,7 @@ onMounted( async () => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Admin ID #{{ route.params.id }}
+          User ID #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
           Created At: {{ formatDateWithTime(adminData.createdAt) }}, Updated At: {{ formatDateWithTime(adminData.updatedAt) }}
@@ -119,12 +130,12 @@ onMounted( async () => {
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-admins', 'Delete Admin')"
+          v-if="can('admin-delete-users', 'Delete Users')"
           variant="tonal"
           color="error"
-          @click="deleteAdmin"
+          @click="deleteUser"
         >
-          Delete Admin
+          Delete User
         </VBtn>
       </div>
     </div>
@@ -147,6 +158,15 @@ onMounted( async () => {
             />
             Details
           </VTab>
+
+          <VTab>
+            <VIcon
+              size="20"
+              start
+              icon="tabler-bookmarks"
+            />
+            Kids
+          </VTab>
         </VTabs>
 
         <VWindow
@@ -156,10 +176,24 @@ onMounted( async () => {
         >
           <VWindowItem>
             <VCard v-if="adminData">
+              <VCardText
+                v-if="adminData.imageID"
+                class="text-center pt-12"
+              >
+                <VAvatar
+                  rounded
+                  :size="100"
+                  color="primary"
+                  variant="tonal"
+                >
+                  <VImg :src="adminData.imageID" />
+                </VAvatar>
+              </VCardText>
+
               <VCardText class="text-center pt-12">
                 <!-- 👉 Customer fullName -->
                 <div class="text-body-1">
-                  Admin ID #{{ adminData._id }}
+                  User ID #{{ adminData._id }}
                 </div>
               </VCardText>
 
@@ -172,7 +206,6 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <VList class="card-list mt-2">
-
                   <VListItem>
                     <h6 class="text-h6">
                       First Name:
@@ -202,9 +235,9 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Position:
+                      Phone:
                       <span class="text-body-1 d-inline-block">
-                        {{ adminData.position }}
+                        {{ adminData.phone }}
                       </span>
                     </h6>
                   </VListItem>
@@ -247,18 +280,36 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Phone 1:
+                      Nationality:
                       <span class="text-body-1 d-inline-block">
-                        {{ adminData.phone1 }}
+                        {{ adminData.nationality }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Phone 2:
+                      Israeli ID Number:
                       <span class="text-body-1 d-inline-block">
-                        {{ adminData.phone2 }}
+                        {{ adminData.israeliIDNumber }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Passport Number:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.passportNumber }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      No. Of Kids:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.noOfKids }}
                       </span>
                     </h6>
                   </VListItem>
@@ -277,42 +328,28 @@ onMounted( async () => {
                       </VChip>
                     </div>
                   </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Remarks:
-                      <span class="text-body-1 d-inline-block">
-                        <div v-html="adminData?.remarks" />
-                      </span>
-                    </h6>
-                  </VListItem>
                 </VList>
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-admins', 'Update Admin') && adminData.email != 'dev@annanovas.com'"
+                v-if="can('admin-update-users', 'Update Users')"
                 class="text-center"
               >
                 <VBtn
                   block
-                  @click="isAdminDialogVisible = !isAdminDialogVisible"
+                  @click="isUserDialogVisible = !isUserDialogVisible"
                 >
-                  Edit Admin
-                </VBtn>
-              </VCardText>
-
-              <VCardText
-                v-if="can('admin-update-admins', 'Update Admin') && adminData.email != 'dev@annanovas.com'"
-                class="text-center"
-              >
-                <VBtn
-                  block
-                  @click="isResetPasswordDrawerVisible = !isResetPasswordDrawerVisible"
-                >
-                  Reset Password
+                  Edit User
                 </VBtn>
               </VCardText>
             </VCard>
+          </VWindowItem>
+
+          <VWindowItem>
+            <KidModule
+              :userid="route.params.id"
+              @tab-data="refreshTab"
+            />
           </VWindowItem>
         </VWindow>
       </VCol>
@@ -322,23 +359,16 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Admin with ID  {{ route.params.id }} not found!
+        User with ID  {{ route.params.id }} not found!
       </VAlert>
     </div>
-    
-    <ResetPasswordDrawer
-      v-if="isResetPasswordDrawerVisible"
-      v-model:is-drawer-open="isResetPasswordDrawerVisible"
-      v-model:admin="adminDetail"
-      @user-data="modifyAdmin"
-    />
 
-    <AddNewAdminDrawer
-      v-if="isAdminDialogVisible"
-      v-model:is-drawer-open="isAdminDialogVisible"
-      v-model:admin="adminData"
-      v-model:roles="roles"
-      @user-data="modifyAdmin"
+    <AddNewUserDrawer
+      v-if="isUserDialogVisible"
+      v-model:is-drawer-open="isUserDialogVisible"
+      v-model:user="adminFromData"
+      v-model:communities="communities"
+      @user-data="modifyUser"
     />
   </div>
 </template>

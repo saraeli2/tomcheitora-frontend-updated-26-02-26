@@ -42,6 +42,15 @@ const {
 
 const adminData = computed(() => adminDetail.value)
 
+const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
+
+const roleOptions = computed(() => commonsync.roleOptions)
+
+const roles = roleOptions.value.map(item => ({
+  value: item._id,
+  title: item.name
+}))
+
 const reloadTab = ref(true)
 
 const modifyAdmin = async userData => {
@@ -119,7 +128,7 @@ onMounted( async () => {
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-admins', 'Delete Admin')"
+          v-if="can('admin-delete-admins', 'Delete Admins')"
           variant="tonal"
           color="error"
           @click="deleteAdmin"
@@ -290,7 +299,7 @@ onMounted( async () => {
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-admins', 'Update Admin') && adminData.email != 'dev@annanovas.com'"
+                v-if="can('admin-update-admins', 'Update Admins') && adminData.email != 'dev@annanovas.com'"
                 class="text-center"
               >
                 <VBtn
@@ -302,7 +311,7 @@ onMounted( async () => {
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-admins', 'Update Admin') && adminData.email != 'dev@annanovas.com'"
+                v-if="can('admin-update-admins', 'Update Admins') && adminData.email != 'dev@annanovas.com'"
                 class="text-center"
               >
                 <VBtn

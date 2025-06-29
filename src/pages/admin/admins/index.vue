@@ -111,8 +111,7 @@ const {
   query: {
     search: searchQuery,
     status: selectedStatus,
-    // eslint-disable-next-line camelcase
-    role_id: selectedRole,
+    role: selectedRole,
     itemsPerPage,
     page,
     sortBy,

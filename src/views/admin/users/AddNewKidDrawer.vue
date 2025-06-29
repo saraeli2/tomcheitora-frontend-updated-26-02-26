@@ -7,15 +7,21 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  group: {
+  userid: {
+    type: String,
+    required: true,
+  },
+  kid: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      title: '',
-      slug: '',
-      status: 'Active',
+      firstName: '',
+      lastName: '',
+      phone1: '',
+      phone2: '',
+      email: '',
     }),
   },
 })
@@ -23,14 +29,15 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
-  'group',
+  'userid',
+  'kid',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const groupData = ref(structuredClone(toRaw(props.group)))
+const kidData = ref(structuredClone(toRaw(props.kid)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -43,25 +50,29 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.group._id) {
-      const res = await $api(`/admin/groups/${ props.group._id }`, {
+    if(props.kid._id) {
+      const res = await $api(`/admin/kids/${ props.kid._id }`, {
         method: 'PATCH',
         body: {
-          title: groupData.value.title,
-          slug: groupData.value.slug,
-          status: groupData.value.status,
+          firstName: kidData.value.firstName,
+          lastName: kidData.value.lastName,
+          dob: kidData.value.dob,
+          IDNumber: kidData.value.IDNumber,
+          userID: props.userid,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/groups`, {
+      const res = await $api(`/admin/kids`, {
         method: 'POST',
         body: {
-          title: groupData.value.title,
-          slug: groupData.value.slug,
-          status: groupData.value.status,
+          firstName: kidData.value.firstName,
+          lastName: kidData.value.lastName,
+          dob: kidData.value.dob,
+          IDNumber: kidData.value.IDNumber,
+          userID: props.userid,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -74,7 +85,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.group._id) {
+      if(props.kid._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -98,13 +109,10 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  title: undefined,
-  slug: undefined,
-  status: undefined,
-})
-
-watch(() => groupData.value.title, val => {
-  groupData.value.slug = val.toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+  firstName: undefined,
+  lastName: undefined,
+  dob: undefined,
+  IDNumber: undefined,
 })
 </script>
 
@@ -119,13 +127,13 @@ watch(() => groupData.value.title, val => {
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.group._id"
-      title="Edit Group"
+      v-if="props.kid._id"
+      title="Edit Kid Information"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Group"
+      title="Add New Kid Information"
       @cancel="closeNavigationDrawer"
     />
 
@@ -141,40 +149,45 @@ watch(() => groupData.value.title, val => {
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Title -->
+              <!-- 👉 First Name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="groupData.title"
+                  v-model="kidData.firstName"
                   :rules="[requiredValidator]"
-                  label="Title"
-                  placeholder="Title"
-                  :error-messages="errors.title"
+                  label="First Name"
+                  placeholder="First Name"
+                  :error-messages="errors.firstName"
+                />
+              </VCol>
+              
+              <!-- 👉 Last Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="kidData.lastName"
+                  :rules="[requiredValidator]"
+                  label="Last Name"
+                  placeholder="Last Name"
+                  :error-messages="errors.lastName"
                 />
               </VCol>
 
-              <!-- 👉 Slug -->
+              <!-- 👉 DoB -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="groupData.slug"
-                  :rules="[requiredValidator]"
-                  label="Slug"
-                  placeholder="Slug"
-                  :error-messages="errors.slug"
+                <AppDateTimePicker
+                  v-model="kidData.dob"
+                  label="DoB"
+                  placeholder="DoB"
+                  :error-messages="errors.dob"
                 />
               </VCol>
 
-              <!-- 👉 status -->
+              <!-- 👉 ID number -->
               <VCol cols="12">
-                <AppAutocomplete
-                  v-model="groupData.status"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Active', title: 'Active' },
-                    { value: 'Inactive', title: 'Inactive' },
-                  ]"
-                  placeholder="Select Status"
-                  label="Status"
-                  :error-messages="errors.status"
+                <AppTextField
+                  v-model="kidData.IDNumber"
+                  label="ID number"
+                  placeholder="ID number"
+                  :error-messages="errors.IDNumber"
                 />
               </VCol>
               

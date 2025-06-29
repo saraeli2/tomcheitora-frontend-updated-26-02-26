@@ -1,13 +1,20 @@
 <script setup>
-definePage({
-  meta: {
-    action: ['admin-view-groups', 'admin-create-groups'],
-    subject: ['View Groups', 'Create Groups'],
-    title: 'Groups',
+const props = defineProps({
+  userid: {
+    type: String,
+    required: true,
   },
 })
 
-import AddNewGroupDrawer from '@/views/admin/groups/AddNewGroupDrawer.vue'
+definePage({
+  meta: {
+    action: ['admin-view-users', 'admin-create-users'],
+    subject: ['View Users', 'Create Users'],
+    title: 'User',
+  },
+})
+
+import AddNewKidDrawer from '@/views/admin/users/AddNewKidDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 const ability = useAbility()
@@ -23,9 +30,10 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isGroupDialogVisible = ref(false)
-const isAddNewGroupDrawerVisible = ref(false)
-const groupDetail = ref()
+const isKidDialogVisible = ref(false)
+const isAddNewKidDrawerVisible = ref(false)
+const kidDetail = ref()
+const selectedUserID = ref(props.userid)
 const panel = ref()
 
 const updateOptions = options => {
@@ -35,16 +43,20 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Title',
-    key: 'title',
+    title: 'First Name',
+    key: 'firstName',
   },
   {
-    title: 'Slug',
-    key: 'slug',
+    title: 'Last Name',
+    key: 'lastName',
   },
   {
-    title: 'Active',
-    key: 'status',
+    title: 'DoB',
+    key: 'dob',
+  },
+  {
+    title: 'ID number',
+    key: 'IDNumber',
   },
   {
     title: 'Created At',
@@ -63,11 +75,12 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchGroups,
-} = await useApi(createUrl('/admin/groups', {
+  execute: fetchCommunities,
+} = await useApi(createUrl('/admin/kids', {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
+    communityID: selectedUserID,
     itemsPerPage,
     page,
     sortBy,
@@ -75,8 +88,8 @@ const {
   },
 }))
 
-const groups = computed(() => customerData.value.groups)
-const totalGroups = computed(() => customerData.value.total)
+const kids = computed(() => customerData.value.kids)
+const totalKids = computed(() => customerData.value.total)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -91,18 +104,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyGroup = async userData => {
-  // refetch Group
-  fetchGroups()
+const modifyKid = async userData => {
+  // refetch Kid
+  fetchCommunities()
 }
 
-const editGroup = async value => {
-  groupDetail.value = value
+const editKid = async value => {
+  kidDetail.value = value
   
-  isGroupDialogVisible.value = true
+  isKidDialogVisible.value = true
 }
 
-const deleteGroup = async id => {
+const deleteKid = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -120,8 +133,8 @@ const deleteGroup = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/groups/${ id }`, { method: 'DELETE' })
-        fetchGroups()
+        await $api(`/admin/kids/${ id }`, { method: 'DELETE' })
+        fetchCommunities()
       }
     })  
 }
@@ -134,7 +147,7 @@ const deleteGroup = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Groups
+              Kid Infromations
             </h5>
           </VCol>
         </VRow>
@@ -158,13 +171,13 @@ const deleteGroup = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Group -->
+          <!-- 👉 Create Kid -->
           <VBtn
-            v-if="can('admin-create-groups', 'Create Groups')"
+            v-if="can('admin-create-users', 'Create Users')"
             prepend-icon="tabler-plus"
-            @click="isAddNewGroupDrawerVisible = true"
+            @click="isAddNewKidDrawerVisible = true"
           >
-            Create Group
+            Create Kid Infromation
           </VBtn>
         </div>
 
@@ -174,7 +187,7 @@ const deleteGroup = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-groups', 'View Groups')"
+        v-if="can('admin-view-users', 'View Users')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -189,21 +202,7 @@ const deleteGroup = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Group"
-                  />
-                </VCol>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppAutocomplete
-                    v-model="selectedStatus"
-                    :items="[
-                      { value: 1, title: 'Active' },
-                      { value: 0, title: 'Inactive' },
-                    ]"
-                    placeholder="Status"
-                    clearable
+                    placeholder="Search Kid Infromation"
                   />
                 </VCol>
               </VRow>
@@ -212,40 +211,39 @@ const deleteGroup = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-groups', 'View Groups')" />
+      <VDivider v-if="can('admin-view-users', 'View Users')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-groups', 'View Groups')"
+        v-if="can('admin-view-users', 'View Users')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalGroups"
+        :items-length="totalKids"
         :headers="headers"
-        :items="groups"
+        :items="kids"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- title -->
-        <template #[`item.title`]="{ item }">
-          {{ item.title }}
+        <!-- firstName -->
+        <template #[`item.firstName`]="{ item }">
+          {{ item.firstName }}
         </template>
 
-        <!-- slug -->
-        <template #[`item.slug`]="{ item }">
-          {{ item.slug }}
+        <!-- lastName -->
+        <template #[`item.lastName`]="{ item }">
+          {{ item.lastName }}
         </template>
 
-        <!-- status -->
-        <template #[`item.status`]="{ item }">
-          <VChip
-            label
-            :color="resolveStatusVariantAndIcon(item.status).variant"
-            size="small"
-          >
-            {{ resolveStatusVariantAndIcon(item.status).title }}
-          </VChip>
+        <!-- dob -->
+        <template #[`item.dob`]="{ item }">
+          {{ item.dob ? formatDate(item.dob) : '' }}
+        </template>
+
+        <!-- IDNumber -->
+        <template #[`item.IDNumber`]="{ item }">
+          {{ item.IDNumber }}
         </template>
 
         <!-- Created At -->
@@ -269,8 +267,8 @@ const deleteGroup = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-groups', 'Update Groups')"
-                  @click="editGroup(item)"
+                  v-if="can('admin-update-users', 'Update Users')"
+                  @click="editKid(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -279,8 +277,8 @@ const deleteGroup = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-groups', 'Delete Groups')"
-                  @click="deleteGroup(item._id)"
+                  v-if="can('admin-delete-users', 'Delete Users')"
+                  @click="deleteKid(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -297,23 +295,25 @@ const deleteGroup = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalGroups"
+            :total-items="totalKids"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewGroupDrawer
-      v-if="isAddNewGroupDrawerVisible"
-      v-model:is-drawer-open="isAddNewGroupDrawerVisible"
-      @user-data="modifyGroup"
+    <AddNewKidDrawer
+      v-if="isAddNewKidDrawerVisible"
+      v-model:is-drawer-open="isAddNewKidDrawerVisible"
+      v-model:userid="selectedUserID"
+      @user-data="modifyKid"
     />
 
-    <AddNewGroupDrawer
-      v-if="isGroupDialogVisible"
-      v-model:is-drawer-open="isGroupDialogVisible"
-      v-model:group="groupDetail"
-      @user-data="modifyGroup"
+    <AddNewKidDrawer
+      v-if="isKidDialogVisible"
+      v-model:is-drawer-open="isKidDialogVisible"
+      v-model:kid="kidDetail"
+      v-model:userid="selectedUserID"
+      @user-data="modifyKid"
     />
   </section>
 </template>

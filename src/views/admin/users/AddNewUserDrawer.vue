@@ -1,17 +1,19 @@
 <script setup>
 import { useToast } from 'vue-toastification'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
+import { useAuthStore } from '@/stores'
+import axios from 'axios'
 
 const props = defineProps({
   isDrawerOpen: {
     type: Boolean,
     required: true,
   },
-  roles: {
+  communities: {
     type: Object,
     required: true,
   },
-  admin: {
+  user: {
     type: Object,
     required: false,
     default: () => ({
@@ -20,16 +22,17 @@ const props = defineProps({
       firstName: '',
       lastName: '',
       email: '',
-      position: '',
+      phone: '',
+      communityID: '',
       cityId: '',
       cityName: '',
       street: '',
       houseNumber: '',
-      remarks: '',
-      phone1: '',
-      phone2: '',
+      nationality: '',
+      israeliIDNumber: '',
+      passportNumber: '',
+      noOfKids: '',
       status: 'Active',
-      roles: [],
     }),
   },
 })
@@ -37,19 +40,19 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
-  'admin',
-  'roles',
+  'user',
+  'communities',
 ])
+
+const authStore = useAuthStore()
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const password = ref('')
-const confirmPassword = ref('')
-const isNewPasswordVisible = ref(false)
-const isConfirmPasswordVisible = ref(false)
-const adminData = ref(structuredClone(toRaw(props.admin)))
+const imageID = ref()
+const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
+const adminData = ref(structuredClone(toRaw(props.user)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -61,68 +64,125 @@ const closeNavigationDrawer = () => {
 }
 
 const submit = async () => {
-  try {
-    if(props.admin._id) {
-      const res = await $api(`/admin/admins/${ props.admin._id }`, {
-        method: 'PATCH',
-        body: {
-          firstName: adminData.value.firstName,
-          lastName: adminData.value.lastName,
-          position: adminData.value.position,
-          roles: adminData.value.roles,
-          status: adminData.value.status,
-          cityId: adminData.value.cityId,
-          cityName: adminData.value.cityName,
-          street: adminData.value.street,
-          houseNumber: adminData.value.houseNumber,
-          remarks: adminData.value.remarks,
-          phone1: adminData.value.phone1,
-          phone2: adminData.value.phone2,
-        },
-        onResponseError({ response }) {
-          errors.value = response._data.errors
-        },
-      })
-    } else {
-      const res = await $api(`/admin/admins`, {
-        method: 'POST',
-        body: {
-          firstName: adminData.value.firstName,
-          lastName: adminData.value.lastName,
-          email: adminData.value.email,
-          position: adminData.value.position,
-          roles: adminData.value.roles,
-          password: password.value,
-          status: adminData.value.status,
-          cityId: adminData.value.cityId,
-          cityName: adminData.value.cityName,
-          street: adminData.value.street,
-          houseNumber: adminData.value.houseNumber,
-          remarks: adminData.value.remarks,
-          phone1: adminData.value.phone1,
-          phone2: adminData.value.phone2,
-          confirmPassword: confirmPassword.value,
-        },
-        onResponseError({ response }) {
-          errors.value = response._data.errors
-        },
-      })
-    }
 
-    await nextTick(() => {
-      emit('userData')
-      emit('update:isDrawerOpen', false)
-      refForm.value?.reset()
-      refForm.value?.resetValidation()
-      if(props.admin._id) {
+  const formData = new FormData()
+
+  if(imageID.value) {
+    formData.append('imageID', imageID.value)
+  }
+
+  if(adminData.value.email) {
+    formData.append('email', adminData.value.email)
+  }
+
+  if(adminData.value.firstName) {
+    formData.append('firstName', adminData.value.firstName)
+  }
+
+  if(adminData.value.lastName) {
+    formData.append('lastName', adminData.value.lastName)
+  }
+
+  if(adminData.value.communityID) {
+    formData.append('communityID', adminData.value.communityID)
+  } else {
+    formData.append('communityID', '')
+  }
+
+  if(adminData.value.cityId) {
+    formData.append('cityId', adminData.value.cityId)
+  } else {
+    formData.append('cityId', '')
+  }
+
+  if(adminData.value.cityName) {
+    formData.append('cityName', adminData.value.cityName)
+  } else {
+    formData.append('cityName', '')
+  }
+
+  if(adminData.value.street) {
+    formData.append('street', adminData.value.street)
+  } else {
+    formData.append('street', '')
+  }
+
+  if(adminData.value.houseNumber) {
+    formData.append('houseNumber', adminData.value.houseNumber)
+  } else {
+    formData.append('houseNumber', '')
+  }
+
+  if(adminData.value.phone) {
+    formData.append('phone', adminData.value.phone)
+  } else {
+    formData.append('phone', '')
+  }
+
+  if(adminData.value.nationality) {
+    formData.append('nationality', adminData.value.nationality)
+  } else {
+    formData.append('nationality', '')
+  }
+
+  if(adminData.value.israeliIDNumber) {
+    formData.append('israeliIDNumber', adminData.value.israeliIDNumber)
+  } else {
+    formData.append('israeliIDNumber', '')
+  }
+
+  if(adminData.value.passportNumber) {
+    formData.append('passportNumber', adminData.value.passportNumber)
+  } else {
+    formData.append('passportNumber', '')
+  }
+
+  if(adminData.value.noOfKids) {
+    formData.append('noOfKids', adminData.value.noOfKids)
+  } else {
+    formData.append('noOfKids', 0)
+  }
+
+  if(adminData.value.status) {
+    formData.append('status', adminData.value.status)
+  }
+
+  if(props.user._id) {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${ props.user._id }`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authStore.accessToken}`,
+      },
+    }).then(async response => {
+      await nextTick(() => {
+        emit('userData')
+        emit('update:isDrawerOpen', false)
+        refForm.value?.reset()
+        refForm.value?.resetValidation()
         toast.success("Successfully updated")
-      } else {
-        toast.success("Successfully saved")
-      }
-      
+      })
     })
-  } catch (err) {
-    console.log(err)
+      .catch(e => {
+        errors.value = e.response.data.errors
+      })
+  } else {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authStore.accessToken}`,
+      },
+    }).then(async response => {
+      await nextTick(() => {
+        emit('userData')
+        emit('update:isDrawerOpen', false)
+        refForm.value?.reset()
+        refForm.value?.resetValidation()
+        toast.success("Successfully saved")
+      })
+    })
+      .catch(e => {
+        errors.value = e.response.data.errors
+      })
   }
 }
 
@@ -141,25 +201,31 @@ const errors = ref({
   firstName: undefined,
   lastName: undefined,
   email: undefined,
-  position: undefined,
+  phone: undefined,
   status: undefined,
-  roles: undefined,
-  password: undefined,
+  communityID: undefined,
   cityId: undefined,
   cityName: undefined,
   street: undefined,
   houseNumber: undefined,
-  remarks: undefined,
-  phone1: undefined,
-  phone2: undefined,
-  confirmPassword: undefined,
+  nationality: undefined,
+  israeliIDNumber: undefined,
+  passportNumber: undefined,
+  noOfKids: undefined,
+  imageID: undefined,
 })
 
-watch(props, () => {
-  if (props.admin) {
-    adminData.value = props.admin
+const handleImageChange = file => {
+  const fileReader = new FileReader()
+  const { files } = file.target
+  if (files && files.length) {
+    fileReader.readAsDataURL(files[0])
+    fileReader.onload = () => {
+      if (typeof fileReader.result === 'string')
+        imageID.value = fileReader.result
+    }
   }
-})
+}
 </script>
 
 <template>
@@ -173,13 +239,13 @@ watch(props, () => {
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.admin._id"
-      title="Edit Admin"
+      v-if="props.user._id"
+      title="Edit User"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Admin"
+      title="Add New User"
       @cancel="closeNavigationDrawer"
     />
 
@@ -198,12 +264,11 @@ watch(props, () => {
               <!-- 👉 Role -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="adminData.roles"
-                  :items="props.roles"
-                  placeholder="Select Role"
-                  label="Role"
-                  multiple
-                  :error-messages="errors.roles"
+                  v-model="adminData.communityID"
+                  :items="props.communities"
+                  placeholder="Select Community"
+                  label="Community"
+                  :error-messages="errors.communityID"
                   clearable
                 />
               </VCol>
@@ -232,15 +297,6 @@ watch(props, () => {
               <!-- 👉 Email -->
               <VCol cols="12">
                 <AppTextField
-                  v-if="props.admin._id"
-                  v-model="adminData.email"
-                  label="Email"
-                  placeholder="johndoe@email.com"
-                  :error-messages="errors.email"
-                  disabled
-                />
-                <AppTextField
-                  v-else
                   v-model="adminData.email"
                   :rules="[requiredValidator, emailValidator]"
                   label="Email"
@@ -249,14 +305,13 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 position -->
+              <!-- 👉 phone -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="adminData.position"
-                  :rules="[requiredValidator]"
-                  label="Position"
-                  placeholder="Position"
-                  :error-messages="errors.position"
+                  v-model="adminData.phone"
+                  label="Phone"
+                  placeholder="Phone"
+                  :error-messages="errors.phone"
                 />
               </VCol>
 
@@ -300,55 +355,44 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 Phone 1 -->
+              <!-- 👉 Nationality -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="adminData.phone1"
-                  label="Phone 1"
-                  placeholder="Phone 1"
-                  :error-messages="errors.phone1"
+                  v-model="adminData.nationality"
+                  label="Nationality"
+                  placeholder="Nationality"
+                  :error-messages="errors.nationality"
                 />
               </VCol>
 
-              <!-- 👉 Phone 2-->
+              <!-- 👉 Israeli ID Number -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="adminData.phone2"
-                  label="Phone 2"
-                  placeholder="Phone 2"
-                  :error-messages="errors.phone2"
+                  v-model="adminData.israeliIDNumber"
+                  label="Israeli ID Number"
+                  placeholder="Israeli ID Number"
+                  :error-messages="errors.israeliIDNumber"
                 />
               </VCol>
 
-              <!-- 👉 password -->
-              <VCol
-                v-if="!props.admin._id"
-                cols="12"
-              >
+              <!-- 👉 Passport Number -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="password"
-                  label="Password"
-                  placeholder="············"
-                  :type="isNewPasswordVisible ? 'text' : 'password'"
-                  :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  :error-messages="errors.password"
-                  @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
+                  v-model="adminData.passportNumber"
+                  label="Passport Number"
+                  placeholder="Passport Number"
+                  :error-messages="errors.passportNumber"
                 />
               </VCol>
 
-              <!-- 👉 company -->
-              <VCol
-                v-if="!props.admin._id"
-                cols="12"
-              >
+              <!-- 👉 No. Of Kids -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="confirmPassword"
-                  label="Confirm Password"
-                  placeholder="············"
-                  :type="isConfirmPasswordVisible ? 'text' : 'password'"
-                  :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  :error-messages="errors.confirmPassword"
-                  @click:append-inner="isConfirmPasswordVisible = !isConfirmPasswordVisible"
+                  v-model="adminData.noOfKids"
+                  :rules="[integerValidator]"
+                  label="No. Of Kids"
+                  placeholder="No. Of Kids"
+                  :error-messages="errors.noOfKids"
                 />
               </VCol>
 
@@ -367,13 +411,19 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 Remarks -->
+              <!-- 👉 imageID -->
               <VCol cols="12">
-                <AppTextarea
-                  v-model="adminData.remarks"
-                  label="Remarks"
-                  placeholder="Remarks"
-                  :error-messages="errors.remarks"
+                <div class="app-picker-field">
+                  <label class="v-label mb-1 text-body-2">Image of ID</label>
+                </div>
+                <VFileInput
+                  :rules="rules"
+                  label="Image of ID"
+                  accept="image/png, image/jpeg, image/bmp"
+                  placeholder="Image of ID"
+                  prepend-icon="tabler-camera"
+                  :error-messages="errors.imageID"
+                  @change="handleImageChange"
                 />
               </VCol>
               
