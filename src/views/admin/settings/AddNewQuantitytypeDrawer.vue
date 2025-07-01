@@ -13,8 +13,8 @@ const props = defineProps({
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      title: '',
-      slug: '',
+      name: '',
+      quantity: '',
       status: 'Active',
     }),
   },
@@ -47,8 +47,8 @@ const submit = async () => {
       const res = await $api(`/admin/settings/quantitytypes/${ props.quantitytype._id }`, {
         method: 'PATCH',
         body: {
-          title: quantitytypeData.value.title,
-          slug: quantitytypeData.value.slug,
+          name: quantitytypeData.value.name,
+          quantity: quantitytypeData.value.quantity,
           status: quantitytypeData.value.status,
         },
         onResponseError({ response }) {
@@ -59,8 +59,8 @@ const submit = async () => {
       const res = await $api(`/admin/settings/quantitytypes`, {
         method: 'POST',
         body: {
-          title: quantitytypeData.value.title,
-          slug: quantitytypeData.value.slug,
+          name: quantitytypeData.value.name,
+          quantity: quantitytypeData.value.quantity,
           status: quantitytypeData.value.status,
         },
         onResponseError({ response }) {
@@ -98,13 +98,9 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  title: undefined,
-  slug: undefined,
+  name: undefined,
+  quantity: undefined,
   status: undefined,
-})
-
-watch(() => quantitytypeData.value.title, val => {
-  quantitytypeData.value.slug = val.toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
 })
 </script>
 
@@ -141,25 +137,24 @@ watch(() => quantitytypeData.value.title, val => {
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Title -->
+              <!-- 👉 name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="quantitytypeData.title"
+                  v-model="quantitytypeData.name"
                   :rules="[requiredValidator]"
-                  label="Title"
-                  placeholder="Title"
-                  :error-messages="errors.title"
+                  label="Name"
+                  placeholder="Name"
+                  :error-messages="errors.name"
                 />
               </VCol>
-
-              <!-- 👉 Slug -->
+              <!-- 👉 quantity -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="quantitytypeData.slug"
-                  :rules="[requiredValidator]"
-                  label="Slug"
-                  placeholder="Slug"
-                  :error-messages="errors.slug"
+                  v-model="quantitytypeData.quantity"
+                  :rules="[requiredValidator, numericValidator]"
+                  label="Quantity"
+                  placeholder="Quantity"
+                  :error-messages="errors.quantity"
                 />
               </VCol>
 

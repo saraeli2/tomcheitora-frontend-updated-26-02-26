@@ -13,8 +13,7 @@ const props = defineProps({
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      title: '',
-      slug: '',
+      name: '',
       status: 'Active',
     }),
   },
@@ -47,8 +46,7 @@ const submit = async () => {
       const res = await $api(`/admin/settings/packagetypes/${ props.packagetype._id }`, {
         method: 'PATCH',
         body: {
-          title: packagetypeData.value.title,
-          slug: packagetypeData.value.slug,
+          name: packagetypeData.value.name,
           status: packagetypeData.value.status,
         },
         onResponseError({ response }) {
@@ -59,8 +57,7 @@ const submit = async () => {
       const res = await $api(`/admin/settings/packagetypes`, {
         method: 'POST',
         body: {
-          title: packagetypeData.value.title,
-          slug: packagetypeData.value.slug,
+          name: packagetypeData.value.name,
           status: packagetypeData.value.status,
         },
         onResponseError({ response }) {
@@ -98,13 +95,8 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  title: undefined,
-  slug: undefined,
+  name: undefined,
   status: undefined,
-})
-
-watch(() => packagetypeData.value.title, val => {
-  packagetypeData.value.slug = val.toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
 })
 </script>
 
@@ -144,22 +136,11 @@ watch(() => packagetypeData.value.title, val => {
               <!-- 👉 Title -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="packagetypeData.title"
+                  v-model="packagetypeData.name"
                   :rules="[requiredValidator]"
-                  label="Title"
-                  placeholder="Title"
-                  :error-messages="errors.title"
-                />
-              </VCol>
-
-              <!-- 👉 Slug -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="packagetypeData.slug"
-                  :rules="[requiredValidator]"
-                  label="Slug"
-                  placeholder="Slug"
-                  :error-messages="errors.slug"
+                  label="Name"
+                  placeholder="Name"
+                  :error-messages="errors.name"
                 />
               </VCol>
 

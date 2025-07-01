@@ -190,11 +190,6 @@ const deleteUser = async id => {
       }
     })  
 }
-
-const resetPassword = val => {
-  userDetail.value = val
-  isResetPasswordDrawerVisible.value = true
-}
 </script>
 
 <template>
@@ -414,20 +409,6 @@ const resetPassword = val => {
           </VChip>
         </template>
 
-        <!-- roles -->
-        <template #[`item.roles`]="{ item }">
-          <VChip
-            v-for="(role, roleindex) in item.roles"
-            :key="roleindex"
-            label
-            color="success"
-            size="small"
-            class="roles"
-          >
-            {{ role.name }}
-          </VChip>
-        </template>
-
         <!-- Created At -->
         <template #[`item.createdAt`]="{ item }">
           {{ formatDateWithTime(item.createdAt) }}
@@ -441,7 +422,6 @@ const resetPassword = val => {
         <!-- Actions -->
         <template #[`item.actions`]="{ item }">
           <VBtn
-            v-if="item.email != 'dev@annanovas.com'"
             icon
             variant="text"
             color="medium-emphasis"
@@ -517,10 +497,6 @@ const resetPassword = val => {
 
   .invoice-list-filter {
     inline-size: 12rem;
-  }
-
-  .roles {
-    margin-inline-end: 5px;
   }
 }
 </style>

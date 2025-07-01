@@ -7,18 +7,18 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  categories: {
-    type: Object,
-    required: true,
-  },
-  subcategory: {
+  station: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
       name: '',
-      categoryID: '',
+      neighbourhood: '',
+      cityId: '',
+      cityName: '',
+      street: '',
+      houseNumber: '',
       status: 'Active',
     }),
   },
@@ -27,14 +27,14 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
-  'subcategory',
+  'station',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const subcategoryData = ref(structuredClone(toRaw(props.subcategory)))
+const stationData = ref(structuredClone(toRaw(props.station)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -47,25 +47,33 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.subcategory._id) {
-      const res = await $api(`/admin/settings/sub-categories/${ props.subcategory._id }`, {
+    if(props.station._id) {
+      const res = await $api(`/admin/stations/${ props.station._id }`, {
         method: 'PATCH',
         body: {
-          categoryID: subcategoryData.value.categoryID,
-          name: subcategoryData.value.name,
-          status: subcategoryData.value.status,
+          name: stationData.value.name,
+          neighbourhood: stationData.value.neighbourhood,
+          cityId: stationData.value.cityId,
+          cityName: stationData.value.cityName,
+          street: stationData.value.street,
+          houseNumber: stationData.value.houseNumber,
+          status: stationData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/settings/sub-categories`, {
+      const res = await $api(`/admin/stations`, {
         method: 'POST',
         body: {
-          categoryID: subcategoryData.value.categoryID,
-          name: subcategoryData.value.name,
-          status: subcategoryData.value.status,
+          name: stationData.value.name,
+          neighbourhood: stationData.value.neighbourhood,
+          cityId: stationData.value.cityId,
+          cityName: stationData.value.cityName,
+          street: stationData.value.street,
+          houseNumber: stationData.value.houseNumber,
+          status: stationData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -78,7 +86,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.subcategory._id) {
+      if(props.station._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -102,9 +110,12 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  categoryID: undefined,
   name: undefined,
+  neighbourhood: undefined,
   status: undefined,
+  cityName: undefined,
+  street: undefined,
+  houseNumber: undefined,
 })
 </script>
 
@@ -119,13 +130,13 @@ const errors = ref({
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.subcategory._id"
-      title="Edit Sub Category"
+      v-if="props.station._id"
+      title="Edit Station"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Sub Category"
+      title="Add New Station"
       @cancel="closeNavigationDrawer"
     />
 
@@ -141,22 +152,10 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Category -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="subcategoryData.categoryID"
-                  :rules="[requiredValidator]"
-                  :items="categories"
-                  label="Category"
-                  placeholder="Select Category"
-                  :error-messages="errors.categoryID"
-                />
-              </VCol>
-
-              <!-- 👉 name -->
+              <!-- 👉 Name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="subcategoryData.name"
+                  v-model="stationData.name"
                   :rules="[requiredValidator]"
                   label="Name"
                   placeholder="Name"
@@ -164,10 +163,61 @@ const errors = ref({
                 />
               </VCol>
 
+              <!-- 👉 Neighbourhood -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="stationData.neighbourhood"
+                  :rules="[requiredValidator]"
+                  label="Neighbourhood"
+                  placeholder="Neighbourhood"
+                  :error-messages="errors.neighbourhood"
+                />
+              </VCol>
+
+              <!-- 👉 City ID -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="stationData.cityId"
+                  label="City ID"
+                  placeholder="City ID"
+                  :error-messages="errors.cityId"
+                />
+              </VCol>
+
+              <!-- 👉 City Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="stationData.cityName"
+                  label="City Name"
+                  placeholder="City Name"
+                  :error-messages="errors.cityName"
+                />
+              </VCol>
+
+              <!-- 👉 Street -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="stationData.street"
+                  label="Street"
+                  placeholder="Street"
+                  :error-messages="errors.street"
+                />
+              </VCol>
+
+              <!-- 👉 House Number -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="stationData.houseNumber"
+                  label="House Number"
+                  placeholder="House Number"
+                  :error-messages="errors.houseNumber"
+                />
+              </VCol>
+
               <!-- 👉 status -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="subcategoryData.status"
+                  v-model="stationData.status"
                   :rules="[requiredValidator]"
                   :items="[
                     { value: 'Active', title: 'Active' },

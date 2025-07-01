@@ -15,7 +15,7 @@ const props = defineProps({
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      title: '',
+      name: '',
       status: 'Active',
     }),
   },
@@ -52,8 +52,8 @@ const submit = async () => {
     formData.append('logo', logo.value)
   }
 
-  if(certificationData.value.title) {
-    formData.append('title', certificationData.value.title)
+  if(certificationData.value.name) {
+    formData.append('name', certificationData.value.name)
   }
 
   if(certificationData.value.status) {
@@ -111,7 +111,7 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  title: undefined,
+  name: undefined,
   logo: undefined,
   status: undefined,
 })
@@ -165,11 +165,11 @@ const handleLogoChange = file => {
               <!-- 👉 Title -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="certificationData.title"
+                  v-model="certificationData.name"
                   :rules="[requiredValidator]"
-                  label="Title"
-                  placeholder="Title"
-                  :error-messages="errors.title"
+                  label="Name"
+                  placeholder="Name"
+                  :error-messages="errors.name"
                 />
               </VCol>
 

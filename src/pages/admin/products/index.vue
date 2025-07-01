@@ -1,16 +1,14 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-quantitytypes', 'admin-create-quantitytypes'],
-    subject: ['View Quantity Types', 'Create Quantity Types'],
-    title: 'Quantity Types',
+    action: ['admin-view-products', 'admin-create-products'],
+    subject: ['View Products', 'Create Products'],
+    title: 'Products',
   },
 })
 
-import AddNewQuantitytypeDrawer from '@/views/admin/settings/AddNewQuantitytypeDrawer.vue'
+import AddNewProductDrawer from '@/views/admin/products/AddNewProductDrawer.vue'
 import { can } from '@layouts/plugins/casl'
-
-const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
@@ -23,9 +21,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isQuantitytypeDialogVisible = ref(false)
-const isAddNewQuantitytypeDrawerVisible = ref(false)
-const quantitytypeDetail = ref()
+const isProductDialogVisible = ref(false)
+const isAddNewProductDrawerVisible = ref(false)
+const productDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -39,12 +37,48 @@ const headers = [
     key: 'name',
   },
   {
-    title: 'Quantity',
-    key: 'quantity',
+    title: 'Slug',
+    key: 'slug',
+  },
+  {
+    title: 'Internal SKU',
+    key: 'internalSKU',
+  },
+  {
+    title: 'External SKU',
+    key: 'externalSKU',
+  },
+  {
+    title: 'Box SKU',
+    key: 'boxSKU',
+  },
+  {
+    title: 'Manufacturer',
+    key: 'manufacturerID',
+  },
+  {
+    title: 'Supplier',
+    key: 'supplierID',
+  },
+  {
+    title: 'Certification',
+    key: 'certificationID',
+  },
+  {
+    title: 'Package Type',
+    key: 'packagetypeID',
+  },
+  {
+    title: 'Quantity Type',
+    key: 'quantitytypeID',
   },
   {
     title: 'Active',
     key: 'status',
+  },
+  {
+    title: 'created by',
+    key: 'createdBy',
   },
   {
     title: 'Created At',
@@ -63,10 +97,10 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchQuantitytypes,
-} = await useApi(createUrl('/admin/settings/quantitytypes', {
+  execute: fetchProducts,
+} = await useApi(createUrl('/admin/products', {
   query: {
-    keyword: searchQuery,
+    search: searchQuery,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -75,8 +109,28 @@ const {
   },
 }))
 
-const quantitytypes = computed(() => customerData.value.quantitytypes)
-const totalQuantitytypes = computed(() => customerData.value.total)
+const products = computed(() => customerData.value.products)
+const totalProducts = computed(() => customerData.value.total)
+
+const commonsync = await $api('/admin/settings/certifications/respond-with/extra-options').catch(err => console.log(err))
+const certificationOptions = computed(() => commonsync.certificationOptions)
+const packagetypeOptions = computed(() => commonsync.packagetypeOptions)
+const quantitytypeOptions = computed(() => commonsync.quantitytypeOptions)
+
+const certifications = certificationOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const packagetypes = packagetypeOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const quantitytypes = quantitytypeOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -91,18 +145,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyQuantitytype = async userData => {
-  // refetch Quantitytype
-  fetchQuantitytypes()
+const modifyProduct = async userData => {
+  // refetch Product
+  fetchProducts()
 }
 
-const editQuantitytype = async value => {
-  quantitytypeDetail.value = value
+const editProduct = async value => {
+  productDetail.value = value
   
-  isQuantitytypeDialogVisible.value = true
+  isProductDialogVisible.value = true
 }
 
-const deleteQuantitytype = async id => {
+const deleteProduct = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -120,8 +174,8 @@ const deleteQuantitytype = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/settings/quantitytypes/${ id }`, { method: 'DELETE' })
-        fetchQuantitytypes()
+        await $api(`/admin/products/${ id }`, { method: 'DELETE' })
+        fetchProducts()
       }
     })  
 }
@@ -134,7 +188,7 @@ const deleteQuantitytype = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Quantity Types
+              Products
             </h5>
           </VCol>
         </VRow>
@@ -158,13 +212,13 @@ const deleteQuantitytype = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Quantity Type -->
+          <!-- 👉 Create Product -->
           <VBtn
-            v-if="can('admin-create-quantitytypes', 'Create Quantity Types')"
+            v-if="can('admin-create-products', 'Create Products')"
             prepend-icon="tabler-plus"
-            @click="isAddNewQuantitytypeDrawerVisible = true"
+            @click="isAddNewProductDrawerVisible = true"
           >
-            Create Quantity Type
+            Create Product
           </VBtn>
         </div>
 
@@ -174,7 +228,7 @@ const deleteQuantitytype = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-quantitytypes', 'View Quantity Types')"
+        v-if="can('admin-view-products', 'View Products')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -189,7 +243,7 @@ const deleteQuantitytype = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Quantity Type"
+                    placeholder="Search Product"
                   />
                 </VCol>
                 <VCol
@@ -199,8 +253,8 @@ const deleteQuantitytype = async id => {
                   <AppAutocomplete
                     v-model="selectedStatus"
                     :items="[
-                      { value: 1, title: 'Active' },
-                      { value: 0, title: 'Inactive' },
+                      { value: 'Active', title: 'Active' },
+                      { value: 'Inactive', title: 'Inactive' },
                     ]"
                     placeholder="Status"
                     clearable
@@ -212,17 +266,17 @@ const deleteQuantitytype = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-quantitytypes', 'View Quantity Types')" />
+      <VDivider v-if="can('admin-view-products', 'View Products')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-quantitytypes', 'View Quantity Types')"
+        v-if="can('admin-view-products', 'View Products')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalQuantitytypes"
+        :items-length="totalProducts"
         :headers="headers"
-        :items="quantitytypes"
+        :items="products"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
@@ -232,9 +286,49 @@ const deleteQuantitytype = async id => {
           {{ item.name }}
         </template>
 
-        <!-- quantity -->
-        <template #[`item.quantity`]="{ item }">
-          {{ item.quantity }}
+        <!-- slug -->
+        <template #[`item.slug`]="{ item }">
+          {{ item.slug }}
+        </template>
+
+        <!-- internalSKU -->
+        <template #[`item.internalSKU`]="{ item }">
+          {{ item.internalSKU }}
+        </template>
+
+        <!-- externalSKU -->
+        <template #[`item.externalSKU`]="{ item }">
+          {{ item.externalSKU }}
+        </template>
+
+        <!-- boxSKU -->
+        <template #[`item.boxSKU`]="{ item }">
+          {{ item.boxSKU }}
+        </template>
+
+        <!-- manufacturerID -->
+        <template #[`item.manufacturerID`]="{ item }">
+          {{ item.manufacturerID ? item.manufacturerID.name : '' }}
+        </template>
+
+        <!-- supplierID -->
+        <template #[`item.supplierID`]="{ item }">
+          {{ item.supplierID ? item.supplierID.name : '' }}
+        </template>
+
+        <!-- certificationID -->
+        <template #[`item.certificationID`]="{ item }">
+          {{ item.certificationID ? item.certificationID.name : '' }}
+        </template>
+
+        <!-- packagetypeID -->
+        <template #[`item.packagetypeID`]="{ item }">
+          {{ item.packagetypeID ? item.packagetypeID.name : '' }}
+        </template>
+
+        <!-- quantitytypeID -->
+        <template #[`item.quantitytypeID`]="{ item }">
+          {{ item.quantitytypeID ? item.packagetypeID.name : '' }}
         </template>
 
         <!-- status -->
@@ -246,6 +340,11 @@ const deleteQuantitytype = async id => {
           >
             {{ resolveStatusVariantAndIcon(item.status).title }}
           </VChip>
+        </template>
+
+        <!-- createdBy -->
+        <template #[`item.createdBy`]="{ item }">
+          {{ item.createdBy ? item.createdBy.name : '' }}
         </template>
 
         <!-- Created At -->
@@ -269,8 +368,8 @@ const deleteQuantitytype = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-quantitytypes', 'Update Quantity Types')"
-                  @click="editQuantitytype(item)"
+                  v-if="can('admin-update-products', 'Update Products')"
+                  @click="editProduct(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -279,8 +378,8 @@ const deleteQuantitytype = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-quantitytypes', 'Delete Quantity Types')"
-                  @click="deleteQuantitytype(item._id)"
+                  v-if="can('admin-delete-products', 'Delete Products')"
+                  @click="deleteProduct(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -297,23 +396,30 @@ const deleteQuantitytype = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalQuantitytypes"
+            :total-items="totalProducts"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewQuantitytypeDrawer
-      v-if="isAddNewQuantitytypeDrawerVisible"
-      v-model:is-drawer-open="isAddNewQuantitytypeDrawerVisible"
-      @user-data="modifyQuantitytype"
+
+    <AddNewProductDrawer
+      v-if="isAddNewProductDrawerVisible"
+      v-model:is-drawer-open="isAddNewProductDrawerVisible"
+      v-model:certifications="certifications"
+      v-model:packagetypes="packagetypes"
+      v-model:quantitytypes="quantitytypes"
+      @user-data="modifyProduct"
     />
 
-    <AddNewQuantitytypeDrawer
-      v-if="isQuantitytypeDialogVisible"
-      v-model:is-drawer-open="isQuantitytypeDialogVisible"
-      v-model:quantitytype="quantitytypeDetail"
-      @user-data="modifyQuantitytype"
+    <AddNewProductDrawer
+      v-if="isProductDialogVisible"
+      v-model:is-drawer-open="isProductDialogVisible"
+      v-model:product="productDetail"
+      v-model:certifications="certifications"
+      v-model:packagetypes="packagetypes"
+      v-model:quantitytypes="quantitytypes"
+      @user-data="modifyProduct"
     />
   </section>
 </template>

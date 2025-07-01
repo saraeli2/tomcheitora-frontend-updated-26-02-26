@@ -35,12 +35,8 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Title',
-    key: 'title',
-  },
-  {
-    title: 'Slug',
-    key: 'slug',
+    title: 'Name',
+    key: 'name',
   },
   {
     title: 'Active',
@@ -227,14 +223,9 @@ const deletePackagetype = async id => {
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- title -->
-        <template #[`item.title`]="{ item }">
-          {{ item.title }}
-        </template>
-
-        <!-- slug -->
-        <template #[`item.slug`]="{ item }">
-          {{ item.slug }}
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          {{ item.name }}
         </template>
 
         <!-- status -->

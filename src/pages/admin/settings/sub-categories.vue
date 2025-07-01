@@ -40,12 +40,8 @@ const headers = [
     key: 'categoryID',
   },
   {
-    title: 'Title',
-    key: 'title',
-  },
-  {
-    title: 'Slug',
-    key: 'slug',
+    title: 'Name',
+    key: 'name',
   },
   {
     title: 'Active',
@@ -89,7 +85,7 @@ const categoryOptions = computed(() => commonsync.categoryOptions)
 
 const categories = categoryOptions.value.map(item => ({
   value: item._id,
-  title: item.title,
+  title: item.name,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -254,17 +250,12 @@ const deleteCategory = async id => {
       >
         <!-- categoryID -->
         <template #[`item.categoryID`]="{ item }">
-          {{ item.categoryID ? item.categoryID.title : '' }}
+          {{ item.categoryID ? item.categoryID.name : '' }}
         </template>
 
-        <!-- title -->
-        <template #[`item.title`]="{ item }">
-          {{ item.title }}
-        </template>
-
-        <!-- slug -->
-        <template #[`item.slug`]="{ item }">
-          {{ item.slug }}
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          {{ item.name }}
         </template>
 
         <!-- status -->

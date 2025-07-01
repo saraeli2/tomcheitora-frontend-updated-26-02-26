@@ -1,16 +1,14 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-quantitytypes', 'admin-create-quantitytypes'],
-    subject: ['View Quantity Types', 'Create Quantity Types'],
-    title: 'Quantity Types',
+    action: ['admin-view-stations', 'admin-create-stations'],
+    subject: ['View Stations', 'Create Stations'],
+    title: 'Stations',
   },
 })
 
-import AddNewQuantitytypeDrawer from '@/views/admin/settings/AddNewQuantitytypeDrawer.vue'
+import AddNewStationDrawer from '@/views/admin/stations/AddNewStationDrawer.vue'
 import { can } from '@layouts/plugins/casl'
-
-const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
@@ -23,9 +21,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isQuantitytypeDialogVisible = ref(false)
-const isAddNewQuantitytypeDrawerVisible = ref(false)
-const quantitytypeDetail = ref()
+const isStationDialogVisible = ref(false)
+const isAddNewStationDrawerVisible = ref(false)
+const stationDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -39,12 +37,33 @@ const headers = [
     key: 'name',
   },
   {
-    title: 'Quantity',
-    key: 'quantity',
+    title: 'Neighbourhood',
+    key: 'neighbourhood',
+  },
+  {
+    title: 'City ID',
+    key: 'cityId',
+  },
+  {
+    title: 'City Name',
+    key: 'cityName',
+  },
+  {
+    title: 'Street',
+    key: 'street',
+  },
+  {
+    title: 'House Number',
+    key: 'houseNumber',
   },
   {
     title: 'Active',
     key: 'status',
+  },
+  {
+    title: 'created by',
+    key: 'createdBy.name',
+    sortable: true,
   },
   {
     title: 'Created At',
@@ -63,10 +82,10 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchQuantitytypes,
-} = await useApi(createUrl('/admin/settings/quantitytypes', {
+  execute: fetchStations,
+} = await useApi(createUrl('/admin/stations', {
   query: {
-    keyword: searchQuery,
+    search: searchQuery,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -75,8 +94,8 @@ const {
   },
 }))
 
-const quantitytypes = computed(() => customerData.value.quantitytypes)
-const totalQuantitytypes = computed(() => customerData.value.total)
+const stations = computed(() => customerData.value.stations)
+const totalStations = computed(() => customerData.value.total)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -91,18 +110,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyQuantitytype = async userData => {
-  // refetch Quantitytype
-  fetchQuantitytypes()
+const modifyStation = async userData => {
+  // refetch Station
+  fetchStations()
 }
 
-const editQuantitytype = async value => {
-  quantitytypeDetail.value = value
+const editStation = async value => {
+  stationDetail.value = value
   
-  isQuantitytypeDialogVisible.value = true
+  isStationDialogVisible.value = true
 }
 
-const deleteQuantitytype = async id => {
+const deleteStation = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -120,8 +139,8 @@ const deleteQuantitytype = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/settings/quantitytypes/${ id }`, { method: 'DELETE' })
-        fetchQuantitytypes()
+        await $api(`/admin/stations/${ id }`, { method: 'DELETE' })
+        fetchStations()
       }
     })  
 }
@@ -134,7 +153,7 @@ const deleteQuantitytype = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Quantity Types
+              Stations
             </h5>
           </VCol>
         </VRow>
@@ -158,13 +177,13 @@ const deleteQuantitytype = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Quantity Type -->
+          <!-- 👉 Create Station -->
           <VBtn
-            v-if="can('admin-create-quantitytypes', 'Create Quantity Types')"
+            v-if="can('admin-create-stations', 'Create Stations')"
             prepend-icon="tabler-plus"
-            @click="isAddNewQuantitytypeDrawerVisible = true"
+            @click="isAddNewStationDrawerVisible = true"
           >
-            Create Quantity Type
+            Create Station
           </VBtn>
         </div>
 
@@ -174,7 +193,7 @@ const deleteQuantitytype = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-quantitytypes', 'View Quantity Types')"
+        v-if="can('admin-view-stations', 'View Stations')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -189,7 +208,7 @@ const deleteQuantitytype = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Quantity Type"
+                    placeholder="Search Station"
                   />
                 </VCol>
                 <VCol
@@ -199,8 +218,8 @@ const deleteQuantitytype = async id => {
                   <AppAutocomplete
                     v-model="selectedStatus"
                     :items="[
-                      { value: 1, title: 'Active' },
-                      { value: 0, title: 'Inactive' },
+                      { value: 'Active', title: 'Active' },
+                      { value: 'Inactive', title: 'Inactive' },
                     ]"
                     placeholder="Status"
                     clearable
@@ -212,17 +231,17 @@ const deleteQuantitytype = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-quantitytypes', 'View Quantity Types')" />
+      <VDivider v-if="can('admin-view-stations', 'View Stations')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-quantitytypes', 'View Quantity Types')"
+        v-if="can('admin-view-stations', 'View Stations')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalQuantitytypes"
+        :items-length="totalStations"
         :headers="headers"
-        :items="quantitytypes"
+        :items="stations"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
@@ -232,9 +251,29 @@ const deleteQuantitytype = async id => {
           {{ item.name }}
         </template>
 
-        <!-- quantity -->
-        <template #[`item.quantity`]="{ item }">
-          {{ item.quantity }}
+        <!-- neighbourhood -->
+        <template #[`item.neighbourhood`]="{ item }">
+          {{ item.neighbourhood }}
+        </template>
+
+        <!-- cityId -->
+        <template #[`item.cityId`]="{ item }">
+          {{ item.cityId }}
+        </template>
+
+        <!-- cityName -->
+        <template #[`item.cityName`]="{ item }">
+          {{ item.cityName }}
+        </template>
+
+        <!-- street -->
+        <template #[`item.street`]="{ item }">
+          {{ item.street }}
+        </template>
+
+        <!-- houseNumber -->
+        <template #[`item.houseNumber`]="{ item }">
+          {{ item.houseNumber }}
         </template>
 
         <!-- status -->
@@ -269,8 +308,8 @@ const deleteQuantitytype = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-quantitytypes', 'Update Quantity Types')"
-                  @click="editQuantitytype(item)"
+                  v-if="can('admin-update-stations', 'Update Stations')"
+                  @click="editStation(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -279,8 +318,8 @@ const deleteQuantitytype = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-quantitytypes', 'Delete Quantity Types')"
-                  @click="deleteQuantitytype(item._id)"
+                  v-if="can('admin-delete-stations', 'Delete Stations')"
+                  @click="deleteStation(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -297,23 +336,24 @@ const deleteQuantitytype = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalQuantitytypes"
+            :total-items="totalStations"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewQuantitytypeDrawer
-      v-if="isAddNewQuantitytypeDrawerVisible"
-      v-model:is-drawer-open="isAddNewQuantitytypeDrawerVisible"
-      @user-data="modifyQuantitytype"
+
+    <AddNewStationDrawer
+      v-if="isAddNewStationDrawerVisible"
+      v-model:is-drawer-open="isAddNewStationDrawerVisible"
+      @user-data="modifyStation"
     />
 
-    <AddNewQuantitytypeDrawer
-      v-if="isQuantitytypeDialogVisible"
-      v-model:is-drawer-open="isQuantitytypeDialogVisible"
-      v-model:quantitytype="quantitytypeDetail"
-      @user-data="modifyQuantitytype"
+    <AddNewStationDrawer
+      v-if="isStationDialogVisible"
+      v-model:is-drawer-open="isStationDialogVisible"
+      v-model:station="stationDetail"
+      @user-data="modifyStation"
     />
   </section>
 </template>

@@ -35,8 +35,8 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Title',
-    key: 'title',
+    title: 'Name',
+    key: 'name',
   },
   {
     title: 'Active',
@@ -227,9 +227,9 @@ const deleteCertification = async id => {
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- title -->
-        <template #[`item.title`]="{ item }">
-          {{ item.title }}
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          {{ item.name }}
         </template>
 
         <!-- status -->

@@ -13,8 +13,7 @@ const props = defineProps({
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      title: '',
-      slug: '',
+      name: '',
       status: 'Active',
     }),
   },
@@ -47,8 +46,7 @@ const submit = async () => {
       const res = await $api(`/admin/settings/categories/${ props.category._id }`, {
         method: 'PATCH',
         body: {
-          title: categoryData.value.title,
-          slug: categoryData.value.slug,
+          name: categoryData.value.name,
           status: categoryData.value.status,
         },
         onResponseError({ response }) {
@@ -59,8 +57,7 @@ const submit = async () => {
       const res = await $api(`/admin/settings/categories`, {
         method: 'POST',
         body: {
-          title: categoryData.value.title,
-          slug: categoryData.value.slug,
+          name: categoryData.value.name,
           status: categoryData.value.status,
         },
         onResponseError({ response }) {
@@ -98,13 +95,8 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  title: undefined,
-  slug: undefined,
+  name: undefined,
   status: undefined,
-})
-
-watch(() => categoryData.value.title, val => {
-  categoryData.value.slug = val.toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
 })
 </script>
 
@@ -144,22 +136,11 @@ watch(() => categoryData.value.title, val => {
               <!-- 👉 Title -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="categoryData.title"
+                  v-model="categoryData.name"
                   :rules="[requiredValidator]"
-                  label="Title"
-                  placeholder="Title"
-                  :error-messages="errors.title"
-                />
-              </VCol>
-
-              <!-- 👉 Slug -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="categoryData.slug"
-                  :rules="[requiredValidator]"
-                  label="Slug"
-                  placeholder="Slug"
-                  :error-messages="errors.slug"
+                  label="Name"
+                  placeholder="Name"
+                  :error-messages="errors.name"
                 />
               </VCol>
 
