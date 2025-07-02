@@ -1,13 +1,24 @@
 <script setup>
-definePage({
-  meta: {
-    action: ['admin-view-categories', 'admin-create-categories'],
-    subject: ['View Categories', 'Create Categories'],
-    title: 'Categories',
+const props = defineProps({
+  morphableid: {
+    type: String,
+    required: true,
+  },
+  morphabletype: {
+    type: String,
+    required: true,
   },
 })
 
-import AddNewCategoryDrawer from '@/views/admin/settings/AddNewCategoryDrawer.vue'
+definePage({
+  meta: {
+    action: ['admin-view-contact-informations', 'admin-create-contact-informations'],
+    subject: ['View Contact Informations', 'Create Contact Informations'],
+    title: 'Contact Informations',
+  },
+})
+
+import AddNewContactInfoDrawer from '@/views/admin/settings/AddNewContactInfoDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 const ability = useAbility()
@@ -23,9 +34,11 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isCategoryDialogVisible = ref(false)
-const isAddNewCategoryDrawerVisible = ref(false)
-const categoryDetail = ref()
+const isContactInfoDialogVisible = ref(false)
+const isAddNewContactInfoDrawerVisible = ref(false)
+const contactInformationDetail = ref()
+const selectedMorphableID = ref(props.morphableid)
+const selectedMorphableType = ref(props.morphabletype)
 const panel = ref()
 
 const updateOptions = options => {
@@ -35,20 +48,24 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Name',
-    key: 'name',
+    title: 'First Name',
+    key: 'firstName',
   },
   {
-    title: 'Active',
-    key: 'status',
+    title: 'Last Name',
+    key: 'lastName',
   },
   {
-    title: 'Created by',
-    key: 'createdBy',
+    title: 'Phone1',
+    key: 'phone1',
   },
   {
-    title: 'Updated by',
-    key: 'updatedBy',
+    title: 'Phone2',
+    key: 'phone2',
+  },
+  {
+    title: 'Email',
+    key: 'email',
   },
   {
     title: 'Created At',
@@ -67,11 +84,13 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchCategories,
-} = await useApi(createUrl('/admin/settings/categories', {
+  execute: fetchCommunities,
+} = await useApi(createUrl('/admin/contact-informations', {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
+    morphableID: selectedMorphableID,
+    morphableType: selectedMorphableType,
     itemsPerPage,
     page,
     sortBy,
@@ -79,8 +98,8 @@ const {
   },
 }))
 
-const categories = computed(() => customerData.value.categories)
-const totalCategories = computed(() => customerData.value.total)
+const contactInformations = computed(() => customerData.value.contactInformations)
+const totalContactInformations = computed(() => customerData.value.total)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -95,18 +114,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyCategory = async userData => {
-  // refetch Category
-  fetchCategories()
+const modifyContactInfo = async userData => {
+  // refetch ContactInfo
+  fetchCommunities()
 }
 
-const editCategory = async value => {
-  categoryDetail.value = value
+const editContactInfo = async value => {
+  contactInformationDetail.value = value
   
-  isCategoryDialogVisible.value = true
+  isContactInfoDialogVisible.value = true
 }
 
-const deleteCategory = async id => {
+const deleteContactInfo = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -124,8 +143,8 @@ const deleteCategory = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/settings/categories/${ id }`, { method: 'DELETE' })
-        fetchCategories()
+        await $api(`/admin/contact-informations/${ id }`, { method: 'DELETE' })
+        fetchCommunities()
       }
     })  
 }
@@ -138,7 +157,7 @@ const deleteCategory = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Categories
+              Contact Informations
             </h5>
           </VCol>
         </VRow>
@@ -162,13 +181,13 @@ const deleteCategory = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Category -->
+          <!-- 👉 Create ContactInfo -->
           <VBtn
-            v-if="can('admin-create-categories', 'Create Categories')"
+            v-if="can('admin-create-contact-informations', 'Create Contact Informations')"
             prepend-icon="tabler-plus"
-            @click="isAddNewCategoryDrawerVisible = true"
+            @click="isAddNewContactInfoDrawerVisible = true"
           >
-            Create Category
+            Create Contact Information
           </VBtn>
         </div>
 
@@ -178,7 +197,7 @@ const deleteCategory = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-categories', 'View Categories')"
+        v-if="can('admin-view-contact-informations', 'View Contact Informations')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -193,21 +212,7 @@ const deleteCategory = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Category"
-                  />
-                </VCol>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppAutocomplete
-                    v-model="selectedStatus"
-                    :items="[
-                      { value: 1, title: 'Active' },
-                      { value: 0, title: 'Inactive' },
-                    ]"
-                    placeholder="Status"
-                    clearable
+                    placeholder="Search Contact Information"
                   />
                 </VCol>
               </VRow>
@@ -216,57 +221,44 @@ const deleteCategory = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-categories', 'View Categories')" />
+      <VDivider v-if="can('admin-view-contact-informations', 'View Contact Informations')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-categories', 'View Categories')"
+        v-if="can('admin-view-contact-informations', 'View Contact Informations')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalCategories"
+        :items-length="totalContactInformations"
         :headers="headers"
-        :items="categories"
+        :items="contactInformations"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          {{ item.name }}
+        <!-- firstName -->
+        <template #[`item.firstName`]="{ item }">
+          {{ item.firstName }}
         </template>
 
-        <!-- status -->
-        <template #[`item.status`]="{ item }">
-          <VChip
-            label
-            :color="resolveStatusVariantAndIcon(item.status).variant"
-            size="small"
-          >
-            {{ resolveStatusVariantAndIcon(item.status).title }}
-          </VChip>
+        <!-- lastName -->
+        <template #[`item.lastName`]="{ item }">
+          {{ item.lastName }}
         </template>
 
-        <!-- createdBy -->
-        <template #[`item.createdBy`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-admins', 'View Admins') && item.createdBy"
-            :to="{ name: 'admin-admins-detail-id', params: { id: item.createdBy._id } }"
-          >
-            {{ item.createdBy.name }}
-          </RouterLink>
-          <span v-else>{{ item.createdBy ? item.createdBy.name : '' }}</span>
+        <!-- phone1 -->
+        <template #[`item.phone1`]="{ item }">
+          {{ item.phone1 }}
         </template>
 
-        <!-- updatedBy -->
-        <template #[`item.updatedBy`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-admins', 'View Admins') && item.updatedBy"
-            :to="{ name: 'admin-admins-detail-id', params: { id: item.updatedBy._id } }"
-          >
-            {{ item.updatedBy.name }}
-          </RouterLink>
-          <span v-else>{{ item.updatedBy ? item.updatedBy.name : '' }}</span>
+        <!-- phone2 -->
+        <template #[`item.phone2`]="{ item }">
+          {{ item.phone2 }}
+        </template>
+
+        <!-- email -->
+        <template #[`item.email`]="{ item }">
+          {{ item.email }}
         </template>
 
         <!-- Created At -->
@@ -290,8 +282,8 @@ const deleteCategory = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-categories', 'Update Categories')"
-                  @click="editCategory(item)"
+                  v-if="can('admin-update-contact-informations', 'Update Contact Informations')"
+                  @click="editContactInfo(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -300,8 +292,8 @@ const deleteCategory = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-categories', 'Delete Categories')"
-                  @click="deleteCategory(item._id)"
+                  v-if="can('admin-delete-contact-informations', 'Delete Contact Informations')"
+                  @click="deleteContactInfo(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -318,23 +310,27 @@ const deleteCategory = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalCategories"
+            :total-items="totalContactInformations"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewCategoryDrawer
-      v-if="isAddNewCategoryDrawerVisible"
-      v-model:is-drawer-open="isAddNewCategoryDrawerVisible"
-      @user-data="modifyCategory"
+    <AddNewContactInfoDrawer
+      v-if="isAddNewContactInfoDrawerVisible"
+      v-model:is-drawer-open="isAddNewContactInfoDrawerVisible"
+      v-model:morphableid="selectedMorphableID"
+      v-model:morphabletype="selectedMorphableType"
+      @user-data="modifyContactInfo"
     />
 
-    <AddNewCategoryDrawer
-      v-if="isCategoryDialogVisible"
-      v-model:is-drawer-open="isCategoryDialogVisible"
-      v-model:category="categoryDetail"
-      @user-data="modifyCategory"
+    <AddNewContactInfoDrawer
+      v-if="isContactInfoDialogVisible"
+      v-model:is-drawer-open="isContactInfoDialogVisible"
+      v-model:contact-information="contactInformationDetail"
+      v-model:morphableid="selectedMorphableID"
+      v-model:morphabletype="selectedMorphableType"
+      @user-data="modifyContactInfo"
     />
   </section>
 </template>

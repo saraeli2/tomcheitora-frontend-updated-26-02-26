@@ -2,7 +2,6 @@
 import { useAuthStore } from '@/stores'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
-import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
@@ -14,30 +13,36 @@ const userData = authStore.userData
 
 const logout = async () => {
 
-  await $api('/admin/logout', {
-      method: 'POST',
-      body: {
-        roles: authStore.accessToken,
-      },
-    })
+  if(userData) {
+    try {
+      await $api('/admin/logout', {
+        method: 'POST',
+        body: {
+          roles: authStore.accessToken,
+        },
+      })
+
+      // Remove "userData" from cookie
+      userData.value = null
+    } catch (err) {
+      console.error('Router push failed:', err)
+    }
+  }
 
   // Remove "accessToken" from cookie
   localStorage.removeItem('userData')
   localStorage.removeItem('accessToken')
   localStorage.removeItem('userAbilityRules')
 
-  // Remove "userData" from cookie
-  userData.value = null
+  // Reset ability to initial ability
+  ability.update([])
 
   // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
 
   // Redirect to login page
   router.push({ name: 'admin-login' })
-
-  // Reset ability to initial ability
-  ability.update([])
   
-  location.reload()
+  location.href = '/admin/login'
 }
 </script>
 
@@ -105,7 +110,10 @@ const logout = async () => {
                 <h6 class="text-h6 font-weight-medium">
                   {{ userData.name || userData.email }}
                 </h6>
-                <VListItemSubtitle class="text-capitalize text-disabled" v-if="userData.role">
+                <VListItemSubtitle
+                  v-if="userData.role"
+                  class="text-capitalize text-disabled"
+                >
                   {{ userData.role }}
                 </VListItemSubtitle>
               </div>

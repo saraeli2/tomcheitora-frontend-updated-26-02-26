@@ -8,8 +8,8 @@ definePage({
   },
 })
 
+import ContactInformationModule from '@/pages/admin/settings/contact-informations.vue'
 import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
-import ContactInformationModule from '@/pages/admin/communities/contact-informations.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -180,7 +180,6 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <VList class="card-list mt-2">
-
                   <VListItem>
                     <h6 class="text-h6">
                       Name:
@@ -229,8 +228,16 @@ onMounted( async () => {
                   <VListItem>
                     <h6 class="text-h6">
                       Website:
-                      <span class="text-body-1 d-inline-block" v-if="communityData.website">
-                        <a :href="communityData.website" target="_blank" rel="noopener noreferrer" class="text-primary ms-1" >{{ communityData.website }}</a>
+                      <span
+                        v-if="communityData.website"
+                        class="text-body-1 d-inline-block"
+                      >
+                        <a
+                          :href="communityData.website"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="text-primary ms-1"
+                        >{{ communityData.website }}</a>
                       </span>
                     </h6>
                   </VListItem>
@@ -295,7 +302,8 @@ onMounted( async () => {
 
           <VWindowItem>
             <ContactInformationModule
-              :communityid="route.params.id"
+              :morphableid="route.params.id"
+              morphabletype="Community"
               @tab-data="refreshTab"
             />
           </VWindowItem>

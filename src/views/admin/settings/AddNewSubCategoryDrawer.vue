@@ -146,7 +146,7 @@ const errors = ref({
                 <AppAutocomplete
                   v-model="subcategoryData.categoryID"
                   :rules="[requiredValidator]"
-                  :items="categories"
+                  :items="props.categories"
                   label="Category"
                   placeholder="Select Category"
                   :error-messages="errors.categoryID"

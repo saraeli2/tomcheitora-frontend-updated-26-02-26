@@ -7,17 +7,25 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  group: {
+  morphableid: {
+    type: String,
+    required: true,
+  },
+  morphabletype: {
+    type: String,
+    required: true,
+  },
+  contactInformation: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      name: '',
-      saleID: '',
-      type: 'Fixed',
-      amount: '',
-      status: 'Active',
+      firstName: '',
+      lastName: '',
+      phone1: '',
+      phone2: '',
+      email: '',
     }),
   },
 })
@@ -25,14 +33,16 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
-  'group',
+  'morphableid',
+  'morphabletype',
+  'contactInformation',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const groupData = ref(structuredClone(toRaw(props.group)))
+const contactInformationData = ref(structuredClone(toRaw(props.contactInformation)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -45,29 +55,33 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.group._id) {
-      const res = await $api(`/admin/groups/${ props.group._id }`, {
+    if(props.contactInformation._id) {
+      const res = await $api(`/admin/contact-informations/${ props.contactInformation._id }`, {
         method: 'PATCH',
         body: {
-          name: groupData.value.name,
-          saleID: groupData.value.saleID,
-          type: groupData.value.type,
-          amount: groupData.value.amount,
-          status: groupData.value.status,
+          firstName: contactInformationData.value.firstName,
+          lastName: contactInformationData.value.lastName,
+          phone1: contactInformationData.value.phone1,
+          phone2: contactInformationData.value.phone2,
+          email: contactInformationData.value.email,
+          morphableid: props.morphableid,
+          morphabletype: props.morphabletype,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/groups`, {
+      const res = await $api(`/admin/contact-informations`, {
         method: 'POST',
         body: {
-          name: groupData.value.name,
-          saleID: groupData.value.saleID,
-          type: groupData.value.type,
-          amount: groupData.value.amount,
-          status: groupData.value.status,
+          firstName: contactInformationData.value.firstName,
+          lastName: contactInformationData.value.lastName,
+          phone1: contactInformationData.value.phone1,
+          phone2: contactInformationData.value.phone2,
+          email: contactInformationData.value.email,
+          morphableid: props.morphableid,
+          morphabletype: props.morphabletype,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -80,7 +94,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.group._id) {
+      if(props.contactInformation._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -104,11 +118,11 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  name: undefined,
-  saleID: undefined,
-  type: undefined,
-  amount: undefined,
-  status: undefined,
+  firstName: undefined,
+  lastName: undefined,
+  phone1: undefined,
+  phone2: undefined,
+  email: undefined,
 })
 </script>
 
@@ -123,13 +137,13 @@ const errors = ref({
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.group._id"
-      title="Edit Group"
+      v-if="props.contactInformation._id"
+      title="Edit Contact Information"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Group"
+      title="Add New Contact Information"
       @cancel="closeNavigationDrawer"
     />
 
@@ -145,66 +159,55 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Name -->
+              <!-- 👉 First Name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="groupData.name"
+                  v-model="contactInformationData.firstName"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
-                  :error-messages="errors.name"
+                  label="First Name"
+                  placeholder="First Name"
+                  :error-messages="errors.firstName"
                 />
               </VCol>
-
-              <!-- 👉 Sale ID -->
+              
+              <!-- 👉 Last Name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="groupData.saleID"
+                  v-model="contactInformationData.lastName"
                   :rules="[requiredValidator]"
-                  label="Sale ID"
-                  placeholder="Sale ID"
-                  :error-messages="errors.saleID"
+                  label="Last Name"
+                  placeholder="Last Name"
+                  :error-messages="errors.lastName"
                 />
               </VCol>
 
-              <!-- 👉 type -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="groupData.type"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Fixed', title: 'Fixed' },
-                    { value: 'Percentage', title: 'Percentage' },
-                  ]"
-                  placeholder="Select Type"
-                  label="Type"
-                  :error-messages="errors.type"
-                />
-              </VCol>
-
-              <!-- 👉 Amount -->
+              <!-- 👉 Phone1 -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="groupData.amount"
-                  :rules="[requiredValidator, numericValidator]"
-                  label="Amount"
-                  placeholder="Amount"
-                  :error-messages="errors.amount"
+                  v-model="contactInformationData.phone1"
+                  label="Phone1"
+                  placeholder="Phone1"
+                  :error-messages="errors.phone1"
                 />
               </VCol>
 
-              <!-- 👉 status -->
+              <!-- 👉 Phone2 -->
               <VCol cols="12">
-                <AppAutocomplete
-                  v-model="groupData.status"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Active', title: 'Active' },
-                    { value: 'Inactive', title: 'Inactive' },
-                  ]"
-                  placeholder="Select Status"
-                  label="Status"
-                  :error-messages="errors.status"
+                <AppTextField
+                  v-model="contactInformationData.phone2"
+                  label="Phone2"
+                  placeholder="Phone2"
+                  :error-messages="errors.phone2"
+                />
+              </VCol>
+
+              <!-- 👉 Email -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="contactInformationData.email"
+                  label="Email"
+                  placeholder="Email"
+                  :error-messages="errors.email"
                 />
               </VCol>
               

@@ -7,16 +7,13 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  group: {
+  tag: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
       name: '',
-      saleID: '',
-      type: 'Fixed',
-      amount: '',
       status: 'Active',
     }),
   },
@@ -25,14 +22,14 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
-  'group',
+  'tag',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const groupData = ref(structuredClone(toRaw(props.group)))
+const tagData = ref(structuredClone(toRaw(props.tag)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -45,29 +42,23 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.group._id) {
-      const res = await $api(`/admin/groups/${ props.group._id }`, {
+    if(props.tag._id) {
+      const res = await $api(`/admin/settings/tags/${ props.tag._id }`, {
         method: 'PATCH',
         body: {
-          name: groupData.value.name,
-          saleID: groupData.value.saleID,
-          type: groupData.value.type,
-          amount: groupData.value.amount,
-          status: groupData.value.status,
+          name: tagData.value.name,
+          status: tagData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/groups`, {
+      const res = await $api(`/admin/settings/tags`, {
         method: 'POST',
         body: {
-          name: groupData.value.name,
-          saleID: groupData.value.saleID,
-          type: groupData.value.type,
-          amount: groupData.value.amount,
-          status: groupData.value.status,
+          name: tagData.value.name,
+          status: tagData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -80,7 +71,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.group._id) {
+      if(props.tag._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -105,9 +96,6 @@ const handleDrawerModelValueUpdate = val => {
 
 const errors = ref({
   name: undefined,
-  saleID: undefined,
-  type: undefined,
-  amount: undefined,
   status: undefined,
 })
 </script>
@@ -123,13 +111,13 @@ const errors = ref({
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.group._id"
-      title="Edit Group"
+      v-if="props.tag._id"
+      title="Edit Tag"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Group"
+      title="Add New Tag"
       @cancel="closeNavigationDrawer"
     />
 
@@ -145,10 +133,10 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Name -->
+              <!-- 👉 Title -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="groupData.name"
+                  v-model="tagData.name"
                   :rules="[requiredValidator]"
                   label="Name"
                   placeholder="Name"
@@ -156,47 +144,10 @@ const errors = ref({
                 />
               </VCol>
 
-              <!-- 👉 Sale ID -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="groupData.saleID"
-                  :rules="[requiredValidator]"
-                  label="Sale ID"
-                  placeholder="Sale ID"
-                  :error-messages="errors.saleID"
-                />
-              </VCol>
-
-              <!-- 👉 type -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="groupData.type"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Fixed', title: 'Fixed' },
-                    { value: 'Percentage', title: 'Percentage' },
-                  ]"
-                  placeholder="Select Type"
-                  label="Type"
-                  :error-messages="errors.type"
-                />
-              </VCol>
-
-              <!-- 👉 Amount -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="groupData.amount"
-                  :rules="[requiredValidator, numericValidator]"
-                  label="Amount"
-                  placeholder="Amount"
-                  :error-messages="errors.amount"
-                />
-              </VCol>
-
               <!-- 👉 status -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="groupData.status"
+                  v-model="tagData.status"
                   :rules="[requiredValidator]"
                   :items="[
                     { value: 'Active', title: 'Active' },

@@ -13,6 +13,12 @@ import { can } from '@layouts/plugins/casl'
 import Swal from 'sweetalert2'
 
 const searchQuery = ref('')
+const searchSku = ref('')
+const selectedManufacturer = ref()
+const selectedSupplier = ref()
+const selectedCertification = ref()
+const selectedPackagetype = ref()
+const selectedQuantitytype = ref()
 const selectedStatus = ref()
 const selectedRows = ref([])
 
@@ -73,12 +79,24 @@ const headers = [
     key: 'quantitytypeID',
   },
   {
-    title: 'Active',
-    key: 'status',
+    title: 'Purchase Price',
+    key: 'purchasePrice',
   },
   {
-    title: 'created by',
-    key: 'createdBy',
+    title: 'Sale Price',
+    key: 'salePrice',
+  },
+  {
+    title: 'Max Stock',
+    key: 'maxStock',
+  },
+  {
+    title: 'Remaining Stock',
+    key: 'remainingStock',
+  },
+  {
+    title: 'Active',
+    key: 'status',
   },
   {
     title: 'Created At',
@@ -101,6 +119,12 @@ const {
 } = await useApi(createUrl('/admin/products', {
   query: {
     search: searchQuery,
+    sku: searchSku,
+    manufacturer: selectedManufacturer,
+    supplier: selectedSupplier,
+    certification: selectedCertification,
+    packagetype: selectedPackagetype,
+    quantitytype: selectedQuantitytype,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -112,7 +136,7 @@ const {
 const products = computed(() => customerData.value.products)
 const totalProducts = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/settings/certifications/respond-with/extra-options').catch(err => console.log(err))
+const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
 const certificationOptions = computed(() => commonsync.certificationOptions)
 const packagetypeOptions = computed(() => commonsync.packagetypeOptions)
 const quantitytypeOptions = computed(() => commonsync.quantitytypeOptions)
@@ -128,6 +152,22 @@ const packagetypes = packagetypeOptions.value.map(item => ({
 }))
 
 const quantitytypes = quantitytypeOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const manufacturersync = await $api('/admin/manufacturers/respond-with/extra-options').catch(err => console.log(err))
+const manufacturerOptions = computed(() => manufacturersync.manufacturerOptions)
+
+const manufacturers = manufacturerOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const suppliersync = await $api('/admin/suppliers/respond-with/extra-options').catch(err => console.log(err))
+const supplierOptions = computed(() => suppliersync.supplierOptions)
+
+const suppliers = supplierOptions.value.map(item => ({
   value: item._id,
   title: item.name,
 }))
@@ -246,6 +286,77 @@ const deleteProduct = async id => {
                     placeholder="Search Product"
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppTextField
+                    v-model="searchSku"
+                    placeholder="Search SKU"
+                  />
+                </VCol>
+                
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedManufacturer"
+                    :items="manufacturers"
+                    placeholder="Manufacturer"
+                    clearable
+                  />
+                </VCol>
+                
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedSupplier"
+                    :items="suppliers"
+                    placeholder="Supplier"
+                    clearable
+                  />
+                </VCol>
+                
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCertification"
+                    :items="certifications"
+                    placeholder="Certification"
+                    clearable
+                  />
+                </VCol>
+                
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedPackagetype"
+                    :items="packagetypes"
+                    placeholder="Package Type"
+                    clearable
+                  />
+                </VCol>
+                
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedQuantitytype"
+                    :items="quantitytypes"
+                    placeholder="Quantity Type"
+                    clearable
+                  />
+                </VCol>
+
                 <VCol
                   cols="12"
                   sm="4"
@@ -283,7 +394,9 @@ const deleteProduct = async id => {
       >
         <!-- name -->
         <template #[`item.name`]="{ item }">
-          {{ item.name }}
+          <RouterLink :to="{ name: 'admin-products-detail-id', params: { id: item._id } }">
+            {{ item.name }}
+          </RouterLink>
         </template>
 
         <!-- slug -->
@@ -331,6 +444,26 @@ const deleteProduct = async id => {
           {{ item.quantitytypeID ? item.packagetypeID.name : '' }}
         </template>
 
+        <!-- purchasePrice -->
+        <template #[`item.purchasePrice`]="{ item }">
+          {{ item.purchasePrice }}
+        </template>
+
+        <!-- salePrice -->
+        <template #[`item.salePrice`]="{ item }">
+          {{ item.salePrice }}
+        </template>
+
+        <!-- maxStock -->
+        <template #[`item.maxStock`]="{ item }">
+          {{ item.maxStock }}
+        </template>
+
+        <!-- remainingStock -->
+        <template #[`item.remainingStock`]="{ item }">
+          {{ item.remainingStock }}
+        </template>
+
         <!-- status -->
         <template #[`item.status`]="{ item }">
           <VChip
@@ -340,11 +473,6 @@ const deleteProduct = async id => {
           >
             {{ resolveStatusVariantAndIcon(item.status).title }}
           </VChip>
-        </template>
-
-        <!-- createdBy -->
-        <template #[`item.createdBy`]="{ item }">
-          {{ item.createdBy ? item.createdBy.name : '' }}
         </template>
 
         <!-- Created At -->
@@ -367,6 +495,13 @@ const deleteProduct = async id => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
+                <VListItem :to="{ name: 'admin-products-detail-id', params: { id: item._id } }">
+                  <template #prepend>
+                    <VIcon icon="tabler-eye" />
+                  </template>
+                  <VListItemTitle>View</VListItemTitle>
+                </VListItem>
+
                 <VListItem
                   v-if="can('admin-update-products', 'Update Products')"
                   @click="editProduct(item)"
@@ -406,6 +541,8 @@ const deleteProduct = async id => {
     <AddNewProductDrawer
       v-if="isAddNewProductDrawerVisible"
       v-model:is-drawer-open="isAddNewProductDrawerVisible"
+      v-model:manufacturers="manufacturers"
+      v-model:suppliers="suppliers"
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"
@@ -416,6 +553,8 @@ const deleteProduct = async id => {
       v-if="isProductDialogVisible"
       v-model:is-drawer-open="isProductDialogVisible"
       v-model:product="productDetail"
+      v-model:manufacturers="manufacturers"
+      v-model:suppliers="suppliers"
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"

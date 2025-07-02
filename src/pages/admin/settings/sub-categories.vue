@@ -48,6 +48,14 @@ const headers = [
     key: 'status',
   },
   {
+    title: 'Created by',
+    key: 'createdBy',
+  },
+  {
+    title: 'Updated by',
+    key: 'updatedBy',
+  },
+  {
     title: 'Created At',
     key: 'createdAt',
   },
@@ -267,6 +275,28 @@ const deleteCategory = async id => {
           >
             {{ resolveStatusVariantAndIcon(item.status).title }}
           </VChip>
+        </template>
+
+        <!-- createdBy -->
+        <template #[`item.createdBy`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-admins', 'View Admins') && item.createdBy"
+            :to="{ name: 'admin-admins-detail-id', params: { id: item.createdBy._id } }"
+          >
+            {{ item.createdBy.name }}
+          </RouterLink>
+          <span v-else>{{ item.createdBy ? item.createdBy.name : '' }}</span>
+        </template>
+
+        <!-- updatedBy -->
+        <template #[`item.updatedBy`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-admins', 'View Admins') && item.updatedBy"
+            :to="{ name: 'admin-admins-detail-id', params: { id: item.updatedBy._id } }"
+          >
+            {{ item.updatedBy.name }}
+          </RouterLink>
+          <span v-else>{{ item.updatedBy ? item.updatedBy.name : '' }}</span>
         </template>
 
         <!-- Created At -->

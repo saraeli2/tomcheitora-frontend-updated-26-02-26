@@ -42,11 +42,14 @@ const props = defineProps({
       internalSKU: '',
       externalSKU: '',
       boxSKU: '',
-      manufacturerID: null,
-      supplierID: null,
-      certificationID: null,
-      packagetypeID: null,
-      quantitytypeID: null,
+      manufacturerID: '',
+      supplierID: '',
+      certificationID: '',
+      packagetypeID: '',
+      purchasePrice: '',
+      quantitytypeID: '',
+      salePrice: null,
+      maxStock: null,
       internalRemarks: '',
       remarks: '',
       description: '',
@@ -72,6 +75,14 @@ const isFormValid = ref(false)
 const refForm = ref()
 const productData = ref(structuredClone(toRaw(props.product)))
 
+if(props.product.manufacturerID) {
+  productData.value.manufacturerID = props.product.manufacturerID._id
+}
+
+if(props.product.supplierID) {
+  productData.value.supplierID = props.product.supplierID._id
+}
+
 // 👉 drawer close
 const closeNavigationDrawer = () => {
   emit('update:isDrawerOpen', false)
@@ -92,14 +103,17 @@ const submit = async () => {
           internalSKU: productData.value.internalSKU,
           externalSKU: productData.value.externalSKU,
           boxSKU: productData.value.boxSKU,
-          manufacturerID: productData.value.manufacturerID ?? null,
-          supplierID: productData.value.supplierID ?? null,
-          certificationID: productData.value.certificationID,
-          packagetypeID: productData.value.packagetypeID,
-          quantitytypeID: productData.value.quantitytypeID,
+          manufacturerID: productData.value.manufacturerID ? productData.value.manufacturerID : null,
+          supplierID: productData.value.supplierID ? productData.value.supplierID : null,
+          certificationID: productData.value.certificationID ? productData.value.certificationID : null,
+          packagetypeID: productData.value.packagetypeID ? productData.value.packagetypeID : null,
+          quantitytypeID: productData.value.quantitytypeID ? productData.value.quantitytypeID : null,
           internalRemarks: productData.value.internalRemarks,
           remarks: productData.value.remarks,
           description: productData.value.description,
+          purchasePrice: productData.value.purchasePrice ?? 0,
+          salePrice: productData.value.salePrice ?? 0,
+          maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
         },
         onResponseError({ response }) {
@@ -115,14 +129,17 @@ const submit = async () => {
           internalSKU: productData.value.internalSKU,
           externalSKU: productData.value.externalSKU,
           boxSKU: productData.value.boxSKU,
-          manufacturerID: productData.value.manufacturerID ?? null,
-          supplierID: productData.value.supplierID ?? null,
-          certificationID: productData.value.certificationID,
-          packagetypeID: productData.value.packagetypeID,
-          quantitytypeID: productData.value.quantitytypeID,
+          manufacturerID: productData.value.manufacturerID ? productData.value.manufacturerID : null,
+          supplierID: productData.value.supplierID ? productData.value.supplierID : null,
+          certificationID: productData.value.certificationID ? productData.value.certificationID : null,
+          packagetypeID: productData.value.packagetypeID ? productData.value.packagetypeID : null,
+          quantitytypeID: productData.value.quantitytypeID ? productData.value.quantitytypeID : null,
           internalRemarks: productData.value.internalRemarks,
           remarks: productData.value.remarks,
           description: productData.value.description,
+          purchasePrice: productData.value.purchasePrice ?? 0,
+          salePrice: productData.value.salePrice ?? 0,
+          maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
         },
         onResponseError({ response }) {
@@ -173,6 +190,9 @@ const errors = ref({
   internalRemarks: undefined,
   remarks: undefined,
   description: undefined,
+  purchasePrice: undefined,
+  salePrice: undefined,
+  maxStock: undefined,
   status: undefined,
 })
 
@@ -270,7 +290,7 @@ watch(() => productData.value.name, val => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="productData.manufacturerID"
-                  :items="manufacturers"
+                  :items="props.manufacturers"
                   label="Manufacturer"
                   placeholder="Select Manufacturer"
                   :error-messages="errors.manufacturerID"
@@ -282,7 +302,7 @@ watch(() => productData.value.name, val => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="productData.supplierID"
-                  :items="suppliers"
+                  :items="props.suppliers"
                   label="Supplier"
                   placeholder="Select Supplier"
                   :error-messages="errors.supplierID"
@@ -294,8 +314,7 @@ watch(() => productData.value.name, val => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="productData.certificationID"
-                  :rules="[requiredValidator]"
-                  :items="certifications"
+                  :items="props.certifications"
                   label="Certification"
                   placeholder="Select Certification"
                   :error-messages="errors.certificationID"
@@ -308,7 +327,7 @@ watch(() => productData.value.name, val => {
                 <AppAutocomplete
                   v-model="productData.packagetypeID"
                   :rules="[requiredValidator]"
-                  :items="packagetypes"
+                  :items="props.packagetypes"
                   label="Package Type"
                   placeholder="Select Package Type"
                   :error-messages="errors.packagetypeID"
@@ -321,11 +340,44 @@ watch(() => productData.value.name, val => {
                 <AppAutocomplete
                   v-model="productData.quantitytypeID"
                   :rules="[requiredValidator]"
-                  :items="quantitytypes"
+                  :items="props.quantitytypes"
                   label="Quantity Type"
                   placeholder="Select Quantity Type"
                   :error-messages="errors.quantitytypeID"
                   clearable
+                />
+              </VCol>
+
+              <!-- 👉 Purchase Price -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="productData.purchasePrice"
+                  :rules="[numericValidator]"
+                  label="Purchase Price"
+                  placeholder="Purchase Price"
+                  :error-messages="errors.purchasePrice"
+                />
+              </VCol>
+
+              <!-- 👉 Sale Price -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="productData.salePrice"
+                  :rules="[numericValidator]"
+                  label="Sale Price"
+                  placeholder="Sale Price"
+                  :error-messages="errors.salePrice"
+                />
+              </VCol>
+
+              <!-- 👉 Max Stock -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="productData.maxStock"
+                  :rules="[integerValidator]"
+                  label="Max Stock"
+                  placeholder="Max Stock"
+                  :error-messages="errors.maxStock"
                 />
               </VCol>
 

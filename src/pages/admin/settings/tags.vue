@@ -1,13 +1,13 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-categories', 'admin-create-categories'],
-    subject: ['View Categories', 'Create Categories'],
-    title: 'Categories',
+    action: ['admin-view-tags', 'admin-create-tags'],
+    subject: ['View Tags', 'Create Tags'],
+    title: 'Tags',
   },
 })
 
-import AddNewCategoryDrawer from '@/views/admin/settings/AddNewCategoryDrawer.vue'
+import AddNewTagDrawer from '@/views/admin/settings/AddNewTagDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 const ability = useAbility()
@@ -23,9 +23,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isCategoryDialogVisible = ref(false)
-const isAddNewCategoryDrawerVisible = ref(false)
-const categoryDetail = ref()
+const isTagDialogVisible = ref(false)
+const isAddNewTagDrawerVisible = ref(false)
+const tagDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -67,8 +67,8 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchCategories,
-} = await useApi(createUrl('/admin/settings/categories', {
+  execute: fetchTags,
+} = await useApi(createUrl('/admin/settings/tags', {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
@@ -79,8 +79,8 @@ const {
   },
 }))
 
-const categories = computed(() => customerData.value.categories)
-const totalCategories = computed(() => customerData.value.total)
+const tags = computed(() => customerData.value.tags)
+const totalTags = computed(() => customerData.value.total)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -95,18 +95,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyCategory = async userData => {
-  // refetch Category
-  fetchCategories()
+const modifyTag = async userData => {
+  // refetch Tag
+  fetchTags()
 }
 
-const editCategory = async value => {
-  categoryDetail.value = value
+const editTag = async value => {
+  tagDetail.value = value
   
-  isCategoryDialogVisible.value = true
+  isTagDialogVisible.value = true
 }
 
-const deleteCategory = async id => {
+const deleteTag = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -124,8 +124,8 @@ const deleteCategory = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/settings/categories/${ id }`, { method: 'DELETE' })
-        fetchCategories()
+        await $api(`/admin/settings/tags/${ id }`, { method: 'DELETE' })
+        fetchTags()
       }
     })  
 }
@@ -138,7 +138,7 @@ const deleteCategory = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Categories
+              Tags
             </h5>
           </VCol>
         </VRow>
@@ -162,13 +162,13 @@ const deleteCategory = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Category -->
+          <!-- 👉 Create Tag -->
           <VBtn
-            v-if="can('admin-create-categories', 'Create Categories')"
+            v-if="can('admin-create-tags', 'Create Tags')"
             prepend-icon="tabler-plus"
-            @click="isAddNewCategoryDrawerVisible = true"
+            @click="isAddNewTagDrawerVisible = true"
           >
-            Create Category
+            Create Tag
           </VBtn>
         </div>
 
@@ -178,7 +178,7 @@ const deleteCategory = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-categories', 'View Categories')"
+        v-if="can('admin-view-tags', 'View Tags')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -193,7 +193,7 @@ const deleteCategory = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Category"
+                    placeholder="Search Tag"
                   />
                 </VCol>
                 <VCol
@@ -216,17 +216,17 @@ const deleteCategory = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-categories', 'View Categories')" />
+      <VDivider v-if="can('admin-view-tags', 'View Tags')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-categories', 'View Categories')"
+        v-if="can('admin-view-tags', 'View Tags')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalCategories"
+        :items-length="totalTags"
         :headers="headers"
-        :items="categories"
+        :items="tags"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
@@ -290,8 +290,8 @@ const deleteCategory = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-categories', 'Update Categories')"
-                  @click="editCategory(item)"
+                  v-if="can('admin-update-tags', 'Update Tags')"
+                  @click="editTag(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -300,8 +300,8 @@ const deleteCategory = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-categories', 'Delete Categories')"
-                  @click="deleteCategory(item._id)"
+                  v-if="can('admin-delete-tags', 'Delete Tags')"
+                  @click="deleteTag(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -318,23 +318,23 @@ const deleteCategory = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalCategories"
+            :total-items="totalTags"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewCategoryDrawer
-      v-if="isAddNewCategoryDrawerVisible"
-      v-model:is-drawer-open="isAddNewCategoryDrawerVisible"
-      @user-data="modifyCategory"
+    <AddNewTagDrawer
+      v-if="isAddNewTagDrawerVisible"
+      v-model:is-drawer-open="isAddNewTagDrawerVisible"
+      @user-data="modifyTag"
     />
 
-    <AddNewCategoryDrawer
-      v-if="isCategoryDialogVisible"
-      v-model:is-drawer-open="isCategoryDialogVisible"
-      v-model:category="categoryDetail"
-      @user-data="modifyCategory"
+    <AddNewTagDrawer
+      v-if="isTagDialogVisible"
+      v-model:is-drawer-open="isTagDialogVisible"
+      v-model:tag="tagDetail"
+      @user-data="modifyTag"
     />
   </section>
 </template>

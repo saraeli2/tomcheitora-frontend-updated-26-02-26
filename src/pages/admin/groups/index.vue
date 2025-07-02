@@ -35,16 +35,32 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Title',
-    key: 'title',
+    title: 'Name',
+    key: 'name',
   },
   {
-    title: 'Slug',
-    key: 'slug',
+    title: 'Sale ID',
+    key: 'saleID',
+  },
+  {
+    title: 'Type',
+    key: 'type',
+  },
+  {
+    title: 'Amount',
+    key: 'amount',
   },
   {
     title: 'Active',
     key: 'status',
+  },
+  {
+    title: 'Created by',
+    key: 'createdBy',
+  },
+  {
+    title: 'Updated by',
+    key: 'updatedBy',
   },
   {
     title: 'Created At',
@@ -227,14 +243,24 @@ const deleteGroup = async id => {
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- title -->
-        <template #[`item.title`]="{ item }">
-          {{ item.title }}
+        <!-- name -->
+        <template #[`item.name`]="{ item }">
+          {{ item.name }}
         </template>
-
-        <!-- slug -->
-        <template #[`item.slug`]="{ item }">
-          {{ item.slug }}
+        
+        <!-- saleID -->
+        <template #[`item.saleID`]="{ item }">
+          {{ item.saleID }}
+        </template>
+        
+        <!-- type -->
+        <template #[`item.type`]="{ item }">
+          {{ item.type }}
+        </template>
+        
+        <!-- amount -->
+        <template #[`item.amount`]="{ item }">
+          {{ item.amount ?? '' }}
         </template>
 
         <!-- status -->
@@ -246,6 +272,28 @@ const deleteGroup = async id => {
           >
             {{ resolveStatusVariantAndIcon(item.status).title }}
           </VChip>
+        </template>
+
+        <!-- createdBy -->
+        <template #[`item.createdBy`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-admins', 'View Admins') && item.createdBy"
+            :to="{ name: 'admin-admins-detail-id', params: { id: item.createdBy._id } }"
+          >
+            {{ item.createdBy.name }}
+          </RouterLink>
+          <span v-else>{{ item.createdBy ? item.createdBy.name : '' }}</span>
+        </template>
+
+        <!-- updatedBy -->
+        <template #[`item.updatedBy`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-admins', 'View Admins') && item.updatedBy"
+            :to="{ name: 'admin-admins-detail-id', params: { id: item.updatedBy._id } }"
+          >
+            {{ item.updatedBy.name }}
+          </RouterLink>
+          <span v-else>{{ item.updatedBy ? item.updatedBy.name : '' }}</span>
         </template>
 
         <!-- Created At -->
