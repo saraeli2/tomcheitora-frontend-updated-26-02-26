@@ -421,12 +421,24 @@ const deleteProduct = async id => {
 
         <!-- manufacturerID -->
         <template #[`item.manufacturerID`]="{ item }">
-          {{ item.manufacturerID ? item.manufacturerID.name : '' }}
+          <RouterLink
+            v-if="can('admin-view-manufacturers', 'View Manufacturers') && item.manufacturerID"
+            :to="{ name: 'admin-manufacturers-detail-id', params: { id: item.manufacturerID._id } }"
+          >
+            {{ item.manufacturerID.name }}
+          </RouterLink>
+          <span v-else>{{ item.manufacturerID ? item.manufacturerID.name : '' }}</span>
         </template>
 
         <!-- supplierID -->
         <template #[`item.supplierID`]="{ item }">
-          {{ item.supplierID ? item.supplierID.name : '' }}
+          <RouterLink
+            v-if="can('admin-view-suppliers', 'View Suppliers') && item.supplierID"
+            :to="{ name: 'admin-suppliers-detail-id', params: { id: item.supplierID._id } }"
+          >
+            {{ item.supplierID.name }}
+          </RouterLink>
+          <span v-else>{{ item.supplierID ? item.supplierID.name : '' }}</span>
         </template>
 
         <!-- certificationID -->

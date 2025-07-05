@@ -7,14 +7,22 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  category: {
+  categories: {
+    type: Object,
+    required: true,
+  },
+  parent: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  categoryBuilder: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      name: '',
-      status: 'Active',
+      parentId: '',
     }),
   },
 })
@@ -22,14 +30,16 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
-  'category',
+  'parent',
+  'categories',
+  'categoryBuilder',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const categoryData = ref(structuredClone(toRaw(props.category)))
+const categoryBuilderData = ref(structuredClone(toRaw(props.categoryBuilder)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -42,23 +52,23 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.category._id) {
-      const res = await $api(`/admin/settings/categories/${ props.category._id }`, {
+    if(props.categoryBuilder._id) {
+      const res = await $api(`/admin/settings/category-builders/${ props.categoryBuilder._id }`, {
         method: 'PATCH',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          childId: categoryBuilderData.value.parentId,
+          parentId: props.parent,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/settings/categories`, {
+      const res = await $api(`/admin/settings/category-builders`, {
         method: 'POST',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          childId: categoryBuilderData.value.parentId,
+          parentId: props.parent,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -71,7 +81,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.category._id) {
+      if(props.categoryBuilder._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -95,8 +105,8 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  name: undefined,
-  status: undefined,
+  parentId: undefined,
+  childId: undefined,
 })
 </script>
 
@@ -111,13 +121,13 @@ const errors = ref({
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.category._id"
-      title="Edit Category"
+      v-if="props.categoryBuilder._id"
+      title="Edit Category Builder"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Category"
+      title="Add New Category Builder"
       @cancel="closeNavigationDrawer"
     />
 
@@ -133,29 +143,15 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="categoryData.name"
-                  :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
-                  :error-messages="errors.name"
-                />
-              </VCol>
-
-              <!-- 👉 status -->
+              <!-- 👉 Category -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="categoryData.status"
+                  v-model="categoryBuilderData.parentId"
                   :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Active', title: 'Active' },
-                    { value: 'Inactive', title: 'Inactive' },
-                  ]"
-                  placeholder="Select Status"
-                  label="Status"
-                  :error-messages="errors.status"
+                  :items="props.categories"
+                  label="Category"
+                  placeholder="Select Category"
+                  :error-messages="errors.parentId"
                 />
               </VCol>
               

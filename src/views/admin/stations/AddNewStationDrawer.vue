@@ -7,6 +7,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  admins: {
+    type: Object,
+    required: true,
+  },
   station: {
     type: Object,
     required: false,
@@ -20,12 +24,14 @@ const props = defineProps({
       street: '',
       houseNumber: '',
       status: 'Active',
+      admins: [],
     }),
   },
 })
 
 const emit = defineEmits([
   'update:isDrawerOpen',
+  'admins',
   'userData',
   'station',
 ])
@@ -35,6 +41,10 @@ const toast = useToast()
 const isFormValid = ref(false)
 const refForm = ref()
 const stationData = ref(structuredClone(toRaw(props.station)))
+
+if(props.station.admins.length > 0) {
+    stationData.value.admins = props.station.admins.map(admin => admin._id);
+}
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -58,6 +68,7 @@ const submit = async () => {
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
+          admins: stationData.value.admins,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -74,6 +85,7 @@ const submit = async () => {
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
+          admins: stationData.value.admins,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -116,6 +128,7 @@ const errors = ref({
   cityName: undefined,
   street: undefined,
   houseNumber: undefined,
+  admins: undefined,
 })
 </script>
 
@@ -152,6 +165,19 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
+              <!-- 👉 Admin -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="stationData.admins"
+                  :items="props.admins"
+                  placeholder="Select Admin"
+                  label="Admin"
+                  multiple
+                  :error-messages="errors.admins"
+                  clearable
+                />
+              </VCol>
+
               <!-- 👉 Name -->
               <VCol cols="12">
                 <AppTextField

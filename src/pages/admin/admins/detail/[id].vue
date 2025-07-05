@@ -42,13 +42,13 @@ const {
 
 const adminData = computed(() => adminDetail.value)
 
-const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
+const commonsync = await $api('/admin/roles/respond-with/extra-options').catch(err => console.log(err))
 
 const roleOptions = computed(() => commonsync.roleOptions)
 
 const roles = roleOptions.value.map(item => ({
   value: item._id,
-  title: item.name
+  title: item.name,
 }))
 
 const reloadTab = ref(true)
@@ -181,7 +181,6 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <VList class="card-list mt-2">
-
                   <VListItem>
                     <h6 class="text-h6">
                       First Name:
@@ -292,6 +291,36 @@ onMounted( async () => {
                       Remarks:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="adminData?.remarks" />
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Created By:
+                      <span class="text-body-1 d-inline-block">
+                        <RouterLink
+                          v-if="can('admin-view-admins', 'View Admins') && adminData.createdBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: adminData.createdBy._id } }"
+                        >
+                          {{ adminData.createdBy.name }}
+                        </RouterLink>
+                        <span v-else>{{ adminData.createdBy ? adminData.createdBy.name : '' }}</span>
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Updated By:
+                      <span class="text-body-1 d-inline-block">
+                        <RouterLink
+                          v-if="can('admin-view-admins', 'View Admins') && adminData.updatedBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: adminData.updatedBy._id } }"
+                        >
+                          {{ adminData.updatedBy.name }}
+                        </RouterLink>
+                        <span v-else>{{ adminData.updatedBy ? adminData.updatedBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>

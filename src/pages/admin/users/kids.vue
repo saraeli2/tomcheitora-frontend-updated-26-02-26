@@ -59,6 +59,10 @@ const headers = [
     key: 'IDNumber',
   },
   {
+    title: 'Marital Status',
+    key: 'maritalStatus',
+  },
+  {
     title: 'Created At',
     key: 'createdAt',
   },
@@ -244,6 +248,11 @@ const deleteKid = async id => {
         <!-- IDNumber -->
         <template #[`item.IDNumber`]="{ item }">
           {{ item.IDNumber }}
+        </template>
+
+        <!-- maritalStatus -->
+        <template #[`item.maritalStatus`]="{ item }">
+          {{ item.maritalStatus }}
         </template>
 
         <!-- Created At -->

@@ -1,21 +1,20 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-communities'],
-    subject: ['View Community'],
-    navActiveLink: 'admin-communities',
-    title: 'Community Details',
+    action: ['admin-view-stations'],
+    subject: ['View Stations'],
+    navActiveLink: 'admin-stations',
+    title: 'Station Details',
   },
 })
 
-import ContactInformationModule from '@/pages/admin/settings/contact-informations.vue'
-import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
+import AddNewStationDrawer from '@/views/admin/stations/AddNewStationDrawer.vue'
 
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
-const isCommunityDialogVisible = ref(false)
+const isStationDialogVisible = ref(false)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -30,25 +29,33 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const route = useRoute('admin-communities-detail-id')
+const route = useRoute('admin-stations-detail-id')
 const router = useRouter()
 
 const userTab = ref(0)
 
 const {
-  data: communityDetail, execute: fetchCommunities,
-} = await useApi(createUrl(`/admin/communities/${ route.params.id }`))
+  data: stationDetail, execute: fetchStations,
+} = await useApi(createUrl(`/admin/stations/${ route.params.id }`))
 
-const communityData = computed(() => communityDetail.value)
+const stationData = computed(() => stationDetail.value)
+
+const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
+const adminOptions = computed(() => commonsync.adminOptions)
+
+const admins = adminOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.firstName} ${item.lastName}`,
+}))
 
 const reloadTab = ref(true)
 
-const modifyCommunity = async userData => {
+const modifyStation = async userData => {
   // refetch Organization
-  fetchCommunities()
+  fetchStations()
 }
 
-const deleteCommunity = async () => {
+const deleteStation = async () => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -66,8 +73,8 @@ const deleteCommunity = async () => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/communities/${ route.params.id }`, { method: 'DELETE' })
-        router.push({ name: 'admin-communities' })
+        await $api(`/admin/stations/${ route.params.id }`, { method: 'DELETE' })
+        router.push({ name: 'admin-stations' })
       }
     })
 }
@@ -89,7 +96,7 @@ onMounted( async () => {
   <div>
     <!-- 👉 Header  -->
     <div 
-      v-if="communityData"
+      v-if="stationData"
       class="d-flex justify-space-between align-center flex-wrap gap-y-4 mb-6"
     >
       <VRow>
@@ -100,7 +107,7 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Communities', to: { name: 'admin-communities' }, class: 'text-primary' }, { title: 'Community Details of ' + communityData.name }]"
+            :items="[{ title: 'Stations', to: { name: 'admin-stations' }, class: 'text-primary' }, { title: 'Station Details of ' + stationData.name }]"
           />
         </VCol>
       </VRow>
@@ -110,20 +117,20 @@ onMounted( async () => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Community ID #{{ route.params.id }}
+          Station ID #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(communityData.createdAt) }}, Updated At: {{ formatDateWithTime(communityData.updatedAt) }}
+          Created At: {{ formatDateWithTime(stationData.createdAt) }}, Updated At: {{ formatDateWithTime(stationData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-communities', 'Delete Community')"
+          v-if="can('admin-delete-stations', 'Delete Stations')"
           variant="tonal"
           color="error"
-          @click="deleteCommunity"
+          @click="deleteStation"
         >
-          Delete Community
+          Delete Station
         </VBtn>
       </div>
     </div>
@@ -146,15 +153,6 @@ onMounted( async () => {
             />
             Details
           </VTab>
-
-          <VTab>
-            <VIcon
-              size="20"
-              start
-              icon="tabler-bookmarks"
-            />
-            Contact Informations
-          </VTab>
         </VTabs>
 
         <VWindow
@@ -163,11 +161,25 @@ onMounted( async () => {
           :touch="false"
         >
           <VWindowItem>
-            <VCard v-if="communityData">
+            <VCard v-if="stationData">
+              <VCardText
+                v-if="stationData.logo"
+                class="text-center pt-12"
+              >
+                <VAvatar
+                  rounded
+                  :size="100"
+                  color="primary"
+                  variant="tonal"
+                >
+                  <VImg :src="stationData.logo" />
+                </VAvatar>
+              </VCardText>
+
               <VCardText class="text-center pt-12">
                 <!-- 👉 Customer fullName -->
                 <div class="text-body-1">
-                  Community ID #{{ communityData._id }}
+                  Station ID #{{ stationData._id }}
                 </div>
               </VCardText>
 
@@ -184,7 +196,16 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Name:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.name }}
+                        {{ stationData.name }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Neighbourhood:
+                      <span class="text-body-1 d-inline-block">
+                        {{ stationData.neighbourhood }}
                       </span>
                     </h6>
                   </VListItem>
@@ -193,7 +214,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       City ID:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.cityId }}
+                        {{ stationData.cityId }}
                       </span>
                     </h6>
                   </VListItem>
@@ -202,7 +223,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       City Name:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.cityName }}
+                        {{ stationData.cityName }}
                       </span>
                     </h6>
                   </VListItem>
@@ -211,7 +232,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Street:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.street }}
+                        {{ stationData.street }}
                       </span>
                     </h6>
                   </VListItem>
@@ -220,44 +241,33 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       House Number:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.houseNumber }}
+                        {{ stationData.houseNumber }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
-                    <h6 class="text-h6">
-                      Website:
-                      <span
-                        v-if="communityData.website"
-                        class="text-body-1 d-inline-block"
+                    <div class="d-flex gap-x-2 align-center">
+                      <h6 class="text-h6">
+                        Admin:
+                      </h6>
+                      <VChip
+                        v-for="(admin, adminindex) in stationData.admins"
+                        :key="adminindex"
+                        label
+                        color="success"
+                        size="small"
+                        class="roles"
                       >
-                        <a
-                          :href="communityData.website"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-primary ms-1"
-                        >{{ communityData.website }}</a>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Discount Type:
-                      <span class="text-body-1 d-inline-block">
-                        {{ communityData.discountType }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Delivery Charge:
-                      <span class="text-body-1 d-inline-block">
-                        {{ communityData.discount ?? '' }}
-                      </span>
-                    </h6>
+                        <RouterLink
+                          v-if="can('admin-view-admins', 'View Admins')"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: admin._id } }"
+                        >
+                          {{ admin.firstName }} {{ admin.lastName }}
+                        </RouterLink>
+                        <span v-else>{{ admin.name }}</span>
+                      </VChip>
+                    </div>
                   </VListItem>
 
                   <VListItem>
@@ -267,21 +277,12 @@ onMounted( async () => {
                       </h6>
                       <VChip
                         label
-                        :color="resolveStatusVariantAndIcon(communityData.status).variant"
+                        :color="resolveStatusVariantAndIcon(stationData.status).variant"
                         size="small"
                       >
-                        {{ resolveStatusVariantAndIcon(communityData.status).title }}
+                        {{ resolveStatusVariantAndIcon(stationData.status).title }}
                       </VChip>
                     </div>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Remarks:
-                      <span class="text-body-1 d-inline-block">
-                        <div v-html="communityData?.remarks" />
-                      </span>
-                    </h6>
                   </VListItem>
 
                   <VListItem>
@@ -289,12 +290,12 @@ onMounted( async () => {
                       Created By:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && communityData.createdBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: communityData.createdBy._id } }"
+                          v-if="can('admin-view-admins', 'View Admins') && stationData.createdBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: stationData.createdBy._id } }"
                         >
-                          {{ communityData.createdBy.name }}
+                          {{ stationData.createdBy.name }}
                         </RouterLink>
-                        <span v-else>{{ communityData.createdBy ? communityData.createdBy.name : '' }}</span>
+                        <span v-else>{{ stationData.createdBy ? stationData.createdBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -304,12 +305,12 @@ onMounted( async () => {
                       Updated By:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && communityData.updatedBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: communityData.updatedBy._id } }"
+                          v-if="can('admin-view-admins', 'View Admins') && stationData.updatedBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: stationData.updatedBy._id } }"
                         >
-                          {{ communityData.updatedBy.name }}
+                          {{ stationData.updatedBy.name }}
                         </RouterLink>
-                        <span v-else>{{ communityData.updatedBy ? communityData.updatedBy.name : '' }}</span>
+                        <span v-else>{{ stationData.updatedBy ? stationData.updatedBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -317,25 +318,17 @@ onMounted( async () => {
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-communities', 'Update Community')"
+                v-if="can('admin-update-stations', 'Update Stations')"
                 class="text-center"
               >
                 <VBtn
                   block
-                  @click="isCommunityDialogVisible = !isCommunityDialogVisible"
+                  @click="isStationDialogVisible = !isStationDialogVisible"
                 >
-                  Edit Community
+                  Edit Station
                 </VBtn>
               </VCardText>
             </VCard>
-          </VWindowItem>
-
-          <VWindowItem>
-            <ContactInformationModule
-              :morphableid="route.params.id"
-              morphabletype="Community"
-              @tab-data="refreshTab"
-            />
           </VWindowItem>
         </VWindow>
       </VCol>
@@ -345,15 +338,16 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Community with ID  {{ route.params.id }} not found!
+        Station with ID  {{ route.params.id }} not found!
       </VAlert>
     </div>
 
-    <AddNewCommunityDrawer
-      v-if="isCommunityDialogVisible"
-      v-model:is-drawer-open="isCommunityDialogVisible"
-      v-model:community="communityData"
-      @user-data="modifyCommunity"
+    <AddNewStationDrawer
+      v-if="isStationDialogVisible"
+      v-model:is-drawer-open="isStationDialogVisible"
+      v-model:station="stationData"
+      v-model:admins="admins"
+      @user-data="modifyStation"
     />
   </div>
 </template>

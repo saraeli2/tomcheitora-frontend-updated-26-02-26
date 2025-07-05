@@ -21,6 +21,7 @@ const props = defineProps({
       lastName: '',
       phone1: '',
       phone2: '',
+      maritalStatus: '',
       email: '',
     }),
   },
@@ -58,6 +59,7 @@ const submit = async () => {
           lastName: kidData.value.lastName,
           dob: kidData.value.dob,
           IDNumber: kidData.value.IDNumber,
+          maritalStatus: kidData.value.maritalStatus,
           userID: props.userid,
         },
         onResponseError({ response }) {
@@ -72,6 +74,7 @@ const submit = async () => {
           lastName: kidData.value.lastName,
           dob: kidData.value.dob,
           IDNumber: kidData.value.IDNumber,
+          maritalStatus: kidData.value.maritalStatus,
           userID: props.userid,
         },
         onResponseError({ response }) {
@@ -113,6 +116,7 @@ const errors = ref({
   lastName: undefined,
   dob: undefined,
   IDNumber: undefined,
+  maritalStatus: undefined,
 })
 </script>
 
@@ -188,6 +192,26 @@ const errors = ref({
                   label="ID number"
                   placeholder="ID number"
                   :error-messages="errors.IDNumber"
+                />
+              </VCol>
+
+              <!-- 👉 maritalStatus -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="kidData.maritalStatus"
+                  :items="[
+                    { value: 'Single', title: 'Single' },
+                    { value: 'Married', title: 'Married' },
+                    { value: 'Divorced', title: 'Divorced' },
+                    { value: 'Widowed', title: 'Widowed' },
+                    { value: 'Separated', title: 'Separated' },
+                    { value: 'In a civil partnership', title: 'In a civil partnership' },
+                    { value: 'Cohabiting', title: 'Cohabiting' },
+                  ]"
+                  placeholder="Select Marital Status"
+                  label="Marital Status"
+                  :error-messages="errors.maritalStatus"
+                  clearable
                 />
               </VCol>
               

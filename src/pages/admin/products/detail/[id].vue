@@ -255,7 +255,13 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Manufacturer:
                       <span class="text-body-1 d-inline-block">
-                        {{ productData.manufacturerID ? productData.manufacturerID.name : '' }}
+                        <RouterLink
+                          v-if="can('admin-view-manufacturers', 'View Manufacturers') && productData.manufacturerID"
+                          :to="{ name: 'admin-manufacturers-detail-id', params: { id: productData.manufacturerID._id } }"
+                        >
+                          {{ productData.manufacturerID.name }}
+                        </RouterLink>
+                        <span v-else>{{ productData.manufacturerID ? productData.manufacturerID.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -264,7 +270,13 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Manufacturer:
                       <span class="text-body-1 d-inline-block">
-                        {{ productData.supplierID ? productData.supplierID.name : '' }}
+                        <RouterLink
+                          v-if="can('admin-view-suppliers', 'View Suppliers') && productData.supplierID"
+                          :to="{ name: 'admin-suppliers-detail-id', params: { id: productData.supplierID._id } }"
+                        >
+                          {{ productData.supplierID.name }}
+                        </RouterLink>
+                        <span v-else>{{ productData.supplierID ? productData.supplierID.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>

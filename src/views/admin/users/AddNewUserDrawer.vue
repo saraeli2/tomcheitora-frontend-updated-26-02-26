@@ -33,6 +33,7 @@ const props = defineProps({
       passportNumber: '',
       noOfKids: '',
       status: 'Active',
+      maritalStatus: '',
     }),
   },
 })
@@ -81,6 +82,12 @@ const submit = async () => {
 
   if(adminData.value.lastName) {
     formData.append('lastName', adminData.value.lastName)
+  }
+
+  if(adminData.value.maritalStatus) {
+    formData.append('maritalStatus', adminData.value.maritalStatus)
+  } else {
+    formData.append('maritalStatus', '')
   }
 
   if(adminData.value.communityID) {
@@ -203,6 +210,7 @@ const errors = ref({
   email: undefined,
   phone: undefined,
   status: undefined,
+  maritalStatus: undefined,
   communityID: undefined,
   cityId: undefined,
   cityName: undefined,
@@ -393,6 +401,26 @@ const handleImageChange = file => {
                   label="No. Of Kids"
                   placeholder="No. Of Kids"
                   :error-messages="errors.noOfKids"
+                />
+              </VCol>
+
+              <!-- 👉 maritalStatus -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="adminData.maritalStatus"
+                  :items="[
+                    { value: 'Single', title: 'Single' },
+                    { value: 'Married', title: 'Married' },
+                    { value: 'Divorced', title: 'Divorced' },
+                    { value: 'Widowed', title: 'Widowed' },
+                    { value: 'Separated', title: 'Separated' },
+                    { value: 'In a civil partnership', title: 'In a civil partnership' },
+                    { value: 'Cohabiting', title: 'Cohabiting' },
+                  ]"
+                  placeholder="Select Marital Status"
+                  label="Marital Status"
+                  :error-messages="errors.maritalStatus"
+                  clearable
                 />
               </VCol>
 

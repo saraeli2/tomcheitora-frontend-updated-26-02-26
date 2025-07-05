@@ -1,19 +1,20 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-stations', 'admin-create-stations'],
-    subject: ['View Stations', 'Create Stations'],
-    title: 'Stations',
+    action: ['admin-view-suppliers', 'admin-create-suppliers'],
+    subject: ['View Suppliers', 'Create Suppliers'],
+    title: 'Suppliers',
   },
 })
 
-import AddNewStationDrawer from '@/views/admin/stations/AddNewStationDrawer.vue'
+import AddNewSupplierDrawer from '@/views/admin/suppliers/AddNewSupplierDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
 const searchQuery = ref('')
 const selectedStatus = ref()
+const selectedCountry = ref()
 const selectedRows = ref([])
 
 // Data table options
@@ -21,9 +22,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isStationDialogVisible = ref(false)
-const isAddNewStationDrawerVisible = ref(false)
-const stationDetail = ref()
+const isSupplierDialogVisible = ref(false)
+const isAddNewSupplierDrawerVisible = ref(false)
+const supplierDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -37,16 +38,16 @@ const headers = [
     key: 'name',
   },
   {
-    title: 'Neighbourhood',
-    key: 'neighbourhood',
+    title: 'Business ID',
+    key: 'businessID',
   },
   {
-    title: 'City ID',
-    key: 'cityId',
+    title: 'Country',
+    key: 'countryID',
   },
   {
-    title: 'City Name',
-    key: 'cityName',
+    title: 'City',
+    key: 'city',
   },
   {
     title: 'Street',
@@ -61,9 +62,8 @@ const headers = [
     key: 'status',
   },
   {
-    title: 'Admin',
-    key: 'admins',
-    sortable: false,
+    title: 'created by',
+    key: 'createdBy',
   },
   {
     title: 'Created At',
@@ -82,11 +82,12 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchStations,
-} = await useApi(createUrl('/admin/stations', {
+  execute: fetchSuppliers,
+} = await useApi(createUrl('/admin/suppliers', {
   query: {
     search: searchQuery,
     status: selectedStatus,
+    country: selectedCountry,
     itemsPerPage,
     page,
     sortBy,
@@ -94,15 +95,15 @@ const {
   },
 }))
 
-const stations = computed(() => customerData.value.stations)
-const totalStations = computed(() => customerData.value.total)
+const suppliers = computed(() => customerData.value.suppliers)
+const totalSuppliers = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
-const adminOptions = computed(() => commonsync.adminOptions)
+const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const countryOptions = computed(() => commonsync.countryOptions)
 
-const admins = adminOptions.value.map(item => ({
+const countries = countryOptions.value.map(item => ({
   value: item._id,
-  title: `${item.firstName} ${item.lastName}`,
+  title: item.name,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -118,18 +119,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyStation = async userData => {
-  // refetch Station
-  fetchStations()
+const modifySupplier = async userData => {
+  // refetch Supplier
+  fetchSuppliers()
 }
 
-const editStation = async value => {
-  stationDetail.value = value
+const editSupplier = async value => {
+  supplierDetail.value = value
   
-  isStationDialogVisible.value = true
+  isSupplierDialogVisible.value = true
 }
 
-const deleteStation = async id => {
+const deleteSupplier = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -147,8 +148,8 @@ const deleteStation = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/stations/${ id }`, { method: 'DELETE' })
-        fetchStations()
+        await $api(`/admin/suppliers/${ id }`, { method: 'DELETE' })
+        fetchSuppliers()
       }
     })  
 }
@@ -161,7 +162,7 @@ const deleteStation = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Stations
+              Suppliers
             </h5>
           </VCol>
         </VRow>
@@ -185,13 +186,13 @@ const deleteStation = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Station -->
+          <!-- 👉 Create Supplier -->
           <VBtn
-            v-if="can('admin-create-stations', 'Create Stations')"
+            v-if="can('admin-create-suppliers', 'Create Suppliers')"
             prepend-icon="tabler-plus"
-            @click="isAddNewStationDrawerVisible = true"
+            @click="isAddNewSupplierDrawerVisible = true"
           >
-            Create Station
+            Create Supplier
           </VBtn>
         </div>
 
@@ -201,7 +202,7 @@ const deleteStation = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-stations', 'View Stations')"
+        v-if="can('admin-view-suppliers', 'View Suppliers')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -216,9 +217,22 @@ const deleteStation = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Station"
+                    placeholder="Search Supplier"
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCountry"
+                    :items="countries"
+                    placeholder="Country"
+                    clearable
+                  />
+                </VCol>
+
                 <VCol
                   cols="12"
                   sm="4"
@@ -239,41 +253,41 @@ const deleteStation = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-stations', 'View Stations')" />
+      <VDivider v-if="can('admin-view-suppliers', 'View Suppliers')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-stations', 'View Stations')"
+        v-if="can('admin-view-suppliers', 'View Suppliers')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalStations"
+        :items-length="totalSuppliers"
         :headers="headers"
-        :items="stations"
+        :items="suppliers"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
         <!-- name -->
         <template #[`item.name`]="{ item }">
-          <RouterLink :to="{ name: 'admin-stations-detail-id', params: { id: item._id } }">
+          <RouterLink :to="{ name: 'admin-suppliers-detail-id', params: { id: item._id } }">
             {{ item.name }}
           </RouterLink>
         </template>
 
-        <!-- neighbourhood -->
-        <template #[`item.neighbourhood`]="{ item }">
-          {{ item.neighbourhood }}
+        <!-- businessID -->
+        <template #[`item.businessID`]="{ item }">
+          {{ item.businessID }}
         </template>
 
-        <!-- cityId -->
-        <template #[`item.cityId`]="{ item }">
-          {{ item.cityId }}
+        <!-- countryID -->
+        <template #[`item.countryID`]="{ item }">
+          {{ item.countryID ? item.countryID.name : '' }}
         </template>
 
-        <!-- cityName -->
-        <template #[`item.cityName`]="{ item }">
-          {{ item.cityName }}
+        <!-- city -->
+        <template #[`item.city`]="{ item }">
+          {{ item.city }}
         </template>
 
         <!-- street -->
@@ -297,24 +311,9 @@ const deleteStation = async id => {
           </VChip>
         </template>
 
-        <!-- admins -->
-        <template #[`item.admins`]="{ item }">
-          <VChip
-            v-for="(admin, adminindex) in item.admins"
-            :key="adminindex"
-            label
-            color="success"
-            size="small"
-            class="roles"
-          >
-            <RouterLink
-              v-if="can('admin-view-admins', 'View Admins')"
-              :to="{ name: 'admin-admins-detail-id', params: { id: admin._id } }"
-            >
-              {{ admin.firstName }} {{ admin.lastName }}
-            </RouterLink>
-            <span v-else>{{ admin.name }}</span>
-          </VChip>
+        <!-- createdBy -->
+        <template #[`item.createdBy`]="{ item }">
+          {{ item.createdBy ? item.createdBy.name : '' }}
         </template>
 
         <!-- Created At -->
@@ -337,7 +336,7 @@ const deleteStation = async id => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-                <VListItem :to="{ name: 'admin-stations-detail-id', params: { id: item._id } }">
+                <VListItem :to="{ name: 'admin-suppliers-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
@@ -345,8 +344,8 @@ const deleteStation = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-stations', 'Update Stations')"
-                  @click="editStation(item)"
+                  v-if="can('admin-update-suppliers', 'Update Suppliers')"
+                  @click="editSupplier(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -355,8 +354,8 @@ const deleteStation = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-stations', 'Delete Stations')"
-                  @click="deleteStation(item._id)"
+                  v-if="can('admin-delete-suppliers', 'Delete Suppliers')"
+                  @click="deleteSupplier(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -373,26 +372,26 @@ const deleteStation = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalStations"
+            :total-items="totalSuppliers"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
 
-    <AddNewStationDrawer
-      v-if="isAddNewStationDrawerVisible"
-      v-model:is-drawer-open="isAddNewStationDrawerVisible"
-      v-model:admins="admins"
-      @user-data="modifyStation"
+    <AddNewSupplierDrawer
+      v-if="isAddNewSupplierDrawerVisible"
+      v-model:is-drawer-open="isAddNewSupplierDrawerVisible"
+      v-model:countries="countries"
+      @user-data="modifySupplier"
     />
 
-    <AddNewStationDrawer
-      v-if="isStationDialogVisible"
-      v-model:is-drawer-open="isStationDialogVisible"
-      v-model:station="stationDetail"
-      v-model:admins="admins"
-      @user-data="modifyStation"
+    <AddNewSupplierDrawer
+      v-if="isSupplierDialogVisible"
+      v-model:is-drawer-open="isSupplierDialogVisible"
+      v-model:countries="countries"
+      v-model:supplier="supplierDetail"
+      @user-data="modifySupplier"
     />
   </section>
 </template>
@@ -405,10 +404,6 @@ const deleteStation = async id => {
 
   .invoice-list-filter {
     inline-size: 12rem;
-  }
-
-  .roles {
-    margin-inline-end: 5px;
   }
 }
 </style>

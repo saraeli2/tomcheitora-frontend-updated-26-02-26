@@ -1,21 +1,21 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-communities'],
-    subject: ['View Community'],
-    navActiveLink: 'admin-communities',
-    title: 'Community Details',
+    action: ['admin-view-suppliers'],
+    subject: ['View Suppliers'],
+    navActiveLink: 'admin-suppliers',
+    title: 'Supplier Details',
   },
 })
 
 import ContactInformationModule from '@/pages/admin/settings/contact-informations.vue'
-import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
+import AddNewSupplierDrawer from '@/views/admin/suppliers/AddNewSupplierDrawer.vue'
 
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
-const isCommunityDialogVisible = ref(false)
+const isSupplierDialogVisible = ref(false)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -30,25 +30,33 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const route = useRoute('admin-communities-detail-id')
+const route = useRoute('admin-suppliers-detail-id')
 const router = useRouter()
 
 const userTab = ref(0)
 
 const {
-  data: communityDetail, execute: fetchCommunities,
-} = await useApi(createUrl(`/admin/communities/${ route.params.id }`))
+  data: supplierDetail, execute: fetchSuppliers,
+} = await useApi(createUrl(`/admin/suppliers/${ route.params.id }`))
 
-const communityData = computed(() => communityDetail.value)
+const supplierData = computed(() => supplierDetail.value)
+
+const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const countryOptions = computed(() => commonsync.countryOptions)
+
+const countries = countryOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
 
 const reloadTab = ref(true)
 
-const modifyCommunity = async userData => {
+const modifySupplier = async userData => {
   // refetch Organization
-  fetchCommunities()
+  fetchSuppliers()
 }
 
-const deleteCommunity = async () => {
+const deleteSupplier = async () => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -66,8 +74,8 @@ const deleteCommunity = async () => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/communities/${ route.params.id }`, { method: 'DELETE' })
-        router.push({ name: 'admin-communities' })
+        await $api(`/admin/suppliers/${ route.params.id }`, { method: 'DELETE' })
+        router.push({ name: 'admin-suppliers' })
       }
     })
 }
@@ -89,7 +97,7 @@ onMounted( async () => {
   <div>
     <!-- 👉 Header  -->
     <div 
-      v-if="communityData"
+      v-if="supplierData"
       class="d-flex justify-space-between align-center flex-wrap gap-y-4 mb-6"
     >
       <VRow>
@@ -100,7 +108,7 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Communities', to: { name: 'admin-communities' }, class: 'text-primary' }, { title: 'Community Details of ' + communityData.name }]"
+            :items="[{ title: 'Suppliers', to: { name: 'admin-suppliers' }, class: 'text-primary' }, { title: 'Supplier Details of ' + supplierData.name }]"
           />
         </VCol>
       </VRow>
@@ -110,20 +118,20 @@ onMounted( async () => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Community ID #{{ route.params.id }}
+          Supplier ID #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(communityData.createdAt) }}, Updated At: {{ formatDateWithTime(communityData.updatedAt) }}
+          Created At: {{ formatDateWithTime(supplierData.createdAt) }}, Updated At: {{ formatDateWithTime(supplierData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-communities', 'Delete Community')"
+          v-if="can('admin-delete-suppliers', 'Delete Suppliers')"
           variant="tonal"
           color="error"
-          @click="deleteCommunity"
+          @click="deleteSupplier"
         >
-          Delete Community
+          Delete Supplier
         </VBtn>
       </div>
     </div>
@@ -147,7 +155,7 @@ onMounted( async () => {
             Details
           </VTab>
 
-          <VTab>
+          <VTab v-if="can('admin-view-contact-informations', 'View Contact Informations')">
             <VIcon
               size="20"
               start
@@ -163,11 +171,11 @@ onMounted( async () => {
           :touch="false"
         >
           <VWindowItem>
-            <VCard v-if="communityData">
+            <VCard v-if="supplierData">
               <VCardText class="text-center pt-12">
                 <!-- 👉 Customer fullName -->
                 <div class="text-body-1">
-                  Community ID #{{ communityData._id }}
+                  Supplier ID #{{ supplierData._id }}
                 </div>
               </VCardText>
 
@@ -184,25 +192,34 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Name:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.name }}
+                        {{ supplierData.name }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City ID:
+                      Business ID:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.cityId }}
+                        {{ supplierData.businessID }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City Name:
+                      Country:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.cityName }}
+                        {{ supplierData.countryID ? supplierData.countryID.name : '' }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      City:
+                      <span class="text-body-1 d-inline-block">
+                        {{ supplierData.city }}
                       </span>
                     </h6>
                   </VListItem>
@@ -211,7 +228,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Street:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.street }}
+                        {{ supplierData.street }}
                       </span>
                     </h6>
                   </VListItem>
@@ -220,42 +237,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       House Number:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.houseNumber }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Website:
-                      <span
-                        v-if="communityData.website"
-                        class="text-body-1 d-inline-block"
-                      >
-                        <a
-                          :href="communityData.website"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          class="text-primary ms-1"
-                        >{{ communityData.website }}</a>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Discount Type:
-                      <span class="text-body-1 d-inline-block">
-                        {{ communityData.discountType }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      Delivery Charge:
-                      <span class="text-body-1 d-inline-block">
-                        {{ communityData.discount ?? '' }}
+                        {{ supplierData.houseNumber }}
                       </span>
                     </h6>
                   </VListItem>
@@ -267,10 +249,10 @@ onMounted( async () => {
                       </h6>
                       <VChip
                         label
-                        :color="resolveStatusVariantAndIcon(communityData.status).variant"
+                        :color="resolveStatusVariantAndIcon(supplierData.status).variant"
                         size="small"
                       >
-                        {{ resolveStatusVariantAndIcon(communityData.status).title }}
+                        {{ resolveStatusVariantAndIcon(supplierData.status).title }}
                       </VChip>
                     </div>
                   </VListItem>
@@ -279,7 +261,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Remarks:
                       <span class="text-body-1 d-inline-block">
-                        <div v-html="communityData?.remarks" />
+                        <div v-html="supplierData?.remarks" />
                       </span>
                     </h6>
                   </VListItem>
@@ -289,12 +271,12 @@ onMounted( async () => {
                       Created By:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && communityData.createdBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: communityData.createdBy._id } }"
+                          v-if="can('admin-view-admins', 'View Admins') && supplierData.createdBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: supplierData.createdBy._id } }"
                         >
-                          {{ communityData.createdBy.name }}
+                          {{ supplierData.createdBy.name }}
                         </RouterLink>
-                        <span v-else>{{ communityData.createdBy ? communityData.createdBy.name : '' }}</span>
+                        <span v-else>{{ supplierData.createdBy ? supplierData.createdBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -304,12 +286,12 @@ onMounted( async () => {
                       Updated By:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && communityData.updatedBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: communityData.updatedBy._id } }"
+                          v-if="can('admin-view-admins', 'View Admins') && supplierData.updatedBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: supplierData.updatedBy._id } }"
                         >
-                          {{ communityData.updatedBy.name }}
+                          {{ supplierData.updatedBy.name }}
                         </RouterLink>
-                        <span v-else>{{ communityData.updatedBy ? communityData.updatedBy.name : '' }}</span>
+                        <span v-else>{{ supplierData.updatedBy ? supplierData.updatedBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -317,23 +299,23 @@ onMounted( async () => {
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-communities', 'Update Community')"
+                v-if="can('admin-update-suppliers', 'Update Suppliers')"
                 class="text-center"
               >
                 <VBtn
                   block
-                  @click="isCommunityDialogVisible = !isCommunityDialogVisible"
+                  @click="isSupplierDialogVisible = !isSupplierDialogVisible"
                 >
-                  Edit Community
+                  Edit Supplier
                 </VBtn>
               </VCardText>
             </VCard>
           </VWindowItem>
 
-          <VWindowItem>
+          <VWindowItem v-if="can('admin-view-contact-informations', 'View Contact Informations')">
             <ContactInformationModule
               :morphableid="route.params.id"
-              morphabletype="Community"
+              morphabletype="Supplier"
               @tab-data="refreshTab"
             />
           </VWindowItem>
@@ -345,15 +327,16 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Community with ID  {{ route.params.id }} not found!
+        Supplier with ID  {{ route.params.id }} not found!
       </VAlert>
     </div>
 
-    <AddNewCommunityDrawer
-      v-if="isCommunityDialogVisible"
-      v-model:is-drawer-open="isCommunityDialogVisible"
-      v-model:community="communityData"
-      @user-data="modifyCommunity"
+    <AddNewSupplierDrawer
+      v-if="isSupplierDialogVisible"
+      v-model:is-drawer-open="isSupplierDialogVisible"
+      v-model:supplier="supplierData"
+      v-model:countries="countries"
+      @user-data="modifySupplier"
     />
   </div>
 </template>

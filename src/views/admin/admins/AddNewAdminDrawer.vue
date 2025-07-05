@@ -51,6 +51,10 @@ const isNewPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
 const adminData = ref(structuredClone(toRaw(props.admin)))
 
+if(props.admin.roles.length > 0) {
+    adminData.value.roles = props.admin.roles.map(role => role._id);
+}
+
 // 👉 drawer close
 const closeNavigationDrawer = () => {
   emit('update:isDrawerOpen', false)

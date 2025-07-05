@@ -10,4 +10,4 @@ import stations from './stations'
 import suppliers from './suppliers'
 import users from './users'
 
-export default [...dashboards, ...admins, ...communities, ...groups, ...products, ...roles, ...settings, ...users]
+export default [...dashboards, ...admins, ...communities, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...suppliers, ...users]

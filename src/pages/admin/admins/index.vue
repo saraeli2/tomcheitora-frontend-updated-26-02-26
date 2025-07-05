@@ -122,13 +122,13 @@ const {
 const admins = computed(() => customerData.value.admins)
 const totalAdmins = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/admins/respond-with/extra-options').catch(err => console.log(err))
+const commonsync = await $api('/admin/roles/respond-with/extra-options').catch(err => console.log(err))
 
 const roleOptions = computed(() => commonsync.roleOptions)
 
 const roles = roleOptions.value.map(item => ({
   value: item._id,
-  title: item.name
+  title: item.name,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -153,7 +153,6 @@ const editAdmin = async value => {
   const data = await $api(`/admin/admins/${ value._id }`).catch(err => console.log(err))
 
   adminDetail.value = data
-  adminDetail.value.roles = data.roles.map(role => role._id)
   
   isAdminDialogVisible.value = true
 }
@@ -400,7 +399,6 @@ const resetPassword = val => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-
                 <VListItem :to="{ name: 'admin-admins-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />

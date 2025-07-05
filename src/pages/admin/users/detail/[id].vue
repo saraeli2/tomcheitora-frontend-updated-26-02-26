@@ -315,6 +315,15 @@ onMounted( async () => {
                   </VListItem>
 
                   <VListItem>
+                    <h6 class="text-h6">
+                      Marital Status:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.maritalStatus }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
                     <div class="d-flex gap-x-2 align-center">
                       <h6 class="text-h6">
                         Status:
@@ -327,6 +336,36 @@ onMounted( async () => {
                         {{ resolveStatusVariantAndIcon(adminData.status).title }}
                       </VChip>
                     </div>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Created By:
+                      <span class="text-body-1 d-inline-block">
+                        <RouterLink
+                          v-if="can('admin-view-admins', 'View Admins') && adminData.createdBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: adminData.createdBy._id } }"
+                        >
+                          {{ adminData.createdBy.name }}
+                        </RouterLink>
+                        <span v-else>{{ adminData.createdBy ? adminData.createdBy.name : '' }}</span>
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Updated By:
+                      <span class="text-body-1 d-inline-block">
+                        <RouterLink
+                          v-if="can('admin-view-admins', 'View Admins') && adminData.updatedBy"
+                          :to="{ name: 'admin-admins-detail-id', params: { id: adminData.updatedBy._id } }"
+                        >
+                          {{ adminData.updatedBy.name }}
+                        </RouterLink>
+                        <span v-else>{{ adminData.updatedBy ? adminData.updatedBy.name : '' }}</span>
+                      </span>
+                    </h6>
                   </VListItem>
                 </VList>
               </VCardText>

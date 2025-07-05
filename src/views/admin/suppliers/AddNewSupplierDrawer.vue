@@ -7,13 +7,23 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  category: {
+  countries: {
+    type: Object,
+    required: true,
+  },
+  supplier: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
       name: '',
+      businessID: '',
+      countryID: '',
+      city: '',
+      street: '',
+      houseNumber: null,
+      remarks: '',
       status: 'Active',
     }),
   },
@@ -21,15 +31,20 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:isDrawerOpen',
+  'countries',
   'userData',
-  'category',
+  'supplier',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const categoryData = ref(structuredClone(toRaw(props.category)))
+const supplierData = ref(structuredClone(toRaw(props.supplier)))
+
+if(props.supplier.countryID) {
+  supplierData.value.countryID = props.supplier.countryID._id
+}
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -42,23 +57,35 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.category._id) {
-      const res = await $api(`/admin/settings/categories/${ props.category._id }`, {
+    if(props.supplier._id) {
+      const res = await $api(`/admin/suppliers/${ props.supplier._id }`, {
         method: 'PATCH',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          name: supplierData.value.name,
+          businessID: supplierData.value.businessID,
+          countryID: supplierData.value.countryID ?? null,
+          city: supplierData.value.city,
+          street: supplierData.value.street,
+          houseNumber: supplierData.value.houseNumber,
+          remarks: supplierData.value.remarks,
+          status: supplierData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/settings/categories`, {
+      const res = await $api(`/admin/suppliers`, {
         method: 'POST',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          name: supplierData.value.name,
+          businessID: supplierData.value.businessID,
+          countryID: supplierData.value.countryID ?? null,
+          city: supplierData.value.city,
+          street: supplierData.value.street,
+          houseNumber: supplierData.value.houseNumber,
+          remarks: supplierData.value.remarks,
+          status: supplierData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -71,7 +98,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.category._id) {
+      if(props.supplier._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -96,6 +123,12 @@ const handleDrawerModelValueUpdate = val => {
 
 const errors = ref({
   name: undefined,
+  businessID: undefined,
+  countryID: undefined,
+  city: undefined,
+  street: undefined,
+  houseNumber: undefined,
+  remarks: undefined,
   status: undefined,
 })
 </script>
@@ -111,13 +144,13 @@ const errors = ref({
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.category._id"
-      title="Edit Category"
+      v-if="props.supplier._id"
+      title="Edit Supplier"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Category"
+      title="Add New Supplier"
       @cancel="closeNavigationDrawer"
     />
 
@@ -133,10 +166,23 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
+              <!-- 👉 Country -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="supplierData.countryID"
+                  :rules="[requiredValidator]"
+                  :items="props.countries"
+                  label="Country"
+                  placeholder="Select Country"
+                  :error-messages="errors.countryID"
+                  clearable
+                />
+              </VCol>
+
               <!-- 👉 Name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="categoryData.name"
+                  v-model="supplierData.name"
                   :rules="[requiredValidator]"
                   label="Name"
                   placeholder="Name"
@@ -144,10 +190,51 @@ const errors = ref({
                 />
               </VCol>
 
+              <!-- 👉 Business ID -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="supplierData.businessID"
+                  :rules="[requiredValidator]"
+                  label="Business ID"
+                  placeholder="Business ID"
+                  :error-messages="errors.businessID"
+                />
+              </VCol>
+
+              <!-- 👉 City -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="supplierData.city"
+                  label="City"
+                  placeholder="City"
+                  :error-messages="errors.city"
+                />
+              </VCol>
+
+              <!-- 👉 Street -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="supplierData.street"
+                  label="Street"
+                  placeholder="Street"
+                  :error-messages="errors.street"
+                />
+              </VCol>
+
+              <!-- 👉 House Number -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="supplierData.houseNumber"
+                  label="House Number"
+                  placeholder="House Number"
+                  :error-messages="errors.houseNumber"
+                />
+              </VCol>
+
               <!-- 👉 status -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="categoryData.status"
+                  v-model="supplierData.status"
                   :rules="[requiredValidator]"
                   :items="[
                     { value: 'Active', title: 'Active' },
@@ -156,6 +243,16 @@ const errors = ref({
                   placeholder="Select Status"
                   label="Status"
                   :error-messages="errors.status"
+                />
+              </VCol>
+
+              <!-- 👉 Remarks -->
+              <VCol cols="12">
+                <AppTextarea
+                  v-model="supplierData.remarks"
+                  label="Remarks"
+                  placeholder="Remarks"
+                  :error-messages="errors.remarks"
                 />
               </VCol>
               
