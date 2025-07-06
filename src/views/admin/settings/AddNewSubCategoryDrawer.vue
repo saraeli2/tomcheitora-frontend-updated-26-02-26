@@ -1,4 +1,6 @@
 <script setup>
+import AddNewCategoryDialog from '@/views/admin/settings/AddNewCategoryDialog.vue'
+import { can } from '@layouts/plugins/casl'
 import { useToast } from 'vue-toastification'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
@@ -27,14 +29,28 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
+  'categories',
   'subcategory',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
+const isAddNewCategoryDrawerVisible = ref(false)
 const refForm = ref()
 const subcategoryData = ref(structuredClone(toRaw(props.subcategory)))
+const categoriesWithAddNew = ref([])
+
+const onCategoryChange = async value => {
+  if (value === '__add_new__') {
+    subcategoryData.value.categoryID = null
+    isAddNewCategoryDrawerVisible.value = true
+  }
+}
+
+const modifyCategoryDialog = async updateData => {
+  emit('categories')
+}
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -106,6 +122,21 @@ const errors = ref({
   name: undefined,
   status: undefined,
 })
+
+watch(() => props.categories,
+  newVal => {
+    const cloned = structuredClone(toRaw(newVal))
+
+    if (can('admin-create-categories', 'Create Categories')) {
+      cloned.unshift({
+        value: '__add_new__',
+        title: '➕ Create New Category',
+      })
+    }
+
+    categoriesWithAddNew.value = cloned
+  }, { immediate: true, deep: true },
+)
 </script>
 
 <template>
@@ -146,10 +177,11 @@ const errors = ref({
                 <AppAutocomplete
                   v-model="subcategoryData.categoryID"
                   :rules="[requiredValidator]"
-                  :items="props.categories"
+                  :items="categoriesWithAddNew"
                   label="Category"
                   placeholder="Select Category"
                   :error-messages="errors.categoryID"
+                  @update:model-value="onCategoryChange"
                 />
               </VCol>
 
@@ -202,4 +234,10 @@ const errors = ref({
       </VCard>
     </PerfectScrollbar>
   </VNavigationDrawer>
+
+  <AddNewCategoryDialog
+    v-if="isAddNewCategoryDrawerVisible"
+    v-model:is-dialog-visible="isAddNewCategoryDrawerVisible"
+    @update-data="modifyCategoryDialog"
+  />
 </template>

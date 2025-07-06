@@ -136,41 +136,60 @@ const {
 const products = computed(() => customerData.value.products)
 const totalProducts = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
-const certificationOptions = computed(() => commonsync.certificationOptions)
-const packagetypeOptions = computed(() => commonsync.packagetypeOptions)
-const quantitytypeOptions = computed(() => commonsync.quantitytypeOptions)
+const certifications = ref([])
+const packagetypes = ref([])
+const quantitytypes = ref([])
+const manufacturers = ref([])
+const suppliers = ref([])
 
-const certifications = certificationOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedSync = async () => {
+  try {
+    const commonsync = await $api('/admin/settings/commonsync/extra-options')
 
-const packagetypes = packagetypeOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+    certifications.value = commonsync.certificationOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
 
-const quantitytypes = quantitytypeOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+    packagetypes.value = commonsync.packagetypeOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
 
-const manufacturersync = await $api('/admin/manufacturers/respond-with/extra-options').catch(err => console.log(err))
-const manufacturerOptions = computed(() => manufacturersync.manufacturerOptions)
+    quantitytypes.value = commonsync.quantitytypeOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated certifications, packagetypes, quantitytypes :', err)
+  }
+}
 
-const manufacturers = manufacturerOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedManufacturers = async () => {
+  try {
+    const manufacturersync = await $api('/admin/manufacturers/respond-with/extra-options')
 
-const suppliersync = await $api('/admin/suppliers/respond-with/extra-options').catch(err => console.log(err))
-const supplierOptions = computed(() => suppliersync.supplierOptions)
+    manufacturers.value = manufacturersync.manufacturerOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated manufacturers:', err)
+  }
+}
 
-const suppliers = supplierOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedSuppliers = async () => {
+  try {
+    const suppliersync = await $api('/admin/suppliers/respond-with/extra-options')
+
+    suppliers.value = suppliersync.supplierOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated suppliers:', err)
+  }
+}
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -219,6 +238,12 @@ const deleteProduct = async id => {
       }
     })  
 }
+
+onMounted(async () => {
+  await handleUpdatedSync()
+  await handleUpdatedManufacturers()
+  await handleUpdatedSuppliers()
+})
 </script>
 
 <template>
@@ -558,6 +583,11 @@ const deleteProduct = async id => {
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"
+      @quantitytypes="handleUpdatedSync"
+      @packagetypes="handleUpdatedSync"
+      @certifications="handleUpdatedSync"
+      @manufacturers="handleUpdatedManufacturers"
+      @suppliers="handleUpdatedSuppliers"
       @user-data="modifyProduct"
     />
 
@@ -570,6 +600,11 @@ const deleteProduct = async id => {
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"
+      @quantitytypes="handleUpdatedSync"
+      @packagetypes="handleUpdatedSync"
+      @certifications="handleUpdatedSync"
+      @manufacturers="handleUpdatedManufacturers"
+      @suppliers="handleUpdatedSuppliers"
       @user-data="modifyProduct"
     />
   </section>

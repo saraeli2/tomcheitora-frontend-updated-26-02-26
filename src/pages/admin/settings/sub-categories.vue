@@ -88,13 +88,20 @@ const {
 const subcategories = computed(() => customerData.value.subCategories)
 const totalCategories = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/settings/categories/respond-with/extra-options').catch(err => console.log(err))
-const categoryOptions = computed(() => commonsync.categoryOptions)
+const categories = ref([])
 
-const categories = categoryOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedCategories = async () => {
+  try {
+    const commonsync = await $api('/admin/settings/categories/respond-with/extra-options')
+
+    categories.value = commonsync.categoryOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated categories:', err)
+  }
+}
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -143,6 +150,10 @@ const deleteCategory = async id => {
       }
     })  
 }
+
+onMounted(async () => {
+  await handleUpdatedCategories()
+})
 </script>
 
 <template>
@@ -358,6 +369,7 @@ const deleteCategory = async id => {
       v-if="isAddNewCategoryDrawerVisible"
       v-model:is-drawer-open="isAddNewCategoryDrawerVisible"
       v-model:categories="categories"
+      @categories="handleUpdatedCategories"
       @user-data="modifyCategory"
     />
 
@@ -366,6 +378,7 @@ const deleteCategory = async id => {
       v-model:is-drawer-open="isCategoryDialogVisible"
       v-model:subcategory="categoryDetail"
       v-model:categories="categories"
+      @categories="handleUpdatedCategories"
       @user-data="modifyCategory"
     />
   </section>

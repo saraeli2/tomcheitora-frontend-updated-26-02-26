@@ -6,7 +6,7 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  category: {
+  packagetype: {
     type: Object,
     required: false,
     default: () => ({
@@ -21,14 +21,14 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDialogVisible',
   'updateData',
-  'category',
+  'packagetype',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const categoryData = ref(structuredClone(toRaw(props.category)))
+const packagetypeData = ref(structuredClone(toRaw(props.packagetype)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -41,23 +41,23 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.category._id) {
-      const res = await $api(`/admin/settings/categories/${ props.category._id }`, {
+    if(props.packagetype._id) {
+      const res = await $api(`/admin/settings/packagetypes/${ props.packagetype._id }`, {
         method: 'PATCH',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          name: packagetypeData.value.name,
+          status: packagetypeData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/settings/categories`, {
+      const res = await $api(`/admin/settings/packagetypes`, {
         method: 'POST',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          name: packagetypeData.value.name,
+          status: packagetypeData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -70,7 +70,7 @@ const submit = async () => {
       emit('update:isDialogVisible', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.category._id) {
+      if(props.packagetype._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -113,11 +113,10 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.category._id ? 'Edit' : 'Create' }} Category
+          {{ props.packagetype._id ? 'Edit' : 'Create' }} Package Type
         </h4>
 
         <VDivider />
-
         <!-- 👉 Form -->
         <VForm 
           ref="refForm"
@@ -125,10 +124,10 @@ const onReset = () => {
           @submit.prevent="onSubmit"
         >
           <VRow>
-            <!-- 👉 Name -->
+            <!-- 👉 Title -->
             <VCol cols="12">
               <AppTextField
-                v-model="categoryData.name"
+                v-model="packagetypeData.name"
                 :rules="[requiredValidator]"
                 label="Name"
                 placeholder="Name"
@@ -139,7 +138,7 @@ const onReset = () => {
             <!-- 👉 status -->
             <VCol cols="12">
               <AppAutocomplete
-                v-model="categoryData.status"
+                v-model="packagetypeData.status"
                 :rules="[requiredValidator]"
                 :items="[
                   { value: 'Active', title: 'Active' },

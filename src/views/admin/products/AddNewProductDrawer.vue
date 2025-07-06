@@ -1,4 +1,11 @@
 <script setup>
+import AddNewManufacturerDialog from '@/views/admin/manufacturers/AddNewManufacturerDialog.vue'
+import AddNewCertificationDialog from '@/views/admin/settings/AddNewCertificationDialog.vue'
+import AddNewPackagetypeDialog from '@/views/admin/settings/AddNewPackagetypeDialog.vue'
+import AddNewQuantitytypeDialog from '@/views/admin/settings/AddNewQuantitytypeDialog.vue'
+import CategoryBuilderProductNode from '@/views/admin/settings/CategoryBuilderProductNode.vue'
+import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
+import { can } from '@layouts/plugins/casl'
 import { useToast } from 'vue-toastification'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
@@ -46,14 +53,15 @@ const props = defineProps({
       supplierID: '',
       certificationID: '',
       packagetypeID: '',
-      purchasePrice: '',
       quantitytypeID: '',
+      purchasePrice: '',
       salePrice: null,
       maxStock: null,
       internalRemarks: '',
       remarks: '',
       description: '',
       status: 'Active',
+      categoryIDs: [],
     }),
   },
 })
@@ -73,7 +81,96 @@ const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
+const isAddNewPackagetypeDrawerVisible = ref(false)
+const isAddNewQuantitytypeDrawerVisible = ref(false)
+const isAddNewCertificationDrawerVisible = ref(false)
+const isAddNewManufacturerDrawerVisible = ref(false)
+const isAddNewSupplierDrawerVisible = ref(false)
 const productData = ref(structuredClone(toRaw(props.product)))
+
+const useSelectableList = (propRef, permissionKey, addNewTitle) => {
+  const updated = ref([])
+
+  watch(
+    () => propRef.value,
+    newVal => {
+      const cloned = structuredClone(toRaw(newVal))
+
+      if (can(permissionKey, `Create ${permissionKey.split('-')[1]}`)) {
+        cloned.unshift({
+          value: '__add_new__',
+          title: `➕ Create New ${addNewTitle}`,
+        })
+      }
+
+      updated.value = cloned
+    },
+    { immediate: true, deep: true },
+  )
+
+  return updated
+}
+
+const manufacturersUpdated = useSelectableList(toRef(props, 'manufacturers'), 'admin-create-manufacturers', 'Manufacturers')
+const suppliersUpdated = useSelectableList(toRef(props, 'suppliers'), 'admin-create-suppliers', 'Suppliers')
+const certificationsUpdated = useSelectableList(toRef(props, 'certifications'), 'admin-create-certifications', 'Certifications')
+const packagetypesUpdated = useSelectableList(toRef(props, 'packagetypes'), 'admin-create-packagetypes', 'Package Types')
+const quantitytypesUpdated = useSelectableList(toRef(props, 'quantitytypes'), 'admin-create-quantitytypes', 'Quantity Types')
+
+const onManufacturerChange = async value => {
+  if (value === '__add_new__') {
+    productData.value.manufacturerID = null
+    isAddNewManufacturerDrawerVisible.value = true
+  }
+}
+
+const modifyManufacturerDialog = async updateData => {
+  emit('manufacturers')
+}
+
+const onSupplierChange = async value => {
+  if (value === '__add_new__') {
+    productData.value.supplierID = null
+    isAddNewSupplierDrawerVisible.value = true
+  }
+}
+
+const modifySupplierDialog = async updateData => {
+  emit('suppliers')
+}
+
+const onCertificationChange = async value => {
+  if (value === '__add_new__') {
+    productData.value.certificationID = null
+    isAddNewCertificationDrawerVisible.value = true
+  }
+}
+
+const modifyCertificationDialog = async updateData => {
+  emit('certifications')
+}
+
+const onPackagetypeChange = async value => {
+  if (value === '__add_new__') {
+    productData.value.packagetypeID = null
+    isAddNewPackagetypeDrawerVisible.value = true
+  }
+}
+
+const modifyPackagetypeDialog = async updateData => {
+  emit('packagetypes')
+}
+
+const onQuantitytypeChange = async value => {
+  if (value === '__add_new__') {
+    productData.value.quantitytypeID = null
+    isAddNewQuantitytypeDrawerVisible.value = true
+  }
+}
+
+const modifyQuantitytypeDialog = async updateData => {
+  emit('quantitytypes')
+}
 
 if(props.product.manufacturerID) {
   productData.value.manufacturerID = props.product.manufacturerID._id
@@ -82,6 +179,14 @@ if(props.product.manufacturerID) {
 if(props.product.supplierID) {
   productData.value.supplierID = props.product.supplierID._id
 }
+
+const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const countryOptions = computed(() => commonsync.countryOptions)
+
+const countries = countryOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -115,6 +220,7 @@ const submit = async () => {
           salePrice: productData.value.salePrice ?? 0,
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
+          categoryIDs: checkedCategories.value,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -141,6 +247,7 @@ const submit = async () => {
           salePrice: productData.value.salePrice ?? 0,
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
+          categoryIDs: checkedCategories.value,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -199,6 +306,127 @@ const errors = ref({
 watch(() => productData.value.name, val => {
   productData.value.slug = val.toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
 })
+
+const {
+  data: categoryBuilderData,
+  execute: fetchCategoryBuilders,
+} = await useApi(createUrl('/admin/settings/category-builders'))
+
+const categoryBuilders = computed(() => categoryBuilderData.value.categoryBuilders)
+
+const tree = ref([])
+
+const buildTree = relations => {
+  const categoryMap = {}
+
+  // First pass: normalize and initialize all unique categories
+  relations.forEach(rel => {
+    const parent = rel.parentId
+    const child = rel.childId
+
+    if (parent && parent._id) {
+      const parentId = parent._id.toString()
+      if (!categoryMap[parentId]) {
+        categoryMap[parentId] = { ...parent, children: [] }
+      }
+
+      // Add realId here
+      categoryMap[parentId].realId = rel._id
+    }
+
+    if (child && child._id) {
+      const childId = child._id.toString()
+      if (!categoryMap[childId]) {
+        categoryMap[childId] = { ...child, children: [] }
+      }
+
+      // Add realId here
+      categoryMap[childId].realId = rel._id
+    }
+  })
+
+  // Second pass: build tree structure based on relations
+  relations.forEach(rel => {
+    const parentId = rel.parentId?._id?.toString()
+    const childId = rel.childId?._id?.toString()
+
+    if (parentId && childId && categoryMap[parentId] && categoryMap[childId]) {
+      categoryMap[parentId].children.push({
+        ...categoryMap[childId],
+        sortOrder: rel.sortOrder,
+        realId: rel._id,
+        relationParentId: parentId,  // explicitly add parentId here
+        relationChildId: childId,
+      })
+    }
+  })
+
+  // Sort children by sortOrder
+  Object.values(categoryMap).forEach(cat => {
+    if (cat.children?.length) {
+      cat.children.sort((a, b) => a.sortOrder - b.sortOrder)
+    }
+  })
+
+  // Find root nodes: categories that never appear as childId
+  const childIdSet = new Set(
+    relations
+      .map(rel => rel.childId?._id?.toString())
+      .filter(Boolean),
+  )
+
+  return Object.values(categoryMap).filter(cat => !childIdSet.has(cat._id.toString()))
+}
+
+tree.value = buildTree(categoryBuilders.value)
+
+const checkedCategories = ref(props.product.categoryIDs)
+const getNodeId = node => node.realId || node._id
+
+const getAllDescendants = node => {
+  let ids = [getNodeId(node)]
+  if (node.children && node.children.length) {
+    for (const child of node.children) {
+      ids = ids.concat(getAllDescendants(child))
+    }
+  }
+  
+  return ids
+}
+
+const findNodeById = (tree, id) => {
+  for (const node of tree) {
+    if (getNodeId(node) === id) return node
+    if (node.children) {
+      const found = findNodeById(node.children, id)
+      if (found) return found
+    }
+  }
+  
+  return null
+}
+
+const onToggleSelect = ({ id, checked }) => {
+  const node = findNodeById(tree.value, id)
+  if (!node) {
+    console.warn('Node not found for id:', id)
+    
+    return
+  }
+
+  const descendants = getAllDescendants(node)
+
+  if (checked) {
+    checkedCategories.value = Array.from(new Set([
+      ...checkedCategories.value,
+      ...descendants,
+    ]))
+  } else {
+    checkedCategories.value = checkedCategories.value.filter(
+      catId => !descendants.includes(catId),
+    )
+  }
+}
 </script>
 
 <template>
@@ -290,11 +518,12 @@ watch(() => productData.value.name, val => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="productData.manufacturerID"
-                  :items="props.manufacturers"
+                  :items="manufacturersUpdated"
                   label="Manufacturer"
                   placeholder="Select Manufacturer"
                   :error-messages="errors.manufacturerID"
                   clearable
+                  @update:model-value="onManufacturerChange"
                 />
               </VCol>
 
@@ -302,11 +531,12 @@ watch(() => productData.value.name, val => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="productData.supplierID"
-                  :items="props.suppliers"
+                  :items="suppliersUpdated"
                   label="Supplier"
                   placeholder="Select Supplier"
                   :error-messages="errors.supplierID"
                   clearable
+                  @update:model-value="onSupplierChange"
                 />
               </VCol>
 
@@ -314,11 +544,12 @@ watch(() => productData.value.name, val => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="productData.certificationID"
-                  :items="props.certifications"
+                  :items="certificationsUpdated"
                   label="Certification"
                   placeholder="Select Certification"
                   :error-messages="errors.certificationID"
                   clearable
+                  @update:model-value="onCertificationChange"
                 />
               </VCol>
 
@@ -327,11 +558,12 @@ watch(() => productData.value.name, val => {
                 <AppAutocomplete
                   v-model="productData.packagetypeID"
                   :rules="[requiredValidator]"
-                  :items="props.packagetypes"
+                  :items="packagetypesUpdated"
                   label="Package Type"
                   placeholder="Select Package Type"
                   :error-messages="errors.packagetypeID"
                   clearable
+                  @update:model-value="onPackagetypeChange"
                 />
               </VCol>
 
@@ -340,11 +572,12 @@ watch(() => productData.value.name, val => {
                 <AppAutocomplete
                   v-model="productData.quantitytypeID"
                   :rules="[requiredValidator]"
-                  :items="props.quantitytypes"
+                  :items="quantitytypesUpdated"
                   label="Quantity Type"
                   placeholder="Select Quantity Type"
                   :error-messages="errors.quantitytypeID"
                   clearable
+                  @update:model-value="onQuantitytypeChange"
                 />
               </VCol>
 
@@ -425,6 +658,18 @@ watch(() => productData.value.name, val => {
                   :error-messages="errors.remarks"
                 />
               </VCol>
+              <VCol cols="12">
+                <div>
+                  <h6 class="text-h6 mb-2">Category</h6>
+                  <CategoryBuilderProductNode
+                    v-for="node in tree"
+                    :key="node.realId"
+                    :node="node"
+                    :selected="checkedCategories"
+                    @toggle-select="onToggleSelect"
+                  />
+                </div>
+              </VCol>
               
               <!-- 👉 Submit and Cancel -->
               <VCol cols="12">
@@ -449,4 +694,36 @@ watch(() => productData.value.name, val => {
       </VCard>
     </PerfectScrollbar>
   </VNavigationDrawer>
+
+  <AddNewPackagetypeDialog
+    v-if="isAddNewPackagetypeDrawerVisible"
+    v-model:is-dialog-visible="isAddNewPackagetypeDrawerVisible"
+    @update-data="modifyPackagetypeDialog"
+  />
+
+  <AddNewQuantitytypeDialog
+    v-if="isAddNewQuantitytypeDrawerVisible"
+    v-model:is-dialog-visible="isAddNewQuantitytypeDrawerVisible"
+    @update-data="modifyQuantitytypeDialog"
+  />
+
+  <AddNewCertificationDialog
+    v-if="isAddNewCertificationDrawerVisible"
+    v-model:is-dialog-visible="isAddNewCertificationDrawerVisible"
+    @update-data="modifyCertificationDialog"
+  />
+
+  <AddNewManufacturerDialog
+    v-if="isAddNewManufacturerDrawerVisible"
+    v-model:is-dialog-visible="isAddNewManufacturerDrawerVisible"
+    v-model:countries="countries"
+    @update-data="modifyManufacturerDialog"
+  />
+
+  <AddNewSupplierDialog
+    v-if="isAddNewSupplierDrawerVisible"
+    v-model:is-dialog-visible="isAddNewSupplierDrawerVisible"
+    v-model:countries="countries"
+    @update-data="modifySupplierDialog"
+  />
 </template>

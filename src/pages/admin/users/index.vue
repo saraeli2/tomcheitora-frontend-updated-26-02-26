@@ -131,14 +131,20 @@ const {
 const users = computed(() => customerData.value.users)
 const totalUsers = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/communities/respond-with/extra-options').catch(err => console.log(err))
+const communities = ref([])
 
-const communityOptions = computed(() => commonsync.communityOptions)
+const handleUpdatedCommunities = async () => {
+  try {
+    const commonsync = await $api('/admin/communities/respond-with/extra-options')
 
-const communities = communityOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+    communities.value = commonsync.communityOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated communities:', err)
+  }
+}
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -190,6 +196,10 @@ const deleteUser = async id => {
       }
     })  
 }
+
+onMounted(async () => {
+  await handleUpdatedCommunities()
+})
 </script>
 
 <template>
@@ -476,6 +486,7 @@ const deleteUser = async id => {
       v-if="isAddNewUserDrawerVisible"
       v-model:is-drawer-open="isAddNewUserDrawerVisible"
       v-model:communities="communities"
+      @communities="handleUpdatedCommunities"
       @user-data="modifyUser"
     />
 
@@ -484,6 +495,7 @@ const deleteUser = async id => {
       v-model:is-drawer-open="isUserDialogVisible"
       v-model:communities="communities"
       v-model:user="userDetail"
+      @communities="handleUpdatedCommunities"
       @user-data="modifyUser"
     />
   </section>

@@ -9,6 +9,7 @@ definePage({
 })
 
 import AddNewProductDrawer from '@/views/admin/products/AddNewProductDrawer.vue'
+import CategoryBuilderProductDetailNode from '@/views/admin/settings/CategoryBuilderProductDetailNode.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -40,41 +41,60 @@ const {
 
 const productData = computed(() => productDetail.value)
 
-const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
-const certificationOptions = computed(() => commonsync.certificationOptions)
-const packagetypeOptions = computed(() => commonsync.packagetypeOptions)
-const quantitytypeOptions = computed(() => commonsync.quantitytypeOptions)
+const certifications = ref([])
+const packagetypes = ref([])
+const quantitytypes = ref([])
+const manufacturers = ref([])
+const suppliers = ref([])
 
-const certifications = certificationOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedSync = async () => {
+  try {
+    const commonsync = await $api('/admin/settings/commonsync/extra-options')
 
-const packagetypes = packagetypeOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+    certifications.value = commonsync.certificationOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
 
-const quantitytypes = quantitytypeOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+    packagetypes.value = commonsync.packagetypeOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
 
-const manufacturersync = await $api('/admin/manufacturers/respond-with/extra-options').catch(err => console.log(err))
-const manufacturerOptions = computed(() => manufacturersync.manufacturerOptions)
+    quantitytypes.value = commonsync.quantitytypeOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated certifications, packagetypes, quantitytypes:', err)
+  }
+}
 
-const manufacturers = manufacturerOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedManufacturers = async () => {
+  try {
+    const manufacturersync = await $api('/admin/manufacturers/respond-with/extra-options')
 
-const suppliersync = await $api('/admin/suppliers/respond-with/extra-options').catch(err => console.log(err))
-const supplierOptions = computed(() => suppliersync.supplierOptions)
+    manufacturers.value = manufacturersync.manufacturerOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated manufacturers:', err)
+  }
+}
 
-const suppliers = supplierOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+const handleUpdatedSuppliers = async () => {
+  try {
+    const suppliersync = await $api('/admin/suppliers/respond-with/extra-options')
+
+    suppliers.value = suppliersync.supplierOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated suppliers:', err)
+  }
+}
 
 const reloadTab = ref(true)
 
@@ -117,7 +137,83 @@ onMounted( async () => {
   if(route.query.detailstab) {
     userTab.value = route.query.detailstab
   }
+  await handleUpdatedSync()
+  await handleUpdatedManufacturers()
+  await handleUpdatedSuppliers()
 })
+
+const {
+  data: categoryBuilderData,
+  execute: fetchCategoryBuilders,
+} = await useApi(createUrl('/admin/settings/category-builders'))
+
+const categoryBuilders = computed(() => categoryBuilderData.value.categoryBuilders)
+
+const tree = ref([])
+
+const buildTree = relations => {
+  const categoryMap = {}
+
+  // First pass: normalize and initialize all unique categories
+  relations.forEach(rel => {
+    const parent = rel.parentId
+    const child = rel.childId
+
+    if (parent && parent._id) {
+      const parentId = parent._id.toString()
+      if (!categoryMap[parentId]) {
+        categoryMap[parentId] = { ...parent, children: [] }
+      }
+
+      // Add realId here
+      categoryMap[parentId].realId = rel._id
+    }
+
+    if (child && child._id) {
+      const childId = child._id.toString()
+      if (!categoryMap[childId]) {
+        categoryMap[childId] = { ...child, children: [] }
+      }
+
+      // Add realId here
+      categoryMap[childId].realId = rel._id
+    }
+  })
+
+  // Second pass: build tree structure based on relations
+  relations.forEach(rel => {
+    const parentId = rel.parentId?._id?.toString()
+    const childId = rel.childId?._id?.toString()
+
+    if (parentId && childId && categoryMap[parentId] && categoryMap[childId]) {
+      categoryMap[parentId].children.push({
+        ...categoryMap[childId],
+        sortOrder: rel.sortOrder,
+        realId: rel._id,
+        relationParentId: parentId,  // explicitly add parentId here
+        relationChildId: childId,
+      })
+    }
+  })
+
+  // Sort children by sortOrder
+  Object.values(categoryMap).forEach(cat => {
+    if (cat.children?.length) {
+      cat.children.sort((a, b) => a.sortOrder - b.sortOrder)
+    }
+  })
+
+  // Find root nodes: categories that never appear as childId
+  const childIdSet = new Set(
+    relations
+      .map(rel => rel.childId?._id?.toString())
+      .filter(Boolean),
+  )
+
+  return Object.values(categoryMap).filter(cat => !childIdSet.has(cat._id.toString()))
+}
+
+tree.value = buildTree(categoryBuilders.value)
 </script>
 
 <template>
@@ -360,6 +456,22 @@ onMounted( async () => {
                   </VListItem>
 
                   <VListItem>
+                    <div class="mb-2">
+                      <h6 class="text-h6 mb-1">
+                        Category:
+                      </h6>
+                      <div class="ps-2">
+                        <CategoryBuilderProductDetailNode
+                          v-for="node in tree"
+                          :key="node.realId || node._id"
+                          :node="node"
+                          :selected="productData.categoryIDs"
+                        />
+                      </div>
+                    </div>
+                  </VListItem>
+
+                  <VListItem>
                     <h6 class="text-h6">
                       Description:
                       <span class="text-body-1 d-inline-block">
@@ -452,6 +564,11 @@ onMounted( async () => {
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"
+      @quantitytypes="handleUpdatedSync"
+      @packagetypes="handleUpdatedSync"
+      @certifications="handleUpdatedSync"
+      @manufacturers="handleUpdatedManufacturers"
+      @suppliers="handleUpdatedSuppliers"
       @user-data="modifyProduct"
     />
   </div>

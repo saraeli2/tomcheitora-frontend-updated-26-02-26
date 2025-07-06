@@ -6,13 +6,14 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  category: {
+  quantitytype: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
       name: '',
+      quantity: '',
       status: 'Active',
     }),
   },
@@ -21,14 +22,14 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDialogVisible',
   'updateData',
-  'category',
+  'quantitytype',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const categoryData = ref(structuredClone(toRaw(props.category)))
+const quantitytypeData = ref(structuredClone(toRaw(props.quantitytype)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -41,23 +42,25 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.category._id) {
-      const res = await $api(`/admin/settings/categories/${ props.category._id }`, {
+    if(props.quantitytype._id) {
+      const res = await $api(`/admin/settings/quantitytypes/${ props.quantitytype._id }`, {
         method: 'PATCH',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          name: quantitytypeData.value.name,
+          quantity: quantitytypeData.value.quantity,
+          status: quantitytypeData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/settings/categories`, {
+      const res = await $api(`/admin/settings/quantitytypes`, {
         method: 'POST',
         body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
+          name: quantitytypeData.value.name,
+          quantity: quantitytypeData.value.quantity,
+          status: quantitytypeData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -70,7 +73,7 @@ const submit = async () => {
       emit('update:isDialogVisible', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.category._id) {
+      if(props.quantitytype._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -91,6 +94,7 @@ const onSubmit = () => {
 
 const errors = ref({
   name: undefined,
+  quantity: undefined,
   status: undefined,
 })
 
@@ -113,11 +117,10 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.category._id ? 'Edit' : 'Create' }} Category
+          {{ props.quantitytype._id ? 'Edit' : 'Create' }} Quantity Type
         </h4>
 
         <VDivider />
-
         <!-- 👉 Form -->
         <VForm 
           ref="refForm"
@@ -125,21 +128,31 @@ const onReset = () => {
           @submit.prevent="onSubmit"
         >
           <VRow>
-            <!-- 👉 Name -->
+            <!-- 👉 name -->
             <VCol cols="12">
               <AppTextField
-                v-model="categoryData.name"
+                v-model="quantitytypeData.name"
                 :rules="[requiredValidator]"
                 label="Name"
                 placeholder="Name"
                 :error-messages="errors.name"
               />
             </VCol>
+            <!-- 👉 quantity -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="quantitytypeData.quantity"
+                :rules="[requiredValidator, numericValidator]"
+                label="Quantity"
+                placeholder="Quantity"
+                :error-messages="errors.quantity"
+              />
+            </VCol>
 
             <!-- 👉 status -->
             <VCol cols="12">
               <AppAutocomplete
-                v-model="categoryData.status"
+                v-model="quantitytypeData.status"
                 :rules="[requiredValidator]"
                 :items="[
                   { value: 'Active', title: 'Active' },

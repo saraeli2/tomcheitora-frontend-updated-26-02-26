@@ -1,8 +1,10 @@
 <script setup>
+import { useAuthStore } from '@/stores'
+import AddNewCommunityDialog from '@/views/admin/communities/AddNewCommunityDialog.vue'
+import { can } from '@layouts/plugins/casl'
+import axios from 'axios'
 import { useToast } from 'vue-toastification'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
-import { useAuthStore } from '@/stores'
-import axios from 'axios'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -50,10 +52,12 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 const isFormValid = ref(false)
+const isAddNewCommunityDialogVisible = ref(false)
 const refForm = ref()
 const imageID = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const adminData = ref(structuredClone(toRaw(props.user)))
+const communitiesWithAddNew = ref([])
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -204,6 +208,13 @@ const handleDrawerModelValueUpdate = val => {
   emit('update:isDrawerOpen', val)
 }
 
+const onCommunityChange = async value => {
+  if (value === '__add_new__') {
+    adminData.value.communityID = null
+    isAddNewCommunityDialogVisible.value = true
+  }
+}
+
 const errors = ref({
   firstName: undefined,
   lastName: undefined,
@@ -234,6 +245,25 @@ const handleImageChange = file => {
     }
   }
 }
+
+const modifyCommunityDialog = async updateData => {
+  emit('communities')
+}
+
+watch(() => props.communities,
+  newVal => {
+    const cloned = structuredClone(toRaw(newVal))
+
+    if (can('admin-create-communities', 'Create Community')) {
+      cloned.unshift({
+        value: '__add_new__',
+        title: '➕ Create New Community',
+      })
+    }
+
+    communitiesWithAddNew.value = cloned
+  }, { immediate: true, deep: true },
+)
 </script>
 
 <template>
@@ -273,11 +303,12 @@ const handleImageChange = file => {
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="adminData.communityID"
-                  :items="props.communities"
+                  :items="communitiesWithAddNew"
                   placeholder="Select Community"
                   label="Community"
                   :error-messages="errors.communityID"
                   clearable
+                  @update:model-value="onCommunityChange"
                 />
               </VCol>
               <!-- 👉 First name -->
@@ -478,4 +509,9 @@ const handleImageChange = file => {
       </VCard>
     </PerfectScrollbar>
   </VNavigationDrawer>
+  <AddNewCommunityDialog
+    v-if="isAddNewCommunityDialogVisible"
+    v-model:is-dialog-visible="isAddNewCommunityDialogVisible"
+    @update-data="modifyCommunityDialog"
+  />
 </template>

@@ -1,4 +1,6 @@
 <script setup>
+import { useAuthStore } from '@/stores'
+import axios from 'axios'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps({
@@ -6,7 +8,7 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  category: {
+  certification: {
     type: Object,
     required: false,
     default: () => ({
@@ -21,14 +23,18 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDialogVisible',
   'updateData',
-  'category',
+  'certification',
 ])
+
+const authStore = useAuthStore()
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const categoryData = ref(structuredClone(toRaw(props.category)))
+const logo = ref()
+const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
+const certificationData = ref(structuredClone(toRaw(props.certification)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -40,45 +46,55 @@ const closeNavigationDrawer = () => {
 }
 
 const submit = async () => {
-  try {
-    if(props.category._id) {
-      const res = await $api(`/admin/settings/categories/${ props.category._id }`, {
-        method: 'PATCH',
-        body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
-        },
-        onResponseError({ response }) {
-          errors.value = response._data.errors
-        },
-      })
-    } else {
-      const res = await $api(`/admin/settings/categories`, {
-        method: 'POST',
-        body: {
-          name: categoryData.value.name,
-          status: categoryData.value.status,
-        },
-        onResponseError({ response }) {
-          errors.value = response._data.errors
-        },
-      })
-    }
+  const formData = new FormData()
+  if(logo.value) {
+    formData.append('logo', logo.value)
+  }
 
-    await nextTick(() => {
-      emit('updateData')
-      emit('update:isDialogVisible', false)
-      refForm.value?.reset()
-      refForm.value?.resetValidation()
-      if(props.category._id) {
+  if(certificationData.value.name) {
+    formData.append('name', certificationData.value.name)
+  }
+
+  if(certificationData.value.status) {
+    formData.append('status', certificationData.value.status)
+  }
+
+  if(props.certification._id) {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/settings/certifications/${ props.certification._id }`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authStore.accessToken}`,
+      },
+    }).then(async response => {
+      await nextTick(() => {
+        emit('updateData')
+        emit('update:isDialogVisible', false)
+        refForm.value?.reset()
+        refForm.value?.resetValidation()
         toast.success("Successfully updated")
-      } else {
-        toast.success("Successfully saved")
-      }
-      
+      })
     })
-  } catch (err) {
-    console.log(err)
+      .catch(e => {
+        errors.value = e.response.data.errors
+      })
+  } else {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/settings/certifications`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authStore.accessToken}`,
+      },
+    }).then(async response => {
+      await nextTick(() => {
+        emit('updateData')
+        emit('update:isDialogVisible', false)
+        refForm.value?.reset()
+        refForm.value?.resetValidation()
+        toast.success("Successfully saved")
+      })
+    })
+      .catch(e => {
+        errors.value = e.response.data.errors
+      })
   }
 }
 
@@ -91,8 +107,21 @@ const onSubmit = () => {
 
 const errors = ref({
   name: undefined,
+  logo: undefined,
   status: undefined,
 })
+
+const handleLogoChange = file => {
+  const fileReader = new FileReader()
+  const { files } = file.target
+  if (files && files.length) {
+    fileReader.readAsDataURL(files[0])
+    fileReader.onload = () => {
+      if (typeof fileReader.result === 'string')
+        logo.value = fileReader.result
+    }
+  }
+}
 
 const onReset = () => {
   emit('update:isDialogVisible', false)
@@ -113,11 +142,10 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.category._id ? 'Edit' : 'Create' }} Category
+          {{ props.certification._id ? 'Edit' : 'Create' }} Certification
         </h4>
 
         <VDivider />
-
         <!-- 👉 Form -->
         <VForm 
           ref="refForm"
@@ -125,10 +153,10 @@ const onReset = () => {
           @submit.prevent="onSubmit"
         >
           <VRow>
-            <!-- 👉 Name -->
+            <!-- 👉 Title -->
             <VCol cols="12">
               <AppTextField
-                v-model="categoryData.name"
+                v-model="certificationData.name"
                 :rules="[requiredValidator]"
                 label="Name"
                 placeholder="Name"
@@ -139,7 +167,7 @@ const onReset = () => {
             <!-- 👉 status -->
             <VCol cols="12">
               <AppAutocomplete
-                v-model="categoryData.status"
+                v-model="certificationData.status"
                 :rules="[requiredValidator]"
                 :items="[
                   { value: 'Active', title: 'Active' },
@@ -148,6 +176,22 @@ const onReset = () => {
                 placeholder="Select Status"
                 label="Status"
                 :error-messages="errors.status"
+              />
+            </VCol>
+
+            <!-- 👉 logo -->
+            <VCol cols="12">
+              <div class="app-picker-field">
+                <label class="v-label mb-1 text-body-2">Logo</label>
+              </div>
+              <VFileInput
+                :rules="rules"
+                label="Logo"
+                accept="image/png, image/jpeg, image/bmp"
+                placeholder="Pick a logo"
+                prepend-icon="tabler-camera"
+                :error-messages="errors.logo"
+                @change="handleLogoChange"
               />
             </VCol>
               

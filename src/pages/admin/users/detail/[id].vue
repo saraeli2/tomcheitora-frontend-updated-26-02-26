@@ -44,14 +44,20 @@ const adminFromData = computed(() => adminDetail.value)
 
 adminFromData.value.communityID = adminData.value.communityID._id
 
-const commonsync = await $api('/admin/communities/respond-with/extra-options').catch(err => console.log(err))
+const communities = ref([])
 
-const communityOptions = computed(() => commonsync.communityOptions)
+const handleUpdatedCommunities = async () => {
+  try {
+    const commonsync = await $api('/admin/communities/respond-with/extra-options')
 
-const communities = communityOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+    communities.value = commonsync.communityOptions.map(item => ({
+      value: item._id,
+      title: item.name,
+    }))
+  } catch (err) {
+    console.error('Failed to fetch updated communities:', err)
+  }
+}
 
 const reloadTab = ref(true)
 
@@ -94,6 +100,7 @@ onMounted( async () => {
   if(route.query.detailstab) {
     userTab.value = route.query.detailstab
   }
+  await handleUpdatedCommunities()
 })
 </script>
 
@@ -407,6 +414,7 @@ onMounted( async () => {
       v-model:is-drawer-open="isUserDialogVisible"
       v-model:user="adminFromData"
       v-model:communities="communities"
+      @communities="handleUpdatedCommunities"
       @user-data="modifyUser"
     />
   </div>
