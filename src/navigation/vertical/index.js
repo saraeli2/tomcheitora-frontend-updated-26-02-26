@@ -1,6 +1,7 @@
 import dashboards from './dashboards'
 import admins from './admins'
 import communities from './communities'
+import distributionmanagers from './distribution-managers'
 import groups from './groups'
 import manufacturers from './manufacturers'
 import products from './products'
@@ -10,4 +11,4 @@ import stations from './stations'
 import suppliers from './suppliers'
 import users from './users'
 
-export default [...dashboards, ...admins, ...communities, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...suppliers, ...users]
+export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...suppliers, ...users]

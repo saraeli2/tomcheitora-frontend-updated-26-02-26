@@ -1,112 +1,96 @@
 <script setup>
+import { useToast } from 'vue-toastification'
+import Draggable from 'vuedraggable'
+
 definePage({
   meta: {
-    action: ['admin-view-categories', 'admin-create-categories'],
-    subject: ['View Categories', 'Create Categories'],
-    title: 'Categories',
+    action: ['admin-create-categories'],
+    subject: ['Create Categories'],
+    navActiveLink: 'categories',
+    title: 'Create Category',
   },
 })
 
 import AddNewCategoryDrawer from '@/views/admin/settings/AddNewCategoryDrawer.vue'
+import CategoryBuilderNode from '@/views/admin/settings/CategoryBuilderNode.vue'
 import { can } from '@layouts/plugins/casl'
-
-const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
-const searchQuery = ref('')
-const selectedStatus = ref()
-const selectedRows = ref([])
+const toast = useToast()
 
-// Data table options
-const itemsPerPage = ref(10)
-const page = ref(1)
-const sortBy = ref()
-const orderBy = ref()
-const isCategoryDialogVisible = ref(false)
+const parentId = ref()
 const isAddNewCategoryDrawerVisible = ref(false)
+const isCategoryDialogVisible = ref(false)
 const categoryDetail = ref()
-const panel = ref()
-
-const updateOptions = options => {
-  sortBy.value = options.sortBy[0]?.key
-  orderBy.value = options.sortBy[0]?.order
-}
-
-const headers = [
-  {
-    title: 'Name',
-    key: 'name',
-  },
-  {
-    title: 'Active',
-    key: 'status',
-  },
-  {
-    title: 'Created by',
-    key: 'createdBy',
-  },
-  {
-    title: 'Updated by',
-    key: 'updatedBy',
-  },
-  {
-    title: 'Created At',
-    key: 'createdAt',
-  },
-  {
-    title: 'Updated At',
-    key: 'updatedAt',
-  },
-  {
-    title: 'Actions',
-    key: 'actions',
-    sortable: false,
-  },
-]
 
 const {
-  data: customerData,
-  execute: fetchCategories,
-} = await useApi(createUrl('/admin/settings/categories', {
-  query: {
-    keyword: searchQuery,
-    status: selectedStatus,
-    itemsPerPage,
-    page,
-    sortBy,
-    orderBy,
-  },
-}))
+  data: categoryBuilderData,
+  execute: fetchCategoryBuilders,
+} = await useApi(createUrl('/admin/settings/categories'))
 
-const categories = computed(() => customerData.value.categories)
-const totalCategories = computed(() => customerData.value.total)
+const categories = computed(() => categoryBuilderData.value.categories)
 
-const resolveStatusVariantAndIcon = status => {
-  if (status === 'Active')
-    return {
-      variant: 'success',
-      title: 'Yes',
+const tree = ref([])
+
+const buildTree = categories => {
+  const categoryMap = {}
+  const roots = []
+
+  // Normalize and initialize
+  categories.forEach(category => {
+    const id = category._id.toString()
+
+    categoryMap[id] = { ...category, children: [] }
+  })
+
+  // Build tree structure
+  categories.forEach(category => {
+    const id = category._id.toString()
+    const parentId = category.parentId?.toString()
+
+    if (parentId && categoryMap[parentId]) {
+      // Add to parent's children
+      categoryMap[parentId].children.push(categoryMap[id])
+    } else {
+      // No parentId = root node
+      roots.push(categoryMap[id])
     }
-  
-  return {
-    variant: 'secondary',
-    title: 'No',
-  }
+  })
+
+  // Sort children by sortOrder
+  Object.values(categoryMap).forEach(cat => {
+    if (cat.children?.length) {
+      cat.children.sort((a, b) => a.sortOrder - b.sortOrder)
+    }
+  })
+
+  return roots
 }
 
-const modifyCategory = async userData => {
+const modifyCategoryBuilder = async userData => {
   // refetch Category
-  fetchCategories()
+  fetchCategoryBuilders()
 }
 
-const editCategory = async value => {
-  categoryDetail.value = value
-  
+const editForm = async value => {
+  const data = await $api(`/admin/settings/categories/${ value._id }`).catch(err => console.log(err))
+
+  categoryDetail.value = data
   isCategoryDialogVisible.value = true
 }
 
-const deleteCategory = async id => {
+const openForm = async (item = null) => {
+  parentId.value = item._id
+  isAddNewCategoryDrawerVisible.value = true
+}
+
+const createParentCategory = async () => {
+  parentId.value = null
+  isAddNewCategoryDrawerVisible.value = true
+}
+
+const deleteItem = item => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -124,15 +108,55 @@ const deleteCategory = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/settings/categories/${ id }`, { method: 'DELETE' })
-        fetchCategories()
+        await $api(`/admin/settings/categories/${ item._id }`, { method: 'DELETE' })
+        fetchCategoryBuilders()
       }
-    })  
+    })
 }
+
+const onDrag = async evt => {
+  if (!evt?.moved) return
+  console.log(evt.moved)
+
+  const parentNode = evt.moved.element.parentId // adjust based on your data structure
+  const newChildren = tree.value.find(node => node._id === parentNode)?.children || []
+
+  const payload = newChildren.map((child, index) => ({
+    id: child._id,            // ID of the relation (CategoryBuilder ID)
+    sortOrder: index,             // New order
+  }))
+
+  await $api('/admin/settings/categories/update/sort-order', {
+    method: 'POST',
+    body: payload,
+  })
+
+  // You can handle drag result here (persist changes)
+  toast.success('Drag completed')
+}
+
+const checkMove = ({ draggedContext, relatedContext }) => {
+  const fromParent = draggedContext.componentInstance?.node || null
+  const toParent = relatedContext.componentInstance?.node || null
+
+  console.log('Dragged from:', draggedContext.componentInstance?.node)
+  console.log('Dropped to:', relatedContext.componentInstance?.node)
+
+  const isRootToRoot = !fromParent && !toParent
+  const isSameParent = fromParent?._id === toParent?._id
+
+  return isRootToRoot || isSameParent
+}
+
+watch(categoryBuilderData, newVal => {
+  if (newVal?.categories) {
+    tree.value = buildTree(newVal.categories)
+  }
+}, { immediate: true })
 </script>
 
 <template>
-  <section>
+  <div>
     <VCard id="invoice-list">
       <VCardText class="d-flex justify-space-between align-center flex-wrap">
         <VRow>
@@ -148,205 +172,57 @@ const deleteCategory = async id => {
 
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
-          <div class="d-flex align-center gap-2">
-            <span>Show</span>
-            <AppSelect
-              :model-value="itemsPerPage"
-              :items="[
-                { value: 10, title: '10' },
-                { value: 25, title: '25' },
-                { value: 50, title: '50' },
-                { value: 100, title: '100' },
-              ]"
-              style="inline-size: 5.5rem;"
-              @update:model-value="itemsPerPage = parseInt($event, 10)"
-            />
-          </div>
-          <!-- 👉 Create Category -->
           <VBtn
             v-if="can('admin-create-categories', 'Create Categories')"
             prepend-icon="tabler-plus"
-            @click="isAddNewCategoryDrawerVisible = true"
+            @click="createParentCategory"
           >
             Create Category
           </VBtn>
         </div>
-
-        <div class="d-flex align-center flex-wrap gap-4" />
       </VCardText>
-
-      <VDivider />
-      
-      <VExpansionPanels
-        v-if="can('admin-view-categories', 'View Categories')"
-        v-model="panel"
-      >
-        <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
-
-          <VExpansionPanelText>
-            <VCardText>
-              <VRow>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppTextField
-                    v-model="searchQuery"
-                    placeholder="Search Category"
-                  />
-                </VCol>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppAutocomplete
-                    v-model="selectedStatus"
-                    :items="[
-                      { value: 1, title: 'Active' },
-                      { value: 0, title: 'Inactive' },
-                    ]"
-                    placeholder="Status"
-                    clearable
-                  />
-                </VCol>
-              </VRow>
-            </VCardText>
-          </VExpansionPanelText>
-        </VExpansionPanel>
-      </VExpansionPanels>
-
-      <VDivider v-if="can('admin-view-categories', 'View Categories')" />
-
-      <!-- SECTION Datatable -->
-      <VDataTableServer
-        v-if="can('admin-view-categories', 'View Categories')"
-        v-model="selectedRows"
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        :items-length="totalCategories"
-        :headers="headers"
-        :items="categories"
-        item-value="id"
-        class="text-no-wrap"
-        @update:options="updateOptions"
-      >
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          {{ item.name }}
-        </template>
-
-        <!-- status -->
-        <template #[`item.status`]="{ item }">
-          <VChip
-            label
-            :color="resolveStatusVariantAndIcon(item.status).variant"
-            size="small"
-          >
-            {{ resolveStatusVariantAndIcon(item.status).title }}
-          </VChip>
-        </template>
-
-        <!-- createdBy -->
-        <template #[`item.createdBy`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-admins', 'View Admins') && item.createdBy"
-            :to="{ name: 'admin-admins-detail-id', params: { id: item.createdBy._id } }"
-          >
-            {{ item.createdBy.name }}
-          </RouterLink>
-          <span v-else>{{ item.createdBy ? item.createdBy.name : '' }}</span>
-        </template>
-
-        <!-- updatedBy -->
-        <template #[`item.updatedBy`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-admins', 'View Admins') && item.updatedBy"
-            :to="{ name: 'admin-admins-detail-id', params: { id: item.updatedBy._id } }"
-          >
-            {{ item.updatedBy.name }}
-          </RouterLink>
-          <span v-else>{{ item.updatedBy ? item.updatedBy.name : '' }}</span>
-        </template>
-
-        <!-- Created At -->
-        <template #[`item.createdAt`]="{ item }">
-          {{ formatDateWithTime(item.createdAt) }}
-        </template>
-
-        <!-- Updated At -->
-        <template #[`item.updatedAt`]="{ item }">
-          {{ formatDateWithTime(item.updatedAt) }}
-        </template>
-
-        <!-- Actions -->
-        <template #[`item.actions`]="{ item }">
-          <VBtn
-            icon
-            variant="text"
-            color="medium-emphasis"
-          >
-            <VIcon icon="tabler-dots-vertical" />
-            <VMenu activator="parent">
-              <VList>
-                <VListItem
-                  v-if="can('admin-update-categories', 'Update Categories')"
-                  @click="editCategory(item)"
-                >
-                  <template #prepend>
-                    <VIcon icon="tabler-pencil" />
-                  </template>
-                  <VListItemTitle>Edit</VListItemTitle>
-                </VListItem>
-
-                <VListItem
-                  v-if="can('admin-delete-categories', 'Delete Categories')"
-                  @click="deleteCategory(item._id)"
-                >
-                  <template #prepend>
-                    <VIcon icon="tabler-trash" />
-                  </template>
-                  <VListItemTitle>Delete</VListItemTitle>
-                </VListItem>
-              </VList>
-            </VMenu>
-          </VBtn>
-        </template>
-
-        <!-- pagination -->
-        <template #bottom>
-          <TablePagination
-            v-model:page="page"
-            :items-per-page="itemsPerPage"
-            :total-items="totalCategories"
-          />
-        </template>
-      </VDataTableServer>
-    <!-- !SECTION -->
     </VCard>
+
+    <VCard
+      title="Category Manager"
+      class="mb-6"
+    >
+      <VCardText class="cb_wrapper">
+        <Draggable
+          v-model="tree"
+          group="categoryBuilders"
+          item-key="_id"
+          fallback-on-body
+          :animation="200"
+          @change="onDrag"
+        >
+          <template #item="{ element }">
+            <CategoryBuilderNode
+              :node="element"
+              :level="0"
+              @add="openForm"
+              @edit="editForm"
+              @delete="deleteItem"
+              @change="onDrag"
+            />
+          </template>
+        </Draggable>
+      </VCardText>
+    </VCard>
+
     <AddNewCategoryDrawer
       v-if="isAddNewCategoryDrawerVisible"
       v-model:is-drawer-open="isAddNewCategoryDrawerVisible"
-      @user-data="modifyCategory"
+      v-model:parent="parentId"
+      @user-data="modifyCategoryBuilder"
     />
 
     <AddNewCategoryDrawer
       v-if="isCategoryDialogVisible"
       v-model:is-drawer-open="isCategoryDialogVisible"
+      v-model:parent="parentId"
       v-model:category="categoryDetail"
-      @user-data="modifyCategory"
+      @user-data="modifyCategoryBuilder"
     />
-  </section>
+  </div>
 </template>
-
-<style lang="scss">
-#invoice-list {
-  .invoice-list-actions {
-    inline-size: 8rem;
-  }
-
-  .invoice-list-filter {
-    inline-size: 12rem;
-  }
-}
-</style>

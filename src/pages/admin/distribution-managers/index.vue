@@ -1,18 +1,20 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-stations', 'admin-create-stations'],
-    subject: ['View Stations', 'Create Stations'],
-    title: 'Stations',
+    action: ['admin-view-distribution-managers', 'admin-create-distribution-managers'],
+    subject: ['View Distribution Managers', 'Create Distribution Managers'],
+    title: 'Distribution Managers',
   },
 })
 
-import AddNewStationDrawer from '@/views/admin/stations/AddNewStationDrawer.vue'
+import AddNewAdminDrawer from '@/views/admin/distribution-managers/AddNewAdminDrawer.vue'
+import ResetPasswordDrawer from '@/views/admin/distribution-managers/ResetPasswordDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
 const searchQuery = ref('')
+const selectedRole = ref()
 const selectedStatus = ref()
 const selectedRows = ref([])
 
@@ -21,9 +23,10 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isStationDialogVisible = ref(false)
-const isAddNewStationDrawerVisible = ref(false)
-const stationDetail = ref()
+const isAdminDialogVisible = ref(false)
+const isAddNewAdminDrawerVisible = ref(false)
+const isResetPasswordDrawerVisible = ref(false)
+const adminDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -33,12 +36,20 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Name',
-    key: 'name',
+    title: 'First Name',
+    key: 'firstName',
   },
   {
-    title: 'Neighbourhood',
-    key: 'neighbourhood',
+    title: 'Last Name',
+    key: 'lastName',
+  },
+  {
+    title: 'Email',
+    key: 'email',
+  },
+  {
+    title: 'Position',
+    key: 'position',
   },
   {
     title: 'City ID',
@@ -57,13 +68,26 @@ const headers = [
     key: 'houseNumber',
   },
   {
+    title: 'Phone 1',
+    key: 'phone1',
+  },
+  {
+    title: 'Phone 2',
+    key: 'phone2',
+  },
+  {
     title: 'Active',
     key: 'status',
   },
   {
-    title: 'Distribution Manager',
-    key: 'distributionManagers',
+    title: 'Role',
+    key: 'roles',
     sortable: false,
+  },
+  {
+    title: 'created by',
+    key: 'createdBy.name',
+    sortable: true,
   },
   {
     title: 'Created At',
@@ -82,11 +106,12 @@ const headers = [
 
 const {
   data: customerData,
-  execute: fetchStations,
-} = await useApi(createUrl('/admin/stations', {
+  execute: fetchAdmins,
+} = await useApi(createUrl('/admin/distribution-managers', {
   query: {
     search: searchQuery,
     status: selectedStatus,
+    role: selectedRole,
     itemsPerPage,
     page,
     sortBy,
@@ -94,15 +119,16 @@ const {
   },
 }))
 
-const stations = computed(() => customerData.value.stations)
-const totalStations = computed(() => customerData.value.total)
+const distributionManagers = computed(() => customerData.value.distributionManagers)
+const totalDistributionManagers = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/distribution-managers/respond-with/extra-options').catch(err => console.log(err))
-const adminOptions = computed(() => commonsync.adminOptions)
+const commonsync = await $api('/admin/roles/respond-with/extra-options').catch(err => console.log(err))
 
-const admins = adminOptions.value.map(item => ({
+const roleOptions = computed(() => commonsync.roleOptions)
+
+const roles = roleOptions.value.map(item => ({
   value: item._id,
-  title: `${item.firstName} ${item.lastName}`,
+  title: item.name,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -118,18 +144,20 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyStation = async userData => {
-  // refetch Station
-  fetchStations()
+const modifyAdmin = async userData => {
+  // refetch User
+  fetchAdmins()
 }
 
-const editStation = async value => {
-  stationDetail.value = value
+const editAdmin = async value => {
+  const data = await $api(`/admin/distribution-managers/${ value._id }`).catch(err => console.log(err))
+
+  adminDetail.value = data
   
-  isStationDialogVisible.value = true
+  isAdminDialogVisible.value = true
 }
 
-const deleteStation = async id => {
+const deleteAdmin = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -147,10 +175,15 @@ const deleteStation = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/stations/${ id }`, { method: 'DELETE' })
-        fetchStations()
+        await $api(`/admin/distribution-managers/${ id }`, { method: 'DELETE' })
+        fetchAdmins()
       }
     })  
+}
+
+const resetPassword = val => {
+  adminDetail.value = val
+  isResetPasswordDrawerVisible.value = true
 }
 </script>
 
@@ -161,7 +194,7 @@ const deleteStation = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Stations
+              Distribution Managers
             </h5>
           </VCol>
         </VRow>
@@ -185,13 +218,13 @@ const deleteStation = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Station -->
+          <!-- 👉 Create Admin -->
           <VBtn
-            v-if="can('admin-create-stations', 'Create Stations')"
+            v-if="can('admin-create-distribution-managers', 'Create Distribution Managers')"
             prepend-icon="tabler-plus"
-            @click="isAddNewStationDrawerVisible = true"
+            @click="isAddNewAdminDrawerVisible = true"
           >
-            Create Station
+            Create Distribution Manager
           </VBtn>
         </div>
 
@@ -201,7 +234,7 @@ const deleteStation = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-stations', 'View Stations')"
+        v-if="can('admin-view-distribution-managers', 'View Distribution Managers')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -216,7 +249,19 @@ const deleteStation = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Station"
+                    placeholder="Search User"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <!-- 👉 Select status -->
+                  <AppAutocomplete
+                    v-model="selectedRole"
+                    :items="roles"
+                    placeholder="Role"
+                    clearable
                   />
                 </VCol>
                 <VCol
@@ -239,31 +284,43 @@ const deleteStation = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-stations', 'View Stations')" />
+      <VDivider v-if="can('admin-view-distribution-managers', 'View Distribution Managers')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-stations', 'View Stations')"
+        v-if="can('admin-view-distribution-managers', 'View Distribution Managers')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalStations"
+        :items-length="totalDistributionManagers"
         :headers="headers"
-        :items="stations"
+        :items="distributionManagers"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          <RouterLink :to="{ name: 'admin-stations-detail-id', params: { id: item._id } }">
-            {{ item.name }}
+        <!-- firstName -->
+        <template #[`item.firstName`]="{ item }">
+          <RouterLink :to="{ name: 'admin-distribution-managers-detail-id', params: { id: item._id } }">
+            {{ item.firstName }}
           </RouterLink>
         </template>
 
-        <!-- neighbourhood -->
-        <template #[`item.neighbourhood`]="{ item }">
-          {{ item.neighbourhood }}
+        <!-- lastName -->
+        <template #[`item.lastName`]="{ item }">
+          <RouterLink :to="{ name: 'admin-distribution-managers-detail-id', params: { id: item._id } }">
+            {{ item.lastName }}
+          </RouterLink>
+        </template>
+
+        <!-- email -->
+        <template #[`item.email`]="{ item }">
+          {{ item.email }}
+        </template>
+
+        <!-- position -->
+        <template #[`item.position`]="{ item }">
+          {{ item.position }}
         </template>
 
         <!-- cityId -->
@@ -286,6 +343,16 @@ const deleteStation = async id => {
           {{ item.houseNumber }}
         </template>
 
+        <!-- phone1 -->
+        <template #[`item.phone1`]="{ item }">
+          {{ item.phone1 }}
+        </template>
+
+        <!-- phone2 -->
+        <template #[`item.phone2`]="{ item }">
+          {{ item.phone2 }}
+        </template>
+
         <!-- status -->
         <template #[`item.status`]="{ item }">
           <VChip
@@ -297,23 +364,17 @@ const deleteStation = async id => {
           </VChip>
         </template>
 
-        <!-- distributionManagers -->
-        <template #[`item.distributionManagers`]="{ item }">
+        <!-- roles -->
+        <template #[`item.roles`]="{ item }">
           <VChip
-            v-for="(admin, adminindex) in item.distributionManagers"
-            :key="adminindex"
+            v-for="(role, roleindex) in item.roles"
+            :key="roleindex"
             label
             color="success"
             size="small"
             class="roles"
           >
-            <RouterLink
-              v-if="can('admin-view-distribution-managers', 'View Distribution Managers')"
-              :to="{ name: 'admin-distribution-managers-detail-id', params: { id: admin._id } }"
-            >
-              {{ admin.firstName }} {{ admin.lastName }}
-            </RouterLink>
-            <span v-else>{{ admin.firstName }} {{ admin.lastName }}</span>
+            {{ role.name }}
           </VChip>
         </template>
 
@@ -330,6 +391,7 @@ const deleteStation = async id => {
         <!-- Actions -->
         <template #[`item.actions`]="{ item }">
           <VBtn
+            v-if="item.email != 'dev@annanovas.com'"
             icon
             variant="text"
             color="medium-emphasis"
@@ -337,7 +399,7 @@ const deleteStation = async id => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-                <VListItem :to="{ name: 'admin-stations-detail-id', params: { id: item._id } }">
+                <VListItem :to="{ name: 'admin-distribution-managers-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
@@ -345,8 +407,18 @@ const deleteStation = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-stations', 'Update Stations')"
-                  @click="editStation(item)"
+                  v-if="can('admin-update-distribution-managers', 'Update Distribution Managers')"
+                  @click="resetPassword(item)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-password-user" />
+                  </template>
+                  <VListItemTitle>Reset Password</VListItemTitle>
+                </VListItem>
+
+                <VListItem
+                  v-if="can('admin-update-distribution-managers', 'Update Distribution Managers')"
+                  @click="editAdmin(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -355,8 +427,8 @@ const deleteStation = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-stations', 'Delete Stations')"
-                  @click="deleteStation(item._id)"
+                  v-if="can('admin-delete-distribution-managers', 'Delete Distribution Managers')"
+                  @click="deleteAdmin(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -373,26 +445,32 @@ const deleteStation = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalStations"
+            :total-items="totalDistributionManagers"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-
-    <AddNewStationDrawer
-      v-if="isAddNewStationDrawerVisible"
-      v-model:is-drawer-open="isAddNewStationDrawerVisible"
-      v-model:distribution-managers="admins"
-      @user-data="modifyStation"
+    <!-- 👉 Reset Password -->
+    <ResetPasswordDrawer
+      v-if="isResetPasswordDrawerVisible"
+      v-model:is-drawer-open="isResetPasswordDrawerVisible"
+      v-model:admin="adminDetail"
+      @user-data="modifyAdmin"
+    />
+    <AddNewAdminDrawer
+      v-if="isAddNewAdminDrawerVisible"
+      v-model:is-drawer-open="isAddNewAdminDrawerVisible"
+      v-model:roles="roles"
+      @user-data="modifyAdmin"
     />
 
-    <AddNewStationDrawer
-      v-if="isStationDialogVisible"
-      v-model:is-drawer-open="isStationDialogVisible"
-      v-model:station="stationDetail"
-      v-model:distribution-managers="admins"
-      @user-data="modifyStation"
+    <AddNewAdminDrawer
+      v-if="isAdminDialogVisible"
+      v-model:is-drawer-open="isAdminDialogVisible"
+      v-model:roles="roles"
+      v-model:admin="adminDetail"
+      @user-data="modifyAdmin"
     />
   </section>
 </template>

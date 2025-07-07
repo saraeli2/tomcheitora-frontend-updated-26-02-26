@@ -1,20 +1,22 @@
 <script setup>
 definePage({
   meta: {
-    action: ['admin-view-stations'],
-    subject: ['View Stations'],
-    navActiveLink: 'admin-stations',
-    title: 'Station Details',
+    action: ['admin-view-distribution-managers'],
+    subject: ['View Distribution Managers'],
+    navActiveLink: 'admin-distribution-managers',
+    title: 'Distribution Manager Details',
   },
 })
 
-import AddNewStationDrawer from '@/views/admin/stations/AddNewStationDrawer.vue'
+import AddNewAdminDrawer from '@/views/admin/distribution-managers/AddNewAdminDrawer.vue'
+import ResetPasswordDrawer from '@/views/admin/distribution-managers/ResetPasswordDrawer.vue'
 
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
-const isStationDialogVisible = ref(false)
+const isAdminDialogVisible = ref(false)
+const isResetPasswordDrawerVisible = ref(false)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -29,33 +31,34 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const route = useRoute('admin-stations-detail-id')
+const route = useRoute('admin-distribution-managers-detail-id')
 const router = useRouter()
 
 const userTab = ref(0)
 
 const {
-  data: stationDetail, execute: fetchStations,
-} = await useApi(createUrl(`/admin/stations/${ route.params.id }`))
+  data: adminDetail, execute: fetchAdmins,
+} = await useApi(createUrl(`/admin/distribution-managers/${ route.params.id }`))
 
-const stationData = computed(() => stationDetail.value)
+const adminData = computed(() => adminDetail.value)
 
-const commonsync = await $api('/admin/distribution-managers/respond-with/extra-options').catch(err => console.log(err))
-const adminOptions = computed(() => commonsync.adminOptions)
+const commonsync = await $api('/admin/roles/respond-with/extra-options').catch(err => console.log(err))
 
-const admins = adminOptions.value.map(item => ({
+const roleOptions = computed(() => commonsync.roleOptions)
+
+const roles = roleOptions.value.map(item => ({
   value: item._id,
-  title: `${item.firstName} ${item.lastName}`,
+  title: item.name,
 }))
 
 const reloadTab = ref(true)
 
-const modifyStation = async userData => {
+const modifyAdmin = async userData => {
   // refetch Organization
-  fetchStations()
+  fetchAdmins()
 }
 
-const deleteStation = async () => {
+const deleteAdmin = async () => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -73,8 +76,8 @@ const deleteStation = async () => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/stations/${ route.params.id }`, { method: 'DELETE' })
-        router.push({ name: 'admin-stations' })
+        await $api(`/admin/distribution-managers/${ route.params.id }`, { method: 'DELETE' })
+        router.push({ name: 'admin-distribution-managers' })
       }
     })
 }
@@ -96,7 +99,7 @@ onMounted( async () => {
   <div>
     <!-- 👉 Header  -->
     <div 
-      v-if="stationData"
+      v-if="adminData"
       class="d-flex justify-space-between align-center flex-wrap gap-y-4 mb-6"
     >
       <VRow>
@@ -107,7 +110,7 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Stations', to: { name: 'admin-stations' }, class: 'text-primary' }, { title: 'Station Details of ' + stationData.name }]"
+            :items="[{ title: 'Distribution Managers', to: { name: 'admin-distribution-managers' }, class: 'text-primary' }, { title: 'Admin Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
           />
         </VCol>
       </VRow>
@@ -117,20 +120,20 @@ onMounted( async () => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Station ID #{{ route.params.id }}
+          Admin ID #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(stationData.createdAt) }}, Updated At: {{ formatDateWithTime(stationData.updatedAt) }}
+          Created At: {{ formatDateWithTime(adminData.createdAt) }}, Updated At: {{ formatDateWithTime(adminData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-stations', 'Delete Stations')"
+          v-if="can('admin-delete-distribution-managers', 'Delete Distribution Managers')"
           variant="tonal"
           color="error"
-          @click="deleteStation"
+          @click="deleteAdmin"
         >
-          Delete Station
+          Delete Admin
         </VBtn>
       </div>
     </div>
@@ -161,25 +164,11 @@ onMounted( async () => {
           :touch="false"
         >
           <VWindowItem>
-            <VCard v-if="stationData">
-              <VCardText
-                v-if="stationData.logo"
-                class="text-center pt-12"
-              >
-                <VAvatar
-                  rounded
-                  :size="100"
-                  color="primary"
-                  variant="tonal"
-                >
-                  <VImg :src="stationData.logo" />
-                </VAvatar>
-              </VCardText>
-
+            <VCard v-if="adminData">
               <VCardText class="text-center pt-12">
                 <!-- 👉 Customer fullName -->
                 <div class="text-body-1">
-                  Station ID #{{ stationData._id }}
+                  Admin ID #{{ adminData._id }}
                 </div>
               </VCardText>
 
@@ -194,18 +183,36 @@ onMounted( async () => {
                 <VList class="card-list mt-2">
                   <VListItem>
                     <h6 class="text-h6">
-                      Name:
+                      First Name:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.name }}
+                        {{ adminData.firstName }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Neighbourhood:
+                      Last Name:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.neighbourhood }}
+                        {{ adminData.lastName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Email:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.email }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Position:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.position }}
                       </span>
                     </h6>
                   </VListItem>
@@ -214,7 +221,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       City ID:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.cityId }}
+                        {{ adminData.cityId }}
                       </span>
                     </h6>
                   </VListItem>
@@ -223,7 +230,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       City Name:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.cityName }}
+                        {{ adminData.cityName }}
                       </span>
                     </h6>
                   </VListItem>
@@ -232,7 +239,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       Street:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.street }}
+                        {{ adminData.street }}
                       </span>
                     </h6>
                   </VListItem>
@@ -241,33 +248,27 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       House Number:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.houseNumber }}
+                        {{ adminData.houseNumber }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
-                    <div class="d-flex gap-x-2 align-center">
-                      <h6 class="text-h6">
-                        Distribution Manager:
-                      </h6>
-                      <VChip
-                        v-for="(admin, adminindex) in stationData.distributionManagers"
-                        :key="adminindex"
-                        label
-                        color="success"
-                        size="small"
-                        class="roles"
-                      >
-                        <RouterLink
-                          v-if="can('admin-view-distribution-managers', 'View Distribution Managers')"
-                          :to="{ name: 'admin-distribution-managers-detail-id', params: { id: admin._id } }"
-                        >
-                          {{ admin.firstName }} {{ admin.lastName }}
-                        </RouterLink>
-                        <span v-else>{{ admin.firstName }} {{ admin.lastName }}</span>
-                      </VChip>
-                    </div>
+                    <h6 class="text-h6">
+                      Phone 1:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.phone1 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Phone 2:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.phone2 }}
+                      </span>
+                    </h6>
                   </VListItem>
 
                   <VListItem>
@@ -277,12 +278,21 @@ onMounted( async () => {
                       </h6>
                       <VChip
                         label
-                        :color="resolveStatusVariantAndIcon(stationData.status).variant"
+                        :color="resolveStatusVariantAndIcon(adminData.status).variant"
                         size="small"
                       >
-                        {{ resolveStatusVariantAndIcon(stationData.status).title }}
+                        {{ resolveStatusVariantAndIcon(adminData.status).title }}
                       </VChip>
                     </div>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      Remarks:
+                      <span class="text-body-1 d-inline-block">
+                        <div v-html="adminData?.remarks" />
+                      </span>
+                    </h6>
                   </VListItem>
 
                   <VListItem>
@@ -290,12 +300,12 @@ onMounted( async () => {
                       Created By:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && stationData.createdBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: stationData.createdBy._id } }"
+                          v-if="can('admin-view-distribution-managers', 'View Distribution Managers') && adminData.createdBy"
+                          :to="{ name: 'admin-distribution-managers-detail-id', params: { id: adminData.createdBy._id } }"
                         >
-                          {{ stationData.createdBy.name }}
+                          {{ adminData.createdBy.name }}
                         </RouterLink>
-                        <span v-else>{{ stationData.createdBy ? stationData.createdBy.name : '' }}</span>
+                        <span v-else>{{ adminData.createdBy ? adminData.createdBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -305,12 +315,12 @@ onMounted( async () => {
                       Updated By:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && stationData.updatedBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: stationData.updatedBy._id } }"
+                          v-if="can('admin-view-distribution-managers', 'View Distribution Managers') && adminData.updatedBy"
+                          :to="{ name: 'admin-distribution-managers-detail-id', params: { id: adminData.updatedBy._id } }"
                         >
-                          {{ stationData.updatedBy.name }}
+                          {{ adminData.updatedBy.name }}
                         </RouterLink>
-                        <span v-else>{{ stationData.updatedBy ? stationData.updatedBy.name : '' }}</span>
+                        <span v-else>{{ adminData.updatedBy ? adminData.updatedBy.name : '' }}</span>
                       </span>
                     </h6>
                   </VListItem>
@@ -318,14 +328,26 @@ onMounted( async () => {
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-stations', 'Update Stations')"
+                v-if="can('admin-update-distribution-managers', 'Update Distribution Managers') && adminData.email != 'dev@annanovas.com'"
                 class="text-center"
               >
                 <VBtn
                   block
-                  @click="isStationDialogVisible = !isStationDialogVisible"
+                  @click="isAdminDialogVisible = !isAdminDialogVisible"
                 >
-                  Edit Station
+                  Edit Admin
+                </VBtn>
+              </VCardText>
+
+              <VCardText
+                v-if="can('admin-update-distribution-managers', 'Update Distribution Managers') && adminData.email != 'dev@annanovas.com'"
+                class="text-center"
+              >
+                <VBtn
+                  block
+                  @click="isResetPasswordDrawerVisible = !isResetPasswordDrawerVisible"
+                >
+                  Reset Password
                 </VBtn>
               </VCardText>
             </VCard>
@@ -338,16 +360,23 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Station with ID  {{ route.params.id }} not found!
+        Admin with ID  {{ route.params.id }} not found!
       </VAlert>
     </div>
+    
+    <ResetPasswordDrawer
+      v-if="isResetPasswordDrawerVisible"
+      v-model:is-drawer-open="isResetPasswordDrawerVisible"
+      v-model:admin="adminDetail"
+      @user-data="modifyAdmin"
+    />
 
-    <AddNewStationDrawer
-      v-if="isStationDialogVisible"
-      v-model:is-drawer-open="isStationDialogVisible"
-      v-model:station="stationData"
-      v-model:distribution-managers="admins"
-      @user-data="modifyStation"
+    <AddNewAdminDrawer
+      v-if="isAdminDialogVisible"
+      v-model:is-drawer-open="isAdminDialogVisible"
+      v-model:admin="adminData"
+      v-model:roles="roles"
+      @user-data="modifyAdmin"
     />
   </div>
 </template>

@@ -66,3 +66,113 @@ button.swal2-cancel.btn.btn-outline-primary {
 .swal2-popup.swal2-modal.swal2-show {
   padding: 50px 45px;
 }
+
+
+
+.v-card-text.cb_wrapper {
+    padding: 0;
+}
+.v-card-text > div > .master_div {
+    border-bottom: 1px solid #d7d7d7;
+    border-radius: 0 !important;
+    padding: 10px 20px 10px 55px !important;
+    margin: 0!important;
+}
+.v-card-text.cb_wrapper {
+    padding: 0 0 20px;
+}
+.v-card-text > div > .master_div .d-flex.justify-between.align-center {
+    justify-content: space-between;
+}
+.v-card-text > div > .master_div {
+    border-bottom: none;
+    border-radius: 0 !important;
+    padding: 10px 20px 10px 20px !important;
+    margin: 0 !important;
+    box-shadow: rgba(47, 43, 61, 0.1) 0px 1px 6px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px;
+    margin: 0 0 1px !important;
+}
+.master_div .mb-2.px-2.py-1.bg-grey-lighten-4.rounded.master_div {
+    padding-right: 0 !important;
+}
+.v-card-text > div > .master_div svg {
+    margin-right: 20px;
+}
+.master_div .ms-4.mt-2 {
+    margin-left: 0 !important;
+}
+.master_div .mb-2.px-2.py-1.bg-grey-lighten-4.rounded.master_div {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+}
+.mb-2.px-2.py-1.bg-grey-lighten-4.rounded.master_div .ms-4.mt-2 .cat_name {
+    padding-left: 40px;
+}
+
+.master_div .mb-2.px-2.py-1.bg-grey-lighten-4.rounded.master_div {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    margin: 0 !important;
+    padding-bottom: 0 !important;
+    padding-top: 0 !important;
+}
+.master_div .master_div .master_div .cat_name {
+    padding-left: 40px !important;
+}
+
+.master_div .master_div .master_div .master_div .cat_name {
+    padding-left: 40px !important;
+}
+.master_div .master_div .master_div .master_div .master_div .cat_name {
+    padding-left: 40px !important;
+}
+
+.master_div .master_div .master_div .master_div .master_div .master_div .cat_name {
+    padding-left: 40px !important;
+}
+
+.v-card-text > div > .master_div svg {
+    margin-right: 25px;
+}
+
+.mb-2.px-2.py-1.bg-grey-lighten-4.rounded.master_div:not(.active) > div:not([class]) {
+    display: none;
+}
+.master_div.has_child .cat_name{
+  position: relative;
+  cursor: pointer;
+  padding-left: 45px;
+}
+
+.master_div.has_child  > div >.cat_name::before{
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  left: 0px;
+  content: '';
+  background: url(/images/svg/chevron-down.svg) no-repeat center center;
+  cursor: pointer;
+}
+.master_div.has_child.active > div > .cat_name::before{
+  background: url(/images/svg/chevron-up.svg) no-repeat center center;
+}
+
+
+.v-card-text > div > .master_div:not(.has_child) svg{
+  margin-right: 70px;
+}
+.master_div.active > div:not([class]){
+  display: block;
+}
+.v-card-text > div > .master_div .master_div svg {
+    margin-right: 65px;
+}
+
+.v-card-text > div > .master_div .master_div .master_div svg {
+    margin-right: 105px;
+}
+
+.v-card-text > div > .master_div .master_div .master_div .master_div svg {
+    margin-right: 145px;
+}
+

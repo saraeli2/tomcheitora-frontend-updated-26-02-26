@@ -10,23 +10,45 @@ const props = defineProps({
     required: false,
     default: () => ([]),
   },
+  indeterminate: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
 })
 
 const emit = defineEmits(['toggle-select'])
 
 const getNodeId = node => node.realId || node._id
 
-// Local checkbox state
-const isChecked = ref(false)
+// Computed checkbox state based on selected prop
+const isChecked = computed({
+  get() {
+    return props.selected.includes(getNodeId(props.node))
+  },
+  set(value) {
+    emit('toggle-select', { id: getNodeId(props.node), checked: value })
+  },
+})
 
-// Sync checkbox when props.selected changes
+// Ref to the checkbox component for setting indeterminate
+const checkbox = ref(null)
+
+// Watch and set indeterminate property on the actual checkbox input element
 watch(
-  () => props.selected,
-  () => {
-    isChecked.value = props.selected.includes(getNodeId(props.node))
+  () => props.indeterminate,
+  newVal => {
+    if (checkbox.value) {
+      checkbox.value.indeterminate = newVal
+    }
   },
   { immediate: true },
 )
+
+// Emit toggle-select on checkbox change event
+function onCheckboxChange(val) {
+  emit('toggle-select', { id: getNodeId(props.node), checked: val })
+}
 </script>
 
 <template>
@@ -38,6 +60,8 @@ watch(
           hide-details
           dense
           class="me-2"
+          :indeterminate="indeterminate"
+          readonly
         />
         <strong>{{ node.name }}</strong>
       </div>

@@ -7,7 +7,7 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  admins: {
+  distributionManagers: {
     type: Object,
     required: true,
   },
@@ -24,14 +24,14 @@ const props = defineProps({
       street: '',
       houseNumber: '',
       status: 'Active',
-      admins: [],
+      distributionManagers: [],
     }),
   },
 })
 
 const emit = defineEmits([
   'update:isDrawerOpen',
-  'admins',
+  'distributionManagers',
   'userData',
   'station',
 ])
@@ -42,8 +42,8 @@ const isFormValid = ref(false)
 const refForm = ref()
 const stationData = ref(structuredClone(toRaw(props.station)))
 
-if(props.station.admins.length > 0) {
-    stationData.value.admins = props.station.admins.map(admin => admin._id);
+if(props.station.distributionManagers.length > 0) {
+  stationData.value.distributionManagers = props.station.distributionManagers.map(admin => admin._id)
 }
 
 // 👉 drawer close
@@ -68,7 +68,7 @@ const submit = async () => {
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
-          admins: stationData.value.admins,
+          distributionManagers: stationData.value.distributionManagers,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -85,7 +85,7 @@ const submit = async () => {
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
-          admins: stationData.value.admins,
+          distributionManagers: stationData.value.distributionManagers,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -128,7 +128,7 @@ const errors = ref({
   cityName: undefined,
   street: undefined,
   houseNumber: undefined,
-  admins: undefined,
+  distributionManagers: undefined,
 })
 </script>
 
@@ -168,12 +168,12 @@ const errors = ref({
               <!-- 👉 Admin -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="stationData.admins"
-                  :items="props.admins"
-                  placeholder="Select Admin"
-                  label="Admin"
+                  v-model="stationData.distributionManagers"
+                  :items="props.distributionManagers"
+                  placeholder="Select Distribution Manager"
+                  label="Distribution Manager"
                   multiple
-                  :error-messages="errors.admins"
+                  :error-messages="errors.distributionManagers"
                   clearable
                 />
               </VCol>

@@ -310,75 +310,54 @@ watch(() => productData.value.name, val => {
 const {
   data: categoryBuilderData,
   execute: fetchCategoryBuilders,
-} = await useApi(createUrl('/admin/settings/category-builders'))
+} = await useApi(createUrl('/admin/settings/categories'))
 
-const categoryBuilders = computed(() => categoryBuilderData.value.categoryBuilders)
+const categories = computed(() => categoryBuilderData.value.categories)
 
 const tree = ref([])
 
-const buildTree = relations => {
+const buildTree = (categories) => {
   const categoryMap = {}
 
-  // First pass: normalize and initialize all unique categories
-  relations.forEach(rel => {
-    const parent = rel.parentId
-    const child = rel.childId
+  // 1. Initialize all categories with empty children array
+  categories.forEach(cat => {
+    categoryMap[cat._id.toString()] = { ...cat, children: [] }
+  })
 
-    if (parent && parent._id) {
-      const parentId = parent._id.toString()
-      if (!categoryMap[parentId]) {
-        categoryMap[parentId] = { ...parent, children: [] }
+  const roots = []
+
+  // 2. Build the tree by assigning children to their parents
+  categories.forEach(cat => {
+    if (cat.parentId) {
+      const parentId = cat.parentId.toString()
+      if (categoryMap[parentId]) {
+        categoryMap[parentId].children.push(categoryMap[cat._id.toString()])
+      } else {
+        // If parent not found, consider as root or handle error
+        roots.push(categoryMap[cat._id.toString()])
       }
-
-      // Add realId here
-      categoryMap[parentId].realId = rel._id
+    } else {
+      // No parentId means root node
+      roots.push(categoryMap[cat._id.toString()])
     }
+  })
 
-    if (child && child._id) {
-      const childId = child._id.toString()
-      if (!categoryMap[childId]) {
-        categoryMap[childId] = { ...child, children: [] }
+  // 3. Optionally sort children by a property, e.g. 'sortOrder'
+  const sortChildren = (nodes) => {
+    nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    nodes.forEach(node => {
+      if (node.children?.length) {
+        sortChildren(node.children)
       }
+    })
+  }
 
-      // Add realId here
-      categoryMap[childId].realId = rel._id
-    }
-  })
+  sortChildren(roots)
 
-  // Second pass: build tree structure based on relations
-  relations.forEach(rel => {
-    const parentId = rel.parentId?._id?.toString()
-    const childId = rel.childId?._id?.toString()
-
-    if (parentId && childId && categoryMap[parentId] && categoryMap[childId]) {
-      categoryMap[parentId].children.push({
-        ...categoryMap[childId],
-        sortOrder: rel.sortOrder,
-        realId: rel._id,
-        relationParentId: parentId,  // explicitly add parentId here
-        relationChildId: childId,
-      })
-    }
-  })
-
-  // Sort children by sortOrder
-  Object.values(categoryMap).forEach(cat => {
-    if (cat.children?.length) {
-      cat.children.sort((a, b) => a.sortOrder - b.sortOrder)
-    }
-  })
-
-  // Find root nodes: categories that never appear as childId
-  const childIdSet = new Set(
-    relations
-      .map(rel => rel.childId?._id?.toString())
-      .filter(Boolean),
-  )
-
-  return Object.values(categoryMap).filter(cat => !childIdSet.has(cat._id.toString()))
+  return roots
 }
 
-tree.value = buildTree(categoryBuilders.value)
+tree.value = buildTree(categories.value)
 
 const checkedCategories = ref(props.product.categoryIDs)
 const getNodeId = node => node.realId || node._id
@@ -426,6 +405,19 @@ const onToggleSelect = ({ id, checked }) => {
       catId => !descendants.includes(catId),
     )
   }
+}
+// Check if all descendants of node are selected
+const areAllDescendantsSelected = (node) => {
+  const descendants = getAllDescendants(node)
+  return descendants.every(id => checkedCategories.value.includes(id))
+}
+
+// Check if some (but not all) descendants of node are selected
+const isIndeterminate = (node) => {
+  const descendants = getAllDescendants(node)
+  const selectedCount = descendants.filter(id => checkedCategories.value.includes(id)).length
+
+  return selectedCount > 0 && selectedCount < descendants.length
 }
 </script>
 
@@ -666,6 +658,7 @@ const onToggleSelect = ({ id, checked }) => {
                     :key="node.realId"
                     :node="node"
                     :selected="checkedCategories"
+                    :indeterminate="isIndeterminate(node)"
                     @toggle-select="onToggleSelect"
                   />
                 </div>
