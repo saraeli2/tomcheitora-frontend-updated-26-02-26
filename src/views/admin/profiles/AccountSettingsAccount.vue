@@ -171,8 +171,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="accountData.firstName"
                   :rules="[requiredValidator]"
-                  label="First Name"
-                  placeholder="First Name"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
                   :error-messages="errors.firstName"
                 />
               </VCol>
@@ -185,8 +185,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="accountData.lastName"
                   :rules="[requiredValidator]"
-                  label="Last Name"
-                  placeholder="Last Name"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
                   :error-messages="errors.lastName"
                 />
               </VCol>
@@ -199,8 +199,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="accountData.email"
                   disabled
-                  label="Email"
-                  placeholder="johndoe@email.com"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
                   :error-messages="errors.email"
                 />
               </VCol>
@@ -213,8 +213,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="accountData.position"
                   :rules="[requiredValidator]"
-                  label="Position"
-                  placeholder="Position"
+                  :label="$t('Position')"
+                  :placeholder="$t('Position')"
                   :error-messages="errors.position"
                 />
               </VCol>
@@ -227,8 +227,8 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="accountData.cityId"
-                  label="City ID"
-                  placeholder="City ID"
+                  :label="$t('City ID')"
+                  :placeholder="$t('City ID')"
                   :error-messages="errors.cityId"
                 />
               </VCol>
@@ -240,8 +240,8 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="accountData.cityName"
-                  label="City Name"
-                  placeholder="City Name"
+                  :label="$t('City Name')"
+                  :placeholder="$t('City Name')"
                   :error-messages="errors.cityName"
                 />
               </VCol>
@@ -253,8 +253,8 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="accountData.street"
-                  label="Street"
-                  placeholder="Street"
+                  :label="$t('Street')"
+                  :placeholder="$t('Street')"
                   :error-messages="errors.street"
                 />
               </VCol>
@@ -266,8 +266,8 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="accountData.houseNumber"
-                  label="House Number"
-                  placeholder="House Number"
+                  :label="$t('House Number')"
+                  :placeholder="$t('House Number')"
                   :error-messages="errors.houseNumber"
                 />
               </VCol>
@@ -279,21 +279,21 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="accountData.phone1"
-                  label="Phone 1"
-                  placeholder="Phone 1"
+                  :label="$t('Phone 1')"
+                  :placeholder="$t('Phone 1')"
                   :error-messages="errors.phone1"
                 />
               </VCol>
 
-              <!-- 👉 Phone 2-->
+              <!-- 👉 Phone 2 -->
               <VCol
                 md="6"
                 cols="12"
               >
                 <AppTextField
                   v-model="accountData.phone2"
-                  label="Phone 2"
-                  placeholder="Phone 2"
+                  :label="$t('Phone 2')"
+                  :placeholder="$t('Phone 2')"
                   :error-messages="errors.phone2"
                 />
               </VCol>
@@ -302,8 +302,8 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextarea
                   v-model="accountData.remarks"
-                  label="Remarks"
-                  placeholder="Remarks"
+                  :label="$t('Remarks')"
+                  :placeholder="$t('Remarks')"
                   :error-messages="errors.remarks"
                 />
               </VCol>
@@ -317,7 +317,7 @@ watch(props, () => {
                   type="submit"
                   class="me-3"
                 >
-                  Save changes
+                  {{ $t('Save changes') }}
                 </VBtn>
 
                 <VBtn
@@ -326,7 +326,7 @@ watch(props, () => {
                   type="reset"
                   @click.prevent="resetForm"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

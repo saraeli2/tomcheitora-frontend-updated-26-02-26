@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-communities', 'admin-create-communities'],
@@ -10,9 +11,9 @@ definePage({
 import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
-const ability = useAbility()
-
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -33,53 +34,53 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'City ID',
+    title: t('City ID'),
     key: 'cityId',
   },
   {
-    title: 'City Name',
+    title: t('City Name'),
     key: 'cityName',
   },
   {
-    title: 'Street',
+    title: t('Street'),
     key: 'street',
   },
   {
-    title: 'House Number',
+    title: t('House Number'),
     key: 'houseNumber',
   },
   {
-    title: 'Discount Type',
+    title: t('Discount Type'),
     key: 'discountType',
   },
   {
-    title: 'Discount',
+    title: t('Discount'),
     key: 'discount',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -154,7 +155,7 @@ const deleteCommunity = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Community
+              {{ $t('Community') }}
             </h5>
           </VCol>
         </VRow>
@@ -165,7 +166,7 @@ const deleteCommunity = async id => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -184,7 +185,7 @@ const deleteCommunity = async id => {
             prepend-icon="tabler-plus"
             @click="isAddNewCommunityDrawerVisible = true"
           >
-            Create Community
+            {{ $t('Create Community') }}
           </VBtn>
         </div>
 
@@ -198,7 +199,7 @@ const deleteCommunity = async id => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -209,7 +210,7 @@ const deleteCommunity = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Community"
+                    :placeholder="$t('Search Community')"
                   />
                 </VCol>
                 <VCol
@@ -222,7 +223,7 @@ const deleteCommunity = async id => {
                       { value: 1, title: 'Active' },
                       { value: 0, title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

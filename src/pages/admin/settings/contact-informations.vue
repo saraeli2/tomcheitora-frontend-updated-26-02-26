@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 const props = defineProps({
   morphableid: {
     type: String,
@@ -21,9 +22,9 @@ definePage({
 import AddNewContactInfoDrawer from '@/views/admin/settings/AddNewContactInfoDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
-const ability = useAbility()
-
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -46,41 +47,41 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'First Name',
+    title: t('First Name'),
     key: 'firstName',
   },
   {
-    title: 'Last Name',
+    title: t('Last Name'),
     key: 'lastName',
   },
   {
-    title: 'Phone1',
+    title: t('Phone 1'),
     key: 'phone1',
   },
   {
-    title: 'Phone2',
+    title: t('Phone 2'),
     key: 'phone2',
   },
   {
-    title: 'Email',
+    title: t('Email'),
     key: 'email',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -157,7 +158,7 @@ const deleteContactInfo = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Contact Informations
+              {{ $t('Contact Informations') }}
             </h5>
           </VCol>
         </VRow>
@@ -168,7 +169,7 @@ const deleteContactInfo = async id => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -181,13 +182,13 @@ const deleteContactInfo = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create ContactInfo -->
+          <!-- 👉 Create Contact Information -->
           <VBtn
             v-if="can('admin-create-contact-informations', 'Create Contact Informations')"
             prepend-icon="tabler-plus"
             @click="isAddNewContactInfoDrawerVisible = true"
           >
-            Create Contact Information
+            {{ $t('Create Contact Information') }}
           </VBtn>
         </div>
 
@@ -201,7 +202,7 @@ const deleteContactInfo = async id => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -212,7 +213,7 @@ const deleteContactInfo = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Contact Information"
+                    :placeholder="$t('Search Contact Information')"
                   />
                 </VCol>
               </VRow>

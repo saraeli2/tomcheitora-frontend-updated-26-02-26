@@ -178,7 +178,7 @@ const findNodeById = (tree, id) => {
   return null
 }
 
-const buildTree = (categories) => {
+const buildTree = categories => {
   const categoryMap = {}
 
   // 1. Initialize all categories with empty children array
@@ -205,7 +205,7 @@ const buildTree = (categories) => {
   })
 
   // 3. Optionally sort children by a property, e.g. 'sortOrder'
-  const sortChildren = (nodes) => {
+  const sortChildren = nodes => {
     nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
     nodes.forEach(node => {
       if (node.children?.length) {
@@ -222,13 +222,14 @@ const buildTree = (categories) => {
 tree.value = buildTree(categories.value)
 
 // Check if all descendants of node are selected
-const areAllDescendantsSelected = (node) => {
+const areAllDescendantsSelected = node => {
   const descendants = getAllDescendants(node)
+  
   return descendants.every(id => checkedCategories.value.includes(id))
 }
 
 // Check if some (but not all) descendants of node are selected
-const isIndeterminate = (node) => {
+const isIndeterminate = node => {
   const descendants = getAllDescendants(node)
   const selectedCount = descendants.filter(id => checkedCategories.value.includes(id)).length
 
@@ -251,7 +252,7 @@ const isIndeterminate = (node) => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Products', to: { name: 'admin-products' }, class: 'text-primary' }, { title: 'Product Details of ' + productData.name }]"
+            :items="[{ title: $t('Products'), to: { name: 'admin-products' }, class: 'text-primary' }, { title: productData.name }]"
           />
         </VCol>
       </VRow>
@@ -261,10 +262,10 @@ const isIndeterminate = (node) => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Product ID #{{ route.params.id }}
+          {{ $t('Product ID') }} #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(productData.createdAt) }}, Updated At: {{ formatDateWithTime(productData.updatedAt) }}
+          {{ $t('Created At') }}: {{ formatDateWithTime(productData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(productData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
@@ -274,7 +275,7 @@ const isIndeterminate = (node) => {
           color="error"
           @click="deleteProduct"
         >
-          Delete Product
+          {{ $t('Delete Product') }}
         </VBtn>
       </div>
     </div>
@@ -295,7 +296,7 @@ const isIndeterminate = (node) => {
               start
               icon="tabler-eye"
             />
-            Details
+            {{ $t('Details') }}
           </VTab>
         </VTabs>
 
@@ -306,17 +307,10 @@ const isIndeterminate = (node) => {
         >
           <VWindowItem>
             <VCard v-if="productData">
-              <VCardText class="text-center pt-12">
-                <!-- 👉 Customer fullName -->
-                <div class="text-body-1">
-                  Product ID #{{ productData._id }}
-                </div>
-              </VCardText>
-
               <!-- 👉 Customer Details -->
               <VCardText>
                 <h5 class="text-h5">
-                  Details
+                  {{ $t('Details') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -324,7 +318,7 @@ const isIndeterminate = (node) => {
                 <VList class="card-list mt-2">
                   <VListItem>
                     <h6 class="text-h6">
-                      Name:
+                      {{ $t('Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.name }}
                       </span>
@@ -333,7 +327,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Slug:
+                      {{ $t('Slug') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.slug }}
                       </span>
@@ -342,7 +336,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Internal SKU:
+                      {{ $t('Internal SKU') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.internalSKU }}
                       </span>
@@ -351,7 +345,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      External SKU:
+                      {{ $t('External SKU') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.externalSKU }}
                       </span>
@@ -360,7 +354,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Box SKU:
+                      {{ $t('Box SKU') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.boxSKU }}
                       </span>
@@ -369,7 +363,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Manufacturer:
+                      {{ $t('Manufacturer') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-manufacturers', 'View Manufacturers') && productData.manufacturerID"
@@ -384,7 +378,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Manufacturer:
+                      {{ $t('Supplier') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-suppliers', 'View Suppliers') && productData.supplierID"
@@ -399,7 +393,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Certification:
+                      {{ $t('Certification') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.certificationID ? productData.certificationID.name : '' }}
                       </span>
@@ -408,7 +402,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Package Type:
+                      {{ $t('Package Type') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.packagetypeID ? productData.packagetypeID.name : '' }}
                       </span>
@@ -417,7 +411,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Quantity Type:
+                      {{ $t('Quantity Type') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.quantitytypeID ? productData.quantitytypeID.name : '' }}
                       </span>
@@ -426,7 +420,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Purchase Price:
+                      {{ $t('Purchase Price') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.purchasePrice }}
                       </span>
@@ -435,7 +429,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Sale Price:
+                      {{ $t('Sale Price') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.salePrice }}
                       </span>
@@ -444,7 +438,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Max Stock:
+                      {{ $t('Max Stock') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.maxStock }}
                       </span>
@@ -453,7 +447,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Remaining Stock:
+                      {{ $t('Remaining Stock') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.remainingStock }}
                       </span>
@@ -463,7 +457,7 @@ const isIndeterminate = (node) => {
                   <VListItem>
                     <div class="d-flex gap-x-2 align-center">
                       <h6 class="text-h6">
-                        Status:
+                        {{ $t('Status') }}:
                       </h6>
                       <VChip
                         label
@@ -478,7 +472,7 @@ const isIndeterminate = (node) => {
                   <VListItem>
                     <div class="mb-2">
                       <h6 class="text-h6 mb-1">
-                        Category:
+                        {{ $t('Category') }}:
                       </h6>
                       <div class="ps-2">
                         <CategoryBuilderProductDetailNode
@@ -494,7 +488,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Description:
+                      {{ $t('Description') }}:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="productData?.description" />
                       </span>
@@ -503,7 +497,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Internal Remarks:
+                      {{ $t('Internal Remarks') }}:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="productData?.internalRemarks" />
                       </span>
@@ -512,7 +506,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Remarks:
+                      {{ $t('Remarks') }}:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="productData?.remarks" />
                       </span>
@@ -521,7 +515,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Created By:
+                      {{ $t('Created By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && productData.createdBy"
@@ -536,7 +530,7 @@ const isIndeterminate = (node) => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Updated By:
+                      {{ $t('Updated By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && productData.updatedBy"
@@ -559,7 +553,7 @@ const isIndeterminate = (node) => {
                   block
                   @click="isProductDialogVisible = !isProductDialogVisible"
                 >
-                  Edit Product
+                  {{ $t('Edit Product') }}
                 </VBtn>
               </VCardText>
             </VCard>
@@ -572,7 +566,7 @@ const isIndeterminate = (node) => {
         type="error"
         variant="tonal"
       >
-        Product with ID  {{ route.params.id }} not found!
+        {{ route.params.id }} {{ $t('Not Found!') }}
       </VAlert>
     </div>
 

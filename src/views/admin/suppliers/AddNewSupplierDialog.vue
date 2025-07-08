@@ -146,7 +146,7 @@ const errors = ref({
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.supplier._id ? 'Edit' : 'Create' }} Supplier
+          {{ props.supplier._id ? $t('Edit Supplier') : $t('Create Supplier') }}
         </h4>
 
         <VDivider />
@@ -163,8 +163,8 @@ const errors = ref({
                 v-model="supplierData.countryID"
                 :rules="[requiredValidator]"
                 :items="props.countries"
-                label="Country"
-                placeholder="Select Country"
+                :label="$t('Country')"
+                :placeholder="$t('Select Country')"
                 :error-messages="errors.countryID"
                 clearable
               />
@@ -175,8 +175,8 @@ const errors = ref({
               <AppTextField
                 v-model="supplierData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -186,8 +186,8 @@ const errors = ref({
               <AppTextField
                 v-model="supplierData.businessID"
                 :rules="[requiredValidator]"
-                label="Business ID"
-                placeholder="Business ID"
+                :label="$t('Business ID')"
+                :placeholder="$t('Business ID')"
                 :error-messages="errors.businessID"
               />
             </VCol>
@@ -196,8 +196,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="supplierData.city"
-                label="City"
-                placeholder="City"
+                :label="$t('City')"
+                :placeholder="$t('City')"
                 :error-messages="errors.city"
               />
             </VCol>
@@ -206,8 +206,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="supplierData.street"
-                label="Street"
-                placeholder="Street"
+                :label="$t('Street')"
+                :placeholder="$t('Street')"
                 :error-messages="errors.street"
               />
             </VCol>
@@ -216,8 +216,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="supplierData.houseNumber"
-                label="House Number"
-                placeholder="House Number"
+                :label="$t('House Number')"
+                :placeholder="$t('House Number')"
                 :error-messages="errors.houseNumber"
               />
             </VCol>
@@ -231,8 +231,8 @@ const errors = ref({
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
@@ -241,8 +241,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextarea
                 v-model="supplierData.remarks"
-                label="Remarks"
-                placeholder="Remarks"
+                :label="$t('Remarks')"
+                :placeholder="$t('Remarks')"
                 :error-messages="errors.remarks"
               />
             </VCol>
@@ -253,7 +253,7 @@ const errors = ref({
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -261,7 +261,7 @@ const errors = ref({
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

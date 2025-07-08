@@ -117,7 +117,7 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.quantitytype._id ? 'Edit' : 'Create' }} Quantity Type
+          {{ props.quantitytype._id ? $t('Edit Quantity Type') : $t('Create Quantity Type') }}
         </h4>
 
         <VDivider />
@@ -133,8 +133,8 @@ const onReset = () => {
               <AppTextField
                 v-model="quantitytypeData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -143,8 +143,8 @@ const onReset = () => {
               <AppTextField
                 v-model="quantitytypeData.quantity"
                 :rules="[requiredValidator, numericValidator]"
-                label="Quantity"
-                placeholder="Quantity"
+                :label="$t('Quantity')"
+                :placeholder="$t('Quantity')"
                 :error-messages="errors.quantity"
               />
             </VCol>
@@ -158,19 +158,19 @@ const onReset = () => {
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
-              
+            
             <!-- 👉 Submit and Cancel -->
             <VCol cols="12">
               <VBtn
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -178,7 +178,7 @@ const onReset = () => {
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

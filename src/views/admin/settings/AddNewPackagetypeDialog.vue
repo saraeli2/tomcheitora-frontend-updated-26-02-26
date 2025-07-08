@@ -113,7 +113,7 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.packagetype._id ? 'Edit' : 'Create' }} Package Type
+          {{ props.packagetype._id ? $t('Edit Package Type') : $t('Create Package Type') }}
         </h4>
 
         <VDivider />
@@ -129,8 +129,8 @@ const onReset = () => {
               <AppTextField
                 v-model="packagetypeData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -144,8 +144,8 @@ const onReset = () => {
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
@@ -156,7 +156,7 @@ const onReset = () => {
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -164,7 +164,7 @@ const onReset = () => {
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

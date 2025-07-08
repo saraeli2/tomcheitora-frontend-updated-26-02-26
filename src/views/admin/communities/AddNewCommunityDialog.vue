@@ -145,7 +145,7 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.community._id ? 'Edit' : 'Create' }} Community
+          {{ props.community._id ? $t('Edit Community') : $t('Create Community') }}
         </h4>
 
         <VDivider />
@@ -161,8 +161,8 @@ const onReset = () => {
               <AppTextField
                 v-model="communityData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -171,8 +171,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextField
                 v-model="communityData.cityId"
-                label="City ID"
-                placeholder="City ID"
+                :label="$t('City ID')"
+                :placeholder="$t('City ID')"
                 :error-messages="errors.cityId"
               />
             </VCol>
@@ -181,8 +181,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextField
                 v-model="communityData.cityName"
-                label="City Name"
-                placeholder="City Name"
+                :label="$t('City Name')"
+                :placeholder="$t('City Name')"
                 :error-messages="errors.cityName"
               />
             </VCol>
@@ -191,8 +191,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextField
                 v-model="communityData.street"
-                label="Street"
-                placeholder="Street"
+                :label="$t('Street')"
+                :placeholder="$t('Street')"
                 :error-messages="errors.street"
               />
             </VCol>
@@ -201,8 +201,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextField
                 v-model="communityData.houseNumber"
-                label="House Number"
-                placeholder="House Number"
+                :label="$t('House Number')"
+                :placeholder="$t('House Number')"
                 :error-messages="errors.houseNumber"
               />
             </VCol>
@@ -211,8 +211,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextField
                 v-model="communityData.website"
-                label="Website"
-                placeholder="Website"
+                :label="$t('Website')"
+                :placeholder="$t('Website')"
                 :error-messages="errors.website"
               />
             </VCol>
@@ -225,8 +225,8 @@ const onReset = () => {
                   { value: 'Fixed', title: 'Fixed' },
                   { value: 'Percentage', title: 'Percentage' },
                 ]"
-                placeholder="Select Discount Type"
-                label="Discount Type"
+                :placeholder="$t('Select Discount Type')"
+                :label="$t('Discount Type')"
                 :error-messages="errors.discountType"
               />
             </VCol>
@@ -236,8 +236,8 @@ const onReset = () => {
               <AppTextField
                 v-model="communityData.discount"
                 :rules="[numericValidator]"
-                label="Discount"
-                placeholder="Discount"
+                :label="$t('Discount')"
+                :placeholder="$t('Discount')"
                 :error-messages="errors.discount"
               />
             </VCol>
@@ -251,8 +251,8 @@ const onReset = () => {
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
@@ -261,8 +261,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextarea
                 v-model="communityData.remarks"
-                label="Remarks"
-                placeholder="Remarks"
+                :label="$t('Remarks')"
+                :placeholder="$t('Remarks')"
                 :error-messages="errors.remarks"
               />
             </VCol>
@@ -273,7 +273,7 @@ const onReset = () => {
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -281,7 +281,7 @@ const onReset = () => {
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

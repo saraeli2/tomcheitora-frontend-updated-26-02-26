@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-certifications', 'admin-create-certifications'],
@@ -13,6 +14,8 @@ import { can } from '@layouts/plugins/casl'
 const ability = useAbility()
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -33,41 +36,41 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Logo',
+    title: t('Logo'),
     key: 'logo',
   },
   {
-    title: 'Created by',
+    title: t('Created By'),
     key: 'createdBy',
   },
   {
-    title: 'Updated by',
+    title: t('Updated By'),
     key: 'updatedBy',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -142,7 +145,7 @@ const deleteCertification = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Certifications
+              {{ $t('Certifications') }}
             </h5>
           </VCol>
         </VRow>
@@ -153,7 +156,7 @@ const deleteCertification = async id => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -172,7 +175,7 @@ const deleteCertification = async id => {
             prepend-icon="tabler-plus"
             @click="isAddNewCertificationDrawerVisible = true"
           >
-            Create Certification
+            {{ $t('Create Certification') }}
           </VBtn>
         </div>
 
@@ -186,7 +189,7 @@ const deleteCertification = async id => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -197,7 +200,7 @@ const deleteCertification = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Certification"
+                    :placeholder="$t('Search Certification')"
                   />
                 </VCol>
                 <VCol
@@ -210,7 +213,7 @@ const deleteCertification = async id => {
                       { value: 1, title: 'Active' },
                       { value: 0, title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

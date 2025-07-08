@@ -210,7 +210,7 @@ const handleLogoChange = file => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.manufacturer._id ? 'Edit' : 'Create' }} Manufacturer
+          {{ props.manufacturer._id ? $t('Edit Manufacturer') : $t('Create Manufacturer') }}
         </h4>
 
         <VDivider />
@@ -227,8 +227,8 @@ const handleLogoChange = file => {
                 v-model="manufacturerData.countryID"
                 :rules="[requiredValidator]"
                 :items="props.countries"
-                label="Country"
-                placeholder="Select Country"
+                :label="$t('Country')"
+                :placeholder="$t('Select Country')"
                 :error-messages="errors.countryID"
                 clearable
               />
@@ -239,8 +239,8 @@ const handleLogoChange = file => {
               <AppTextField
                 v-model="manufacturerData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -250,8 +250,8 @@ const handleLogoChange = file => {
               <AppTextField
                 v-model="manufacturerData.businessID"
                 :rules="[requiredValidator]"
-                label="Business ID"
-                placeholder="Business ID"
+                :label="$t('Business ID')"
+                :placeholder="$t('Business ID')"
                 :error-messages="errors.businessID"
               />
             </VCol>
@@ -260,8 +260,8 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="manufacturerData.city"
-                label="City"
-                placeholder="City"
+                :label="$t('City')"
+                :placeholder="$t('City')"
                 :error-messages="errors.city"
               />
             </VCol>
@@ -270,8 +270,8 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="manufacturerData.street"
-                label="Street"
-                placeholder="Street"
+                :label="$t('Street')"
+                :placeholder="$t('Street')"
                 :error-messages="errors.street"
               />
             </VCol>
@@ -280,8 +280,8 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="manufacturerData.houseNumber"
-                label="House Number"
-                placeholder="House Number"
+                :label="$t('House Number')"
+                :placeholder="$t('House Number')"
                 :error-messages="errors.houseNumber"
               />
             </VCol>
@@ -295,8 +295,8 @@ const handleLogoChange = file => {
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
@@ -305,8 +305,8 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppTextarea
                 v-model="manufacturerData.remarks"
-                label="Remarks"
-                placeholder="Remarks"
+                :label="$t('Remarks')"
+                :placeholder="$t('Remarks')"
                 :error-messages="errors.remarks"
               />
             </VCol>
@@ -314,13 +314,12 @@ const handleLogoChange = file => {
             <!-- 👉 logo -->
             <VCol cols="12">
               <div class="app-picker-field">
-                <label class="v-label mb-1 text-body-2">Logo</label>
+                <label class="v-label mb-1 text-body-2">{{ $t('Logo') }}</label>
               </div>
               <VFileInput
                 :rules="rules"
-                label="Logo"
+                :label="$t('Logo')"
                 accept="image/png, image/jpeg, image/bmp"
-                placeholder="Pick a logo"
                 prepend-icon="tabler-camera"
                 :error-messages="errors.logo"
                 @change="handleLogoChange"
@@ -333,7 +332,7 @@ const handleLogoChange = file => {
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -341,7 +340,7 @@ const handleLogoChange = file => {
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

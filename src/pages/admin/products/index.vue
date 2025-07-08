@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-products', 'admin-create-products'],
@@ -11,6 +12,8 @@ import AddNewProductDrawer from '@/views/admin/products/AddNewProductDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const searchSku = ref('')
@@ -37,81 +40,81 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'Slug',
+    title: t('Slug'),
     key: 'slug',
   },
   {
-    title: 'Internal SKU',
+    title: t('Internal SKU'),
     key: 'internalSKU',
   },
   {
-    title: 'External SKU',
+    title: t('External SKU'),
     key: 'externalSKU',
   },
   {
-    title: 'Box SKU',
+    title: t('Box SKU'),
     key: 'boxSKU',
   },
   {
-    title: 'Manufacturer',
+    title: t('Manufacturer'),
     key: 'manufacturerID',
   },
   {
-    title: 'Supplier',
+    title: t('Supplier'),
     key: 'supplierID',
   },
   {
-    title: 'Certification',
+    title: t('Certification'),
     key: 'certificationID',
   },
   {
-    title: 'Package Type',
+    title: t('Package Type'),
     key: 'packagetypeID',
   },
   {
-    title: 'Quantity Type',
+    title: t('Quantity Type'),
     key: 'quantitytypeID',
   },
   {
-    title: 'Purchase Price',
+    title: t('Purchase Price'),
     key: 'purchasePrice',
   },
   {
-    title: 'Sale Price',
+    title: t('Sale Price'),
     key: 'salePrice',
   },
   {
-    title: 'Max Stock',
+    title: t('Max Stock'),
     key: 'maxStock',
   },
   {
-    title: 'Remaining Stock',
+    title: t('Remaining Stock'),
     key: 'remainingStock',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -253,7 +256,7 @@ onMounted(async () => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Products
+              {{ $t('Products') }}
             </h5>
           </VCol>
         </VRow>
@@ -264,7 +267,7 @@ onMounted(async () => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -283,7 +286,7 @@ onMounted(async () => {
             prepend-icon="tabler-plus"
             @click="isAddNewProductDrawerVisible = true"
           >
-            Create Product
+            {{ $t('Create Product') }}
           </VBtn>
         </div>
 
@@ -297,7 +300,7 @@ onMounted(async () => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -308,7 +311,7 @@ onMounted(async () => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Product"
+                    :placeholder="$t('Search Product')"
                   />
                 </VCol>
 
@@ -318,7 +321,7 @@ onMounted(async () => {
                 >
                   <AppTextField
                     v-model="searchSku"
-                    placeholder="Search SKU"
+                    :placeholder="$t('Search SKU')"
                   />
                 </VCol>
                 
@@ -329,7 +332,7 @@ onMounted(async () => {
                   <AppAutocomplete
                     v-model="selectedManufacturer"
                     :items="manufacturers"
-                    placeholder="Manufacturer"
+                    :placeholder="$t('Manufacturer')"
                     clearable
                   />
                 </VCol>
@@ -341,7 +344,7 @@ onMounted(async () => {
                   <AppAutocomplete
                     v-model="selectedSupplier"
                     :items="suppliers"
-                    placeholder="Supplier"
+                    :placeholder="$t('Supplier')"
                     clearable
                   />
                 </VCol>
@@ -353,7 +356,7 @@ onMounted(async () => {
                   <AppAutocomplete
                     v-model="selectedCertification"
                     :items="certifications"
-                    placeholder="Certification"
+                    :placeholder="$t('Certification')"
                     clearable
                   />
                 </VCol>
@@ -365,7 +368,7 @@ onMounted(async () => {
                   <AppAutocomplete
                     v-model="selectedPackagetype"
                     :items="packagetypes"
-                    placeholder="Package Type"
+                    :placeholder="$t('Package Type')"
                     clearable
                   />
                 </VCol>
@@ -377,7 +380,7 @@ onMounted(async () => {
                   <AppAutocomplete
                     v-model="selectedQuantitytype"
                     :items="quantitytypes"
-                    placeholder="Quantity Type"
+                    :placeholder="$t('Quantity Type')"
                     clearable
                   />
                 </VCol>
@@ -392,7 +395,7 @@ onMounted(async () => {
                       { value: 'Active', title: 'Active' },
                       { value: 'Inactive', title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

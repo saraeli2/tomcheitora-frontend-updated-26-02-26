@@ -132,12 +132,12 @@ const errors = ref({
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.kid._id"
-      title="Edit Kid Information"
+      :title="$t('Edit Kid Information')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Kid Information"
+      :title="$t('Create Kid Information')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -158,8 +158,8 @@ const errors = ref({
                 <AppTextField
                   v-model="kidData.firstName"
                   :rules="[requiredValidator]"
-                  label="First Name"
-                  placeholder="First Name"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
                   :error-messages="errors.firstName"
                 />
               </VCol>
@@ -169,8 +169,8 @@ const errors = ref({
                 <AppTextField
                   v-model="kidData.lastName"
                   :rules="[requiredValidator]"
-                  label="Last Name"
-                  placeholder="Last Name"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
                   :error-messages="errors.lastName"
                 />
               </VCol>
@@ -179,8 +179,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppDateTimePicker
                   v-model="kidData.dob"
-                  label="DoB"
-                  placeholder="DoB"
+                  :label="$t('DoB')"
+                  :placeholder="$t('DoB')"
                   :error-messages="errors.dob"
                 />
               </VCol>
@@ -189,8 +189,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="kidData.IDNumber"
-                  label="ID number"
-                  placeholder="ID number"
+                  :label="$t('ID number')"
+                  :placeholder="$t('ID number')"
                   :error-messages="errors.IDNumber"
                 />
               </VCol>
@@ -208,8 +208,8 @@ const errors = ref({
                     { value: 'In a civil partnership', title: 'In a civil partnership' },
                     { value: 'Cohabiting', title: 'Cohabiting' },
                   ]"
-                  placeholder="Select Marital Status"
-                  label="Marital Status"
+                  :placeholder="$t('Select Marital Status')"
+                  :label="$t('Marital Status')"
                   :error-messages="errors.maritalStatus"
                   clearable
                 />
@@ -221,7 +221,7 @@ const errors = ref({
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -229,7 +229,7 @@ const errors = ref({
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

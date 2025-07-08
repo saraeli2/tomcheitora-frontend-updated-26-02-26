@@ -7,14 +7,8 @@ definePage({
   },
 })
 
-import congoImg from '@images/illustrations/congo-illustration.png'
 import { useAuthStore } from '@/stores'
-
-const route = useRoute()
-const router = useRouter()
-const ability = useAbility()
-
-import Swal from 'sweetalert2'
+import congoImg from '@images/illustrations/congo-illustration.png'
 
 const authStore = useAuthStore()
 
@@ -35,7 +29,7 @@ const loginData = authStore.userData
           <VCol cols="8">
             <VCardText>
               <h5 class="text-h5 text-no-wrap">
-                Congratulations {{ loginData.name }}! 🎉
+                {{ $t('Congratulations') }} {{ loginData.name }}! 🎉
               </h5>
             </VCardText>
           </VCol>

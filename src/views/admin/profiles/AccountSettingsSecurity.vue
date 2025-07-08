@@ -12,12 +12,6 @@ const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 
-const newPasswordRequirements = [
-  'Minimum 8 characters long - the more, the better',
-  'At least one lowercase character',
-  'At least one number, symbol, or whitespace character',
-]
-
 const isFormValid = ref(false)
 const refForm = ref()
 
@@ -85,7 +79,7 @@ const onSubmit = () => {
                   v-model="currentPassword"
                   :type="isCurrentPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isCurrentPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Current Password"
+                  :label="$t('Current Password')"
                   :rules="[requiredValidator]"
                   autocomplete="on"
                   placeholder="············"
@@ -106,7 +100,7 @@ const onSubmit = () => {
                   v-model="newPassword"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="New Password"
+                  :label="$t('New Password')"
                   :rules="[requiredValidator]"
                   autocomplete="on"
                   placeholder="············"
@@ -124,7 +118,7 @@ const onSubmit = () => {
                   v-model="confirmPassword"
                   :type="isConfirmPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
-                  label="Confirm New Password"
+                  :label="$t('Confirm New Password')"
                   autocomplete="on"
                   :rules="[requiredValidator]"
                   placeholder="············"
@@ -135,36 +129,13 @@ const onSubmit = () => {
             </VRow>
           </VCardText>
 
-          <!-- 👉 Password Requirements -->
-          <VCardText>
-            <h6 class="text-h6 text-medium-emphasis mb-4">
-              Password Requirements:
-            </h6>
-
-            <VList class="card-list">
-              <VListItem
-                v-for="item in newPasswordRequirements"
-                :key="item"
-                :title="item"
-                class="text-medium-emphasis"
-              >
-                <template #prepend>
-                  <VIcon
-                    size="10"
-                    icon="tabler-circle-filled"
-                  />
-                </template>
-              </VListItem>
-            </VList>
-          </VCardText>
-
           <!-- 👉 Action Buttons -->
           <VCardText class="d-flex flex-wrap gap-4">
             <VBtn
               type="submit"
               class="me-3"
             >
-              Save changes
+              {{ $t('Save changes') }}
             </VBtn>
 
             <VBtn
@@ -172,7 +143,7 @@ const onSubmit = () => {
               color="secondary"
               variant="tonal"
             >
-              Reset
+              {{ $t('Reset') }}
             </VBtn>
           </VCardText>
         </VForm>

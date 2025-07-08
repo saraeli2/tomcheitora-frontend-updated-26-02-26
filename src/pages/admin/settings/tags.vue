@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-tags', 'admin-create-tags'],
@@ -10,9 +11,9 @@ definePage({
 import AddNewTagDrawer from '@/views/admin/settings/AddNewTagDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
-const ability = useAbility()
-
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -33,37 +34,37 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Created by',
+    title: t('Created By'),
     key: 'createdBy',
   },
   {
-    title: 'Updated by',
+    title: t('Updated By'),
     key: 'updatedBy',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -138,7 +139,7 @@ const deleteTag = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Tags
+              {{ $t('Tags') }}
             </h5>
           </VCol>
         </VRow>
@@ -149,7 +150,7 @@ const deleteTag = async id => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -168,7 +169,7 @@ const deleteTag = async id => {
             prepend-icon="tabler-plus"
             @click="isAddNewTagDrawerVisible = true"
           >
-            Create Tag
+            {{ $t('Create Tag') }}
           </VBtn>
         </div>
 
@@ -182,7 +183,7 @@ const deleteTag = async id => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -193,7 +194,7 @@ const deleteTag = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Tag"
+                    :placeholder="$t('Search Tag')"
                   />
                 </VCol>
                 <VCol
@@ -206,7 +207,7 @@ const deleteTag = async id => {
                       { value: 1, title: 'Active' },
                       { value: 0, title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

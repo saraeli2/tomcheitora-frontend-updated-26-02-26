@@ -112,12 +112,12 @@ const errors = ref({
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.tag._id"
-      title="Edit Tag"
+      :title="$t('Edit Tag')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Tag"
+      :title="$t('Create Tag')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -138,8 +138,8 @@ const errors = ref({
                 <AppTextField
                   v-model="tagData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -153,8 +153,8 @@ const errors = ref({
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -165,7 +165,7 @@ const errors = ref({
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -173,7 +173,7 @@ const errors = ref({
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

@@ -158,10 +158,10 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.role._id ? 'Edit' : 'Add New' }} Role
+          {{ props.role._id ? $t('Edit Role') : $t('Create Role') }}
         </h4>
         <p class="text-body-1 text-center mb-6">
-          Set Role Permissions
+          {{ $t('Set Role Information') }}
         </p>
         
         <VForm 
@@ -175,8 +175,8 @@ const onReset = () => {
               <AppTextField
                 v-model="roleData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder=""
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -186,8 +186,8 @@ const onReset = () => {
               <AppTextField
                 v-model="roleData.modules"
                 :rules="[requiredValidator]"
-                label="Module"
-                placeholder=""
+                :label="$t('Modules')"
+                :placeholder="$t('Modules')"
                 :error-messages="errors.modules"
               />
             </VCol>
@@ -196,8 +196,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextField
                 v-model="roleData.redirectURL"
-                label="Redirect URL"
-                placeholder=""
+                :label="$t('Redirect URL')"
+                :placeholder="$t('Redirect URL')"
                 :error-messages="errors.redirectURL"
               />
             </VCol>
@@ -206,8 +206,8 @@ const onReset = () => {
             <VCol cols="12">
               <AppTextarea
                 v-model="roleData.description"
-                label="Description"
-                placeholder=""
+                :label="$t('Description')"
+                :placeholder="$t('Description')"
                 :rules="[requiredValidator]"
                 :error-messages="errors.description"
               />
@@ -222,21 +222,21 @@ const onReset = () => {
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
 
             <VCol cols="12">
               <h5 class="text-h5 my-6">
-                Permissions
+                {{ $t('Set Role Permissions') }}
               </h5>
                 
               <VCol cols="12">
                 <VCheckbox
                   v-model="isSelectAll"
-                  label="Select All"
+                  :label="$t('Select All')"
                 />
               </VCol>
 
@@ -276,7 +276,7 @@ const onReset = () => {
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -284,7 +284,7 @@ const onReset = () => {
                 color="error"
                 @click="onReset"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

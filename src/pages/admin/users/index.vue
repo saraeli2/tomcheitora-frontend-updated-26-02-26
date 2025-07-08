@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-users', 'admin-create-users'],
@@ -11,6 +12,8 @@ import AddNewUserDrawer from '@/views/admin/users/AddNewUserDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const israeliIDNumber = ref('')
@@ -34,82 +37,82 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Community',
+    title: t('Community'),
     key: 'communityID',
   },
   {
-    title: 'First Name',
+    title: t('First Name'),
     key: 'firstName',
   },
   {
-    title: 'Last Name',
+    title: t('Last Name'),
     key: 'lastName',
   },
   {
-    title: 'Email',
+    title: t('Email'),
     key: 'email',
   },
   {
-    title: 'Phone',
+    title: t('Phone'),
     key: 'phone',
   },
   {
-    title: 'City ID',
+    title: t('City ID'),
     key: 'cityId',
   },
   {
-    title: 'City Name',
+    title: t('City Name'),
     key: 'cityName',
   },
   {
-    title: 'Street',
+    title: t('Street'),
     key: 'street',
   },
   {
-    title: 'House Number',
+    title: t('House Number'),
     key: 'houseNumber',
   },
   {
-    title: 'Nationality',
+    title: t('Nationality'),
     key: 'nationality',
   },
   {
-    title: 'Israeli ID Number',
+    title: t('Israeli ID Number'),
     key: 'israeliIDNumber',
   },
   {
-    title: 'Passport Number',
+    title: t('Passport Number'),
     key: 'passportNumber',
   },
   {
-    title: 'No. Of Kids',
+    title: t('No. Of Kids'),
     key: 'noOfKids',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'created by',
+    title: t('Created By'),
     key: 'createdBy.name',
     sortable: true,
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -209,7 +212,7 @@ onMounted(async () => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Users
+              {{ $t('Users') }}
             </h5>
           </VCol>
         </VRow>
@@ -220,7 +223,7 @@ onMounted(async () => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -239,7 +242,7 @@ onMounted(async () => {
             prepend-icon="tabler-plus"
             @click="isAddNewUserDrawerVisible = true"
           >
-            Create User
+            {{ $t('Create User') }}
           </VBtn>
         </div>
 
@@ -253,7 +256,7 @@ onMounted(async () => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -266,7 +269,7 @@ onMounted(async () => {
                   <AppAutocomplete
                     v-model="selectedCommunity"
                     :items="communities"
-                    placeholder="Community"
+                    :placeholder="$t('Community')"
                     clearable
                   />
                 </VCol>
@@ -277,7 +280,7 @@ onMounted(async () => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search User"
+                    :placeholder="$t('Search User')"
                   />
                 </VCol>
                 <VCol
@@ -286,7 +289,7 @@ onMounted(async () => {
                 >
                   <AppTextField
                     v-model="israeliIDNumber"
-                    placeholder="Search Israeli ID Number"
+                    :placeholder="$t('Search Israeli ID Number')"
                   />
                 </VCol>
                 <VCol
@@ -295,7 +298,7 @@ onMounted(async () => {
                 >
                   <AppTextField
                     v-model="passportNumber"
-                    placeholder="Search Passport Number"
+                    :placeholder="$t('Search Passport Number')"
                   />
                 </VCol>
                 <VCol
@@ -308,7 +311,7 @@ onMounted(async () => {
                       { value: 'Active', title: 'Active' },
                       { value: 'Inactive', title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

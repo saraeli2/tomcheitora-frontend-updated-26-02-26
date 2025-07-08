@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-stations', 'admin-create-stations'],
@@ -11,6 +12,8 @@ import AddNewStationDrawer from '@/views/admin/stations/AddNewStationDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -31,54 +34,54 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'Neighbourhood',
+    title: t('Neighbourhood'),
     key: 'neighbourhood',
   },
   {
-    title: 'City ID',
+    title: t('City ID'),
     key: 'cityId',
   },
   {
-    title: 'City Name',
+    title: t('City Name'),
     key: 'cityName',
   },
   {
-    title: 'Street',
+    title: t('Street'),
     key: 'street',
   },
   {
-    title: 'House Number',
+    title: t('House Number'),
     key: 'houseNumber',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Distribution Manager',
-    key: 'distributionManagers',
+    title: t('Distribution Manager'),
+    key: 'admins',
     sortable: false,
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -161,7 +164,7 @@ const deleteStation = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Stations
+              {{ $t('Stations') }}
             </h5>
           </VCol>
         </VRow>
@@ -172,7 +175,7 @@ const deleteStation = async id => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -191,7 +194,7 @@ const deleteStation = async id => {
             prepend-icon="tabler-plus"
             @click="isAddNewStationDrawerVisible = true"
           >
-            Create Station
+            {{ $t('Create Station') }}
           </VBtn>
         </div>
 
@@ -205,7 +208,7 @@ const deleteStation = async id => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -216,7 +219,7 @@ const deleteStation = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Station"
+                    :placeholder="$t('Search Station')"
                   />
                 </VCol>
                 <VCol
@@ -229,7 +232,7 @@ const deleteStation = async id => {
                       { value: 'Active', title: 'Active' },
                       { value: 'Inactive', title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>
@@ -297,10 +300,10 @@ const deleteStation = async id => {
           </VChip>
         </template>
 
-        <!-- distributionManagers -->
-        <template #[`item.distributionManagers`]="{ item }">
+        <!-- admins -->
+        <template #[`item.admins`]="{ item }">
           <VChip
-            v-for="(admin, adminindex) in item.distributionManagers"
+            v-for="(admin, adminindex) in item.admins"
             :key="adminindex"
             label
             color="success"
@@ -383,7 +386,7 @@ const deleteStation = async id => {
     <AddNewStationDrawer
       v-if="isAddNewStationDrawerVisible"
       v-model:is-drawer-open="isAddNewStationDrawerVisible"
-      v-model:distribution-managers="admins"
+      v-model:admins="admins"
       @user-data="modifyStation"
     />
 
@@ -391,7 +394,7 @@ const deleteStation = async id => {
       v-if="isStationDialogVisible"
       v-model:is-drawer-open="isStationDialogVisible"
       v-model:station="stationDetail"
-      v-model:distribution-managers="admins"
+      v-model:admins="admins"
       @user-data="modifyStation"
     />
   </section>

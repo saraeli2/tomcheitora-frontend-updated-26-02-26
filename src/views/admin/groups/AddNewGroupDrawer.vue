@@ -124,12 +124,12 @@ const errors = ref({
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.group._id"
-      title="Edit Group"
+      :title="$t('Edit Group')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Group"
+      :title="$t('Create Group')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -150,8 +150,8 @@ const errors = ref({
                 <AppTextField
                   v-model="groupData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -161,8 +161,8 @@ const errors = ref({
                 <AppTextField
                   v-model="groupData.saleID"
                   :rules="[requiredValidator]"
-                  label="Sale ID"
-                  placeholder="Sale ID"
+                  :label="$t('Sale ID')"
+                  :placeholder="$t('Sale ID')"
                   :error-messages="errors.saleID"
                 />
               </VCol>
@@ -176,8 +176,8 @@ const errors = ref({
                     { value: 'Fixed', title: 'Fixed' },
                     { value: 'Percentage', title: 'Percentage' },
                   ]"
-                  placeholder="Select Type"
-                  label="Type"
+                  :placeholder="$t('Select Type')"
+                  :label="$t('Type')"
                   :error-messages="errors.type"
                 />
               </VCol>
@@ -187,8 +187,8 @@ const errors = ref({
                 <AppTextField
                   v-model="groupData.amount"
                   :rules="[requiredValidator, numericValidator]"
-                  label="Amount"
-                  placeholder="Amount"
+                  :label="$t('Amount')"
+                  :placeholder="$t('Amount')"
                   :error-messages="errors.amount"
                 />
               </VCol>
@@ -202,8 +202,8 @@ const errors = ref({
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -214,7 +214,7 @@ const errors = ref({
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -222,7 +222,7 @@ const errors = ref({
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

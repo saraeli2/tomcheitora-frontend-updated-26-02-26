@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 const emit = defineEmits([
   'tabData',
 ])
@@ -19,6 +20,8 @@ const isRoleDialogVisible = ref(false)
 
 import Swal from 'sweetalert2'
 
+const { t } = useI18n()
+
 const searchQuery = ref('')
 const selectedStatus = ref()
 const selectedRows = ref([])
@@ -36,46 +39,46 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'Modules',
+    title: t('Modules'),
     key: 'modules',
   },
   {
-    title: 'Description',
+    title: t('Description'),
     key: 'description',
   },
   {
-    title: 'Redirect URL',
+    title: t('Redirect URL'),
     key: 'redirectURL',
   },
   {
-    title: 'Admins',
+    title: t('Admins'),
     key: 'admins',
     sortable: false,
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: roleData,
@@ -156,7 +159,7 @@ const resolveStatusVariantAndIcon = status => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Roles
+              {{ $t('Roles') }}
             </h5>
           </VCol>
         </VRow>
@@ -165,7 +168,7 @@ const resolveStatusVariantAndIcon = status => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -184,7 +187,7 @@ const resolveStatusVariantAndIcon = status => {
             prepend-icon="tabler-plus"
             @click="isAddNewRoleDrawerVisible = true"
           >
-            Create Roles
+            {{ $t('Create Roles') }}
           </VBtn>
         </div>
 
@@ -198,7 +201,7 @@ const resolveStatusVariantAndIcon = status => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -209,7 +212,7 @@ const resolveStatusVariantAndIcon = status => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Role"
+                    :placeholder="$t('Search Role')"
                   />
                 </VCol>
                 <VCol
@@ -222,7 +225,7 @@ const resolveStatusVariantAndIcon = status => {
                       { value: 'Active', title: 'Active' },
                       { value: 'Inactive', title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

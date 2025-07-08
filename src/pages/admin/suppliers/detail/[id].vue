@@ -108,20 +108,19 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Suppliers', to: { name: 'admin-suppliers' }, class: 'text-primary' }, { title: 'Supplier Details of ' + supplierData.name }]"
+            :items="[{ title: $t('Suppliers'), to: { name: 'admin-suppliers' }, class: 'text-primary' }, { title: supplierData.name }]"
           />
         </VCol>
       </VRow>
-
 
       <VDivider class="my-6" />
 
       <div>
         <h4 class="text-h4 mb-1">
-          Supplier ID #{{ route.params.id }}
+          {{ $t('Supplier ID') }} #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(supplierData.createdAt) }}, Updated At: {{ formatDateWithTime(supplierData.updatedAt) }}
+          {{ $t('Created At') }}: {{ formatDateWithTime(supplierData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(supplierData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
@@ -131,7 +130,7 @@ onMounted( async () => {
           color="error"
           @click="deleteSupplier"
         >
-          Delete Supplier
+          {{ $t('Delete Supplier') }}
         </VBtn>
       </div>
     </div>
@@ -152,7 +151,7 @@ onMounted( async () => {
               start
               icon="tabler-eye"
             />
-            Details
+            {{ $t('Details') }}
           </VTab>
 
           <VTab v-if="can('admin-view-contact-informations', 'View Contact Informations')">
@@ -161,7 +160,7 @@ onMounted( async () => {
               start
               icon="tabler-bookmarks"
             />
-            Contact Informations
+            {{ $t('Contact Informations') }}
           </VTab>
         </VTabs>
 
@@ -172,17 +171,10 @@ onMounted( async () => {
         >
           <VWindowItem>
             <VCard v-if="supplierData">
-              <VCardText class="text-center pt-12">
-                <!-- 👉 Customer fullName -->
-                <div class="text-body-1">
-                  Supplier ID #{{ supplierData._id }}
-                </div>
-              </VCardText>
-
               <!-- 👉 Customer Details -->
               <VCardText>
                 <h5 class="text-h5">
-                  Details
+                  {{ $t('Details') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -190,7 +182,7 @@ onMounted( async () => {
                 <VList class="card-list mt-2">
                   <VListItem>
                     <h6 class="text-h6">
-                      Name:
+                      {{ $t('Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ supplierData.name }}
                       </span>
@@ -199,7 +191,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Business ID:
+                      {{ $t('Business ID') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ supplierData.businessID }}
                       </span>
@@ -208,7 +200,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Country:
+                      {{ $t('Country') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ supplierData.countryID ? supplierData.countryID.name : '' }}
                       </span>
@@ -217,7 +209,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City:
+                      {{ $t('City') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ supplierData.city }}
                       </span>
@@ -226,7 +218,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Street:
+                      {{ $t('Street') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ supplierData.street }}
                       </span>
@@ -235,7 +227,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      House Number:
+                      {{ $t('House Number') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ supplierData.houseNumber }}
                       </span>
@@ -245,7 +237,7 @@ onMounted( async () => {
                   <VListItem>
                     <div class="d-flex gap-x-2 align-center">
                       <h6 class="text-h6">
-                        Status:
+                        {{ $t('Status') }}:
                       </h6>
                       <VChip
                         label
@@ -259,7 +251,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Remarks:
+                      {{ $t('Remarks') }}:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="supplierData?.remarks" />
                       </span>
@@ -268,7 +260,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Created By:
+                      {{ $t('Created By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && supplierData.createdBy"
@@ -283,7 +275,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Updated By:
+                      {{ $t('Updated By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && supplierData.updatedBy"
@@ -306,7 +298,7 @@ onMounted( async () => {
                   block
                   @click="isSupplierDialogVisible = !isSupplierDialogVisible"
                 >
-                  Edit Supplier
+                  {{ $t('Edit Supplier') }}
                 </VBtn>
               </VCardText>
             </VCard>
@@ -327,7 +319,7 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Supplier with ID  {{ route.params.id }} not found!
+        {{ route.params.id }} {{ $t('Not Found!') }}
       </VAlert>
     </div>
 

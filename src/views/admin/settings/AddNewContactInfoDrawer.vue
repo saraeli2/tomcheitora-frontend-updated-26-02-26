@@ -138,12 +138,12 @@ const errors = ref({
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.contactInformation._id"
-      title="Edit Contact Information"
+      :title="$t('Edit Contact Information')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Contact Information"
+      :title="$t('Create Contact Information')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -164,8 +164,8 @@ const errors = ref({
                 <AppTextField
                   v-model="contactInformationData.firstName"
                   :rules="[requiredValidator]"
-                  label="First Name"
-                  placeholder="First Name"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
                   :error-messages="errors.firstName"
                 />
               </VCol>
@@ -175,8 +175,8 @@ const errors = ref({
                 <AppTextField
                   v-model="contactInformationData.lastName"
                   :rules="[requiredValidator]"
-                  label="Last Name"
-                  placeholder="Last Name"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
                   :error-messages="errors.lastName"
                 />
               </VCol>
@@ -185,8 +185,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="contactInformationData.phone1"
-                  label="Phone1"
-                  placeholder="Phone1"
+                  :label="$t('Phone 1')"
+                  :placeholder="$t('Phone 1')"
                   :error-messages="errors.phone1"
                 />
               </VCol>
@@ -195,8 +195,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="contactInformationData.phone2"
-                  label="Phone2"
-                  placeholder="Phone2"
+                  :label="$t('Phone 2')"
+                  :placeholder="$t('Phone 2')"
                   :error-messages="errors.phone2"
                 />
               </VCol>
@@ -205,8 +205,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="contactInformationData.email"
-                  label="Email"
-                  placeholder="Email"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
                   :error-messages="errors.email"
                 />
               </VCol>
@@ -217,7 +217,7 @@ const errors = ref({
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -225,7 +225,7 @@ const errors = ref({
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

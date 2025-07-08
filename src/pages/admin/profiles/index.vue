@@ -41,7 +41,7 @@ const modifyUser = async userData => {
           start
           icon="tabler-users"
         />
-        Account
+        {{ $t('Account') }}
       </VTab>
       <VTab>
         <VIcon
@@ -49,7 +49,7 @@ const modifyUser = async userData => {
           start
           icon="tabler-lock"
         />
-        Security
+        {{ $t('Security') }}
       </VTab>
     </VTabs>
 

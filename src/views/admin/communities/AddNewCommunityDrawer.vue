@@ -144,12 +144,12 @@ const errors = ref({
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.community._id"
-      title="Edit Community"
+      :title="$t('Edit Community')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Community"
+      :title="$t('Create Community')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -170,8 +170,8 @@ const errors = ref({
                 <AppTextField
                   v-model="communityData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -180,8 +180,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="communityData.cityId"
-                  label="City ID"
-                  placeholder="City ID"
+                  label="$t('City ID')"
+                  placeholder="$t('City ID')"
                   :error-messages="errors.cityId"
                 />
               </VCol>
@@ -190,8 +190,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="communityData.cityName"
-                  label="City Name"
-                  placeholder="City Name"
+                  :label="$t('City Name')"
+                  :placeholder="$t('City Name')"
                   :error-messages="errors.cityName"
                 />
               </VCol>
@@ -200,8 +200,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="communityData.street"
-                  label="Street"
-                  placeholder="Street"
+                  :label="$t('Street')"
+                  :placeholder="$t('Street')"
                   :error-messages="errors.street"
                 />
               </VCol>
@@ -210,8 +210,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="communityData.houseNumber"
-                  label="House Number"
-                  placeholder="House Number"
+                  :label="$t('House Number')"
+                  :placeholder="$t('House Number')"
                   :error-messages="errors.houseNumber"
                 />
               </VCol>
@@ -220,8 +220,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="communityData.website"
-                  label="Website"
-                  placeholder="Website"
+                  :label="$t('Website')"
+                  :placeholder="$t('Website')"
                   :error-messages="errors.website"
                 />
               </VCol>
@@ -234,8 +234,8 @@ const errors = ref({
                     { value: 'Fixed', title: 'Fixed' },
                     { value: 'Percentage', title: 'Percentage' },
                   ]"
-                  placeholder="Select Discount Type"
-                  label="Discount Type"
+                  :placeholder="$t('Select Discount Type')"
+                  :label="$t('Discount Type')"
                   :error-messages="errors.discountType"
                 />
               </VCol>
@@ -245,8 +245,8 @@ const errors = ref({
                 <AppTextField
                   v-model="communityData.discount"
                   :rules="[numericValidator]"
-                  label="Discount"
-                  placeholder="Discount"
+                  :label="$t('Discount')"
+                  :placeholder="$t('Discount')"
                   :error-messages="errors.discount"
                 />
               </VCol>
@@ -260,8 +260,8 @@ const errors = ref({
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -270,8 +270,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextarea
                   v-model="communityData.remarks"
-                  label="Remarks"
-                  placeholder="Remarks"
+                  :label="$t('Remarks')"
+                  :placeholder="$t('Remarks')"
                   :error-messages="errors.remarks"
                 />
               </VCol>
@@ -282,7 +282,7 @@ const errors = ref({
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -290,7 +290,7 @@ const errors = ref({
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

@@ -52,7 +52,7 @@ const isConfirmPasswordVisible = ref(false)
 const adminData = ref(structuredClone(toRaw(props.admin)))
 
 if(props.admin.roles.length > 0) {
-    adminData.value.roles = props.admin.roles.map(role => role._id);
+  adminData.value.roles = props.admin.roles.map(role => role._id)
 }
 
 // 👉 drawer close
@@ -178,12 +178,12 @@ watch(props, () => {
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.admin._id"
-      title="Edit Admin"
+      :title="$t('Edit Admin')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Admin"
+      :title="$t('Create Admin')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -204,8 +204,8 @@ watch(props, () => {
                 <AppAutocomplete
                   v-model="adminData.roles"
                   :items="props.roles"
-                  placeholder="Select Role"
-                  label="Role"
+                  :placeholder="$t('Select Role')"
+                  :label="$t('Role')"
                   multiple
                   :error-messages="errors.roles"
                   clearable
@@ -216,8 +216,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="adminData.firstName"
                   :rules="[requiredValidator]"
-                  label="First Name"
-                  placeholder="First Name"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
                   :error-messages="errors.firstName"
                 />
               </VCol>
@@ -227,8 +227,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="adminData.lastName"
                   :rules="[requiredValidator]"
-                  label="Last Name"
-                  placeholder="Last Name"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
                   :error-messages="errors.lastName"
                 />
               </VCol>
@@ -238,8 +238,8 @@ watch(props, () => {
                 <AppTextField
                   v-if="props.admin._id"
                   v-model="adminData.email"
-                  label="Email"
-                  placeholder="johndoe@email.com"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
                   :error-messages="errors.email"
                   disabled
                 />
@@ -247,8 +247,8 @@ watch(props, () => {
                   v-else
                   v-model="adminData.email"
                   :rules="[requiredValidator, emailValidator]"
-                  label="Email"
-                  placeholder="johndoe@email.com"
+                  ::label="$t('Email')"
+                  :placeholder="$t('Email')"
                   :error-messages="errors.email"
                 />
               </VCol>
@@ -258,8 +258,8 @@ watch(props, () => {
                 <AppTextField
                   v-model="adminData.position"
                   :rules="[requiredValidator]"
-                  label="Position"
-                  placeholder="Position"
+                  :label="$t('Position')"
+                  :placeholder="$t('Position')"
                   :error-messages="errors.position"
                 />
               </VCol>
@@ -268,8 +268,8 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.cityId"
-                  label="City ID"
-                  placeholder="City ID"
+                  :label="$t('City ID')"
+                  :placeholder="$t('City ID')"
                   :error-messages="errors.cityId"
                 />
               </VCol>
@@ -278,8 +278,8 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.cityName"
-                  label="City Name"
-                  placeholder="City Name"
+                  :label="$t('City Name')"
+                  :placeholder="$t('City Name')"
                   :error-messages="errors.cityName"
                 />
               </VCol>
@@ -288,8 +288,8 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.street"
-                  label="Street"
-                  placeholder="Street"
+                  :label="$t('Street')"
+                  :placeholder="$t('Street')"
                   :error-messages="errors.street"
                 />
               </VCol>
@@ -298,8 +298,8 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.houseNumber"
-                  label="House Number"
-                  placeholder="House Number"
+                  :label="$t('House Number')"
+                  :placeholder="$t('House Number')"
                   :error-messages="errors.houseNumber"
                 />
               </VCol>
@@ -308,18 +308,18 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.phone1"
-                  label="Phone 1"
-                  placeholder="Phone 1"
+                  :label="$t('Phone 1')"
+                  :placeholder="$t('Phone 1')"
                   :error-messages="errors.phone1"
                 />
               </VCol>
 
-              <!-- 👉 Phone 2-->
+              <!-- 👉 Phone 2 -->
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.phone2"
-                  label="Phone 2"
-                  placeholder="Phone 2"
+                  :label="$t('Phone 2')"
+                  :placeholder="$t('Phone 2')"
                   :error-messages="errors.phone2"
                 />
               </VCol>
@@ -331,7 +331,7 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="password"
-                  label="Password"
+                  :label="$t('Password')"
                   placeholder="············"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -347,7 +347,7 @@ watch(props, () => {
               >
                 <AppTextField
                   v-model="confirmPassword"
-                  label="Confirm Password"
+                  :label="$t('Confirm Password')"
                   placeholder="············"
                   :type="isConfirmPasswordVisible ? 'text' : 'password'"
                   :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
@@ -365,8 +365,8 @@ watch(props, () => {
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -375,8 +375,8 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextarea
                   v-model="adminData.remarks"
-                  label="Remarks"
-                  placeholder="Remarks"
+                  :label="$t('Remarks')"
+                  :placeholder="$t('Remarks')"
                   :error-messages="errors.remarks"
                 />
               </VCol>
@@ -387,7 +387,7 @@ watch(props, () => {
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -395,7 +395,7 @@ watch(props, () => {
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

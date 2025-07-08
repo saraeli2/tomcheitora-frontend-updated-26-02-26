@@ -1,8 +1,8 @@
 <script setup>
-import { useToast } from 'vue-toastification'
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useAuthStore } from '@/stores'
 import axios from 'axios'
+import { useToast } from 'vue-toastification'
+import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
 const props = defineProps({
   isDrawerOpen: {
@@ -155,12 +155,12 @@ const handleImageChange = file => {
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.category._id"
-      title="Edit Category"
+      :title="$t('Edit Category')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Category"
+      :title="$t('Create Category')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -181,8 +181,8 @@ const handleImageChange = file => {
                 <AppTextField
                   v-model="categoryData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  label="$t('Name')"
+                  placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -192,8 +192,8 @@ const handleImageChange = file => {
                 <AppTextarea
                   v-model="categoryData.description"
                   :rules="[requiredValidator]"
-                  label="Description"
-                  placeholder="Description"
+                  :label="$t('Description')"
+                  :placeholder="$t('Description')"
                   :error-messages="errors.description"
                 />
               </VCol>
@@ -201,10 +201,10 @@ const handleImageChange = file => {
               <!-- 👉 image -->
               <VCol cols="12">
                 <div class="app-picker-field">
-                  <label class="v-label mb-1 text-body-2">Image</label>
+                  <label class="v-label mb-1 text-body-2">{{ $t('Image') }}</label>
                 </div>
                 <div v-if="categoryData?.image">
-                  <v-img
+                  <VImg
                     :src="categoryData.image"
                     alt="Category Image"
                     width="120"
@@ -213,9 +213,7 @@ const handleImageChange = file => {
                 </div>
                 <VFileInput
                   :rules="rules"
-                  label="Image"
                   accept="image/png, image/jpeg, image/bmp"
-                  placeholder="Pick an image"
                   prepend-icon="tabler-camera"
                   :error-messages="errors.image"
                   @change="handleImageChange"
@@ -228,7 +226,7 @@ const handleImageChange = file => {
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -236,7 +234,7 @@ const handleImageChange = file => {
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

@@ -100,7 +100,7 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Communities', to: { name: 'admin-communities' }, class: 'text-primary' }, { title: 'Community Details of ' + communityData.name }]"
+            :items="[{ title: $t('Community'), to: { name: 'admin-communities' }, class: 'text-primary' }, { title: communityData.name }]"
           />
         </VCol>
       </VRow>
@@ -110,10 +110,10 @@ onMounted( async () => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Community ID #{{ route.params.id }}
+          {{ $t('Community ID') }} #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(communityData.createdAt) }}, Updated At: {{ formatDateWithTime(communityData.updatedAt) }}
+          {{ $t('Created At') }}: {{ formatDateWithTime(communityData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(communityData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
@@ -123,7 +123,7 @@ onMounted( async () => {
           color="error"
           @click="deleteCommunity"
         >
-          Delete Community
+          {{ $t('Delete Community') }}
         </VBtn>
       </div>
     </div>
@@ -144,7 +144,7 @@ onMounted( async () => {
               start
               icon="tabler-eye"
             />
-            Details
+            {{ $t('Details') }}
           </VTab>
 
           <VTab>
@@ -153,7 +153,7 @@ onMounted( async () => {
               start
               icon="tabler-bookmarks"
             />
-            Contact Informations
+            {{ $t('Contact Informations') }}
           </VTab>
         </VTabs>
 
@@ -164,17 +164,10 @@ onMounted( async () => {
         >
           <VWindowItem>
             <VCard v-if="communityData">
-              <VCardText class="text-center pt-12">
-                <!-- 👉 Customer fullName -->
-                <div class="text-body-1">
-                  Community ID #{{ communityData._id }}
-                </div>
-              </VCardText>
-
               <!-- 👉 Customer Details -->
               <VCardText>
                 <h5 class="text-h5">
-                  Details
+                  {{ $t('Details') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -182,7 +175,7 @@ onMounted( async () => {
                 <VList class="card-list mt-2">
                   <VListItem>
                     <h6 class="text-h6">
-                      Name:
+                      {{ $t('Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.name }}
                       </span>
@@ -191,7 +184,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City ID:
+                      {{ $t('City ID') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.cityId }}
                       </span>
@@ -200,7 +193,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City Name:
+                      {{ $t('City Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.cityName }}
                       </span>
@@ -209,7 +202,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Street:
+                      {{ $t('Street') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.street }}
                       </span>
@@ -218,7 +211,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      House Number:
+                      {{ $t('House Number') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.houseNumber }}
                       </span>
@@ -227,7 +220,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Website:
+                      {{ $t('Website') }}:
                       <span
                         v-if="communityData.website"
                         class="text-body-1 d-inline-block"
@@ -244,7 +237,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Discount Type:
+                      {{ $t('Discount Type') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.discountType }}
                       </span>
@@ -253,7 +246,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Delivery Charge:
+                      {{ $t('Delivery Charge') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ communityData.discount ?? '' }}
                       </span>
@@ -263,7 +256,7 @@ onMounted( async () => {
                   <VListItem>
                     <div class="d-flex gap-x-2 align-center">
                       <h6 class="text-h6">
-                        Status:
+                        {{ $t('Status') }}:
                       </h6>
                       <VChip
                         label
@@ -277,7 +270,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Remarks:
+                      {{ $t('Remarks') }}:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="communityData?.remarks" />
                       </span>
@@ -286,7 +279,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Created By:
+                      {{ $t('Created By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && communityData.createdBy"
@@ -301,7 +294,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Updated By:
+                      {{ $t('Updated By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && communityData.updatedBy"
@@ -324,7 +317,7 @@ onMounted( async () => {
                   block
                   @click="isCommunityDialogVisible = !isCommunityDialogVisible"
                 >
-                  Edit Community
+                  {{ $t('Edit Community') }}
                 </VBtn>
               </VCardText>
             </VCard>
@@ -345,7 +338,7 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Community with ID  {{ route.params.id }} not found!
+        {{ route.params.id }} {{ $t('Not Found!') }}
       </VAlert>
     </div>
 

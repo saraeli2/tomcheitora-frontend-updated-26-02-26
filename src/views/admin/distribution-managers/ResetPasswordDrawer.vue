@@ -99,7 +99,7 @@ watch(props, () => {
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      title="Reset Password"
+      :title="$t('Reset Password')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -119,8 +119,7 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.name"
-                  label="Name"
-                  placeholder="John Doe"
+                  :label="$t('Name')"
                   disabled
                 />
               </VCol>
@@ -129,8 +128,7 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.email"
-                  label="Email"
-                  placeholder="johndoe@email.com"
+                  :label="$t('Email')"
                   disabled
                 />
               </VCol>
@@ -139,8 +137,7 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.position"
-                  label="Position"
-                  placeholder="Position"
+                  :label="$t('Position')"
                   disabled
                 />
               </VCol>
@@ -149,7 +146,7 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="password"
-                  label="Password"
+                  :label="$t('Password')"
                   placeholder="············"
                   :rules="[requiredValidator]"
                   :type="isNewPasswordVisible ? 'text' : 'password'"
@@ -163,7 +160,7 @@ watch(props, () => {
               <VCol cols="12">
                 <AppTextField
                   v-model="confirmPassword"
-                  label="Confirm Password"
+                  :label="$t('Confirm Password')"
                   :rules="[requiredValidator, confirmedValidator(confirmPassword, password)]"
                   placeholder="············"
                   :type="isConfirmPasswordVisible ? 'text' : 'password'"
@@ -179,7 +176,7 @@ watch(props, () => {
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -187,7 +184,7 @@ watch(props, () => {
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

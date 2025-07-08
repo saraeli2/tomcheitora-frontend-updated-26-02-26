@@ -141,12 +141,12 @@ const handleLogoChange = file => {
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.certification._id"
-      title="Edit Certification"
+      :title="$t('Edit Certification')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Certification"
+      :title="$t('Create Certification')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -167,8 +167,8 @@ const handleLogoChange = file => {
                 <AppTextField
                   v-model="certificationData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -182,8 +182,8 @@ const handleLogoChange = file => {
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -191,26 +191,24 @@ const handleLogoChange = file => {
               <!-- 👉 logo -->
               <VCol cols="12">
                 <div class="app-picker-field">
-                  <label class="v-label mb-1 text-body-2">Logo</label>
+                  <label class="v-label mb-1 text-body-2">{{ $t('Logo') }}</label>
                 </div>
                 <VFileInput
                   :rules="rules"
-                  label="Logo"
                   accept="image/png, image/jpeg, image/bmp"
-                  placeholder="Pick a logo"
                   prepend-icon="tabler-camera"
                   :error-messages="errors.logo"
                   @change="handleLogoChange"
                 />
               </VCol>
-              
+                
               <!-- 👉 Submit and Cancel -->
               <VCol cols="12">
                 <VBtn
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -218,7 +216,7 @@ const handleLogoChange = file => {
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

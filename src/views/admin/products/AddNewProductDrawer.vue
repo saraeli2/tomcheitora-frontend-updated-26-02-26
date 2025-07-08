@@ -316,7 +316,7 @@ const categories = computed(() => categoryBuilderData.value.categories)
 
 const tree = ref([])
 
-const buildTree = (categories) => {
+const buildTree = categories => {
   const categoryMap = {}
 
   // 1. Initialize all categories with empty children array
@@ -343,7 +343,7 @@ const buildTree = (categories) => {
   })
 
   // 3. Optionally sort children by a property, e.g. 'sortOrder'
-  const sortChildren = (nodes) => {
+  const sortChildren = nodes => {
     nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
     nodes.forEach(node => {
       if (node.children?.length) {
@@ -406,14 +406,17 @@ const onToggleSelect = ({ id, checked }) => {
     )
   }
 }
+
+
 // Check if all descendants of node are selected
-const areAllDescendantsSelected = (node) => {
+const areAllDescendantsSelected = node => {
   const descendants = getAllDescendants(node)
+  
   return descendants.every(id => checkedCategories.value.includes(id))
 }
 
 // Check if some (but not all) descendants of node are selected
-const isIndeterminate = (node) => {
+const isIndeterminate = node => {
   const descendants = getAllDescendants(node)
   const selectedCount = descendants.filter(id => checkedCategories.value.includes(id)).length
 
@@ -433,12 +436,12 @@ const isIndeterminate = (node) => {
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.product._id"
-      title="Edit Product"
+      :title="$t('Edit Product')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Product"
+      :title="$t('Create Product')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -459,8 +462,8 @@ const isIndeterminate = (node) => {
                 <AppTextField
                   v-model="productData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -470,8 +473,8 @@ const isIndeterminate = (node) => {
                 <AppTextField
                   v-model="productData.slug"
                   :rules="[requiredValidator]"
-                  label="Slug"
-                  placeholder="Slug"
+                  :label="$t('Slug')"
+                  :placeholder="$t('Slug')"
                   :error-messages="errors.slug"
                 />
               </VCol>
@@ -480,8 +483,8 @@ const isIndeterminate = (node) => {
               <VCol cols="12">
                 <AppTextField
                   v-model="productData.internalSKU"
-                  label="Internal SKU"
-                  placeholder="Internal SKU"
+                  :label="$t('Internal SKU')"
+                  :placeholder="$t('Internal SKU')"
                   :error-messages="errors.internalSKU"
                 />
               </VCol>
@@ -490,8 +493,8 @@ const isIndeterminate = (node) => {
               <VCol cols="12">
                 <AppTextField
                   v-model="productData.externalSKU"
-                  label="External SKU"
-                  placeholder="External SKU"
+                  :label="$t('External SKU')"
+                  :placeholder="$t('External SKU')"
                   :error-messages="errors.externalSKU"
                 />
               </VCol>
@@ -500,8 +503,8 @@ const isIndeterminate = (node) => {
               <VCol cols="12">
                 <AppTextField
                   v-model="productData.boxSKU"
-                  label="Box SKU"
-                  placeholder="Box SKU"
+                  :label="$t('Box SKU')"
+                  :placeholder="$t('Box SKU')"
                   :error-messages="errors.boxSKU"
                 />
               </VCol>
@@ -511,8 +514,8 @@ const isIndeterminate = (node) => {
                 <AppAutocomplete
                   v-model="productData.manufacturerID"
                   :items="manufacturersUpdated"
-                  label="Manufacturer"
-                  placeholder="Select Manufacturer"
+                  :label="$t('Manufacturer')"
+                  :placeholder="$t('Select Manufacturer')"
                   :error-messages="errors.manufacturerID"
                   clearable
                   @update:model-value="onManufacturerChange"
@@ -524,8 +527,8 @@ const isIndeterminate = (node) => {
                 <AppAutocomplete
                   v-model="productData.supplierID"
                   :items="suppliersUpdated"
-                  label="Supplier"
-                  placeholder="Select Supplier"
+                  :label="$t('Supplier')"
+                  :placeholder="$t('Select Supplier')"
                   :error-messages="errors.supplierID"
                   clearable
                   @update:model-value="onSupplierChange"
@@ -537,8 +540,8 @@ const isIndeterminate = (node) => {
                 <AppAutocomplete
                   v-model="productData.certificationID"
                   :items="certificationsUpdated"
-                  label="Certification"
-                  placeholder="Select Certification"
+                  :label="$t('Certification')"
+                  :placeholder="$t('Select Certification')"
                   :error-messages="errors.certificationID"
                   clearable
                   @update:model-value="onCertificationChange"
@@ -551,8 +554,8 @@ const isIndeterminate = (node) => {
                   v-model="productData.packagetypeID"
                   :rules="[requiredValidator]"
                   :items="packagetypesUpdated"
-                  label="Package Type"
-                  placeholder="Select Package Type"
+                  :label="$t('Package Type')"
+                  :placeholder="$t('Select Package Type')"
                   :error-messages="errors.packagetypeID"
                   clearable
                   @update:model-value="onPackagetypeChange"
@@ -565,8 +568,8 @@ const isIndeterminate = (node) => {
                   v-model="productData.quantitytypeID"
                   :rules="[requiredValidator]"
                   :items="quantitytypesUpdated"
-                  label="Quantity Type"
-                  placeholder="Select Quantity Type"
+                  :label="$t('Quantity Type')"
+                  :placeholder="$t('Select Quantity Type')"
                   :error-messages="errors.quantitytypeID"
                   clearable
                   @update:model-value="onQuantitytypeChange"
@@ -578,8 +581,8 @@ const isIndeterminate = (node) => {
                 <AppTextField
                   v-model="productData.purchasePrice"
                   :rules="[numericValidator]"
-                  label="Purchase Price"
-                  placeholder="Purchase Price"
+                  :label="$t('Purchase Price')"
+                  :placeholder="$t('Purchase Price')"
                   :error-messages="errors.purchasePrice"
                 />
               </VCol>
@@ -589,8 +592,8 @@ const isIndeterminate = (node) => {
                 <AppTextField
                   v-model="productData.salePrice"
                   :rules="[numericValidator]"
-                  label="Sale Price"
-                  placeholder="Sale Price"
+                  :label="$t('Sale Price')"
+                  :placeholder="$t('Sale Price')"
                   :error-messages="errors.salePrice"
                 />
               </VCol>
@@ -600,8 +603,8 @@ const isIndeterminate = (node) => {
                 <AppTextField
                   v-model="productData.maxStock"
                   :rules="[integerValidator]"
-                  label="Max Stock"
-                  placeholder="Max Stock"
+                  :label="$t('Max Stock')"
+                  :placeholder="$t('Max Stock')"
                   :error-messages="errors.maxStock"
                 />
               </VCol>
@@ -615,8 +618,8 @@ const isIndeterminate = (node) => {
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -625,8 +628,8 @@ const isIndeterminate = (node) => {
               <VCol cols="12">
                 <AppTextarea
                   v-model="productData.description"
-                  label="Description"
-                  placeholder="Description"
+                  :label="$t('Description')"
+                  :placeholder="$t('Description')"
                   :error-messages="errors.description"
                 />
               </VCol>
@@ -635,8 +638,8 @@ const isIndeterminate = (node) => {
               <VCol cols="12">
                 <AppTextarea
                   v-model="productData.internalRemarks"
-                  label="Internal Remarks"
-                  placeholder="Internal Remarks"
+                  :label="$t('Internal Remarks')"
+                  :placeholder="$t('Internal Remarks')"
                   :error-messages="errors.internalRemarks"
                 />
               </VCol>
@@ -645,14 +648,16 @@ const isIndeterminate = (node) => {
               <VCol cols="12">
                 <AppTextarea
                   v-model="productData.remarks"
-                  label="Remarks"
-                  placeholder="Remarks"
+                  :label="$t('Remarks')"
+                  :placeholder="$t('Remarks')"
                   :error-messages="errors.remarks"
                 />
               </VCol>
               <VCol cols="12">
                 <div>
-                  <h6 class="text-h6 mb-2">Category</h6>
+                  <h6 class="text-h6 mb-2">
+                    {{ $t('Category') }}
+                  </h6>
                   <CategoryBuilderProductNode
                     v-for="node in tree"
                     :key="node.realId"
@@ -670,7 +675,7 @@ const isIndeterminate = (node) => {
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -678,7 +683,7 @@ const isIndeterminate = (node) => {
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

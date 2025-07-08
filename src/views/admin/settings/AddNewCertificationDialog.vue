@@ -142,7 +142,7 @@ const onReset = () => {
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.certification._id ? 'Edit' : 'Create' }} Certification
+          {{ props.certification._id ? $t('Edit Certification') : $t('Create Certification') }}
         </h4>
 
         <VDivider />
@@ -158,8 +158,8 @@ const onReset = () => {
               <AppTextField
                 v-model="certificationData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -173,8 +173,8 @@ const onReset = () => {
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
@@ -182,13 +182,11 @@ const onReset = () => {
             <!-- 👉 logo -->
             <VCol cols="12">
               <div class="app-picker-field">
-                <label class="v-label mb-1 text-body-2">Logo</label>
+                <label class="v-label mb-1 text-body-2">{{ $t('Logo') }}</label>
               </div>
               <VFileInput
                 :rules="rules"
-                label="Logo"
                 accept="image/png, image/jpeg, image/bmp"
-                placeholder="Pick a logo"
                 prepend-icon="tabler-camera"
                 :error-messages="errors.logo"
                 @change="handleLogoChange"
@@ -201,7 +199,7 @@ const onReset = () => {
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -209,7 +207,7 @@ const onReset = () => {
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 import Draggable from 'vuedraggable'
 
@@ -7,7 +8,7 @@ definePage({
     action: ['admin-create-categories'],
     subject: ['Create Categories'],
     navActiveLink: 'categories',
-    title: 'Create Category',
+    title: 'Categories',
   },
 })
 
@@ -16,6 +17,8 @@ import CategoryBuilderNode from '@/views/admin/settings/CategoryBuilderNode.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const toast = useToast()
 
@@ -162,7 +165,7 @@ watch(categoryBuilderData, newVal => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Categories
+              {{ $t('Categories') }}
             </h5>
           </VCol>
         </VRow>
@@ -177,14 +180,14 @@ watch(categoryBuilderData, newVal => {
             prepend-icon="tabler-plus"
             @click="createParentCategory"
           >
-            Create Category
+            {{ $t('Create Category') }}
           </VBtn>
         </div>
       </VCardText>
     </VCard>
 
     <VCard
-      title="Category Manager"
+      :title="$t('Category Manager')"
       class="mb-6"
     >
       <VCardText class="cb_wrapper">

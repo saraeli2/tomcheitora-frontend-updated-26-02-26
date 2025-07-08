@@ -110,20 +110,19 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Admins', to: { name: 'admin-admins' }, class: 'text-primary' }, { title: 'Admin Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
+            :items="[{ title: $t('Admins'), to: { name: 'admin-admins' }, class: 'text-primary' }, { title: 'Admin Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
           />
         </VCol>
       </VRow>
-
 
       <VDivider class="my-6" />
 
       <div>
         <h4 class="text-h4 mb-1">
-          Admin ID #{{ route.params.id }}
+          {{ $t('Admin ID') }} #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
-          Created At: {{ formatDateWithTime(adminData.createdAt) }}, Updated At: {{ formatDateWithTime(adminData.updatedAt) }}
+          {{ $t('Created At') }}: {{ formatDateWithTime(adminData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(adminData.updatedAt) }}
         </div>
       </div>
       <div class="d-flex gap-4">
@@ -133,7 +132,7 @@ onMounted( async () => {
           color="error"
           @click="deleteAdmin"
         >
-          Delete Admin
+          {{ $t('Delete Admin') }}
         </VBtn>
       </div>
     </div>
@@ -154,7 +153,7 @@ onMounted( async () => {
               start
               icon="tabler-eye"
             />
-            Details
+            {{ $t('Details') }}
           </VTab>
         </VTabs>
 
@@ -165,17 +164,10 @@ onMounted( async () => {
         >
           <VWindowItem>
             <VCard v-if="adminData">
-              <VCardText class="text-center pt-12">
-                <!-- 👉 Customer fullName -->
-                <div class="text-body-1">
-                  Admin ID #{{ adminData._id }}
-                </div>
-              </VCardText>
-
               <!-- 👉 Customer Details -->
               <VCardText>
                 <h5 class="text-h5">
-                  Details
+                  {{ $t('Details') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -183,7 +175,7 @@ onMounted( async () => {
                 <VList class="card-list mt-2">
                   <VListItem>
                     <h6 class="text-h6">
-                      First Name:
+                      {{ $t('First Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.firstName }}
                       </span>
@@ -192,7 +184,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Last Name:
+                      {{ $t('Last Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.lastName }}
                       </span>
@@ -201,7 +193,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Email:
+                      {{ $t('Email') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.email }}
                       </span>
@@ -210,7 +202,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Position:
+                      {{ $t('Position') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.position }}
                       </span>
@@ -219,7 +211,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City ID:
+                      {{ $t('City ID') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.cityId }}
                       </span>
@@ -228,7 +220,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      City Name:
+                      {{ $t('City Name') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.cityName }}
                       </span>
@@ -237,7 +229,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Street:
+                      {{ $t('Street') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.street }}
                       </span>
@@ -246,7 +238,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      House Number:
+                      {{ $t('House Number') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.houseNumber }}
                       </span>
@@ -255,7 +247,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Phone 1:
+                      {{ $t('Phone 1') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.phone1 }}
                       </span>
@@ -264,7 +256,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Phone 2:
+                      {{ $t('Phone 2') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.phone2 }}
                       </span>
@@ -274,7 +266,7 @@ onMounted( async () => {
                   <VListItem>
                     <div class="d-flex gap-x-2 align-center">
                       <h6 class="text-h6">
-                        Status:
+                        {{ $t('Status') }}:
                       </h6>
                       <VChip
                         label
@@ -288,7 +280,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Remarks:
+                      {{ $t('Remarks') }}:
                       <span class="text-body-1 d-inline-block">
                         <div v-html="adminData?.remarks" />
                       </span>
@@ -297,7 +289,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Created By:
+                      {{ $t('Created By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && adminData.createdBy"
@@ -312,7 +304,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      Updated By:
+                      {{ $t('Updated By') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
                           v-if="can('admin-view-admins', 'View Admins') && adminData.updatedBy"
@@ -335,7 +327,7 @@ onMounted( async () => {
                   block
                   @click="isAdminDialogVisible = !isAdminDialogVisible"
                 >
-                  Edit Admin
+                  {{ $t('Edit Admin') }}
                 </VBtn>
               </VCardText>
 
@@ -347,7 +339,7 @@ onMounted( async () => {
                   block
                   @click="isResetPasswordDrawerVisible = !isResetPasswordDrawerVisible"
                 >
-                  Reset Password
+                  {{ $t('Reset Password') }}
                 </VBtn>
               </VCardText>
             </VCard>
@@ -360,7 +352,7 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Admin with ID  {{ route.params.id }} not found!
+        {{ route.params.id }} {{ $t('Not Found!') }}
       </VAlert>
     </div>
     

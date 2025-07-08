@@ -116,12 +116,12 @@ const errors = ref({
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.quantitytype._id"
-      title="Edit Category"
+      :title="$t('Edit Quantity Type')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New Category"
+      :title="$t('Create Quantity Type')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -142,8 +142,8 @@ const errors = ref({
                 <AppTextField
                   v-model="quantitytypeData.name"
                   :rules="[requiredValidator]"
-                  label="Name"
-                  placeholder="Name"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -152,8 +152,8 @@ const errors = ref({
                 <AppTextField
                   v-model="quantitytypeData.quantity"
                   :rules="[requiredValidator, numericValidator]"
-                  label="Quantity"
-                  placeholder="Quantity"
+                  :label="$t('Quantity')"
+                  :placeholder="$t('Quantity')"
                   :error-messages="errors.quantity"
                 />
               </VCol>
@@ -167,8 +167,8 @@ const errors = ref({
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -179,7 +179,7 @@ const errors = ref({
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -187,7 +187,7 @@ const errors = ref({
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-manufacturers', 'admin-create-manufacturers'],
@@ -11,6 +12,8 @@ import AddNewManufacturerDrawer from '@/views/admin/manufacturers/AddNewManufact
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -32,53 +35,53 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'Name',
+    title: t('Name'),
     key: 'name',
   },
   {
-    title: 'Business ID',
+    title: t('Business ID'),
     key: 'businessID',
   },
   {
-    title: 'Country',
+    title: t('Country'),
     key: 'countryID',
   },
   {
-    title: 'City',
+    title: t('City'),
     key: 'city',
   },
   {
-    title: 'Street',
+    title: t('Street'),
     key: 'street',
   },
   {
-    title: 'House Number',
+    title: t('House Number'),
     key: 'houseNumber',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'created by',
+    title: t('Created By'),
     key: 'createdBy',
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -162,7 +165,7 @@ const deleteManufacturer = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Manufacturers
+              {{ $t('Manufacturers') }}
             </h5>
           </VCol>
         </VRow>
@@ -173,7 +176,7 @@ const deleteManufacturer = async id => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -192,7 +195,7 @@ const deleteManufacturer = async id => {
             prepend-icon="tabler-plus"
             @click="isAddNewManufacturerDrawerVisible = true"
           >
-            Create Manufacturer
+            {{ $t('Create Manufacturer') }}
           </VBtn>
         </div>
 
@@ -206,7 +209,7 @@ const deleteManufacturer = async id => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -217,7 +220,7 @@ const deleteManufacturer = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search Manufacturer"
+                    :placeholder="$t('Search Manufacturer')"
                   />
                 </VCol>
 
@@ -228,7 +231,7 @@ const deleteManufacturer = async id => {
                   <AppAutocomplete
                     v-model="selectedCountry"
                     :items="countries"
-                    placeholder="Country"
+                    :placeholder="$t('Country')"
                     clearable
                   />
                 </VCol>
@@ -243,7 +246,7 @@ const deleteManufacturer = async id => {
                       { value: 'Active', title: 'Active' },
                       { value: 'Inactive', title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>

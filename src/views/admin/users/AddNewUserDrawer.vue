@@ -278,12 +278,12 @@ watch(() => props.communities,
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
       v-if="props.user._id"
-      title="Edit User"
+      :title="$t('Edit User')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      title="Add New User"
+      :title="$t('Create User')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -304,8 +304,8 @@ watch(() => props.communities,
                 <AppAutocomplete
                   v-model="adminData.communityID"
                   :items="communitiesWithAddNew"
-                  placeholder="Select Community"
-                  label="Community"
+                  :placeholder="$t('Select Community')"
+                  :label="$t('Community')"
                   :error-messages="errors.communityID"
                   clearable
                   @update:model-value="onCommunityChange"
@@ -316,8 +316,8 @@ watch(() => props.communities,
                 <AppTextField
                   v-model="adminData.firstName"
                   :rules="[requiredValidator]"
-                  label="First Name"
-                  placeholder="First Name"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
                   :error-messages="errors.firstName"
                 />
               </VCol>
@@ -327,8 +327,8 @@ watch(() => props.communities,
                 <AppTextField
                   v-model="adminData.lastName"
                   :rules="[requiredValidator]"
-                  label="Last Name"
-                  placeholder="Last Name"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
                   :error-messages="errors.lastName"
                 />
               </VCol>
@@ -338,8 +338,8 @@ watch(() => props.communities,
                 <AppTextField
                   v-model="adminData.email"
                   :rules="[requiredValidator, emailValidator]"
-                  label="Email"
-                  placeholder="johndoe@email.com"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
                   :error-messages="errors.email"
                 />
               </VCol>
@@ -348,8 +348,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.phone"
-                  label="Phone"
-                  placeholder="Phone"
+                  :label="$t('Phone')"
+                  :placeholder="$t('Phone')"
                   :error-messages="errors.phone"
                 />
               </VCol>
@@ -358,8 +358,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.cityId"
-                  label="City ID"
-                  placeholder="City ID"
+                  :label="$t('City ID')"
+                  :placeholder="$t('City ID')"
                   :error-messages="errors.cityId"
                 />
               </VCol>
@@ -368,8 +368,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.cityName"
-                  label="City Name"
-                  placeholder="City Name"
+                  :label="$t('City Name')"
+                  :placeholder="$t('City Name')"
                   :error-messages="errors.cityName"
                 />
               </VCol>
@@ -378,8 +378,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.street"
-                  label="Street"
-                  placeholder="Street"
+                  :label="$t('Street')"
+                  :placeholder="$t('Street')"
                   :error-messages="errors.street"
                 />
               </VCol>
@@ -388,8 +388,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.houseNumber"
-                  label="House Number"
-                  placeholder="House Number"
+                  :label="$t('House Number')"
+                  :placeholder="$t('House Number')"
                   :error-messages="errors.houseNumber"
                 />
               </VCol>
@@ -398,8 +398,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.nationality"
-                  label="Nationality"
-                  placeholder="Nationality"
+                  :label="$t('Nationality')"
+                  :placeholder="$t('Nationality')"
                   :error-messages="errors.nationality"
                 />
               </VCol>
@@ -408,8 +408,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.israeliIDNumber"
-                  label="Israeli ID Number"
-                  placeholder="Israeli ID Number"
+                  :label="$t('Israeli ID Number')"
+                  :placeholder="$t('Israeli ID Number')"
                   :error-messages="errors.israeliIDNumber"
                 />
               </VCol>
@@ -418,8 +418,8 @@ watch(() => props.communities,
               <VCol cols="12">
                 <AppTextField
                   v-model="adminData.passportNumber"
-                  label="Passport Number"
-                  placeholder="Passport Number"
+                  :label="$t('Passport Number')"
+                  :placeholder="$t('Passport Number')"
                   :error-messages="errors.passportNumber"
                 />
               </VCol>
@@ -429,8 +429,8 @@ watch(() => props.communities,
                 <AppTextField
                   v-model="adminData.noOfKids"
                   :rules="[integerValidator]"
-                  label="No. Of Kids"
-                  placeholder="No. Of Kids"
+                  :label="$t('No. Of Kids')"
+                  :placeholder="$t('No. Of Kids')"
                   :error-messages="errors.noOfKids"
                 />
               </VCol>
@@ -448,8 +448,8 @@ watch(() => props.communities,
                     { value: 'In a civil partnership', title: 'In a civil partnership' },
                     { value: 'Cohabiting', title: 'Cohabiting' },
                   ]"
-                  placeholder="Select Marital Status"
-                  label="Marital Status"
+                  :placeholder="$t('Select Marital Status')"
+                  :label="$t('Marital Status')"
                   :error-messages="errors.maritalStatus"
                   clearable
                 />
@@ -464,8 +464,8 @@ watch(() => props.communities,
                     { value: 'Active', title: 'Active' },
                     { value: 'Inactive', title: 'Inactive' },
                   ]"
-                  placeholder="Select Status"
-                  label="Status"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
                   :error-messages="errors.status"
                 />
               </VCol>
@@ -473,13 +473,11 @@ watch(() => props.communities,
               <!-- 👉 imageID -->
               <VCol cols="12">
                 <div class="app-picker-field">
-                  <label class="v-label mb-1 text-body-2">Image of ID</label>
+                  <label class="v-label mb-1 text-body-2">{{ $t('Image of ID') }}</label>
                 </div>
                 <VFileInput
                   :rules="rules"
-                  label="Image of ID"
                   accept="image/png, image/jpeg, image/bmp"
-                  placeholder="Image of ID"
                   prepend-icon="tabler-camera"
                   :error-messages="errors.imageID"
                   @change="handleImageChange"
@@ -492,7 +490,7 @@ watch(() => props.communities,
                   type="submit"
                   class="me-3"
                 >
-                  Submit
+                  {{ $t('Submit') }}
                 </VBtn>
                 <VBtn
                   type="reset"
@@ -500,7 +498,7 @@ watch(() => props.communities,
                   color="error"
                   @click="closeNavigationDrawer"
                 >
-                  Cancel
+                  {{ $t('Cancel') }}
                 </VBtn>
               </VCol>
             </VRow>

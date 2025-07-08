@@ -6,7 +6,7 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  distributionManagers: {
+  admins: {
     type: Object,
     required: true,
   },
@@ -23,14 +23,14 @@ const props = defineProps({
       street: '',
       houseNumber: '',
       status: 'Active',
-      distributionManagers: [],
+      admins: [],
     }),
   },
 })
 
 const emit = defineEmits([
   'update:isDialogVisible',
-  'distributionManagers',
+  'admins',
   'updateData',
   'station',
 ])
@@ -41,8 +41,8 @@ const isFormValid = ref(false)
 const refForm = ref()
 const stationData = ref(structuredClone(toRaw(props.station)))
 
-if(props.station.distributionManagers.length > 0) {
-  stationData.value.distributionManagers = props.station.distributionManagers.map(admin => admin._id)
+if(props.station.admins.length > 0) {
+  stationData.value.admins = props.station.admins.map(admin => admin._id)
 }
 
 // 👉 drawer close
@@ -67,7 +67,7 @@ const submit = async () => {
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
-          distributionManagers: stationData.value.distributionManagers,
+          admins: stationData.value.admins,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -84,7 +84,7 @@ const submit = async () => {
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
-          distributionManagers: stationData.value.distributionManagers,
+          admins: stationData.value.admins,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -128,7 +128,7 @@ const errors = ref({
   cityName: undefined,
   street: undefined,
   houseNumber: undefined,
-  distributionManagers: undefined,
+  admins: undefined,
 })
 </script>
 
@@ -145,7 +145,7 @@ const errors = ref({
       <VCardText>
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
-          {{ props.station._id ? 'Edit' : 'Create' }} Station
+          {{ props.station._id ? $t('Edit Station') : $t('Create Station') }}
         </h4>
 
         <VDivider />
@@ -159,12 +159,12 @@ const errors = ref({
             <!-- 👉 Admin -->
             <VCol cols="12">
               <AppAutocomplete
-                v-model="stationData.distributionManagers"
-                :items="props.distributionManagers"
-                placeholder="Select Distribution Manager"
-                label="Distribution Manager"
+                v-model="stationData.admins"
+                :items="props.admins"
+                :placeholder="$t('Select Distribution Manager')"
+                :label="$t('Distribution Manager')"
                 multiple
-                :error-messages="errors.distributionManagers"
+                :error-messages="errors.admins"
                 clearable
               />
             </VCol>
@@ -174,8 +174,8 @@ const errors = ref({
               <AppTextField
                 v-model="stationData.name"
                 :rules="[requiredValidator]"
-                label="Name"
-                placeholder="Name"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
                 :error-messages="errors.name"
               />
             </VCol>
@@ -185,8 +185,8 @@ const errors = ref({
               <AppTextField
                 v-model="stationData.neighbourhood"
                 :rules="[requiredValidator]"
-                label="Neighbourhood"
-                placeholder="Neighbourhood"
+                :label="$t('Neighbourhood')"
+                :placeholder="$t('Neighbourhood')"
                 :error-messages="errors.neighbourhood"
               />
             </VCol>
@@ -195,8 +195,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="stationData.cityId"
-                label="City ID"
-                placeholder="City ID"
+                :label="$t('City ID')"
+                :placeholder="$t('City ID')"
                 :error-messages="errors.cityId"
               />
             </VCol>
@@ -205,8 +205,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="stationData.cityName"
-                label="City Name"
-                placeholder="City Name"
+                :label="$t('City Name')"
+                :placeholder="$t('City Name')"
                 :error-messages="errors.cityName"
               />
             </VCol>
@@ -215,8 +215,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="stationData.street"
-                label="Street"
-                placeholder="Street"
+                :label="$t('Street')"
+                :placeholder="$t('Street')"
                 :error-messages="errors.street"
               />
             </VCol>
@@ -225,8 +225,8 @@ const errors = ref({
             <VCol cols="12">
               <AppTextField
                 v-model="stationData.houseNumber"
-                label="House Number"
-                placeholder="House Number"
+                :label="$t('House Number')"
+                :placeholder="$t('House Number')"
                 :error-messages="errors.houseNumber"
               />
             </VCol>
@@ -240,19 +240,19 @@ const errors = ref({
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
                 ]"
-                placeholder="Select Status"
-                label="Status"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
                 :error-messages="errors.status"
               />
             </VCol>
-              
+            
             <!-- 👉 Submit and Cancel -->
             <VCol cols="12">
               <VBtn
                 type="submit"
                 class="me-3"
               >
-                Submit
+                {{ $t('Submit') }}
               </VBtn>
               <VBtn
                 type="reset"
@@ -260,7 +260,7 @@ const errors = ref({
                 color="error"
                 @click="closeNavigationDrawer"
               >
-                Cancel
+                {{ $t('Cancel') }}
               </VBtn>
             </VCol>
           </VRow>

@@ -1,4 +1,5 @@
 <script setup>
+import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-admins', 'admin-create-admins'],
@@ -6,12 +7,14 @@ definePage({
     title: 'Admins',
   },
 })
-
+ 
 import AddNewAdminDrawer from '@/views/admin/admins/AddNewAdminDrawer.vue'
 import ResetPasswordDrawer from '@/views/admin/admins/ResetPasswordDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedRole = ref()
@@ -34,75 +37,75 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = [
+const headers = computed(() => [
   {
-    title: 'First Name',
+    title: t('First Name'),
     key: 'firstName',
   },
   {
-    title: 'Last Name',
+    title: t('Last Name'),
     key: 'lastName',
   },
   {
-    title: 'Email',
+    title: t('Email'),
     key: 'email',
   },
   {
-    title: 'Position',
+    title: t('Position'),
     key: 'position',
   },
   {
-    title: 'City ID',
+    title: t('City ID'),
     key: 'cityId',
   },
   {
-    title: 'City Name',
+    title: t('City Name'),
     key: 'cityName',
   },
   {
-    title: 'Street',
+    title: t('Street'),
     key: 'street',
   },
   {
-    title: 'House Number',
+    title: t('House Number'),
     key: 'houseNumber',
   },
   {
-    title: 'Phone 1',
+    title: t('Phone 1'),
     key: 'phone1',
   },
   {
-    title: 'Phone 2',
+    title: t('Phone 2'),
     key: 'phone2',
   },
   {
-    title: 'Active',
+    title: t('Active'),
     key: 'status',
   },
   {
-    title: 'Role',
+    title: t('Role'),
     key: 'roles',
     sortable: false,
   },
   {
-    title: 'created by',
+    title: t('Created By'),
     key: 'createdBy.name',
     sortable: true,
   },
   {
-    title: 'Created At',
+    title: t('Created At'),
     key: 'createdAt',
   },
   {
-    title: 'Updated At',
+    title: t('Updated At'),
     key: 'updatedAt',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
-]
+])
 
 const {
   data: customerData,
@@ -194,7 +197,7 @@ const resetPassword = val => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              Admins
+              {{ $t('Admins') }}
             </h5>
           </VCol>
         </VRow>
@@ -205,7 +208,7 @@ const resetPassword = val => {
       <VCardText class="d-flex justify-space-between align-center flex-wrap gap-4">
         <div class="d-flex gap-4 align-center flex-wrap">
           <div class="d-flex align-center gap-2">
-            <span>Show</span>
+            <span>{{ $t('Show') }}</span>
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
@@ -224,7 +227,7 @@ const resetPassword = val => {
             prepend-icon="tabler-plus"
             @click="isAddNewAdminDrawerVisible = true"
           >
-            Create Admin
+            {{ $t('Create Admin') }}
           </VBtn>
         </div>
 
@@ -238,7 +241,7 @@ const resetPassword = val => {
         v-model="panel"
       >
         <VExpansionPanel>
-          <VExpansionPanelTitle>Search</VExpansionPanelTitle>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
             <VCardText>
@@ -249,18 +252,17 @@ const resetPassword = val => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    placeholder="Search User"
+                    :placeholder="$t('Search Admin')"
                   />
                 </VCol>
                 <VCol
                   cols="12"
                   sm="4"
                 >
-                  <!-- 👉 Select status -->
                   <AppAutocomplete
                     v-model="selectedRole"
                     :items="roles"
-                    placeholder="Role"
+                    :placeholder="$t('Role')"
                     clearable
                   />
                 </VCol>
@@ -274,7 +276,7 @@ const resetPassword = val => {
                       { value: 'Active', title: 'Active' },
                       { value: 'Inactive', title: 'Inactive' },
                     ]"
-                    placeholder="Status"
+                    :placeholder="$t('Status')"
                     clearable
                   />
                 </VCol>
