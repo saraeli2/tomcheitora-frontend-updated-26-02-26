@@ -68,6 +68,10 @@ const submit = async () => {
     formData.append('description', categoryData.value.description)
   }
 
+  if(props.parent) {
+    formData.append('parentId', props.parent)
+  }
+
   formData.append('status', 'Active')
 
   if(props.category._id) {
@@ -198,6 +202,14 @@ const handleImageChange = file => {
               <VCol cols="12">
                 <div class="app-picker-field">
                   <label class="v-label mb-1 text-body-2">Image</label>
+                </div>
+                <div v-if="categoryData?.image">
+                  <v-img
+                    :src="categoryData.image"
+                    alt="Category Image"
+                    width="120"
+                    height="120"
+                  />
                 </div>
                 <VFileInput
                   :rules="rules"

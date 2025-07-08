@@ -30,6 +30,7 @@ const form = ref({
 const isPasswordVisible = ref(false)
 </script>
 
+
 <template>
   <RouterLink to="/">
     <div class="auth-logo d-flex align-center gap-x-3">

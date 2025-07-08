@@ -110,7 +110,7 @@ onMounted( async () => {
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: 'Distribution Managers', to: { name: 'admin-distribution-managers' }, class: 'text-primary' }, { title: 'Admin Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
+            :items="[{ title: 'Distribution Managers', to: { name: 'admin-distribution-managers' }, class: 'text-primary' }, { title: 'Distribution Manager Details of ' + adminData.firstName + ' ' + adminData.lastName }]"
           />
         </VCol>
       </VRow>
@@ -120,7 +120,7 @@ onMounted( async () => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          Admin ID #{{ route.params.id }}
+          Distribution Manager ID #{{ route.params.id }}
         </h4>
         <div class="text-body-1">
           Created At: {{ formatDateWithTime(adminData.createdAt) }}, Updated At: {{ formatDateWithTime(adminData.updatedAt) }}
@@ -133,7 +133,7 @@ onMounted( async () => {
           color="error"
           @click="deleteAdmin"
         >
-          Delete Admin
+          Delete Distribution Manager
         </VBtn>
       </div>
     </div>
@@ -165,13 +165,6 @@ onMounted( async () => {
         >
           <VWindowItem>
             <VCard v-if="adminData">
-              <VCardText class="text-center pt-12">
-                <!-- 👉 Customer fullName -->
-                <div class="text-body-1">
-                  Admin ID #{{ adminData._id }}
-                </div>
-              </VCardText>
-
               <!-- 👉 Customer Details -->
               <VCardText>
                 <h5 class="text-h5">
@@ -181,6 +174,14 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <VList class="card-list mt-2">
+                  <VListItem>
+                    <h6 class="text-h6">
+                      ID:
+                      <span class="text-body-1 d-inline-block">
+                        #{{ adminData._id }}
+                      </span>
+                    </h6>
+                  </VListItem>
                   <VListItem>
                     <h6 class="text-h6">
                       First Name:
@@ -335,7 +336,7 @@ onMounted( async () => {
                   block
                   @click="isAdminDialogVisible = !isAdminDialogVisible"
                 >
-                  Edit Admin
+                  Edit Distribution Manager
                 </VBtn>
               </VCardText>
 
@@ -360,7 +361,7 @@ onMounted( async () => {
         type="error"
         variant="tonal"
       >
-        Admin with ID  {{ route.params.id }} not found!
+        Distribution Manager with ID  {{ route.params.id }} not found!
       </VAlert>
     </div>
     

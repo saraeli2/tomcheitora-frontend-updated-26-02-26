@@ -50,9 +50,17 @@ const confirmPassword = ref('')
 const isNewPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
 const adminData = ref(structuredClone(toRaw(props.admin)))
+const adminRole = ref()
+
+if(props.roles){
+  adminRole.value = props.roles.find(role => role.title === 'DSM')?.value ?? null
+}
+
 
 if(props.admin.roles.length > 0) {
   adminData.value.roles = props.admin.roles.map(role => role._id)
+}else{
+  adminData.value.roles = adminRole.value
 }
 
 // 👉 drawer close
