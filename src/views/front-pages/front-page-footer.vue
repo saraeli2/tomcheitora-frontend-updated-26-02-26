@@ -22,10 +22,7 @@ const pagesList = [
     name: 'Personal Care',
     to: { name: 'front-pages-checkout' },
   },
-  {
-    name: 'Help Health & Wellness',
-    to: { name: 'front-pages-help-center' },
-  },
+  
   {
     name: 'Home & Kitchen',
     to: { name: 'pages-authentication-login-v2' },

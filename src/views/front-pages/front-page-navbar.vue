@@ -43,10 +43,7 @@ const menuItems = [
         name: 'Checkout',
         to: { name: 'front-pages-checkout' },
       },
-      {
-        name: 'Help Center',
-        to: { name: 'front-pages-help-center' },
-      },
+      
     ],
   },
   
