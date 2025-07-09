@@ -3,6 +3,7 @@ import { useWindowScroll } from '@vueuse/core'
 import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 import { useDisplay } from 'vuetify'
 import navImg from '@images/front-pages/misc/nav-item-col-img.png'
+import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 
@@ -31,6 +32,10 @@ const menuItems = [
         to: { name: 'front-pages-pricing' },
       },
       {
+        name: 'Shop',
+        to: { name: 'front-pages-shop' },
+      },
+      {
         name: 'Payment',
         to: { name: 'front-pages-payment' },
       },
@@ -44,6 +49,8 @@ const menuItems = [
       },
     ],
   },
+  
+  
 ]
 
 const isCurrentRoute = to => {
@@ -72,70 +79,34 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
       <!-- Nav items -->
       <div>
         <div class="d-flex flex-column gap-y-4 pa-4">
+
           <RouterLink
-            v-for="(item, index) in ['Home', 'Features', 'Team', 'FAQ', 'Contact us']"
-            :key="index"
-            :to="{ name: 'front-pages-landing-page', hash: `#${item.toLowerCase().replace(' ', '-')}` }"
-            class="nav-link font-weight-medium"
-            :class="[props.activeId?.toLocaleLowerCase().replace('-', ' ') === item.toLocaleLowerCase() ? 'active-link' : '']"
+            to="#"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            {{ item }}
+            Home
           </RouterLink>
 
-          <div class="font-weight-medium cursor-pointer">
-            <div
-              :class="[isMenuOpen ? 'mb-6 active-link' : '', isPageActive ? 'active-link' : '']"
-              style="color: rgba(var(--v-theme-on-surface));"
-              class="page-link"
-              @click="isMenuOpen = !isMenuOpen"
-            >
-              Pages <VIcon :icon="isMenuOpen ? 'tabler-chevron-up' : 'tabler-chevron-down'" />
-            </div>
+          <RouterLink
+            to="#"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            About Us
+          </RouterLink>
 
-            <div
-              class="px-4"
-              :class="isMenuOpen ? 'd-block' : 'd-none'"
-            >
-              <div
-                v-for="(item, index) in menuItems"
-                :key="index"
-              >
-                <div class="d-flex align-center gap-x-3 mb-4">
-                  <VAvatar
-                    variant="tonal"
-                    color="primary"
-                    rounded
-                    :icon="item.listIcon"
-                  />
-                  <div class="text-body-1 text-high-emphasis font-weight-medium">
-                    {{ item.listTitle }}
-                  </div>
-                </div>
-                <ul class="mb-6">
-                  <li
-                    v-for="listItem in item.navItems"
-                    :key="listItem.name"
-                    style="list-style: none;"
-                    class="text-body-1 mb-4 text-no-wrap"
-                  >
-                    <RouterLink
-                      :to="listItem.to"
-                      :target="item.listTitle === 'Page' ? '_self' : '_blank'"
-                      class="mega-menu-item"
-                      :class="isCurrentRoute(listItem.to) ? 'active-link' : 'text-high-emphasis'"
-                    >
-                      <VIcon
-                        icon="tabler-circle"
-                        :size="10"
-                        class="me-2"
-                      />
-                      <span>  {{ listItem.name }}</span>
-                    </RouterLink>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <RouterLink
+            to="/front-pages/shop"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            Shop
+          </RouterLink>
+
+          <RouterLink
+            to="/front-pages/checkout"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            Checkout
+          </RouterLink>
         </div>
       </div>
 
@@ -178,7 +149,11 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
               :class="$vuetify.display.mdAndUp ? 'd-none' : 'd-block'"
             >
               <div class="app-logo">
-                <VNodeRenderer :nodes="themeConfig.app.logo" />
+                <div class="logo-block">
+                  <v-img
+                        src="/images/logo.svg"
+                      ></v-img>
+                </div>
                 <h1 class="app-logo-title">
                   {{ themeConfig.app.title }}
                 </h1>
@@ -189,35 +164,73 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
           <!-- landing page sections -->
           <div class="text-base align-center d-none d-md-flex">
             <RouterLink
-              to="/"
-              target="_blank"
-              class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-            >
-              Home
-            </RouterLink>
+            to="#"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            Home
+          </RouterLink>
 
-            <RouterLink
-              to="/shop"
-              class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-            >
-              Shop
-            </RouterLink>
-            <RouterLink
-              to="/cart"
-              class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-            >
-              Cart
-            </RouterLink>
-            <RouterLink
-              to="/checkout"
-              class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-            >
-              Checkout
-            </RouterLink>
+          <RouterLink
+            to="#"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            About Us
+          </RouterLink>
+
+          <RouterLink
+            to="/front-pages/shop"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            Shop
+          </RouterLink>
+
+          <RouterLink
+            to="/front-pages/checkout"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            Checkout
+          </RouterLink>
           </div>
         </div>
 
         <VSpacer />
+
+        <div class="d-flex gap-x-4 hdr-top-right">
+
+          <VBtn
+            v-if="$vuetify.display.lgAndUp"
+            prepend-icon="tabler-shopping-cart"
+            variant="elevated"
+            color="primary"
+            href="/front-pages/checkout"
+            rel="noopener noreferrer"
+          >
+            Cart
+          </VBtn>
+          <VBtn
+            v-if="$vuetify.display.lgAndUp"
+            prepend-icon="tabler-user-circle"
+            variant="elevated"
+            color="primary"
+            href="/front-pages/my-account/account"
+            rel="noopener noreferrer"
+          >
+            My Account
+          </VBtn>
+
+          <VBtn
+            v-else
+            rounded
+            icon
+            variant="elevated"
+            color="primary"
+            href="https://1.envato.market/vuexy_admin"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <VIcon icon="tabler-shopping-cart" />
+          </VBtn>
+        </div>
       </VAppBar>
     </div>
   </div>

@@ -176,9 +176,9 @@ watch(() => props.currentStep, updateCartData)
         style="border: 1px solid rgb(var(--v-theme-primary));"
       >
         <a
-          href="#"
+          href="/front-pages/shop"
           class="font-weight-medium"
-        >Add more products from wishlist</a>
+        >Add more products</a>
         <VIcon
           icon="tabler-arrow-right"
           size="16"

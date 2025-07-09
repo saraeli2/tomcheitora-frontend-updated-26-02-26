@@ -97,6 +97,13 @@ const currentStep = ref(0)
 <template>
   <div class="checkout-page">
     <Navbar />
+    <div class="subpage-banner landing-hero landing-hero-light-bg">
+      <VContainer>
+        <VCardText class="text-center subpage-tittle">
+          <h2>Checkout</h2>
+        </VCardText>
+      </VContainer>
+    </div>
     <VContainer>
       <div class="checkout-card">
         <VCard>

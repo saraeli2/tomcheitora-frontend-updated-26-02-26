@@ -10,47 +10,47 @@ const footerBg = useGenerateImageVariant(footerLightBg, footerDarkBg)
 
 const pagesList = [
   {
-    name: 'Pricing',
+    name: 'Summer Collection',
     to: { name: 'front-pages-pricing' },
   },
   {
-    name: 'Payment',
+    name: 'Flash Sales ',
     to: { name: 'front-pages-payment' },
     isNew: true,
   },
   {
-    name: 'Checkout',
+    name: 'Personal Care',
     to: { name: 'front-pages-checkout' },
   },
   {
-    name: 'Help Center',
+    name: 'Help Health & Wellness',
     to: { name: 'front-pages-help-center' },
   },
   {
-    name: 'Login/Register',
+    name: 'Home & Kitchen',
     to: { name: 'pages-authentication-login-v2' },
   },
 ]
 
 const demoList = [
   {
-    title: 'Vertical Layout',
+    title: 'Home',
     to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-1/dashboards/analytics',
   },
   {
-    title: 'Horizontal Layout',
+    title: 'About Us',
     to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-5/dashboards/analytics',
   },
   {
-    title: 'Bordered Layout',
+    title: 'Contact',
     to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-2/dashboards/analytics',
   },
   {
-    title: 'Semi Dark Layout',
+    title: 'Terms & Conditions',
     to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-3/dashboards/analytics',
   },
   {
-    title: 'Dark Layout',
+    title: 'Privacy Policy',
     to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-4/dashboards/analytics',
   },
 ]
@@ -68,13 +68,18 @@ const demoList = [
           <VCol
             cols="12"
             md="5"
+            class="custom-ftr-col"
           >
             <div
               class="mb-4"
               :class="$vuetify.display.smAndDown ? 'w-100' : 'w-75'"
             >
               <div class="app-logo mb-6">
-                <VNodeRenderer :nodes="themeConfig.app.logo" />
+                <div class="logo-block">
+                  <v-img
+                    src="/images/logo-theme.svg"
+                  ></v-img>
+                </div>
                 <h1 class="app-logo-title text-white">
                   {{ themeConfig.app.title }}
                 </h1>
@@ -100,13 +105,13 @@ const demoList = [
 
           <!-- 👉 Demos -->
           <VCol
-            md="2"
+            md="4"
             sm="4"
             xs="6"
           >
             <div class="footer-links">
               <h6 class="footer-title text-h6 mb-6">
-                Demos
+                Links
               </h6>
               <ul style="list-style: none;">
                 <li
@@ -129,13 +134,13 @@ const demoList = [
 
           <!-- 👉 Pages  -->
           <VCol
-            md="2"
+            md="3"
             sm="4"
             xs="6"
           >
             <div class="footer-links">
               <h6 class="footer-title text-h6 mb-6">
-                Pages
+                Category
               </h6>
               <ul style="list-style: none;">
                 <li
@@ -166,51 +171,7 @@ const demoList = [
           </VCol>
 
           <!-- 👉 Download App -->
-          <VCol
-            cols="12"
-            md="3"
-            sm="4"
-          >
-            <div>
-              <h6 class="footer-title text-h6 mb-6">
-                Download our app
-              </h6>
-
-              <div>
-                <VBtn
-                  v-for="(item, index) in [
-                    { image: appleImg, store: 'App Store' },
-                    { image: googlePlayImg, store: 'Google Play' },
-                  ]"
-                  :key="index"
-                  color="#282c3e"
-                  height="56"
-                  class="mb-4 d-block"
-                >
-                  <template #default>
-                    <div class="d-flex align-center gap-x-8 footer-logo-buttons">
-                      <VImg
-                        :src="item.image"
-                        height="34"
-                        width="34"
-                      />
-                      <div class="d-flex flex-column justify-content-start">
-                        <div :class="$vuetify.theme.current.dark ? 'text-body-2' : 'text-white-variant text-body-2'">
-                          Download on the
-                        </div>
-                        <h6
-                          class="text-h6 text-start"
-                          :class="$vuetify.theme.current.dark ? 'text-body-1' : 'footer-title'"
-                        >
-                          {{ item.store }}
-                        </h6>
-                      </div>
-                    </div>
-                  </template>
-                </VBtn>
-              </div>
-            </div>
-          </VCol>
+          
         </VRow>
       </VContainer>
     </div>
@@ -228,7 +189,7 @@ const demoList = [
               target="_blank"
               rel="noopener noreferrer"
               class="font-weight-bold ms-1 text-white"
-            >Pixinvent</a>,
+            >Tomcheitora</a>,
             Made With ❤️ for a better web.
           </div>
 
