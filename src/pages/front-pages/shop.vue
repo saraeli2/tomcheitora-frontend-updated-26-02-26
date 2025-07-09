@@ -130,7 +130,7 @@ const faqs = [
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
         <VCardText class="text-center subpage-tittle">
-          <h2>Product List</h2>
+          <h2>{{ $t('Product List') }}</h2>
         </VCardText>
       </VContainer>
     </div>
@@ -139,14 +139,14 @@ const faqs = [
         <VRow class="filter-area">
           <VCol cols="12" md="4" sm="4" lg="4">
             <div class="filter-btn">
-              <VBtn prepend-icon="tabler-filter" color="primary" @click="isFilterDialogOpen = true">Filter</VBtn>
+              <VBtn prepend-icon="tabler-filter" color="primary" @click="isFilterDialogOpen = true">{{ $t('Filter') }}</VBtn>
             </div>
           </VCol>
           <VCol cols="12" md="8" sm="8" lg="4">
             <div class="product-search">
               <AppTextField
                 v-model="firstName"
-                placeholder="Product Search"
+                :placeholder="$t('Search Product')"
                 class="search-input-custom"
               />
               <div class="search-btn-th">

@@ -81,28 +81,28 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
             to="#"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            Home
+            {{ $t('Home') }}
           </RouterLink>
 
           <RouterLink
             to="#"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            About Us
+            {{ $t('About Us') }}
           </RouterLink>
 
           <RouterLink
             to="/front-pages/shop"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            Shop
+            {{ $t('Shop') }}
           </RouterLink>
 
           <RouterLink
             to="/front-pages/checkout"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            Checkout
+            {{ $t('Checkout') }}
           </RouterLink>
         </div>
       </div>
@@ -164,28 +164,28 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
             to="#"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            Home
+            {{ $t('Home') }}
           </RouterLink>
 
           <RouterLink
             to="#"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            About Us
+            {{ $t('About Us') }}
           </RouterLink>
 
           <RouterLink
             to="/front-pages/shop"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            Shop
+            {{ $t('Shop') }}
           </RouterLink>
 
           <RouterLink
             to="/front-pages/checkout"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
-            Checkout
+            {{ $t('Checkout') }}
           </RouterLink>
           </div>
         </div>
@@ -202,7 +202,7 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
             href="/front-pages/checkout"
             rel="noopener noreferrer"
           >
-            Cart
+            {{ $t('Cart') }}
           </VBtn>
           <VBtn
             v-if="$vuetify.display.lgAndUp"
@@ -212,7 +212,7 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
             href="/front-pages/my-account/account"
             rel="noopener noreferrer"
           >
-            My Account
+            {{ $t('My Account') }}
           </VBtn>
 
           <VBtn
