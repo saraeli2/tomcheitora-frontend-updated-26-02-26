@@ -26,7 +26,7 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
         {
           label: 'Hebrew',
           i18nLang: 'he',
-          isRTL: false,
+          isRTL: true,
         },
       ],
     },
