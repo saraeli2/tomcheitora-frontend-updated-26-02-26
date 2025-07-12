@@ -42,13 +42,25 @@ const {
 
 const adminData = computed(() => adminDetail.value)
 
-const commonsync = await $api('/admin/roles/respond-with/extra-options').catch(err => console.log(err))
+const commonsync = await $api('/admin/roles/respond-with/extra-options', {
+  query: {
+    type: 'Admin',
+  }
+}).catch(err => console.log(err))
 
 const roleOptions = computed(() => commonsync.roleOptions)
 
 const roles = roleOptions.value.map(item => ({
   value: item._id,
   title: item.name,
+}))
+
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
 }))
 
 const reloadTab = ref(true)
@@ -211,18 +223,9 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('City ID') }}:
+                      {{ $t('City') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ adminData.cityId }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('City Name') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ adminData.cityName }}
+                        {{ adminData.cityID ? adminData.cityID.nameHe : '' }}
                       </span>
                     </h6>
                   </VListItem>
@@ -368,6 +371,7 @@ onMounted( async () => {
       v-model:is-drawer-open="isAdminDialogVisible"
       v-model:admin="adminData"
       v-model:roles="roles"
+      v-model:cities="cities"
       @user-data="modifyAdmin"
     />
   </div>

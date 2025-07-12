@@ -7,54 +7,33 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  admins: {
-    type: Object,
-    required: true,
-  },
-  cities: {
-    type: Object,
-    required: true,
-  },
-  station: {
+  city: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      name: '',
-      neighbourhood: '',
-      cityID: '',
-      street: '',
-      houseNumber: '',
+      cityId: '',
+      nameEn: '',
+      nameHe: '',
+      regionID: '',
+      regionName: '',
       status: 'Active',
-      admins: [],
     }),
   },
 })
 
 const emit = defineEmits([
   'update:isDrawerOpen',
-  'admins',
-  'cities',
   'userData',
-  'station',
+  'city',
 ])
 
 const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const stationData = ref(structuredClone(toRaw(props.station)))
-
-if(props.station._id) {
-  if(props.station.admins.length > 0) {
-    stationData.value.admins = props.station.admins.map(admin => admin._id)
-  }
-  
-  if(props.station.cityID) {
-    stationData.value.cityID = props.station.cityID._id
-  }
-}
+const cityData = ref(structuredClone(toRaw(props.city)))
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -67,33 +46,31 @@ const closeNavigationDrawer = () => {
 
 const submit = async () => {
   try {
-    if(props.station._id) {
-      const res = await $api(`/admin/stations/${ props.station._id }`, {
+    if(props.city._id) {
+      const res = await $api(`/admin/settings/cities/${ props.city._id }`, {
         method: 'PATCH',
         body: {
-          name: stationData.value.name,
-          neighbourhood: stationData.value.neighbourhood,
-          cityID: stationData.value.cityID,
-          street: stationData.value.street,
-          houseNumber: stationData.value.houseNumber,
-          status: stationData.value.status,
-          admins: stationData.value.admins,
+          cityId: cityData.value.cityId,
+          nameEn: cityData.value.nameEn,
+          nameHe: cityData.value.nameHe,
+          regionID: cityData.value.regionID,
+          regionName: cityData.value.regionName,
+          status: cityData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
     } else {
-      const res = await $api(`/admin/stations`, {
+      const res = await $api(`/admin/settings/cities`, {
         method: 'POST',
         body: {
-          name: stationData.value.name,
-          neighbourhood: stationData.value.neighbourhood,
-          cityID: stationData.value.cityID,
-          street: stationData.value.street,
-          houseNumber: stationData.value.houseNumber,
-          status: stationData.value.status,
-          admins: stationData.value.admins,
+          cityId: cityData.value.cityId,
+          nameEn: cityData.value.nameEn,
+          nameHe: cityData.value.nameHe,
+          regionID: cityData.value.regionID,
+          regionName: cityData.value.regionName,
+          status: cityData.value.status,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -106,7 +83,7 @@ const submit = async () => {
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
-      if(props.station._id) {
+      if(props.city._id) {
         toast.success("Successfully updated")
       } else {
         toast.success("Successfully saved")
@@ -130,12 +107,12 @@ const handleDrawerModelValueUpdate = val => {
 }
 
 const errors = ref({
-  name: undefined,
-  neighbourhood: undefined,
+  cityId: undefined,
+  nameEn: undefined,
+  nameHe: undefined,
+  regionID: undefined,
+  regionName: undefined,
   status: undefined,
-  street: undefined,
-  houseNumber: undefined,
-  admins: undefined,
 })
 </script>
 
@@ -150,13 +127,13 @@ const errors = ref({
   >
     <!-- 👉 Title -->
     <AppDrawerHeaderSection
-      v-if="props.station._id"
-      :title="$t('Edit Station')"
+      v-if="props.city._id"
+      :title="$t('Edit City')"
       @cancel="closeNavigationDrawer"
     />
     <AppDrawerHeaderSection
       v-else
-      :title="$t('Create Station')"
+      :title="$t('Create City')"
       @cancel="closeNavigationDrawer"
     />
 
@@ -172,77 +149,63 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Admin -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="stationData.admins"
-                  :items="props.admins"
-                  :placeholder="$t('Select Distribution Manager')"
-                  :label="$t('Distribution Manager')"
-                  multiple
-                  :error-messages="errors.admins"
-                  clearable
-                />
-              </VCol>
-
-              <!-- 👉 Name -->
+              <!-- 👉 ID -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="stationData.name"
+                  v-model="cityData.cityId"
+                  :rules="[numericValidator]"
+                  :label="$t('ID')"
+                  :placeholder="$t('ID')"
+                  :error-messages="errors.cityId"
+                />
+              </VCol>
+              
+              <!-- 👉 Name (Hebrew) -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="cityData.nameHe"
                   :rules="[requiredValidator]"
-                  :label="$t('Name')"
-                  :placeholder="$t('Name')"
-                  :error-messages="errors.name"
+                  :label="$t('Name (Hebrew)')"
+                  :placeholder="$t('Name (Hebrew)')"
+                  :error-messages="errors.nameHe"
                 />
               </VCol>
-
-              <!-- 👉 Neighbourhood -->
+              
+              <!-- 👉 Name (English) -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="stationData.neighbourhood"
-                  :rules="[requiredValidator]"
-                  :label="$t('Neighbourhood')"
-                  :placeholder="$t('Neighbourhood')"
-                  :error-messages="errors.neighbourhood"
+                  v-model="cityData.nameEn"
+                  :label="$t('Name (English)')"
+                  :placeholder="$t('Name (English)')"
+                  :error-messages="errors.nameEn"
                 />
               </VCol>
-
-              <!-- 👉 City -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="stationData.cityID"
-                  :items="props.cities"
-                  :label="$t('City')"
-                  :placeholder="$t('Select City')"
-                  :error-messages="errors.cityID"
-                  clearable
-                />
-              </VCol>
-
-              <!-- 👉 Street -->
+              
+              <!-- 👉 Title -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="stationData.street"
-                  :label="$t('Street')"
-                  :placeholder="$t('Street')"
-                  :error-messages="errors.street"
+                  v-model="cityData.regionID"
+                  :rules="[numericValidator]"
+                  :label="$t('Region ID')"
+                  :placeholder="$t('Region ID')"
+                  :error-messages="errors.regionID"
                 />
               </VCol>
 
-              <!-- 👉 House Number -->
+              <!-- 👉 Title -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="stationData.houseNumber"
-                  :label="$t('House Number')"
-                  :placeholder="$t('House Number')"
-                  :error-messages="errors.houseNumber"
+                  v-model="cityData.regionName"
+                  :label="$t('Region Name')"
+                  :placeholder="$t('Region Name')"
+                  :error-messages="errors.regionName"
                 />
               </VCol>
 
               <!-- 👉 status -->
               <VCol cols="12">
                 <AppAutocomplete
-                  v-model="stationData.status"
+                  v-model="cityData.status"
                   :rules="[requiredValidator]"
                   :items="[
                     { value: 'Active', title: 'Active' },

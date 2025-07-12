@@ -8,7 +8,7 @@ definePage({
   },
 })
 
-import AddNewUserDrawer from '@/views/admin/users/AddNewUserDrawer.vue'
+import AddNewUserDialog from '@/views/admin/users/AddNewUserDialog.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -20,6 +20,7 @@ const israeliIDNumber = ref('')
 const passportNumber = ref('')
 const selectedCommunity = ref()
 const selectedStatus = ref()
+const selectedCity = ref()
 const selectedRows = ref([])
 
 // Data table options
@@ -28,7 +29,7 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const isUserDialogVisible = ref(false)
-const isAddNewUserDrawerVisible = ref(false)
+const isAddNewUserDialogVisible = ref(false)
 const userDetail = ref()
 const panel = ref()
 
@@ -59,12 +60,8 @@ const headers = computed(() => [
     key: 'phone',
   },
   {
-    title: t('City ID'),
-    key: 'cityId',
-  },
-  {
-    title: t('City Name'),
-    key: 'cityName',
+    title: t('City'),
+    key: 'cityID',
   },
   {
     title: t('Street'),
@@ -123,6 +120,7 @@ const {
     israeliIDNumber: israeliIDNumber,
     passportNumber: passportNumber,
     status: selectedStatus,
+    cityID: selectedCity,
     communityID: selectedCommunity,
     itemsPerPage,
     page,
@@ -149,6 +147,14 @@ const handleUpdatedCommunities = async () => {
   }
 }
 
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
+
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
     return {
@@ -171,7 +177,6 @@ const editUser = async value => {
   const data = await $api(`/admin/users/${ value._id }`).catch(err => console.log(err))
 
   userDetail.value = data
-  userDetail.value.communityID = userDetail.value.communityID._id
   
   isUserDialogVisible.value = true
 }
@@ -240,7 +245,7 @@ onMounted(async () => {
           <VBtn
             v-if="can('admin-create-users', 'Create Users')"
             prepend-icon="tabler-plus"
-            @click="isAddNewUserDrawerVisible = true"
+            @click="isAddNewUserDialogVisible = true"
           >
             {{ $t('Create User') }}
           </VBtn>
@@ -270,6 +275,18 @@ onMounted(async () => {
                     v-model="selectedCommunity"
                     :items="communities"
                     :placeholder="$t('Community')"
+                    clearable
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCity"
+                    :items="cities"
+                    :placeholder="$t('City')"
                     clearable
                   />
                 </VCol>
@@ -371,14 +388,9 @@ onMounted(async () => {
           {{ item.phone }}
         </template>
 
-        <!-- cityId -->
-        <template #[`item.cityId`]="{ item }">
-          {{ item.cityId }}
-        </template>
-
-        <!-- cityName -->
-        <template #[`item.cityName`]="{ item }">
-          {{ item.cityName }}
+        <!-- cityID -->
+        <template #[`item.cityID`]="{ item }">
+          {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
         <!-- street -->
@@ -485,20 +497,22 @@ onMounted(async () => {
     <!-- !SECTION -->
     </VCard>
 
-    <AddNewUserDrawer
-      v-if="isAddNewUserDrawerVisible"
-      v-model:is-drawer-open="isAddNewUserDrawerVisible"
+    <AddNewUserDialog
+      v-if="isAddNewUserDialogVisible"
+      v-model:is-dialog-visible="isAddNewUserDialogVisible"
       v-model:communities="communities"
       @communities="handleUpdatedCommunities"
+      v-model:cities="cities"
       @user-data="modifyUser"
     />
 
-    <AddNewUserDrawer
+    <AddNewUserDialog
       v-if="isUserDialogVisible"
-      v-model:is-drawer-open="isUserDialogVisible"
+      v-model:is-dialog-visible="isUserDialogVisible"
       v-model:communities="communities"
       v-model:user="userDetail"
       @communities="handleUpdatedCommunities"
+      v-model:cities="cities"
       @user-data="modifyUser"
     />
   </section>

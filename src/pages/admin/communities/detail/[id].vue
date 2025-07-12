@@ -8,8 +8,7 @@ definePage({
   },
 })
 
-import ContactInformationModule from '@/pages/admin/settings/contact-informations.vue'
-import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
+import AddNewCommunityDialog from '@/views/admin/communities/AddNewCommunityDialog.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -41,9 +40,17 @@ const {
 
 const communityData = computed(() => communityDetail.value)
 
+const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsync.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
+
 const reloadTab = ref(true)
 
-const modifyCommunity = async userData => {
+const modifyCommunity = async updateData => {
   // refetch Organization
   fetchCommunities()
 }
@@ -146,15 +153,6 @@ onMounted( async () => {
             />
             {{ $t('Details') }}
           </VTab>
-
-          <VTab>
-            <VIcon
-              size="20"
-              start
-              icon="tabler-bookmarks"
-            />
-            {{ $t('Contact Informations') }}
-          </VTab>
         </VTabs>
 
         <VWindow
@@ -184,18 +182,9 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('City ID') }}:
+                      {{ $t('City') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.cityId }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('City Name') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ communityData.cityName }}
+                        {{ communityData.cityID ? communityData.cityID.nameHe : '' }}
                       </span>
                     </h6>
                   </VListItem>
@@ -237,18 +226,18 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('Discount Type') }}:
+                      {{ $t('Discount in %') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.discountType }}
+                        {{ communityData.discountPercentage ?? '' }}
                       </span>
                     </h6>
                   </VListItem>
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('Delivery Charge') }}:
+                      {{ $t('Discount Fixed Number') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ communityData.discount ?? '' }}
+                        {{ communityData.discountFixed }}
                       </span>
                     </h6>
                   </VListItem>
@@ -309,6 +298,120 @@ onMounted( async () => {
                 </VList>
               </VCardText>
 
+              <VCardText>
+                <VDivider class="my-4" />
+
+                <h5 class="text-h5">
+                  {{ $t('Contact information 1') }}
+                </h5>
+
+                <VDivider class="my-4" />
+
+                <VList class="card-list mt-2">
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('First Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo1.firstName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Last Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo1.lastName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 1') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo1.phone1 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 2') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo1.phone2 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Email') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo1.email }}
+                      </span>
+                    </h6>
+                  </VListItem>
+                </VList>
+              </VCardText>
+
+              <VCardText>
+                <VDivider class="my-4" />
+
+                <h5 class="text-h5">
+                  {{ $t('Contact information 2') }}
+                </h5>
+
+                <VDivider class="my-4" />
+
+                <VList class="card-list mt-2">
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('First Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo2.firstName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Last Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo2.lastName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 1') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo2.phone1 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 2') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo2.phone2 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Email') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ communityData.contactInfo2.email }}
+                      </span>
+                    </h6>
+                  </VListItem>
+                </VList>
+              </VCardText>
+
               <VCardText
                 v-if="can('admin-update-communities', 'Update Community')"
                 class="text-center"
@@ -322,14 +425,6 @@ onMounted( async () => {
               </VCardText>
             </VCard>
           </VWindowItem>
-
-          <VWindowItem>
-            <ContactInformationModule
-              :morphableid="route.params.id"
-              morphabletype="Community"
-              @tab-data="refreshTab"
-            />
-          </VWindowItem>
         </VWindow>
       </VCol>
     </VRow>
@@ -342,11 +437,12 @@ onMounted( async () => {
       </VAlert>
     </div>
 
-    <AddNewCommunityDrawer
+    <AddNewCommunityDialog
       v-if="isCommunityDialogVisible"
-      v-model:is-drawer-open="isCommunityDialogVisible"
+      v-model:is-dialog-visible="isCommunityDialogVisible"
       v-model:community="communityData"
-      @user-data="modifyCommunity"
+      v-model:cities="cities"
+      @update-data="modifyCommunity"
     />
   </div>
 </template>

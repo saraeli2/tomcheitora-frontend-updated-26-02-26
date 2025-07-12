@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-products', 'admin-create-products'],
@@ -8,7 +9,7 @@ definePage({
   },
 })
 
-import AddNewProductDrawer from '@/views/admin/products/AddNewProductDrawer.vue'
+import AddNewProductDialog from '@/views/admin/products/AddNewProductDialog.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -31,7 +32,7 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const isProductDialogVisible = ref(false)
-const isAddNewProductDrawerVisible = ref(false)
+const isAddNewProductDialogVisible = ref(false)
 const productDetail = ref()
 const panel = ref()
 
@@ -284,7 +285,7 @@ onMounted(async () => {
           <VBtn
             v-if="can('admin-create-products', 'Create Products')"
             prepend-icon="tabler-plus"
-            @click="isAddNewProductDrawerVisible = true"
+            @click="isAddNewProductDialogVisible = true"
           >
             {{ $t('Create Product') }}
           </VBtn>
@@ -578,9 +579,9 @@ onMounted(async () => {
     <!-- !SECTION -->
     </VCard>
 
-    <AddNewProductDrawer
-      v-if="isAddNewProductDrawerVisible"
-      v-model:is-drawer-open="isAddNewProductDrawerVisible"
+    <AddNewProductDialog
+      v-if="isAddNewProductDialogVisible"
+      v-model:is-dialog-visible="isAddNewProductDialogVisible"
       v-model:manufacturers="manufacturers"
       v-model:suppliers="suppliers"
       v-model:certifications="certifications"
@@ -594,9 +595,9 @@ onMounted(async () => {
       @user-data="modifyProduct"
     />
 
-    <AddNewProductDrawer
+    <AddNewProductDialog
       v-if="isProductDialogVisible"
-      v-model:is-drawer-open="isProductDialogVisible"
+      v-model:is-dialog-visible="isProductDialogVisible"
       v-model:product="productDetail"
       v-model:manufacturers="manufacturers"
       v-model:suppliers="suppliers"

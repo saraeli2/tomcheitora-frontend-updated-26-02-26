@@ -10,6 +10,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  cities: {
+    type: Object,
+    required: true,
+  },
   station: {
     type: Object,
     required: false,
@@ -18,8 +22,7 @@ const props = defineProps({
       _id: '',
       name: '',
       neighbourhood: '',
-      cityId: '',
-      cityName: '',
+      cityID: '',
       street: '',
       houseNumber: '',
       status: 'Active',
@@ -31,6 +34,7 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDialogVisible',
   'admins',
+  'cities',
   'updateData',
   'station',
 ])
@@ -41,8 +45,14 @@ const isFormValid = ref(false)
 const refForm = ref()
 const stationData = ref(structuredClone(toRaw(props.station)))
 
-if(props.station.admins.length > 0) {
-  stationData.value.admins = props.station.admins.map(admin => admin._id)
+if(props.station._id) {
+  if(props.station.admins.length > 0) {
+    stationData.value.admins = props.station.admins.map(admin => admin._id)
+  }
+  
+  if(props.station.cityID) {
+    stationData.value.cityID = props.station.cityID._id
+  }
 }
 
 // 👉 drawer close
@@ -62,8 +72,7 @@ const submit = async () => {
         body: {
           name: stationData.value.name,
           neighbourhood: stationData.value.neighbourhood,
-          cityId: stationData.value.cityId,
-          cityName: stationData.value.cityName,
+          cityID: stationData.value.cityID,
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
@@ -79,8 +88,7 @@ const submit = async () => {
         body: {
           name: stationData.value.name,
           neighbourhood: stationData.value.neighbourhood,
-          cityId: stationData.value.cityId,
-          cityName: stationData.value.cityName,
+          cityID: stationData.value.cityID,
           street: stationData.value.street,
           houseNumber: stationData.value.houseNumber,
           status: stationData.value.status,
@@ -125,7 +133,6 @@ const errors = ref({
   name: undefined,
   neighbourhood: undefined,
   status: undefined,
-  cityName: undefined,
   street: undefined,
   houseNumber: undefined,
   admins: undefined,
@@ -191,23 +198,15 @@ const errors = ref({
               />
             </VCol>
 
-            <!-- 👉 City ID -->
+            <!-- 👉 City -->
             <VCol cols="12">
-              <AppTextField
-                v-model="stationData.cityId"
-                :label="$t('City ID')"
-                :placeholder="$t('City ID')"
-                :error-messages="errors.cityId"
-              />
-            </VCol>
-
-            <!-- 👉 City Name -->
-            <VCol cols="12">
-              <AppTextField
-                v-model="stationData.cityName"
-                :label="$t('City Name')"
-                :placeholder="$t('City Name')"
-                :error-messages="errors.cityName"
+              <AppAutocomplete
+                v-model="stationData.cityID"
+                :items="props.cities"
+                :label="$t('City')"
+                :placeholder="$t('Select City')"
+                :error-messages="errors.cityID"
+                clearable
               />
             </VCol>
 

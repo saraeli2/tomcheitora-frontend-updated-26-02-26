@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-manufacturers', 'admin-create-manufacturers'],
@@ -8,7 +9,7 @@ definePage({
   },
 })
 
-import AddNewManufacturerDrawer from '@/views/admin/manufacturers/AddNewManufacturerDrawer.vue'
+import AddNewManufacturerDialog from '@/views/admin/manufacturers/AddNewManufacturerDialog.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -17,6 +18,7 @@ const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
+const selectedCity = ref()
 const selectedCountry = ref()
 const selectedRows = ref([])
 
@@ -26,7 +28,7 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const isManufacturerDialogVisible = ref(false)
-const isAddNewManufacturerDrawerVisible = ref(false)
+const isAddNewManufacturerDialogVisible = ref(false)
 const manufacturerDetail = ref()
 const panel = ref()
 
@@ -50,7 +52,7 @@ const headers = computed(() => [
   },
   {
     title: t('City'),
-    key: 'city',
+    key: 'cityID',
   },
   {
     title: t('Street'),
@@ -90,6 +92,7 @@ const {
   query: {
     search: searchQuery,
     status: selectedStatus,
+    cityID: selectedCity,
     country: selectedCountry,
     itemsPerPage,
     page,
@@ -103,6 +106,12 @@ const totalManufacturers = computed(() => customerData.value.total)
 
 const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
 const countryOptions = computed(() => commonsync.countryOptions)
+const cityOptions = computed(() => commonsync.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
 
 const countries = countryOptions.value.map(item => ({
   value: item._id,
@@ -122,13 +131,15 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyManufacturer = async userData => {
+const modifyManufacturer = async updateData => {
   // refetch Manufacturer
   fetchManufacturers()
 }
 
 const editManufacturer = async value => {
-  manufacturerDetail.value = value
+  const data = await $api(`/admin/manufacturers/${ value._id }`).catch(err => console.log(err))
+
+  manufacturerDetail.value = data
 
   isManufacturerDialogVisible.value = true
 }
@@ -193,7 +204,7 @@ const deleteManufacturer = async id => {
           <VBtn
             v-if="can('admin-create-manufacturers', 'Create Manufacturers')"
             prepend-icon="tabler-plus"
-            @click="isAddNewManufacturerDrawerVisible = true"
+            @click="isAddNewManufacturerDialogVisible = true"
           >
             {{ $t('Create Manufacturer') }}
           </VBtn>
@@ -232,6 +243,18 @@ const deleteManufacturer = async id => {
                     v-model="selectedCountry"
                     :items="countries"
                     :placeholder="$t('Country')"
+                    clearable
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCity"
+                    :items="cities"
+                    :placeholder="$t('City')"
                     clearable
                   />
                 </VCol>
@@ -288,9 +311,9 @@ const deleteManufacturer = async id => {
           {{ item.countryID ? item.countryID.name : '' }}
         </template>
 
-        <!-- city -->
-        <template #[`item.city`]="{ item }">
-          {{ item.city }}
+        <!-- cityID -->
+        <template #[`item.cityID`]="{ item }">
+          {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
         <!-- street -->
@@ -382,19 +405,20 @@ const deleteManufacturer = async id => {
     <!-- !SECTION -->
     </VCard>
 
-    <AddNewManufacturerDrawer
-      v-if="isAddNewManufacturerDrawerVisible"
-      v-model:is-drawer-open="isAddNewManufacturerDrawerVisible"
+    <AddNewManufacturerDialog
+      v-if="isAddNewManufacturerDialogVisible"
+      v-model:is-dialog-visible="isAddNewManufacturerDialogVisible"
       v-model:countries="countries"
-      @user-data="modifyManufacturer"
+      @update-data="modifyManufacturer"
     />
 
-    <AddNewManufacturerDrawer
+    <AddNewManufacturerDialog
       v-if="isManufacturerDialogVisible"
-      v-model:is-drawer-open="isManufacturerDialogVisible"
+      v-model:is-dialog-visible="isManufacturerDialogVisible"
       v-model:countries="countries"
+      v-model:cities="cities"
       v-model:manufacturer="manufacturerDetail"
-      @user-data="modifyManufacturer"
+      @update-data="modifyManufacturer"
     />
   </section>
 </template>

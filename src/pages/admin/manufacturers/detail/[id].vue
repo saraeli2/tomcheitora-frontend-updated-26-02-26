@@ -8,8 +8,7 @@ definePage({
   },
 })
 
-import ContactInformationModule from '@/pages/admin/settings/contact-informations.vue'
-import AddNewManufacturerDrawer from '@/views/admin/manufacturers/AddNewManufacturerDrawer.vue'
+import AddNewManufacturerDialog from '@/views/admin/manufacturers/AddNewManufacturerDialog.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -43,6 +42,12 @@ const manufacturerData = computed(() => manufacturerDetail.value)
 
 const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
 const countryOptions = computed(() => commonsync.countryOptions)
+const cityOptions = computed(() => commonsync.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
 
 const countries = countryOptions.value.map(item => ({
   value: item._id,
@@ -51,7 +56,7 @@ const countries = countryOptions.value.map(item => ({
 
 const reloadTab = ref(true)
 
-const modifyManufacturer = async userData => {
+const modifyManufacturer = async updateData => {
   // refetch Organization
   fetchManufacturers()
 }
@@ -154,15 +159,6 @@ onMounted( async () => {
             />
             {{ $t('Details') }}
           </VTab>
-
-          <VTab v-if="can('admin-view-contact-informations', 'View Contact Informations')">
-            <VIcon
-              size="20"
-              start
-              icon="tabler-bookmarks"
-            />
-            {{ $t('Contact Informations') }}
-          </VTab>
         </VTabs>
 
         <VWindow
@@ -212,7 +208,7 @@ onMounted( async () => {
                     <h6 class="text-h6">
                       {{ $t('City') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ manufacturerData.city }}
+                        {{ manufacturerData.cityID ? manufacturerData.cityID.nameHe : '' }}
                       </span>
                     </h6>
                   </VListItem>
@@ -291,6 +287,120 @@ onMounted( async () => {
                 </VList>
               </VCardText>
 
+              <VCardText>
+                <VDivider class="my-4" />
+
+                <h5 class="text-h5">
+                  {{ $t('Contact information 1') }}
+                </h5>
+
+                <VDivider class="my-4" />
+
+                <VList class="card-list mt-2">
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('First Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo1.firstName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Last Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo1.lastName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 1') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo1.phone1 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 2') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo1.phone2 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Email') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo1.email }}
+                      </span>
+                    </h6>
+                  </VListItem>
+                </VList>
+              </VCardText>
+
+              <VCardText>
+                <VDivider class="my-4" />
+
+                <h5 class="text-h5">
+                  {{ $t('Contact information 2') }}
+                </h5>
+
+                <VDivider class="my-4" />
+
+                <VList class="card-list mt-2">
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('First Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo2.firstName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Last Name') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo2.lastName }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 1') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo2.phone1 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Phone 2') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo2.phone2 }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Email') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ manufacturerData.contactInfo2.email }}
+                      </span>
+                    </h6>
+                  </VListItem>
+                </VList>
+              </VCardText>
+
               <VCardText
                 v-if="can('admin-update-manufacturers', 'Update Manufacturers')"
                 class="text-center"
@@ -304,14 +414,6 @@ onMounted( async () => {
               </VCardText>
             </VCard>
           </VWindowItem>
-
-          <VWindowItem v-if="can('admin-view-contact-informations', 'View Contact Informations')">
-            <ContactInformationModule
-              :morphableid="route.params.id"
-              morphabletype="Manufacturer"
-              @tab-data="refreshTab"
-            />
-          </VWindowItem>
         </VWindow>
       </VCol>
     </VRow>
@@ -324,12 +426,13 @@ onMounted( async () => {
       </VAlert>
     </div>
 
-    <AddNewManufacturerDrawer
+    <AddNewManufacturerDialog
       v-if="isManufacturerDialogVisible"
-      v-model:is-drawer-open="isManufacturerDialogVisible"
+      v-model:is-dialog-visible="isManufacturerDialogVisible"
       v-model:manufacturer="manufacturerData"
       v-model:countries="countries"
-      @user-data="modifyManufacturer"
+      v-model:cities="cities"
+      @update-data="modifyManufacturer"
     />
   </div>
 </template>

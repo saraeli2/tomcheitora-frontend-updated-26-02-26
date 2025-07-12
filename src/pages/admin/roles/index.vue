@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 const emit = defineEmits([
   'tabData',
 ])
@@ -187,7 +188,7 @@ const resolveStatusVariantAndIcon = status => {
             prepend-icon="tabler-plus"
             @click="isAddNewRoleDrawerVisible = true"
           >
-            {{ $t('Create Roles') }}
+            {{ $t('Create Role') }}
           </VBtn>
         </div>
 

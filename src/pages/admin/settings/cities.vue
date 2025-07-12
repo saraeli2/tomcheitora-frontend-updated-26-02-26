@@ -3,16 +3,14 @@ import { useI18n } from 'vue-i18n'
 
 definePage({
   meta: {
-    action: ['admin-view-quantitytypes', 'admin-create-quantitytypes'],
-    subject: ['View Quantity Types', 'Create Quantity Types'],
-    title: 'Quantity Types',
+    action: ['admin-view-cities', 'admin-create-cities'],
+    subject: ['View Cities', 'Create Cities'],
+    title: 'Cities',
   },
 })
 
-import AddNewQuantitytypeDrawer from '@/views/admin/settings/AddNewQuantitytypeDrawer.vue'
+import AddNewCityDrawer from '@/views/admin/settings/AddNewCityDrawer.vue'
 import { can } from '@layouts/plugins/casl'
-
-const ability = useAbility()
 
 import Swal from 'sweetalert2'
 
@@ -27,9 +25,9 @@ const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isQuantitytypeDialogVisible = ref(false)
-const isAddNewQuantitytypeDrawerVisible = ref(false)
-const quantitytypeDetail = ref()
+const isCityDialogVisible = ref(false)
+const isAddNewCityDrawerVisible = ref(false)
+const cityDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -39,12 +37,24 @@ const updateOptions = options => {
 
 const headers = computed(() => [
   {
-    title: t('Name'),
-    key: 'name',
+    title: t('ID'),
+    key: 'cityId',
   },
   {
-    title: t('Quantity'),
-    key: 'quantity',
+    title: t('Name (Hebrew)'),
+    key: 'nameHe',
+  },
+  {
+    title: t('Name (English)'),
+    key: 'nameEn',
+  },
+  {
+    title: t('Region ID'),
+    key: 'regionID',
+  },
+  {
+    title: t('Region Name'),
+    key: 'regionName',
   },
   {
     title: t('Active'),
@@ -75,8 +85,8 @@ const headers = computed(() => [
 
 const {
   data: customerData,
-  execute: fetchQuantitytypes,
-} = await useApi(createUrl('/admin/settings/quantitytypes', {
+  execute: fetchCities,
+} = await useApi(createUrl('/admin/settings/cities', {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
@@ -87,8 +97,8 @@ const {
   },
 }))
 
-const quantitytypes = computed(() => customerData.value.quantitytypes)
-const totalQuantitytypes = computed(() => customerData.value.total)
+const cities = computed(() => customerData.value.cities)
+const totalCities = computed(() => customerData.value.total)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -103,18 +113,18 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyQuantitytype = async userData => {
-  // refetch Quantitytype
-  fetchQuantitytypes()
+const modifyCity = async userData => {
+  // refetch City
+  fetchCities()
 }
 
-const editQuantitytype = async value => {
-  quantitytypeDetail.value = value
+const editCity = async value => {
+  cityDetail.value = value
   
-  isQuantitytypeDialogVisible.value = true
+  isCityDialogVisible.value = true
 }
 
-const deleteQuantitytype = async id => {
+const deleteCity = async id => {
   Swal.fire({
     title: 'Are You Sure?',
     html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
@@ -132,8 +142,8 @@ const deleteQuantitytype = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/settings/quantitytypes/${ id }`, { method: 'DELETE' })
-        fetchQuantitytypes()
+        await $api(`/admin/settings/cities/${ id }`, { method: 'DELETE' })
+        fetchCities()
       }
     })  
 }
@@ -146,7 +156,7 @@ const deleteQuantitytype = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Quantity Types') }}
+              {{ $t('Cities') }}
             </h5>
           </VCol>
         </VRow>
@@ -170,13 +180,13 @@ const deleteQuantitytype = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Quantity Type -->
+          <!-- 👉 Create City -->
           <VBtn
-            v-if="can('admin-create-quantitytypes', 'Create Quantity Types')"
+            v-if="can('admin-create-cities', 'Create Cities')"
             prepend-icon="tabler-plus"
-            @click="isAddNewQuantitytypeDrawerVisible = true"
+            @click="isAddNewCityDrawerVisible = true"
           >
-            {{ $t('Create Quantity Type') }}
+            {{ $t('Create City') }}
           </VBtn>
         </div>
 
@@ -186,7 +196,7 @@ const deleteQuantitytype = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-quantitytypes', 'View Quantity Types')"
+        v-if="can('admin-view-cities', 'View Cities')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -201,7 +211,7 @@ const deleteQuantitytype = async id => {
                 >
                   <AppTextField
                     v-model="searchQuery"
-                    :placeholder="$t('Search Quantity Type')"
+                    :placeholder="$t('Search City')"
                   />
                 </VCol>
                 <VCol
@@ -224,29 +234,44 @@ const deleteQuantitytype = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-quantitytypes', 'View Quantity Types')" />
+      <VDivider v-if="can('admin-view-cities', 'View Cities')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-quantitytypes', 'View Quantity Types')"
+        v-if="can('admin-view-cities', 'View Cities')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalQuantitytypes"
+        :items-length="totalCities"
         :headers="headers"
-        :items="quantitytypes"
+        :items="cities"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          {{ item.name }}
+        <!-- cityId -->
+        <template #[`item.cityId`]="{ item }">
+          {{ item.cityId }}
         </template>
-
-        <!-- quantity -->
-        <template #[`item.quantity`]="{ item }">
-          {{ item.quantity }}
+        
+        <!-- nameHe -->
+        <template #[`item.nameHe`]="{ item }">
+          {{ item.nameHe }}
+        </template>
+        
+        <!-- nameEn -->
+        <template #[`item.nameEn`]="{ item }">
+          {{ item.nameEn }}
+        </template>
+        
+        <!-- regionID -->
+        <template #[`item.regionID`]="{ item }">
+          {{ item.regionID }}
+        </template>
+        
+        <!-- regionName -->
+        <template #[`item.regionName`]="{ item }">
+          {{ item.regionName }}
         </template>
 
         <!-- status -->
@@ -303,8 +328,8 @@ const deleteQuantitytype = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-quantitytypes', 'Update Quantity Types')"
-                  @click="editQuantitytype(item)"
+                  v-if="can('admin-update-cities', 'Update Cities')"
+                  @click="editCity(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -313,8 +338,8 @@ const deleteQuantitytype = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-quantitytypes', 'Delete Quantity Types')"
-                  @click="deleteQuantitytype(item._id)"
+                  v-if="can('admin-delete-cities', 'Delete Cities')"
+                  @click="deleteCity(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -331,23 +356,23 @@ const deleteQuantitytype = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalQuantitytypes"
+            :total-items="totalCities"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewQuantitytypeDrawer
-      v-if="isAddNewQuantitytypeDrawerVisible"
-      v-model:is-drawer-open="isAddNewQuantitytypeDrawerVisible"
-      @user-data="modifyQuantitytype"
+    <AddNewCityDrawer
+      v-if="isAddNewCityDrawerVisible"
+      v-model:is-drawer-open="isAddNewCityDrawerVisible"
+      @user-data="modifyCity"
     />
 
-    <AddNewQuantitytypeDrawer
-      v-if="isQuantitytypeDialogVisible"
-      v-model:is-drawer-open="isQuantitytypeDialogVisible"
-      v-model:quantitytype="quantitytypeDetail"
-      @user-data="modifyQuantitytype"
+    <AddNewCityDrawer
+      v-if="isCityDialogVisible"
+      v-model:is-drawer-open="isCityDialogVisible"
+      v-model:city="cityDetail"
+      @user-data="modifyCity"
     />
   </section>
 </template>

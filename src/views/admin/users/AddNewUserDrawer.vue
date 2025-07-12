@@ -15,6 +15,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  cities: {
+    type: Object,
+    required: true,
+  },
   user: {
     type: Object,
     required: false,
@@ -26,8 +30,7 @@ const props = defineProps({
       email: '',
       phone: '',
       communityID: '',
-      cityId: '',
-      cityName: '',
+      cityID: '',
       street: '',
       houseNumber: '',
       nationality: '',
@@ -45,6 +48,7 @@ const emit = defineEmits([
   'userData',
   'user',
   'communities',
+  'cities',
 ])
 
 const authStore = useAuthStore()
@@ -57,6 +61,18 @@ const refForm = ref()
 const imageID = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const adminData = ref(structuredClone(toRaw(props.user)))
+const cities = ref(structuredClone(toRaw(props.cities)))
+
+if(props.user._id) {
+  if(props.user.cityID) {
+    adminData.value.cityID = props.user.cityID._id
+  }
+  
+  if(props.user.communityID) {
+    adminData.value.communityID = props.user.communityID._id
+  }
+}
+
 const communitiesWithAddNew = ref([])
 
 // 👉 drawer close
@@ -100,16 +116,10 @@ const submit = async () => {
     formData.append('communityID', '')
   }
 
-  if(adminData.value.cityId) {
-    formData.append('cityId', adminData.value.cityId)
+  if(adminData.value.cityID) {
+    formData.append('cityID', adminData.value.cityID)
   } else {
-    formData.append('cityId', '')
-  }
-
-  if(adminData.value.cityName) {
-    formData.append('cityName', adminData.value.cityName)
-  } else {
-    formData.append('cityName', '')
+    formData.append('cityID', '')
   }
 
   if(adminData.value.street) {
@@ -223,8 +233,7 @@ const errors = ref({
   status: undefined,
   maritalStatus: undefined,
   communityID: undefined,
-  cityId: undefined,
-  cityName: undefined,
+  cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   nationality: undefined,
@@ -354,23 +363,15 @@ watch(() => props.communities,
                 />
               </VCol>
 
-              <!-- 👉 City ID -->
+              <!-- 👉 City -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.cityId"
-                  :label="$t('City ID')"
-                  :placeholder="$t('City ID')"
-                  :error-messages="errors.cityId"
-                />
-              </VCol>
-
-              <!-- 👉 City Name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.cityName"
-                  :label="$t('City Name')"
-                  :placeholder="$t('City Name')"
-                  :error-messages="errors.cityName"
+                <AppAutocomplete
+                  v-model="adminData.cityID"
+                  :items="cities"
+                  :label="$t('City')"
+                  :placeholder="$t('Select City')"
+                  :error-messages="errors.cityID"
+                  clearable
                 />
               </VCol>
 
@@ -510,6 +511,7 @@ watch(() => props.communities,
   <AddNewCommunityDialog
     v-if="isAddNewCommunityDialogVisible"
     v-model:is-dialog-visible="isAddNewCommunityDialogVisible"
+    v-model:cities="cities"
     @update-data="modifyCommunityDialog"
   />
 </template>

@@ -45,7 +45,15 @@ const adminOptions = computed(() => commonsync.adminOptions)
 
 const admins = adminOptions.value.map(item => ({
   value: item._id,
-  title: `${item.firstName} ${item.lastName}`,
+  title: `${item.firstName} ${item.lastName}, ${item.phone1}`,
+}))
+
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
 }))
 
 const reloadTab = ref(true)
@@ -205,18 +213,9 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('City ID') }}:
+                      {{ $t('City') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ stationData.cityId }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('City Name') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ stationData.cityName }}
+                        {{ stationData.cityID ? stationData.cityID.nameHe : '' }}
                       </span>
                     </h6>
                   </VListItem>
@@ -256,9 +255,9 @@ onMounted( async () => {
                           v-if="can('admin-view-distribution-managers', 'View Distribution Managers')"
                           :to="{ name: 'admin-distribution-managers-detail-id', params: { id: admin._id } }"
                         >
-                          {{ admin.firstName }} {{ admin.lastName }}
+                          {{ admin.firstName }} {{ admin.lastName }}, {{ admin.phone1 }}
                         </RouterLink>
-                        <span v-else>{{ admin.firstName }} {{ admin.lastName }}</span>
+                        <span v-else>{{ admin.firstName }} {{ admin.lastName }}, {{ admin.phone1 }}</span>
                       </VChip>
                     </div>
                   </VListItem>
@@ -339,7 +338,8 @@ onMounted( async () => {
       v-if="isStationDialogVisible"
       v-model:is-drawer-open="isStationDialogVisible"
       v-model:station="stationData"
-      v-model:distribution-managers="admins"
+      v-model:admins="admins"
+      v-model:cities="cities"
       @user-data="modifyStation"
     />
   </div>

@@ -10,6 +10,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  cities: {
+    type: Object,
+    required: true,
+  },
   supplier: {
     type: Object,
     required: false,
@@ -19,11 +23,29 @@ const props = defineProps({
       name: '',
       businessID: '',
       countryID: '',
-      city: '',
+      cityID: '',
       street: '',
       houseNumber: null,
       remarks: '',
       status: 'Active',
+      contactInfo1: {
+      // eslint-disable-next-line camelcase
+        _id: '',
+        firstName: '',
+        lastName: '',
+        phone1: '',
+        phone2: '',
+        email: '',
+      },
+      contactInfo2: {
+      // eslint-disable-next-line camelcase
+        _id: '',
+        firstName: '',
+        lastName: '',
+        phone1: '',
+        phone2: '',
+        email: '',
+      },
     }),
   },
 })
@@ -31,6 +53,7 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDialogVisible',
   'countries',
+  'cities',
   'updateData',
   'supplier',
 ])
@@ -41,8 +64,14 @@ const isFormValid = ref(false)
 const refForm = ref()
 const supplierData = ref(structuredClone(toRaw(props.supplier)))
 
-if(props.supplier.countryID) {
-  supplierData.value.countryID = props.supplier.countryID._id
+if(props.supplier._id) {
+  if(props.supplier.countryID) {
+    supplierData.value.countryID = props.supplier.countryID._id
+  }
+  
+  if(props.supplier.cityID) {
+    supplierData.value.cityID = props.supplier.cityID._id
+  }
 }
 
 // 👉 drawer close
@@ -62,12 +91,30 @@ const submit = async () => {
         body: {
           name: supplierData.value.name,
           businessID: supplierData.value.businessID,
-          countryID: supplierData.value.countryID ?? null,
-          city: supplierData.value.city,
+          countryID: supplierData.value.countryID ? supplierData.value.countryID : null,
+          cityID: supplierData.value.cityID,
           street: supplierData.value.street,
           houseNumber: supplierData.value.houseNumber,
           remarks: supplierData.value.remarks,
           status: supplierData.value.status,
+          contactInfo1: {
+            // eslint-disable-next-line camelcase
+            _id: supplierData.value.contactInfo1._id,
+            firstName: supplierData.value.contactInfo1.firstName,
+            lastName: supplierData.value.contactInfo1.lastName,
+            phone1: supplierData.value.contactInfo1.phone1,
+            phone2: supplierData.value.contactInfo1.phone2,
+            email: supplierData.value.contactInfo1.email,
+          },
+          contactInfo2: {
+            // eslint-disable-next-line camelcase
+            _id: supplierData.value.contactInfo2._id,
+            firstName: supplierData.value.contactInfo2.firstName,
+            lastName: supplierData.value.contactInfo2.lastName,
+            phone1: supplierData.value.contactInfo2.phone1,
+            phone2: supplierData.value.contactInfo2.phone2,
+            email: supplierData.value.contactInfo2.email,
+          },
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -79,12 +126,30 @@ const submit = async () => {
         body: {
           name: supplierData.value.name,
           businessID: supplierData.value.businessID,
-          countryID: supplierData.value.countryID ?? null,
-          city: supplierData.value.city,
+          countryID: supplierData.value.countryID ? supplierData.value.countryID : null,
+          cityID: supplierData.value.cityID,
           street: supplierData.value.street,
           houseNumber: supplierData.value.houseNumber,
           remarks: supplierData.value.remarks,
           status: supplierData.value.status,
+          contactInfo1: {
+            // eslint-disable-next-line camelcase
+            _id: supplierData.value.contactInfo1._id,
+            firstName: supplierData.value.contactInfo1.firstName,
+            lastName: supplierData.value.contactInfo1.lastName,
+            phone1: supplierData.value.contactInfo1.phone1,
+            phone2: supplierData.value.contactInfo1.phone2,
+            email: supplierData.value.contactInfo1.email,
+          },
+          contactInfo2: {
+            // eslint-disable-next-line camelcase
+            _id: supplierData.value.contactInfo2._id,
+            firstName: supplierData.value.contactInfo2.firstName,
+            lastName: supplierData.value.contactInfo2.lastName,
+            phone1: supplierData.value.contactInfo2.phone1,
+            phone2: supplierData.value.contactInfo2.phone2,
+            email: supplierData.value.contactInfo2.email,
+          },
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -125,7 +190,7 @@ const errors = ref({
   name: undefined,
   businessID: undefined,
   countryID: undefined,
-  city: undefined,
+  cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   remarks: undefined,
@@ -194,11 +259,13 @@ const errors = ref({
 
             <!-- 👉 City -->
             <VCol cols="12">
-              <AppTextField
-                v-model="supplierData.city"
+              <AppAutocomplete
+                v-model="supplierData.cityID"
+                :items="props.cities"
                 :label="$t('City')"
-                :placeholder="$t('City')"
-                :error-messages="errors.city"
+                :placeholder="$t('Select City')"
+                :error-messages="errors.cityID"
+                clearable
               />
             </VCol>
 
@@ -244,6 +311,112 @@ const errors = ref({
                 :label="$t('Remarks')"
                 :placeholder="$t('Remarks')"
                 :error-messages="errors.remarks"
+              />
+            </VCol>
+
+            <VDivider />
+
+            <VCol cols="12">
+              <h6 class="text-h6 my-6">
+                {{ $t('Contact information 1') }}
+              </h6>
+            </VCol>
+
+            <!-- 👉 First Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo1.firstName"
+                :label="$t('First Name')"
+                :placeholder="$t('First Name')"
+              />
+            </VCol>
+            
+            <!-- 👉 Last Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo1.lastName"
+                :label="$t('Last Name')"
+                :placeholder="$t('Last Name')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone1 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo1.phone1"
+                :label="$t('Phone 1')"
+                :placeholder="$t('Phone 1')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone2 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo1.phone2"
+                :label="$t('Phone 2')"
+                :placeholder="$t('Phone 2')"
+              />
+            </VCol>
+
+            <!-- 👉 Email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo1.email"
+                :label="$t('Email')"
+                :placeholder="$t('Email')"
+              />
+            </VCol>
+
+            <VDivider />
+
+            <VCol cols="12">
+              <h6 class="text-h6 my-6">
+                {{ $t('Contact information 2') }}
+              </h6>
+            </VCol>
+
+            <!-- 👉 First Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo2.firstName"
+                :label="$t('First Name')"
+                :placeholder="$t('First Name')"
+              />
+            </VCol>
+            
+            <!-- 👉 Last Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo2.lastName"
+                :label="$t('Last Name')"
+                :placeholder="$t('Last Name')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone1 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo2.phone1"
+                :label="$t('Phone 1')"
+                :placeholder="$t('Phone 1')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone2 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo2.phone2"
+                :label="$t('Phone 2')"
+                :placeholder="$t('Phone 2')"
+              />
+            </VCol>
+
+            <!-- 👉 Email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="supplierData.contactInfo2.email"
+                :label="$t('Email')"
+                :placeholder="$t('Email')"
               />
             </VCol>
               

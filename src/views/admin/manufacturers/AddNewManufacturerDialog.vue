@@ -12,6 +12,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  cities: {
+    type: Object,
+    required: true,
+  },
   manufacturer: {
     type: Object,
     required: false,
@@ -21,11 +25,29 @@ const props = defineProps({
       name: '',
       businessID: '',
       countryID: '',
-      city: '',
+      cityID: '',
       street: '',
       houseNumber: null,
       remarks: '',
       status: 'Active',
+      contactInfo1: {
+      // eslint-disable-next-line camelcase
+        _id: '',
+        firstName: '',
+        lastName: '',
+        phone1: '',
+        phone2: '',
+        email: '',
+      },
+      contactInfo2: {
+      // eslint-disable-next-line camelcase
+        _id: '',
+        firstName: '',
+        lastName: '',
+        phone1: '',
+        phone2: '',
+        email: '',
+      },
     }),
   },
 })
@@ -33,6 +55,7 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDialogVisible',
   'countries',
+  'cities',
   'updateData',
   'manufacturer',
 ])
@@ -47,8 +70,14 @@ const logo = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const manufacturerData = ref(structuredClone(toRaw(props.manufacturer)))
 
-if(props.manufacturer.countryID) {
-  manufacturerData.value.countryID = props.manufacturer.countryID._id
+if(props.manufacturer._id) {
+  if(props.manufacturer.countryID) {
+    manufacturerData.value.countryID = props.manufacturer.countryID._id
+  }
+  
+  if(props.manufacturer.cityID) {
+    manufacturerData.value.cityID = props.manufacturer.cityID._id
+  }
 }
 
 // 👉 drawer close
@@ -67,58 +96,39 @@ const submit = async () => {
     formData.append('logo', logo.value)
   }
 
-  if(manufacturerData.value.name) {
-    formData.append('name', manufacturerData.value.name)
-  } else {
-    formData.append('name', '')
+  formData.append('name', manufacturerData.value.name || '')
+
+  formData.append('countryID', manufacturerData.value.countryID || '')
+
+  formData.append('cityID', manufacturerData.value.cityID || '')
+
+  formData.append('street', manufacturerData.value.street || '')
+
+  formData.append('houseNumber', manufacturerData.value.houseNumber || '')
+
+  formData.append('remarks', manufacturerData.value.remarks || '')
+
+  formData.append('status', manufacturerData.value.status || '')
+
+  formData.append('businessID', manufacturerData.value.businessID || '')
+
+  if (manufacturerData.value.contactInfo1) {
+    formData.append('contactInfo1[_id]', manufacturerData.value.contactInfo1._id || '')
+    formData.append('contactInfo1[firstName]', manufacturerData.value.contactInfo1.firstName || '')
+    formData.append('contactInfo1[lastName]', manufacturerData.value.contactInfo1.lastName || '')
+    formData.append('contactInfo1[phone1]', manufacturerData.value.contactInfo1.phone1 || '')
+    formData.append('contactInfo1[phone2]', manufacturerData.value.contactInfo1.phone2 || '')
+    formData.append('contactInfo1[email]', manufacturerData.value.contactInfo1.email || '')
   }
 
-  if(manufacturerData.value.businessID) {
-    formData.append('businessID', manufacturerData.value.businessID)
-  } else {
-    formData.append('businessID', '')
-  }
-
-  if(manufacturerData.value.countryID) {
-    formData.append('countryID', manufacturerData.value.countryID)
-  } else {
-    formData.append('countryID', '')
-  }
-
-  if(manufacturerData.value.city) {
-    formData.append('city', manufacturerData.value.city)
-  } else {
-    formData.append('city', '')
-  }
-
-  if(manufacturerData.value.street) {
-    formData.append('street', manufacturerData.value.street)
-  } else {
-    formData.append('street', '')
-  }
-
-  if(manufacturerData.value.houseNumber) {
-    formData.append('houseNumber', manufacturerData.value.houseNumber)
-  } else {
-    formData.append('houseNumber', '')
-  }
-
-  if(manufacturerData.value.remarks) {
-    formData.append('remarks', manufacturerData.value.remarks)
-  } else {
-    formData.append('remarks', '')
-  }
-
-  if(manufacturerData.value.status) {
-    formData.append('status', manufacturerData.value.status)
-  } else {
-    formData.append('status', '')
-  }
-
-  if(manufacturerData.value.businessID) {
-    formData.append('businessID', manufacturerData.value.businessID)
-  } else {
-    formData.append('businessID', '')
+  // Append contactInfo2 if it exists
+  if (manufacturerData.value.contactInfo2) {
+    formData.append('contactInfo2[_id]', manufacturerData.value.contactInfo2._id || '')
+    formData.append('contactInfo2[firstName]', manufacturerData.value.contactInfo2.firstName || '')
+    formData.append('contactInfo2[lastName]', manufacturerData.value.contactInfo2.lastName || '')
+    formData.append('contactInfo2[phone1]', manufacturerData.value.contactInfo2.phone1 || '')
+    formData.append('contactInfo2[phone2]', manufacturerData.value.contactInfo2.phone2 || '')
+    formData.append('contactInfo2[email]', manufacturerData.value.contactInfo2.email || '')
   }
 
   if(props.manufacturer._id) {
@@ -176,7 +186,7 @@ const errors = ref({
   name: undefined,
   businessID: undefined,
   countryID: undefined,
-  city: undefined,
+  cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   remarks: undefined,
@@ -258,11 +268,13 @@ const handleLogoChange = file => {
 
             <!-- 👉 City -->
             <VCol cols="12">
-              <AppTextField
-                v-model="manufacturerData.city"
+              <AppAutocomplete
+                v-model="manufacturerData.cityID"
+                :items="props.cities"
                 :label="$t('City')"
-                :placeholder="$t('City')"
-                :error-messages="errors.city"
+                :placeholder="$t('Select City')"
+                :error-messages="errors.cityID"
+                clearable
               />
             </VCol>
 
@@ -323,6 +335,112 @@ const handleLogoChange = file => {
                 prepend-icon="tabler-camera"
                 :error-messages="errors.logo"
                 @change="handleLogoChange"
+              />
+            </VCol>
+
+            <VDivider />
+
+            <VCol cols="12">
+              <h6 class="text-h6 my-6">
+                {{ $t('Contact information 1') }}
+              </h6>
+            </VCol>
+
+            <!-- 👉 First Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo1.firstName"
+                :label="$t('First Name')"
+                :placeholder="$t('First Name')"
+              />
+            </VCol>
+            
+            <!-- 👉 Last Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo1.lastName"
+                :label="$t('Last Name')"
+                :placeholder="$t('Last Name')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone1 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo1.phone1"
+                :label="$t('Phone 1')"
+                :placeholder="$t('Phone 1')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone2 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo1.phone2"
+                :label="$t('Phone 2')"
+                :placeholder="$t('Phone 2')"
+              />
+            </VCol>
+
+            <!-- 👉 Email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo1.email"
+                :label="$t('Email')"
+                :placeholder="$t('Email')"
+              />
+            </VCol>
+
+            <VDivider />
+
+            <VCol cols="12">
+              <h6 class="text-h6 my-6">
+                {{ $t('Contact information 2') }}
+              </h6>
+            </VCol>
+
+            <!-- 👉 First Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo2.firstName"
+                :label="$t('First Name')"
+                :placeholder="$t('First Name')"
+              />
+            </VCol>
+            
+            <!-- 👉 Last Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo2.lastName"
+                :label="$t('Last Name')"
+                :placeholder="$t('Last Name')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone1 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo2.phone1"
+                :label="$t('Phone 1')"
+                :placeholder="$t('Phone 1')"
+              />
+            </VCol>
+
+            <!-- 👉 Phone2 -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo2.phone2"
+                :label="$t('Phone 2')"
+                :placeholder="$t('Phone 2')"
+              />
+            </VCol>
+
+            <!-- 👉 Email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="manufacturerData.contactInfo2.email"
+                :label="$t('Email')"
+                :placeholder="$t('Email')"
               />
             </VCol>
               

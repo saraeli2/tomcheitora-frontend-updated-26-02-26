@@ -12,8 +12,7 @@ const props = defineProps({
       lastName: '',
       email: '',
       position: '',
-      cityId: '',
-      cityName: '',
+      cityID: '',
       street: '',
       houseNumber: '',
       remarks: '',
@@ -36,6 +35,14 @@ const toast = useToast()
 
 const accountData = ref(structuredClone(toRaw(props.user)))
 
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
+
 const refInputEl = ref()
 const isFormValid = ref(false)
 const refForm = ref()
@@ -46,8 +53,7 @@ const errors = ref({
   lastName: undefined,
   email: undefined,
   position: undefined,
-  cityId: undefined,
-  cityName: undefined,
+  cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   remarks: undefined,
@@ -79,16 +85,10 @@ const submit = async () => {
     formData.append('position', '')
   }
 
-  if(accountData.value.cityId) {
-    formData.append('cityId', accountData.value.cityId)
+  if(accountData.value.cityID) {
+    formData.append('cityID', accountData.value.cityID)
   } else {
-    formData.append('cityId', '')
-  }
-
-  if(accountData.value.cityName) {
-    formData.append('cityName', accountData.value.cityName)
-  } else {
-    formData.append('cityName', '')
+    formData.append('cityID', '')
   }
 
   if(accountData.value.street) {
@@ -220,29 +220,18 @@ watch(props, () => {
               </VCol>
 
 
-              <!-- 👉 City ID -->
+              <!-- 👉 City -->
               <VCol
                 md="6"
                 cols="12"
               >
-                <AppTextField
-                  v-model="accountData.cityId"
-                  :label="$t('City ID')"
-                  :placeholder="$t('City ID')"
-                  :error-messages="errors.cityId"
-                />
-              </VCol>
-
-              <!-- 👉 City Name -->
-              <VCol
-                md="6"
-                cols="12"
-              >
-                <AppTextField
-                  v-model="accountData.cityName"
-                  :label="$t('City Name')"
-                  :placeholder="$t('City Name')"
-                  :error-messages="errors.cityName"
+                <AppAutocomplete
+                  v-model="accountData.cityID"
+                  :items="cities"
+                  :label="$t('City')"
+                  :placeholder="$t('Select City')"
+                  :error-messages="errors.cityID"
+                  clearable
                 />
               </VCol>
 

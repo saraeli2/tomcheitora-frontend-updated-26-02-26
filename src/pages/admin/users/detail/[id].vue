@@ -8,7 +8,7 @@ definePage({
   },
 })
 
-import AddNewUserDrawer from '@/views/admin/users/AddNewUserDrawer.vue'
+import AddNewUserDialog from '@/views/admin/users/AddNewUserDialog.vue'
 import KidModule from '@/pages/admin/users/kids.vue'
 
 import { can } from '@layouts/plugins/casl'
@@ -42,7 +42,13 @@ const {
 const adminData = computed(() => adminDetail.value)
 const adminFromData = computed(() => adminDetail.value)
 
-adminFromData.value.communityID = adminData.value.communityID._id
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
 
 const communities = ref([])
 
@@ -244,18 +250,9 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('City ID') }}:
+                      {{ $t('City') }}:
                       <span class="text-body-1 d-inline-block">
-                        {{ adminData.cityId }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('City Name') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ adminData.cityName }}
+                        {{ adminData.cityID ? adminData.cityID.nameHe : '' }}
                       </span>
                     </h6>
                   </VListItem>
@@ -402,12 +399,13 @@ onMounted( async () => {
       </VAlert>
     </div>
 
-    <AddNewUserDrawer
+    <AddNewUserDialog
       v-if="isUserDialogVisible"
-      v-model:is-drawer-open="isUserDialogVisible"
+      v-model:is-dialog-visible="isUserDialogVisible"
       v-model:user="adminFromData"
       v-model:communities="communities"
       @communities="handleUpdatedCommunities"
+      v-model:cities="cities"
       @user-data="modifyUser"
     />
   </div>

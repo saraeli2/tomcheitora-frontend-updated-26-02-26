@@ -17,6 +17,7 @@ const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
+const selectedCity = ref()
 const selectedRows = ref([])
 
 // Data table options
@@ -44,12 +45,8 @@ const headers = computed(() => [
     key: 'neighbourhood',
   },
   {
-    title: t('City ID'),
-    key: 'cityId',
-  },
-  {
-    title: t('City Name'),
-    key: 'cityName',
+    title: t('City'),
+    key: 'cityID',
   },
   {
     title: t('Street'),
@@ -90,6 +87,7 @@ const {
   query: {
     search: searchQuery,
     status: selectedStatus,
+    cityID: selectedCity,
     itemsPerPage,
     page,
     sortBy,
@@ -105,7 +103,15 @@ const adminOptions = computed(() => commonsync.adminOptions)
 
 const admins = adminOptions.value.map(item => ({
   value: item._id,
-  title: `${item.firstName} ${item.lastName}`,
+  title: `${item.firstName} ${item.lastName}, ${item.phone1}`,
+}))
+
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -222,6 +228,19 @@ const deleteStation = async id => {
                     :placeholder="$t('Search Station')"
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCity"
+                    :items="cities"
+                    :placeholder="$t('City')"
+                    clearable
+                  />
+                </VCol>
+                
                 <VCol
                   cols="12"
                   sm="4"
@@ -269,14 +288,9 @@ const deleteStation = async id => {
           {{ item.neighbourhood }}
         </template>
 
-        <!-- cityId -->
-        <template #[`item.cityId`]="{ item }">
-          {{ item.cityId }}
-        </template>
-
-        <!-- cityName -->
-        <template #[`item.cityName`]="{ item }">
-          {{ item.cityName }}
+        <!-- cityID -->
+        <template #[`item.cityID`]="{ item }">
+          {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
         <!-- street -->
@@ -314,9 +328,9 @@ const deleteStation = async id => {
               v-if="can('admin-view-distribution-managers', 'View Distribution Managers')"
               :to="{ name: 'admin-distribution-managers-detail-id', params: { id: admin._id } }"
             >
-              {{ admin.firstName }} {{ admin.lastName }}
+              {{ admin.firstName }} {{ admin.lastName }}, {{ admin.phone1 }}
             </RouterLink>
-            <span v-else>{{ admin.firstName }} {{ admin.lastName }}</span>
+            <span v-else>{{ admin.firstName }} {{ admin.lastName }}, {{ admin.phone1 }}</span>
           </VChip>
         </template>
 
@@ -387,6 +401,7 @@ const deleteStation = async id => {
       v-if="isAddNewStationDrawerVisible"
       v-model:is-drawer-open="isAddNewStationDrawerVisible"
       v-model:admins="admins"
+      v-model:cities="cities"
       @user-data="modifyStation"
     />
 
@@ -395,6 +410,7 @@ const deleteStation = async id => {
       v-model:is-drawer-open="isStationDialogVisible"
       v-model:station="stationDetail"
       v-model:admins="admins"
+      v-model:cities="cities"
       @user-data="modifyStation"
     />
   </section>

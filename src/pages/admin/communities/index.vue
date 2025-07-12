@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-communities', 'admin-create-communities'],
@@ -8,7 +9,7 @@ definePage({
   },
 })
 
-import AddNewCommunityDrawer from '@/views/admin/communities/AddNewCommunityDrawer.vue'
+import AddNewCommunityDialog from '@/views/admin/communities/AddNewCommunityDialog.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -17,6 +18,7 @@ const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
+const selectedCity = ref()
 const selectedRows = ref([])
 
 // Data table options
@@ -25,7 +27,7 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const isCommunityDialogVisible = ref(false)
-const isAddNewCommunityDrawerVisible = ref(false)
+const isAddNewCommunityDialogVisible = ref(false)
 const communityDetail = ref()
 const panel = ref()
 
@@ -40,12 +42,8 @@ const headers = computed(() => [
     key: 'name',
   },
   {
-    title: t('City ID'),
-    key: 'cityId',
-  },
-  {
-    title: t('City Name'),
-    key: 'cityName',
+    title: t('City'),
+    key: 'cityID',
   },
   {
     title: t('Street'),
@@ -56,12 +54,12 @@ const headers = computed(() => [
     key: 'houseNumber',
   },
   {
-    title: t('Discount Type'),
-    key: 'discountType',
+    title: t('Discount in %'),
+    key: 'discountPercentage',
   },
   {
-    title: t('Discount'),
-    key: 'discount',
+    title: t('Discount Fixed Number'),
+    key: 'discountFixed',
   },
   {
     title: t('Active'),
@@ -89,6 +87,7 @@ const {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
+    cityID: selectedCity,
     itemsPerPage,
     page,
     sortBy,
@@ -98,6 +97,14 @@ const {
 
 const communities = computed(() => customerData.value.communities)
 const totalCommunities = computed(() => customerData.value.total)
+
+const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsync.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -112,13 +119,15 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyCommunity = async userData => {
+const modifyCommunity = async updateData => {
   // refetch Community
   fetchCommunities()
 }
 
 const editCommunity = async value => {
-  communityDetail.value = value
+  const data = await $api(`/admin/communities/${ value._id }`).catch(err => console.log(err))
+
+  communityDetail.value = data
   
   isCommunityDialogVisible.value = true
 }
@@ -183,7 +192,7 @@ const deleteCommunity = async id => {
           <VBtn
             v-if="can('admin-create-communities', 'Create Community')"
             prepend-icon="tabler-plus"
-            @click="isAddNewCommunityDrawerVisible = true"
+            @click="isAddNewCommunityDialogVisible = true"
           >
             {{ $t('Create Community') }}
           </VBtn>
@@ -213,6 +222,19 @@ const deleteCommunity = async id => {
                     :placeholder="$t('Search Community')"
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCity"
+                    :items="cities"
+                    :placeholder="$t('City')"
+                    clearable
+                  />
+                </VCol>
+                
                 <VCol
                   cols="12"
                   sm="4"
@@ -255,14 +277,9 @@ const deleteCommunity = async id => {
           </RouterLink>
         </template>
 
-        <!-- cityId -->
-        <template #[`item.cityId`]="{ item }">
-          {{ item.cityId }}
-        </template>
-
-        <!-- cityName -->
-        <template #[`item.cityName`]="{ item }">
-          {{ item.cityName }}
+        <!-- cityID -->
+        <template #[`item.cityID`]="{ item }">
+          {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
         <!-- street -->
@@ -275,14 +292,14 @@ const deleteCommunity = async id => {
           {{ item.houseNumber }}
         </template>
 
-        <!-- discountType -->
-        <template #[`item.discountType`]="{ item }">
-          {{ item.discountType }}
+        <!-- discountPercentage -->
+        <template #[`item.discountPercentage`]="{ item }">
+          {{ item.discountPercentage }}
         </template>
 
-        <!-- discount -->
-        <template #[`item.discount`]="{ item }">
-          {{ item.discount }}
+        <!-- discountFixed -->
+        <template #[`item.discountFixed`]="{ item }">
+          {{ item.discountFixed }}
         </template>
 
         <!-- status -->
@@ -316,7 +333,6 @@ const deleteCommunity = async id => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-
                 <VListItem :to="{ name: 'admin-communities-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
@@ -359,17 +375,19 @@ const deleteCommunity = async id => {
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewCommunityDrawer
-      v-if="isAddNewCommunityDrawerVisible"
-      v-model:is-drawer-open="isAddNewCommunityDrawerVisible"
-      @user-data="modifyCommunity"
+    <AddNewCommunityDialog
+      v-if="isAddNewCommunityDialogVisible"
+      v-model:is-dialog-visible="isAddNewCommunityDialogVisible"
+      v-model:cities="cities"
+      @update-data="modifyCommunity"
     />
 
-    <AddNewCommunityDrawer
+    <AddNewCommunityDialog
       v-if="isCommunityDialogVisible"
-      v-model:is-drawer-open="isCommunityDialogVisible"
+      v-model:is-dialog-visible="isCommunityDialogVisible"
       v-model:community="communityDetail"
-      @user-data="modifyCommunity"
+      v-model:cities="cities"
+      @update-data="modifyCommunity"
     />
   </section>
 </template>

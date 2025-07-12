@@ -7,10 +7,9 @@ import CategoryBuilderProductNode from '@/views/admin/settings/CategoryBuilderPr
 import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
 import { can } from '@layouts/plugins/casl'
 import { useToast } from 'vue-toastification'
-import { PerfectScrollbar } from 'vue3-perfect-scrollbar'
 
 const props = defineProps({
-  isDrawerOpen: {
+  isDialogVisible: {
     type: Boolean,
     required: true,
   },
@@ -67,7 +66,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-  'update:isDrawerOpen',
+  'update:isDialogVisible',
   'manufacturers',
   'suppliers',
   'certifications',
@@ -194,15 +193,6 @@ const cities = cityOptions.value.map(item => ({
   title: item.nameHe,
 }))
 
-// 👉 drawer close
-const closeNavigationDrawer = () => {
-  emit('update:isDrawerOpen', false)
-  nextTick(() => {
-    refForm.value?.reset()
-    refForm.value?.resetValidation()
-  })
-}
-
 const submit = async () => {
   try {
     if(props.product._id) {
@@ -263,7 +253,7 @@ const submit = async () => {
 
     await nextTick(() => {
       emit('userData')
-      emit('update:isDrawerOpen', false)
+      emit('update:isDialogVisible', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
       if(props.product._id) {
@@ -285,8 +275,18 @@ const onSubmit = () => {
   })
 }
 
-const handleDrawerModelValueUpdate = val => {
-  emit('update:isDrawerOpen', val)
+const onReset = () => {
+  emit('update:isDialogVisible', false)
+  refForm.value?.reset()
+}
+
+// 👉 drawer close
+const closeNavigationDrawer = () => {
+  emit('update:isDialogVisible', false)
+  nextTick(() => {
+    refForm.value?.reset()
+    refForm.value?.resetValidation()
+  })
 }
 
 const errors = ref({
@@ -431,273 +431,264 @@ const isIndeterminate = node => {
 </script>
 
 <template>
-  <VNavigationDrawer
-    temporary
-    :width="400"
-    location="end"
-    class="scrollable-content"
-    :model-value="props.isDrawerOpen"
-    @update:model-value="handleDrawerModelValueUpdate"
+  <VDialog
+    :width="$vuetify.display.smAndDown ? 'auto' : 900"
+    :model-value="props.isDialogVisible"
+    @update:model-value="onReset"
   >
-    <!-- 👉 Title -->
-    <AppDrawerHeaderSection
-      v-if="props.product._id"
-      :title="$t('Edit Product')"
-      @cancel="closeNavigationDrawer"
-    />
-    <AppDrawerHeaderSection
-      v-else
-      :title="$t('Create Product')"
-      @cancel="closeNavigationDrawer"
-    />
+    <!-- 👉 Dialog close btn -->
+    <DialogCloseBtn @click="onReset" />
 
-    <VDivider />
+    <VCard class="pa-sm-10 pa-2">
+      <VCardText>
+        <!-- 👉 Title -->
+        <h4 class="text-h4 text-center mb-2">
+          {{ props.product._id ? $t('Edit Product') : $t('Create Product') }}
+        </h4>
 
-    <PerfectScrollbar :options="{ wheelPropagation: false }">
-      <VCard flat>
-        <VCardText>
-          <!-- 👉 Form -->
-          <VForm 
-            ref="refForm"
-            v-model="isFormValid"
-            @submit.prevent="onSubmit"
-          >
-            <VRow>
-              <!-- 👉 Name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.name"
-                  :rules="[requiredValidator]"
-                  :label="$t('Name')"
-                  :placeholder="$t('Name')"
-                  :error-messages="errors.name"
+        <VDivider />
+
+        <!-- 👉 Form -->
+        <VForm 
+          ref="refForm"
+          v-model="isFormValid"
+          @submit.prevent="onSubmit"
+        >
+          <VRow>
+            <!-- 👉 Name -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.name"
+                :rules="[requiredValidator]"
+                :label="$t('Name')"
+                :placeholder="$t('Name')"
+                :error-messages="errors.name"
+              />
+            </VCol>
+
+            <!-- 👉 Slug -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.slug"
+                :rules="[requiredValidator]"
+                :label="$t('Slug')"
+                :placeholder="$t('Slug')"
+                :error-messages="errors.slug"
+              />
+            </VCol>
+
+            <!-- 👉 Internal SKU -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.internalSKU"
+                :label="$t('Internal SKU')"
+                :placeholder="$t('Internal SKU')"
+                :error-messages="errors.internalSKU"
+              />
+            </VCol>
+
+            <!-- 👉 External SKU -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.externalSKU"
+                :label="$t('External SKU')"
+                :placeholder="$t('External SKU')"
+                :error-messages="errors.externalSKU"
+              />
+            </VCol>
+
+            <!-- 👉 Box SKU -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.boxSKU"
+                :label="$t('Box SKU')"
+                :placeholder="$t('Box SKU')"
+                :error-messages="errors.boxSKU"
+              />
+            </VCol>
+
+            <!-- 👉 Manufacturer -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.manufacturerID"
+                :items="manufacturersUpdated"
+                :label="$t('Manufacturer')"
+                :placeholder="$t('Select Manufacturer')"
+                :error-messages="errors.manufacturerID"
+                clearable
+                @update:model-value="onManufacturerChange"
+              />
+            </VCol>
+
+            <!-- 👉 Supplier -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.supplierID"
+                :items="suppliersUpdated"
+                :label="$t('Supplier')"
+                :placeholder="$t('Select Supplier')"
+                :error-messages="errors.supplierID"
+                clearable
+                @update:model-value="onSupplierChange"
+              />
+            </VCol>
+
+            <!-- 👉 Certification -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.certificationID"
+                :items="certificationsUpdated"
+                :label="$t('Certification')"
+                :placeholder="$t('Select Certification')"
+                :error-messages="errors.certificationID"
+                clearable
+                @update:model-value="onCertificationChange"
+              />
+            </VCol>
+
+            <!-- 👉 Package Type -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.packagetypeID"
+                :rules="[requiredValidator]"
+                :items="packagetypesUpdated"
+                :label="$t('Package Type')"
+                :placeholder="$t('Select Package Type')"
+                :error-messages="errors.packagetypeID"
+                clearable
+                @update:model-value="onPackagetypeChange"
+              />
+            </VCol>
+
+            <!-- 👉 Quantity Type -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.quantitytypeID"
+                :rules="[requiredValidator]"
+                :items="quantitytypesUpdated"
+                :label="$t('Quantity Type')"
+                :placeholder="$t('Select Quantity Type')"
+                :error-messages="errors.quantitytypeID"
+                clearable
+                @update:model-value="onQuantitytypeChange"
+              />
+            </VCol>
+
+            <!-- 👉 Purchase Price -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.purchasePrice"
+                :rules="[numericValidator]"
+                :label="$t('Purchase Price')"
+                :placeholder="$t('Purchase Price')"
+                :error-messages="errors.purchasePrice"
+              />
+            </VCol>
+
+            <!-- 👉 Sale Price -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.salePrice"
+                :rules="[numericValidator]"
+                :label="$t('Sale Price')"
+                :placeholder="$t('Sale Price')"
+                :error-messages="errors.salePrice"
+              />
+            </VCol>
+
+            <!-- 👉 Max Stock -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.maxStock"
+                :rules="[integerValidator]"
+                :label="$t('Max Stock')"
+                :placeholder="$t('Max Stock')"
+                :error-messages="errors.maxStock"
+              />
+            </VCol>
+
+            <!-- 👉 status -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.status"
+                :rules="[requiredValidator]"
+                :items="[
+                  { value: 'Active', title: 'Active' },
+                  { value: 'Inactive', title: 'Inactive' },
+                ]"
+                :placeholder="$t('Select Status')"
+                :label="$t('Status')"
+                :error-messages="errors.status"
+              />
+            </VCol>
+
+            <!-- 👉 Description -->
+            <VCol cols="12">
+              <AppTextarea
+                v-model="productData.description"
+                :label="$t('Description')"
+                :placeholder="$t('Description')"
+                :error-messages="errors.description"
+              />
+            </VCol>
+
+            <!-- 👉 Internal Remarks -->
+            <VCol cols="12">
+              <AppTextarea
+                v-model="productData.internalRemarks"
+                :label="$t('Internal Remarks')"
+                :placeholder="$t('Internal Remarks')"
+                :error-messages="errors.internalRemarks"
+              />
+            </VCol>
+
+            <!-- 👉 Remarks -->
+            <VCol cols="12">
+              <AppTextarea
+                v-model="productData.remarks"
+                :label="$t('Remarks')"
+                :placeholder="$t('Remarks')"
+                :error-messages="errors.remarks"
+              />
+            </VCol>
+            <VCol cols="12">
+              <div>
+                <h6 class="text-h6 mb-2">
+                  {{ $t('Category') }}
+                </h6>
+                <CategoryBuilderProductNode
+                  v-for="node in tree"
+                  :key="node.realId"
+                  :node="node"
+                  :selected="checkedCategories"
+                  :indeterminate="isIndeterminate(node)"
+                  @toggle-select="onToggleSelect"
                 />
-              </VCol>
-
-              <!-- 👉 Slug -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.slug"
-                  :rules="[requiredValidator]"
-                  :label="$t('Slug')"
-                  :placeholder="$t('Slug')"
-                  :error-messages="errors.slug"
-                />
-              </VCol>
-
-              <!-- 👉 Internal SKU -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.internalSKU"
-                  :label="$t('Internal SKU')"
-                  :placeholder="$t('Internal SKU')"
-                  :error-messages="errors.internalSKU"
-                />
-              </VCol>
-
-              <!-- 👉 External SKU -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.externalSKU"
-                  :label="$t('External SKU')"
-                  :placeholder="$t('External SKU')"
-                  :error-messages="errors.externalSKU"
-                />
-              </VCol>
-
-              <!-- 👉 Box SKU -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.boxSKU"
-                  :label="$t('Box SKU')"
-                  :placeholder="$t('Box SKU')"
-                  :error-messages="errors.boxSKU"
-                />
-              </VCol>
-
-              <!-- 👉 Manufacturer -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="productData.manufacturerID"
-                  :items="manufacturersUpdated"
-                  :label="$t('Manufacturer')"
-                  :placeholder="$t('Select Manufacturer')"
-                  :error-messages="errors.manufacturerID"
-                  clearable
-                  @update:model-value="onManufacturerChange"
-                />
-              </VCol>
-
-              <!-- 👉 Supplier -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="productData.supplierID"
-                  :items="suppliersUpdated"
-                  :label="$t('Supplier')"
-                  :placeholder="$t('Select Supplier')"
-                  :error-messages="errors.supplierID"
-                  clearable
-                  @update:model-value="onSupplierChange"
-                />
-              </VCol>
-
-              <!-- 👉 Certification -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="productData.certificationID"
-                  :items="certificationsUpdated"
-                  :label="$t('Certification')"
-                  :placeholder="$t('Select Certification')"
-                  :error-messages="errors.certificationID"
-                  clearable
-                  @update:model-value="onCertificationChange"
-                />
-              </VCol>
-
-              <!-- 👉 Package Type -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="productData.packagetypeID"
-                  :rules="[requiredValidator]"
-                  :items="packagetypesUpdated"
-                  :label="$t('Package Type')"
-                  :placeholder="$t('Select Package Type')"
-                  :error-messages="errors.packagetypeID"
-                  clearable
-                  @update:model-value="onPackagetypeChange"
-                />
-              </VCol>
-
-              <!-- 👉 Quantity Type -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="productData.quantitytypeID"
-                  :rules="[requiredValidator]"
-                  :items="quantitytypesUpdated"
-                  :label="$t('Quantity Type')"
-                  :placeholder="$t('Select Quantity Type')"
-                  :error-messages="errors.quantitytypeID"
-                  clearable
-                  @update:model-value="onQuantitytypeChange"
-                />
-              </VCol>
-
-              <!-- 👉 Purchase Price -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.purchasePrice"
-                  :rules="[numericValidator]"
-                  :label="$t('Purchase Price')"
-                  :placeholder="$t('Purchase Price')"
-                  :error-messages="errors.purchasePrice"
-                />
-              </VCol>
-
-              <!-- 👉 Sale Price -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.salePrice"
-                  :rules="[numericValidator]"
-                  :label="$t('Sale Price')"
-                  :placeholder="$t('Sale Price')"
-                  :error-messages="errors.salePrice"
-                />
-              </VCol>
-
-              <!-- 👉 Max Stock -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="productData.maxStock"
-                  :rules="[integerValidator]"
-                  :label="$t('Max Stock')"
-                  :placeholder="$t('Max Stock')"
-                  :error-messages="errors.maxStock"
-                />
-              </VCol>
-
-              <!-- 👉 status -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="productData.status"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Active', title: 'Active' },
-                    { value: 'Inactive', title: 'Inactive' },
-                  ]"
-                  :placeholder="$t('Select Status')"
-                  :label="$t('Status')"
-                  :error-messages="errors.status"
-                />
-              </VCol>
-
-              <!-- 👉 Description -->
-              <VCol cols="12">
-                <AppTextarea
-                  v-model="productData.description"
-                  :label="$t('Description')"
-                  :placeholder="$t('Description')"
-                  :error-messages="errors.description"
-                />
-              </VCol>
-
-              <!-- 👉 Internal Remarks -->
-              <VCol cols="12">
-                <AppTextarea
-                  v-model="productData.internalRemarks"
-                  :label="$t('Internal Remarks')"
-                  :placeholder="$t('Internal Remarks')"
-                  :error-messages="errors.internalRemarks"
-                />
-              </VCol>
-
-              <!-- 👉 Remarks -->
-              <VCol cols="12">
-                <AppTextarea
-                  v-model="productData.remarks"
-                  :label="$t('Remarks')"
-                  :placeholder="$t('Remarks')"
-                  :error-messages="errors.remarks"
-                />
-              </VCol>
-              <VCol cols="12">
-                <div>
-                  <h6 class="text-h6 mb-2">
-                    {{ $t('Category') }}
-                  </h6>
-                  <CategoryBuilderProductNode
-                    v-for="node in tree"
-                    :key="node.realId"
-                    :node="node"
-                    :selected="checkedCategories"
-                    :indeterminate="isIndeterminate(node)"
-                    @toggle-select="onToggleSelect"
-                  />
-                </div>
-              </VCol>
+              </div>
+            </VCol>
               
-              <!-- 👉 Submit and Cancel -->
-              <VCol cols="12">
-                <VBtn
-                  type="submit"
-                  class="me-3"
-                >
-                  {{ $t('Submit') }}
-                </VBtn>
-                <VBtn
-                  type="reset"
-                  variant="tonal"
-                  color="error"
-                  @click="closeNavigationDrawer"
-                >
-                  {{ $t('Cancel') }}
-                </VBtn>
-              </VCol>
-            </VRow>
-          </VForm>
-        </VCardText>
-      </VCard>
-    </PerfectScrollbar>
-  </VNavigationDrawer>
+            <!-- 👉 Submit and Cancel -->
+            <VCol cols="12">
+              <VBtn
+                type="submit"
+                class="me-3"
+              >
+                {{ $t('Submit') }}
+              </VBtn>
+              <VBtn
+                type="reset"
+                variant="tonal"
+                color="error"
+                @click="closeNavigationDrawer"
+              >
+                {{ $t('Cancel') }}
+              </VBtn>
+            </VCol>
+          </VRow>
+        </VForm>
+      </VCardText>
+    </VCard>
+  </VDialog>
 
   <AddNewPackagetypeDialog
     v-if="isAddNewPackagetypeDrawerVisible"

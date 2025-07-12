@@ -8,7 +8,7 @@ definePage({
   },
 })
 
-import AddNewProductDrawer from '@/views/admin/products/AddNewProductDrawer.vue'
+import AddNewProductDialog from '@/views/admin/products/AddNewProductDialog.vue'
 import CategoryBuilderProductDetailNode from '@/views/admin/settings/CategoryBuilderProductDetailNode.vue'
 
 import { can } from '@layouts/plugins/casl'
@@ -570,9 +570,9 @@ const isIndeterminate = node => {
       </VAlert>
     </div>
 
-    <AddNewProductDrawer
+    <AddNewProductDialog
       v-if="isProductDialogVisible"
-      v-model:is-drawer-open="isProductDialogVisible"
+      v-model:is-dialog-visible="isProductDialogVisible"
       v-model:product="productData"
       v-model:manufacturers="manufacturers"
       v-model:suppliers="suppliers"

@@ -11,6 +11,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  cities: {
+    type: Object,
+    required: true,
+  },
   admin: {
     type: Object,
     required: false,
@@ -21,8 +25,7 @@ const props = defineProps({
       lastName: '',
       email: '',
       position: '',
-      cityId: '',
-      cityName: '',
+      cityID: '',
       street: '',
       houseNumber: '',
       remarks: '',
@@ -39,6 +42,7 @@ const emit = defineEmits([
   'userData',
   'admin',
   'roles',
+  'cities',
 ])
 
 const toast = useToast()
@@ -50,6 +54,12 @@ const confirmPassword = ref('')
 const isNewPasswordVisible = ref(false)
 const isConfirmPasswordVisible = ref(false)
 const adminData = ref(structuredClone(toRaw(props.admin)))
+
+if(props.admin._id) {
+  if(props.admin.cityID) {
+    adminData.value.cityID = props.admin.cityID._id
+  }
+}
 
 if(props.admin.roles.length > 0) {
   adminData.value.roles = props.admin.roles.map(role => role._id)
@@ -75,8 +85,7 @@ const submit = async () => {
           position: adminData.value.position,
           roles: adminData.value.roles,
           status: adminData.value.status,
-          cityId: adminData.value.cityId,
-          cityName: adminData.value.cityName,
+          cityID: adminData.value.cityID,
           street: adminData.value.street,
           houseNumber: adminData.value.houseNumber,
           remarks: adminData.value.remarks,
@@ -98,8 +107,7 @@ const submit = async () => {
           roles: adminData.value.roles,
           password: password.value,
           status: adminData.value.status,
-          cityId: adminData.value.cityId,
-          cityName: adminData.value.cityName,
+          cityID: adminData.value.cityID,
           street: adminData.value.street,
           houseNumber: adminData.value.houseNumber,
           remarks: adminData.value.remarks,
@@ -149,8 +157,7 @@ const errors = ref({
   status: undefined,
   roles: undefined,
   password: undefined,
-  cityId: undefined,
-  cityName: undefined,
+  cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   remarks: undefined,
@@ -264,23 +271,15 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 City ID -->
+              <!-- 👉 City -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.cityId"
-                  :label="$t('City ID')"
-                  :placeholder="$t('City ID')"
-                  :error-messages="errors.cityId"
-                />
-              </VCol>
-
-              <!-- 👉 City Name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.cityName"
-                  :label="$t('City Name')"
-                  :placeholder="$t('City Name')"
-                  :error-messages="errors.cityName"
+                <AppAutocomplete
+                  v-model="adminData.cityID"
+                  :items="props.cities"
+                  :label="$t('City')"
+                  :placeholder="$t('Select City')"
+                  :error-messages="errors.cityID"
+                  clearable
                 />
               </VCol>
 

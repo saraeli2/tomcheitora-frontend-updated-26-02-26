@@ -16,6 +16,7 @@ const props = defineProps({
       name: '',
       email: '',
       position: '',
+      phone1: '',
     }),
   },
 })
@@ -138,6 +139,15 @@ watch(props, () => {
                 <AppTextField
                   v-model="adminData.position"
                   :label="$t('Position')"
+                  disabled
+                />
+              </VCol>
+
+              <!-- 👉 Phone 1 -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="adminData.phone1"
+                  :label="$t('Phone 1')"
                   disabled
                 />
               </VCol>

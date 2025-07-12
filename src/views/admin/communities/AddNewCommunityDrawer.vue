@@ -7,6 +7,10 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  cities: {
+    type: Object,
+    required: true,
+  },
   community: {
     type: Object,
     required: false,
@@ -14,22 +18,40 @@ const props = defineProps({
       // eslint-disable-next-line camelcase
       _id: '',
       name: '',
-      cityId: '',
-      cityName: '',
+      cityID: '',
       street: '',
       houseNumber: '',
       remarks: '',
       website: '',
-      discountType: '',
-      discount: '',
+      discountPercentage: '',
+      discountFixed: '',
       status: 'Active',
+      contactInfo1: {
+      // eslint-disable-next-line camelcase
+        _id: '',
+        firstName: '',
+        lastName: '',
+        phone1: '',
+        phone2: '',
+        email: '',
+      },
+      contactInfo2: {
+      // eslint-disable-next-line camelcase
+        _id: '',
+        firstName: '',
+        lastName: '',
+        phone1: '',
+        phone2: '',
+        email: '',
+      },
     }),
   },
 })
 
 const emit = defineEmits([
   'update:isDrawerOpen',
-  'userData',
+  'updateData',
+  'cities',
   'community',
 ])
 
@@ -38,6 +60,12 @@ const toast = useToast()
 const isFormValid = ref(false)
 const refForm = ref()
 const communityData = ref(structuredClone(toRaw(props.community)))
+
+if(props.community._id) {
+  if(props.community.cityID) {
+    communityData.value.cityID = props.community.cityID._id
+  }
+}
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -55,15 +83,32 @@ const submit = async () => {
         method: 'PATCH',
         body: {
           name: communityData.value.name,
-          cityId: communityData.value.cityId,
-          cityName: communityData.value.cityName,
+          cityID: communityData.value.cityID,
           street: communityData.value.street,
           houseNumber: communityData.value.houseNumber,
           website: communityData.value.website,
-          discountType: communityData.value.discountType,
-          discount: communityData.value.discount,
+          discountPercentage: communityData.value.discountPercentage,
+          discountFixed: communityData.value.discountFixed,
           remarks: communityData.value.remarks,
           status: communityData.value.status,
+          contactInfo1: {
+            // eslint-disable-next-line camelcase
+            _id: communityData.value.contactInfo1._id,
+            firstName: communityData.value.contactInfo1.firstName,
+            lastName: communityData.value.contactInfo1.lastName,
+            phone1: communityData.value.contactInfo1.phone1,
+            phone2: communityData.value.contactInfo1.phone2,
+            email: communityData.value.contactInfo1.email,
+          },
+          contactInfo2: {
+            // eslint-disable-next-line camelcase
+            _id: communityData.value.contactInfo2._id,
+            firstName: communityData.value.contactInfo2.firstName,
+            lastName: communityData.value.contactInfo2.lastName,
+            phone1: communityData.value.contactInfo2.phone1,
+            phone2: communityData.value.contactInfo2.phone2,
+            email: communityData.value.contactInfo2.email,
+          },
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -74,15 +119,32 @@ const submit = async () => {
         method: 'POST',
         body: {
           name: communityData.value.name,
-          cityId: communityData.value.cityId,
-          cityName: communityData.value.cityName,
+          cityID: communityData.value.cityID,
           street: communityData.value.street,
           houseNumber: communityData.value.houseNumber,
           website: communityData.value.website,
-          discountType: communityData.value.discountType,
-          discount: communityData.value.discount,
+          discountPercentage: communityData.value.discountPercentage,
+          discountFixed: communityData.value.discountFixed,
           remarks: communityData.value.remarks,
           status: communityData.value.status,
+          contactInfo1: {
+            // eslint-disable-next-line camelcase
+            _id: communityData.value.contactInfo1._id,
+            firstName: communityData.value.contactInfo1.firstName,
+            lastName: communityData.value.contactInfo1.lastName,
+            phone1: communityData.value.contactInfo1.phone1,
+            phone2: communityData.value.contactInfo1.phone2,
+            email: communityData.value.contactInfo1.email,
+          },
+          contactInfo2: {
+            // eslint-disable-next-line camelcase
+            _id: communityData.value.contactInfo2._id,
+            firstName: communityData.value.contactInfo2.firstName,
+            lastName: communityData.value.contactInfo2.lastName,
+            phone1: communityData.value.contactInfo2.phone1,
+            phone2: communityData.value.contactInfo2.phone2,
+            email: communityData.value.contactInfo2.email,
+          },
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -91,7 +153,7 @@ const submit = async () => {
     }
 
     await nextTick(() => {
-      emit('userData')
+      emit('updateData')
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()
@@ -120,13 +182,12 @@ const handleDrawerModelValueUpdate = val => {
 
 const errors = ref({
   name: undefined,
-  cityId: undefined,
-  cityName: undefined,
+  cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   website: undefined,
-  discountType: undefined,
-  discount: undefined,
+  discountPercentage: undefined,
+  discountFixed: undefined,
   remarks: undefined,
   status: undefined,
 })
@@ -176,23 +237,15 @@ const errors = ref({
                 />
               </VCol>
 
-              <!-- 👉 City ID -->
+              <!-- 👉 City -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="communityData.cityId"
-                  label="$t('City ID')"
-                  placeholder="$t('City ID')"
-                  :error-messages="errors.cityId"
-                />
-              </VCol>
-
-              <!-- 👉 City Name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="communityData.cityName"
-                  :label="$t('City Name')"
-                  :placeholder="$t('City Name')"
-                  :error-messages="errors.cityName"
+                <AppAutocomplete
+                  v-model="communityData.cityID"
+                  :items="props.cities"
+                  :label="$t('City')"
+                  :placeholder="$t('Select City')"
+                  :error-messages="errors.cityID"
+                  clearable
                 />
               </VCol>
 
@@ -226,28 +279,25 @@ const errors = ref({
                 />
               </VCol>
 
-              <!-- 👉 Discount Type -->
+              <!-- 👉 Discount in % -->
               <VCol cols="12">
-                <AppAutocomplete
-                  v-model="communityData.discountType"
-                  :items="[
-                    { value: 'Fixed', title: 'Fixed' },
-                    { value: 'Percentage', title: 'Percentage' },
-                  ]"
-                  :placeholder="$t('Select Discount Type')"
-                  :label="$t('Discount Type')"
-                  :error-messages="errors.discountType"
+                <AppTextField
+                  v-model="communityData.discountPercentage"
+                  :rules="[numericValidator]"
+                  :label="$t('Discount in %')"
+                  :placeholder="$t('Discount in %')"
+                  :error-messages="errors.discountPercentage"
                 />
               </VCol>
 
-              <!-- 👉 Discount -->
+              <!-- 👉 Discount Fixed Number -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="communityData.discount"
+                  v-model="communityData.discountFixed"
                   :rules="[numericValidator]"
-                  :label="$t('Discount')"
-                  :placeholder="$t('Discount')"
-                  :error-messages="errors.discount"
+                  :label="$t('Discount Fixed Number')"
+                  :placeholder="$t('Discount Fixed Number')"
+                  :error-messages="errors.discountFixed"
                 />
               </VCol>
 
@@ -273,6 +323,112 @@ const errors = ref({
                   :label="$t('Remarks')"
                   :placeholder="$t('Remarks')"
                   :error-messages="errors.remarks"
+                />
+              </VCol>
+
+              <VDivider />
+
+              <VCol cols="12">
+                <h6 class="text-h6 my-6">
+                  {{ $t('Contact information 1') }}
+                </h6>
+              </VCol>
+
+              <!-- 👉 First Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo1.firstName"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
+                />
+              </VCol>
+            
+              <!-- 👉 Last Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo1.lastName"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
+                />
+              </VCol>
+
+              <!-- 👉 Phone1 -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo1.phone1"
+                  :label="$t('Phone 1')"
+                  :placeholder="$t('Phone 1')"
+                />
+              </VCol>
+
+              <!-- 👉 Phone2 -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo1.phone2"
+                  :label="$t('Phone 2')"
+                  :placeholder="$t('Phone 2')"
+                />
+              </VCol>
+
+              <!-- 👉 Email -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo1.email"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
+                />
+              </VCol>
+
+              <VDivider />
+
+              <VCol cols="12">
+                <h6 class="text-h6 my-6">
+                  {{ $t('Contact information 2') }}
+                </h6>
+              </VCol>
+
+              <!-- 👉 First Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo2.firstName"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
+                />
+              </VCol>
+            
+              <!-- 👉 Last Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo2.lastName"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
+                />
+              </VCol>
+
+              <!-- 👉 Phone1 -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo2.phone1"
+                  :label="$t('Phone 1')"
+                  :placeholder="$t('Phone 1')"
+                />
+              </VCol>
+
+              <!-- 👉 Phone2 -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo2.phone2"
+                  :label="$t('Phone 2')"
+                  :placeholder="$t('Phone 2')"
+                />
+              </VCol>
+
+              <!-- 👉 Email -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="communityData.contactInfo2.email"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
                 />
               </VCol>
               

@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-distribution-managers', 'admin-create-distribution-managers'],
@@ -18,6 +19,7 @@ const { t } = useI18n()
 
 const searchQuery = ref('')
 const selectedRole = ref()
+const selectedCity = ref()
 const selectedStatus = ref()
 const selectedRows = ref([])
 
@@ -55,12 +57,8 @@ const headers = computed(() => [
     key: 'position',
   },
   {
-    title: t('City ID'),
-    key: 'cityId',
-  },
-  {
-    title: t('City Name'),
-    key: 'cityName',
+    title: t('City'),
+    key: 'cityID',
   },
   {
     title: t('Street'),
@@ -114,6 +112,7 @@ const {
   query: {
     search: searchQuery,
     status: selectedStatus,
+    cityID: selectedCity,
     role: selectedRole,
     itemsPerPage,
     page,
@@ -132,6 +131,14 @@ const roleOptions = computed(() => commonsync.roleOptions)
 const roles = roleOptions.value.map(item => ({
   value: item._id,
   title: item.name,
+}))
+
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -266,6 +273,19 @@ const resetPassword = val => {
                     clearable
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCity"
+                    :items="cities"
+                    :placeholder="$t('City')"
+                    clearable
+                  />
+                </VCol>
+                
                 <VCol
                   cols="12"
                   sm="4"
@@ -325,14 +345,9 @@ const resetPassword = val => {
           {{ item.position }}
         </template>
 
-        <!-- cityId -->
-        <template #[`item.cityId`]="{ item }">
-          {{ item.cityId }}
-        </template>
-
-        <!-- cityName -->
-        <template #[`item.cityName`]="{ item }">
-          {{ item.cityName }}
+        <!-- cityID -->
+        <template #[`item.cityID`]="{ item }">
+          {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
         <!-- street -->
@@ -464,6 +479,7 @@ const resetPassword = val => {
       v-if="isAddNewAdminDrawerVisible"
       v-model:is-drawer-open="isAddNewAdminDrawerVisible"
       v-model:roles="roles"
+      v-model:cities="cities"
       @user-data="modifyAdmin"
     />
 
@@ -471,6 +487,7 @@ const resetPassword = val => {
       v-if="isAdminDialogVisible"
       v-model:is-drawer-open="isAdminDialogVisible"
       v-model:roles="roles"
+      v-model:cities="cities"
       v-model:admin="adminDetail"
       @user-data="modifyAdmin"
     />

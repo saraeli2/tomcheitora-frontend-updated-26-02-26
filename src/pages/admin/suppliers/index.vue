@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-suppliers', 'admin-create-suppliers'],
@@ -8,7 +9,7 @@ definePage({
   },
 })
 
-import AddNewSupplierDrawer from '@/views/admin/suppliers/AddNewSupplierDrawer.vue'
+import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -18,6 +19,7 @@ const { t } = useI18n()
 const searchQuery = ref('')
 const selectedStatus = ref()
 const selectedCountry = ref()
+const selectedCity = ref()
 const selectedRows = ref([])
 
 // Data table options
@@ -26,7 +28,7 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const isSupplierDialogVisible = ref(false)
-const isAddNewSupplierDrawerVisible = ref(false)
+const isAddNewSupplierDialogVisible = ref(false)
 const supplierDetail = ref()
 const panel = ref()
 
@@ -50,7 +52,7 @@ const headers = computed(() => [
   },
   {
     title: t('City'),
-    key: 'city',
+    key: 'cityID',
   },
   {
     title: t('Street'),
@@ -90,6 +92,7 @@ const {
   query: {
     search: searchQuery,
     status: selectedStatus,
+    cityID: selectedCity,
     country: selectedCountry,
     itemsPerPage,
     page,
@@ -103,6 +106,12 @@ const totalSuppliers = computed(() => customerData.value.total)
 
 const commonsync = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
 const countryOptions = computed(() => commonsync.countryOptions)
+const cityOptions = computed(() => commonsync.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
 
 const countries = countryOptions.value.map(item => ({
   value: item._id,
@@ -122,13 +131,15 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifySupplier = async userData => {
+const modifySupplier = async updateData => {
   // refetch Supplier
   fetchSuppliers()
 }
 
 const editSupplier = async value => {
-  supplierDetail.value = value
+  const data = await $api(`/admin/suppliers/${ value._id }`).catch(err => console.log(err))
+
+  supplierDetail.value = data
   
   isSupplierDialogVisible.value = true
 }
@@ -193,7 +204,7 @@ const deleteSupplier = async id => {
           <VBtn
             v-if="can('admin-create-suppliers', 'Create Suppliers')"
             prepend-icon="tabler-plus"
-            @click="isAddNewSupplierDrawerVisible = true"
+            @click="isAddNewSupplierDialogVisible = true"
           >
             {{ $t('Create Supplier') }}
           </VBtn>
@@ -232,6 +243,18 @@ const deleteSupplier = async id => {
                     v-model="selectedCountry"
                     :items="countries"
                     :placeholder="$t('Country')"
+                    clearable
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCity"
+                    :items="cities"
+                    :placeholder="$t('City')"
                     clearable
                   />
                 </VCol>
@@ -288,9 +311,9 @@ const deleteSupplier = async id => {
           {{ item.countryID ? item.countryID.name : '' }}
         </template>
 
-        <!-- city -->
-        <template #[`item.city`]="{ item }">
-          {{ item.city }}
+        <!-- cityID -->
+        <template #[`item.cityID`]="{ item }">
+          {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
         <!-- street -->
@@ -382,19 +405,20 @@ const deleteSupplier = async id => {
     <!-- !SECTION -->
     </VCard>
 
-    <AddNewSupplierDrawer
-      v-if="isAddNewSupplierDrawerVisible"
-      v-model:is-drawer-open="isAddNewSupplierDrawerVisible"
+    <AddNewSupplierDialog
+      v-if="isAddNewSupplierDialogVisible"
+      v-model:is-dialog-visible="isAddNewSupplierDialogVisible"
       v-model:countries="countries"
-      @user-data="modifySupplier"
+      @update-data="modifySupplier"
     />
 
-    <AddNewSupplierDrawer
+    <AddNewSupplierDialog
       v-if="isSupplierDialogVisible"
-      v-model:is-drawer-open="isSupplierDialogVisible"
+      v-model:is-dialog-visible="isSupplierDialogVisible"
       v-model:countries="countries"
+      v-model:cities="cities"
       v-model:supplier="supplierDetail"
-      @user-data="modifySupplier"
+      @update-data="modifySupplier"
     />
   </section>
 </template>
