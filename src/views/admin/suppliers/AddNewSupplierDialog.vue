@@ -1,4 +1,5 @@
 <script setup>
+import CategoryBuilderProductNode from '@/views/admin/settings/CategoryBuilderProductNode.vue'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps({
@@ -28,6 +29,7 @@ const props = defineProps({
       houseNumber: null,
       remarks: '',
       status: 'Active',
+      categoryIDs: [],
       contactInfo1: {
       // eslint-disable-next-line camelcase
         _id: '',
@@ -97,6 +99,7 @@ const submit = async () => {
           houseNumber: supplierData.value.houseNumber,
           remarks: supplierData.value.remarks,
           status: supplierData.value.status,
+          categoryIDs: checkedCategories.value,
           contactInfo1: {
             // eslint-disable-next-line camelcase
             _id: supplierData.value.contactInfo1._id,
@@ -132,6 +135,7 @@ const submit = async () => {
           houseNumber: supplierData.value.houseNumber,
           remarks: supplierData.value.remarks,
           status: supplierData.value.status,
+          categoryIDs: checkedCategories.value,
           contactInfo1: {
             // eslint-disable-next-line camelcase
             _id: supplierData.value.contactInfo1._id,
@@ -196,6 +200,122 @@ const errors = ref({
   remarks: undefined,
   status: undefined,
 })
+
+const {
+  data: categoryBuilderData,
+  execute: fetchCategoryBuilders,
+} = await useApi(createUrl('/admin/settings/categories'))
+
+const categories = computed(() => categoryBuilderData.value.categories)
+
+const tree = ref([])
+
+const buildTree = categories => {
+  const categoryMap = {}
+
+  // 1. Initialize all categories with empty children array
+  categories.forEach(cat => {
+    categoryMap[cat._id.toString()] = { ...cat, children: [] }
+  })
+
+  const roots = []
+
+  // 2. Build the tree by assigning children to their parents
+  categories.forEach(cat => {
+    if (cat.parentId) {
+      const parentId = cat.parentId.toString()
+      if (categoryMap[parentId]) {
+        categoryMap[parentId].children.push(categoryMap[cat._id.toString()])
+      } else {
+        // If parent not found, consider as root or handle error
+        roots.push(categoryMap[cat._id.toString()])
+      }
+    } else {
+      // No parentId means root node
+      roots.push(categoryMap[cat._id.toString()])
+    }
+  })
+
+  // 3. Optionally sort children by a property, e.g. 'sortOrder'
+  const sortChildren = nodes => {
+    nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    nodes.forEach(node => {
+      if (node.children?.length) {
+        sortChildren(node.children)
+      }
+    })
+  }
+
+  sortChildren(roots)
+
+  return roots
+}
+
+tree.value = buildTree(categories.value)
+
+const checkedCategories = ref(props.supplier.categoryIDs)
+const getNodeId = node => node.realId || node._id
+
+const getAllDescendants = node => {
+  let ids = [getNodeId(node)]
+  if (node.children && node.children.length) {
+    for (const child of node.children) {
+      ids = ids.concat(getAllDescendants(child))
+    }
+  }
+  
+  return ids
+}
+
+const findNodeById = (tree, id) => {
+  for (const node of tree) {
+    if (getNodeId(node) === id) return node
+    if (node.children) {
+      const found = findNodeById(node.children, id)
+      if (found) return found
+    }
+  }
+  
+  return null
+}
+
+const onToggleSelect = ({ id, checked }) => {
+  const node = findNodeById(tree.value, id)
+  if (!node) {
+    console.warn('Node not found for id:', id)
+    
+    return
+  }
+
+  const descendants = getAllDescendants(node)
+
+  if (checked) {
+    checkedCategories.value = Array.from(new Set([
+      ...checkedCategories.value,
+      ...descendants,
+    ]))
+  } else {
+    checkedCategories.value = checkedCategories.value.filter(
+      catId => !descendants.includes(catId),
+    )
+  }
+}
+
+
+// Check if all descendants of node are selected
+const areAllDescendantsSelected = node => {
+  const descendants = getAllDescendants(node)
+  
+  return descendants.every(id => checkedCategories.value.includes(id))
+}
+
+// Check if some (but not all) descendants of node are selected
+const isIndeterminate = node => {
+  const descendants = getAllDescendants(node)
+  const selectedCount = descendants.filter(id => checkedCategories.value.includes(id)).length
+
+  return selectedCount > 0 && selectedCount < descendants.length
+}
 </script>
 
 <template>
@@ -318,7 +438,7 @@ const errors = ref({
 
             <VCol cols="12">
               <h6 class="text-h6 my-6">
-                {{ $t('Contact information 1') }}
+                {{ $t('Contact information 1 / 2') }}
               </h6>
             </VCol>
 
@@ -371,7 +491,7 @@ const errors = ref({
 
             <VCol cols="12">
               <h6 class="text-h6 my-6">
-                {{ $t('Contact information 2') }}
+                {{ $t('Contact information 2 / 2') }}
               </h6>
             </VCol>
 
@@ -418,6 +538,22 @@ const errors = ref({
                 :label="$t('Email')"
                 :placeholder="$t('Email')"
               />
+            </VCol>
+
+            <VCol cols="12">
+              <div>
+                <h6 class="text-h6 mb-2">
+                  {{ $t('Category') }}
+                </h6>
+                <CategoryBuilderProductNode
+                  v-for="node in tree"
+                  :key="node.realId"
+                  :node="node"
+                  :selected="checkedCategories"
+                  :indeterminate="isIndeterminate(node)"
+                  @toggle-select="onToggleSelect"
+                />
+              </div>
             </VCol>
               
             <!-- 👉 Submit and Cancel -->

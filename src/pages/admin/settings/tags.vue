@@ -97,7 +97,7 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyTag = async userData => {
+const modifyTag = async updateData => {
   // refetch Tag
   fetchTags()
 }
@@ -329,14 +329,14 @@ const deleteTag = async id => {
     <AddNewTagDrawer
       v-if="isAddNewTagDrawerVisible"
       v-model:is-drawer-open="isAddNewTagDrawerVisible"
-      @user-data="modifyTag"
+      @update-data="modifyTag"
     />
 
     <AddNewTagDrawer
       v-if="isTagDialogVisible"
       v-model:is-drawer-open="isTagDialogVisible"
       v-model:tag="tagDetail"
-      @user-data="modifyTag"
+      @update-data="modifyTag"
     />
   </section>
 </template>

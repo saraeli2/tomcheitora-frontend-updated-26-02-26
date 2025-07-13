@@ -330,7 +330,7 @@ const errors = ref({
 
               <VCol cols="12">
                 <h6 class="text-h6 my-6">
-                  {{ $t('Contact information 1') }}
+                  {{ $t('Contact information 1 / 2') }}
                 </h6>
               </VCol>
 
@@ -383,7 +383,7 @@ const errors = ref({
 
               <VCol cols="12">
                 <h6 class="text-h6 my-6">
-                  {{ $t('Contact information 2') }}
+                  {{ $t('Contact information 2 / 2') }}
                 </h6>
               </VCol>
 

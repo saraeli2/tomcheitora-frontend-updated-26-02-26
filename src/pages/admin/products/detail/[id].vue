@@ -98,50 +98,6 @@ const handleUpdatedSuppliers = async () => {
 
 const reloadTab = ref(true)
 
-const modifyProduct = async userData => {
-  // refetch Organization
-  fetchProducts()
-}
-
-const deleteProduct = async () => {
-  Swal.fire({
-    title: 'Are You Sure?',
-    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
-    // eslint-disable-next-line global-require
-    icon: 'warning',
-    reverseButtons: true,
-    showCancelButton: true,
-    cancelButtonText: 'No, Cancel',
-    confirmButtonText: 'Yes, Delete!',
-    customClass: {
-      confirmButton: 'btn btn-primary ml-1',
-      cancelButton: 'btn btn-outline-primary',
-    },
-    buttonsStyling: false,
-  })
-    .then(async result => {
-      if (result.value) {
-        await $api(`/admin/products/${ route.params.id }`, { method: 'DELETE' })
-        router.push({ name: 'admin-products' })
-      }
-    })
-}
-
-const refreshTab = async tabData => {
-  reloadTab.value = false
-  await nextTick()
-  reloadTab.value = true
-}
-
-onMounted( async () => {
-  if(route.query.detailstab) {
-    userTab.value = route.query.detailstab
-  }
-  await handleUpdatedSync()
-  await handleUpdatedManufacturers()
-  await handleUpdatedSuppliers()
-})
-
 const {
   data: categoryBuilderData,
   execute: fetchCategoryBuilders,
@@ -151,7 +107,7 @@ const categories = computed(() => categoryBuilderData.value.categories)
 
 const tree = ref([])
 
-const checkedCategories = ref(productData.value.categoryIDs)
+const checkedCategories = ref([])
 
 const getNodeId = node => node.realId || node._id
 
@@ -235,6 +191,56 @@ const isIndeterminate = node => {
 
   return selectedCount > 0 && selectedCount < descendants.length
 }
+
+const modifyProduct = async userData => {
+  // refetch Organization
+  fetchProducts()
+  fetchCategoryBuilders()
+  tree.value = buildTree(categories.value)
+}
+
+const deleteProduct = async () => {
+  Swal.fire({
+    title: 'Are You Sure?',
+    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    // eslint-disable-next-line global-require
+    icon: 'warning',
+    reverseButtons: true,
+    showCancelButton: true,
+    cancelButtonText: 'No, Cancel',
+    confirmButtonText: 'Yes, Delete!',
+    customClass: {
+      confirmButton: 'btn btn-primary ml-1',
+      cancelButton: 'btn btn-outline-primary',
+    },
+    buttonsStyling: false,
+  })
+    .then(async result => {
+      if (result.value) {
+        await $api(`/admin/products/${ route.params.id }`, { method: 'DELETE' })
+        router.push({ name: 'admin-products' })
+      }
+    })
+}
+
+const refreshTab = async tabData => {
+  reloadTab.value = false
+  await nextTick()
+  reloadTab.value = true
+}
+
+onMounted( async () => {
+  if(route.query.detailstab) {
+    userTab.value = route.query.detailstab
+  }
+  await handleUpdatedSync()
+  await handleUpdatedManufacturers()
+  await handleUpdatedSuppliers()
+})
+
+watch(productData, newVal => {
+  checkedCategories.value = newVal?.categoryIDs || []
+})
 </script>
 
 <template>

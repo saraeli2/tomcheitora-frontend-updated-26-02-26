@@ -103,7 +103,7 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyQuantitytype = async userData => {
+const modifyQuantitytype = async updateData => {
   // refetch Quantitytype
   fetchQuantitytypes()
 }
@@ -340,14 +340,14 @@ const deleteQuantitytype = async id => {
     <AddNewQuantitytypeDrawer
       v-if="isAddNewQuantitytypeDrawerVisible"
       v-model:is-drawer-open="isAddNewQuantitytypeDrawerVisible"
-      @user-data="modifyQuantitytype"
+      @update-data="modifyQuantitytype"
     />
 
     <AddNewQuantitytypeDrawer
       v-if="isQuantitytypeDialogVisible"
       v-model:is-drawer-open="isQuantitytypeDialogVisible"
       v-model:quantitytype="quantitytypeDetail"
-      @user-data="modifyQuantitytype"
+      @update-data="modifyQuantitytype"
     />
   </section>
 </template>

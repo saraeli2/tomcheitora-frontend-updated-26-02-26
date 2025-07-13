@@ -103,7 +103,7 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyCertification = async userData => {
+const modifyCertification = async updateData => {
   // refetch Certification
   fetchCertifications()
 }
@@ -351,14 +351,14 @@ const deleteCertification = async id => {
     <AddNewCertificationDrawer
       v-if="isAddNewCertificationDrawerVisible"
       v-model:is-drawer-open="isAddNewCertificationDrawerVisible"
-      @user-data="modifyCertification"
+      @update-data="modifyCertification"
     />
 
     <AddNewCertificationDrawer
       v-if="isCertificationDialogVisible"
       v-model:is-drawer-open="isCertificationDialogVisible"
       v-model:certification="certificationDetail"
-      @user-data="modifyCertification"
+      @update-data="modifyCertification"
     />
   </section>
 </template>

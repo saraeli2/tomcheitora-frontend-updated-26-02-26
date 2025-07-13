@@ -71,7 +71,7 @@ const buildTree = categories => {
   return roots
 }
 
-const modifyCategoryBuilder = async userData => {
+const modifyCategoryBuilder = async updateData => {
   // refetch Category
   fetchCategoryBuilders()
 }
@@ -217,7 +217,7 @@ watch(categoryBuilderData, newVal => {
       v-if="isAddNewCategoryDrawerVisible"
       v-model:is-drawer-open="isAddNewCategoryDrawerVisible"
       v-model:parent="parentId"
-      @user-data="modifyCategoryBuilder"
+      @update-data="modifyCategoryBuilder"
     />
 
     <AddNewCategoryDrawer
@@ -225,7 +225,7 @@ watch(categoryBuilderData, newVal => {
       v-model:is-drawer-open="isCategoryDialogVisible"
       v-model:parent="parentId"
       v-model:category="categoryDetail"
-      @user-data="modifyCategoryBuilder"
+      @update-data="modifyCategoryBuilder"
     />
   </div>
 </template>

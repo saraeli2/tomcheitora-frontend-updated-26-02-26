@@ -99,7 +99,7 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyPackagetype = async userData => {
+const modifyPackagetype = async updateData => {
   // refetch Packagetype
   fetchPackagetypes()
 }
@@ -331,14 +331,14 @@ const deletePackagetype = async id => {
     <AddNewPackagetypeDrawer
       v-if="isAddNewPackagetypeDrawerVisible"
       v-model:is-drawer-open="isAddNewPackagetypeDrawerVisible"
-      @user-data="modifyPackagetype"
+      @update-data="modifyPackagetype"
     />
 
     <AddNewPackagetypeDrawer
       v-if="isPackagetypeDialogVisible"
       v-model:is-drawer-open="isPackagetypeDialogVisible"
       v-model:packagetype="packagetypeDetail"
-      @user-data="modifyPackagetype"
+      @update-data="modifyPackagetype"
     />
   </section>
 </template>

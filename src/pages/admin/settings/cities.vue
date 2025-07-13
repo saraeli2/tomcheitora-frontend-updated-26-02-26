@@ -113,7 +113,7 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const modifyCity = async userData => {
+const modifyCity = async updateData => {
   // refetch City
   fetchCities()
 }
@@ -365,14 +365,14 @@ const deleteCity = async id => {
     <AddNewCityDrawer
       v-if="isAddNewCityDrawerVisible"
       v-model:is-drawer-open="isAddNewCityDrawerVisible"
-      @user-data="modifyCity"
+      @update-data="modifyCity"
     />
 
     <AddNewCityDrawer
       v-if="isCityDialogVisible"
       v-model:is-drawer-open="isCityDialogVisible"
       v-model:city="cityDetail"
-      @user-data="modifyCity"
+      @update-data="modifyCity"
     />
   </section>
 </template>

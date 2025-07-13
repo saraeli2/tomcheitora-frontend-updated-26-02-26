@@ -80,11 +80,11 @@ const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const isAddNewPackagetypeDrawerVisible = ref(false)
-const isAddNewQuantitytypeDrawerVisible = ref(false)
-const isAddNewCertificationDrawerVisible = ref(false)
-const isAddNewManufacturerDrawerVisible = ref(false)
-const isAddNewSupplierDrawerVisible = ref(false)
+const isAddNewPackagetypeDialogVisible = ref(false)
+const isAddNewQuantitytypeDialogVisible = ref(false)
+const isAddNewCertificationDialogVisible = ref(false)
+const isAddNewManufacturerDialogVisible = ref(false)
+const isAddNewSupplierDialogVisible = ref(false)
 const productData = ref(structuredClone(toRaw(props.product)))
 
 const useSelectableList = (propRef, permissionKey, addNewTitle) => {
@@ -119,7 +119,7 @@ const quantitytypesUpdated = useSelectableList(toRef(props, 'quantitytypes'), 'a
 const onManufacturerChange = async value => {
   if (value === '__add_new__') {
     productData.value.manufacturerID = null
-    isAddNewManufacturerDrawerVisible.value = true
+    isAddNewManufacturerDialogVisible.value = true
   }
 }
 
@@ -130,7 +130,7 @@ const modifyManufacturerDialog = async updateData => {
 const onSupplierChange = async value => {
   if (value === '__add_new__') {
     productData.value.supplierID = null
-    isAddNewSupplierDrawerVisible.value = true
+    isAddNewSupplierDialogVisible.value = true
   }
 }
 
@@ -141,7 +141,7 @@ const modifySupplierDialog = async updateData => {
 const onCertificationChange = async value => {
   if (value === '__add_new__') {
     productData.value.certificationID = null
-    isAddNewCertificationDrawerVisible.value = true
+    isAddNewCertificationDialogVisible.value = true
   }
 }
 
@@ -152,7 +152,7 @@ const modifyCertificationDialog = async updateData => {
 const onPackagetypeChange = async value => {
   if (value === '__add_new__') {
     productData.value.packagetypeID = null
-    isAddNewPackagetypeDrawerVisible.value = true
+    isAddNewPackagetypeDialogVisible.value = true
   }
 }
 
@@ -163,7 +163,7 @@ const modifyPackagetypeDialog = async updateData => {
 const onQuantitytypeChange = async value => {
   if (value === '__add_new__') {
     productData.value.quantitytypeID = null
-    isAddNewQuantitytypeDrawerVisible.value = true
+    isAddNewQuantitytypeDialogVisible.value = true
   }
 }
 
@@ -691,34 +691,34 @@ const isIndeterminate = node => {
   </VDialog>
 
   <AddNewPackagetypeDialog
-    v-if="isAddNewPackagetypeDrawerVisible"
-    v-model:is-dialog-visible="isAddNewPackagetypeDrawerVisible"
+    v-if="isAddNewPackagetypeDialogVisible"
+    v-model:is-dialog-visible="isAddNewPackagetypeDialogVisible"
     @update-data="modifyPackagetypeDialog"
   />
 
   <AddNewQuantitytypeDialog
-    v-if="isAddNewQuantitytypeDrawerVisible"
-    v-model:is-dialog-visible="isAddNewQuantitytypeDrawerVisible"
+    v-if="isAddNewQuantitytypeDialogVisible"
+    v-model:is-dialog-visible="isAddNewQuantitytypeDialogVisible"
     @update-data="modifyQuantitytypeDialog"
   />
 
   <AddNewCertificationDialog
-    v-if="isAddNewCertificationDrawerVisible"
-    v-model:is-dialog-visible="isAddNewCertificationDrawerVisible"
+    v-if="isAddNewCertificationDialogVisible"
+    v-model:is-dialog-visible="isAddNewCertificationDialogVisible"
     @update-data="modifyCertificationDialog"
   />
 
   <AddNewManufacturerDialog
-    v-if="isAddNewManufacturerDrawerVisible"
-    v-model:is-dialog-visible="isAddNewManufacturerDrawerVisible"
+    v-if="isAddNewManufacturerDialogVisible"
+    v-model:is-dialog-visible="isAddNewManufacturerDialogVisible"
     v-model:countries="countries"
     v-model:cities="cities"
     @update-data="modifyManufacturerDialog"
   />
 
   <AddNewSupplierDialog
-    v-if="isAddNewSupplierDrawerVisible"
-    v-model:is-dialog-visible="isAddNewSupplierDrawerVisible"
+    v-if="isAddNewSupplierDialogVisible"
+    v-model:is-dialog-visible="isAddNewSupplierDialogVisible"
     v-model:countries="countries"
     v-model:cities="cities"
     @update-data="modifySupplierDialog"

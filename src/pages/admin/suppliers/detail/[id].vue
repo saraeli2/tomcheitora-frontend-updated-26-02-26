@@ -9,6 +9,7 @@ definePage({
 })
 
 import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
+import CategoryBuilderProductDetailNode from '@/views/admin/settings/CategoryBuilderProductDetailNode.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -56,9 +57,105 @@ const countries = countryOptions.value.map(item => ({
 
 const reloadTab = ref(true)
 
+const {
+  data: categoryBuilderData,
+  execute: fetchCategoryBuilders,
+} = await useApi(createUrl('/admin/settings/categories'))
+
+const categories = computed(() => categoryBuilderData.value.categories)
+
+const tree = ref([])
+
+const checkedCategories = ref([])
+
+const getNodeId = node => node.realId || node._id
+
+const getAllDescendants = node => {
+  let ids = [getNodeId(node)]
+  if (node.children && node.children.length) {
+    for (const child of node.children) {
+      ids = ids.concat(getAllDescendants(child))
+    }
+  }
+  
+  return ids
+}
+
+const findNodeById = (tree, id) => {
+  for (const node of tree) {
+    if (getNodeId(node) === id) return node
+    if (node.children) {
+      const found = findNodeById(node.children, id)
+      if (found) return found
+    }
+  }
+  
+  return null
+}
+
+const buildTree = categories => {
+  const categoryMap = {}
+
+  // 1. Initialize all categories with empty children array
+  categories.forEach(cat => {
+    categoryMap[cat._id.toString()] = { ...cat, children: [] }
+  })
+
+  const roots = []
+
+  // 2. Build the tree by assigning children to their parents
+  categories.forEach(cat => {
+    if (cat.parentId) {
+      const parentId = cat.parentId.toString()
+      if (categoryMap[parentId]) {
+        categoryMap[parentId].children.push(categoryMap[cat._id.toString()])
+      } else {
+        // If parent not found, consider as root or handle error
+        roots.push(categoryMap[cat._id.toString()])
+      }
+    } else {
+      // No parentId means root node
+      roots.push(categoryMap[cat._id.toString()])
+    }
+  })
+
+  // 3. Optionally sort children by a property, e.g. 'sortOrder'
+  const sortChildren = nodes => {
+    nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    nodes.forEach(node => {
+      if (node.children?.length) {
+        sortChildren(node.children)
+      }
+    })
+  }
+
+  sortChildren(roots)
+
+  return roots
+}
+
+tree.value = buildTree(categories.value)
+
+// Check if all descendants of node are selected
+const areAllDescendantsSelected = node => {
+  const descendants = getAllDescendants(node)
+  
+  return descendants.every(id => checkedCategories.value.includes(id))
+}
+
+// Check if some (but not all) descendants of node are selected
+const isIndeterminate = node => {
+  const descendants = getAllDescendants(node)
+  const selectedCount = descendants.filter(id => checkedCategories.value.includes(id)).length
+
+  return selectedCount > 0 && selectedCount < descendants.length
+}
+
 const modifySupplier = async updateData => {
   // refetch Organization
   fetchSuppliers()
+  fetchCategoryBuilders()
+  tree.value = buildTree(categories.value)
 }
 
 const deleteSupplier = async () => {
@@ -95,6 +192,10 @@ onMounted( async () => {
   if(route.query.detailstab) {
     userTab.value = route.query.detailstab
   }
+})
+
+watch(supplierData, newVal => {
+  checkedCategories.value = newVal?.categoryIDs || []
 })
 </script>
 
@@ -290,7 +391,7 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <h5 class="text-h5">
-                  {{ $t('Contact information 1') }}
+                  {{ $t('Contact information 1 / 2') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -347,7 +448,7 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <h5 class="text-h5">
-                  {{ $t('Contact information 2') }}
+                  {{ $t('Contact information 2 / 2') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -396,6 +497,32 @@ onMounted( async () => {
                         {{ supplierData.contactInfo2.email }}
                       </span>
                     </h6>
+                  </VListItem>
+                </VList>
+              </VCardText>
+
+              <VCardText>
+                <VDivider class="my-4" />
+
+                <h5 class="text-h5">
+                  {{ $t('Category') }}
+                </h5>
+
+                <VDivider class="my-4" />
+
+                <VList class="card-list mt-2">
+                  <VListItem>
+                    <div class="mb-2">
+                      <div class="ps-2">
+                        <CategoryBuilderProductDetailNode
+                          v-for="node in tree"
+                          :key="node.realId || node._id"
+                          :node="node"
+                          :selected="supplierData.categoryIDs"
+                          :indeterminate="isIndeterminate(node)"
+                        />
+                      </div>
+                    </div>
                   </VListItem>
                 </VList>
               </VCardText>

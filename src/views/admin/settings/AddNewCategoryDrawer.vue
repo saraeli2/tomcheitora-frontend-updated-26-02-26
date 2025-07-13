@@ -29,7 +29,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:isDrawerOpen',
-  'userData',
+  'updateData',
   'parent',
   'category',
 ])
@@ -82,7 +82,7 @@ const submit = async () => {
       },
     }).then(async response => {
       await nextTick(() => {
-        emit('userData')
+        emit('updateData')
         emit('update:isDrawerOpen', false)
         refForm.value?.reset()
         refForm.value?.resetValidation()
@@ -100,7 +100,7 @@ const submit = async () => {
       },
     }).then(async response => {
       await nextTick(() => {
-        emit('userData')
+        emit('updateData')
         emit('update:isDrawerOpen', false)
         refForm.value?.reset()
         refForm.value?.resetValidation()

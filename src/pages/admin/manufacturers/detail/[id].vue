@@ -291,7 +291,7 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <h5 class="text-h5">
-                  {{ $t('Contact information 1') }}
+                  {{ $t('Contact information 1 / 2') }}
                 </h5>
 
                 <VDivider class="my-4" />
@@ -348,7 +348,7 @@ onMounted( async () => {
                 <VDivider class="my-4" />
 
                 <h5 class="text-h5">
-                  {{ $t('Contact information 2') }}
+                  {{ $t('Contact information 2 / 2') }}
                 </h5>
 
                 <VDivider class="my-4" />

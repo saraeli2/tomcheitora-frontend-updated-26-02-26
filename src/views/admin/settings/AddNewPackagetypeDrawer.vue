@@ -21,7 +21,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:isDrawerOpen',
-  'userData',
+  'updateData',
   'packagetype',
 ])
 
@@ -67,7 +67,7 @@ const submit = async () => {
     }
 
     await nextTick(() => {
-      emit('userData')
+      emit('updateData')
       emit('update:isDrawerOpen', false)
       refForm.value?.reset()
       refForm.value?.resetValidation()

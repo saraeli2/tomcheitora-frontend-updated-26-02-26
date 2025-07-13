@@ -409,6 +409,7 @@ const deleteManufacturer = async id => {
       v-if="isAddNewManufacturerDialogVisible"
       v-model:is-dialog-visible="isAddNewManufacturerDialogVisible"
       v-model:countries="countries"
+      v-model:cities="cities"
       @update-data="modifyManufacturer"
     />
 
