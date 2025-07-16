@@ -103,6 +103,14 @@ const isAddNewManufacturerDialogVisible = ref(false)
 const isAddNewSupplierDialogVisible = ref(false)
 const productData = ref(structuredClone(toRaw(props.product)))
 
+if(props.product.tags.length > 0) {
+  productData.value.tags = props.product.tags.map(tag => tag._id)
+}
+
+if(props.product.groups.length > 0) {
+  productData.value.groups = props.product.groups.map(group => group._id)
+}
+
 const useSelectableList = (propRef, permissionKey, addNewTitle) => {
   const updated = ref([])
 

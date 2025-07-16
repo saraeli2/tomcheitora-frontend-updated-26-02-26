@@ -228,7 +228,9 @@ const modifyProduct = async userData => {
 }
 
 const editProduct = async value => {
-  productDetail.value = value
+  const data = await $api(`/admin/products/${ value._id }`).catch(err => console.log(err))
+
+  productDetail.value = data
   
   isProductDialogVisible.value = true
 }
