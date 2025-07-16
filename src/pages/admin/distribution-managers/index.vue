@@ -9,7 +9,7 @@ definePage({
   },
 })
 
-import AddNewAdminDrawer from '@/views/admin/distribution-managers/AddNewAdminDrawer.vue'
+import AddNewAdminDialog from '@/views/admin/distribution-managers/AddNewAdminDialog.vue'
 import ResetPasswordDrawer from '@/views/admin/distribution-managers/ResetPasswordDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
@@ -29,7 +29,7 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const isAdminDialogVisible = ref(false)
-const isAddNewAdminDrawerVisible = ref(false)
+const isAddNewAdminDialogVisible = ref(false)
 const isResetPasswordDrawerVisible = ref(false)
 const adminDetail = ref()
 const panel = ref()
@@ -232,7 +232,7 @@ const resetPassword = val => {
           <VBtn
             v-if="can('admin-create-distribution-managers', 'Create Distribution Managers')"
             prepend-icon="tabler-plus"
-            @click="isAddNewAdminDrawerVisible = true"
+            @click="isAddNewAdminDialogVisible = true"
           >
             {{ $t('Create Distribution Manager') }}
           </VBtn>
@@ -475,17 +475,17 @@ const resetPassword = val => {
       v-model:admin="adminDetail"
       @user-data="modifyAdmin"
     />
-    <AddNewAdminDrawer
-      v-if="isAddNewAdminDrawerVisible"
-      v-model:is-drawer-open="isAddNewAdminDrawerVisible"
+    <AddNewAdminDialog
+      v-if="isAddNewAdminDialogVisible"
+      v-model:is-dialog-visible="isAddNewAdminDialogVisible"
       v-model:roles="roles"
       v-model:cities="cities"
       @user-data="modifyAdmin"
     />
 
-    <AddNewAdminDrawer
+    <AddNewAdminDialog
       v-if="isAdminDialogVisible"
-      v-model:is-drawer-open="isAdminDialogVisible"
+      v-model:is-dialog-visible="isAdminDialogVisible"
       v-model:roles="roles"
       v-model:cities="cities"
       v-model:admin="adminDetail"

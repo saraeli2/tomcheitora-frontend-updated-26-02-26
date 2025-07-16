@@ -8,7 +8,7 @@ definePage({
   },
 })
 
-import AddNewAdminDrawer from '@/views/admin/admins/AddNewAdminDrawer.vue'
+import AddNewAdminDialog from '@/views/admin/admins/AddNewAdminDialog.vue'
 import ResetPasswordDrawer from '@/views/admin/admins/ResetPasswordDrawer.vue'
 
 import { can } from '@layouts/plugins/casl'
@@ -366,9 +366,9 @@ onMounted( async () => {
       @user-data="modifyAdmin"
     />
 
-    <AddNewAdminDrawer
+    <AddNewAdminDialog
       v-if="isAdminDialogVisible"
-      v-model:is-drawer-open="isAdminDialogVisible"
+      v-model:is-dialog-visible="isAdminDialogVisible"
       v-model:admin="adminData"
       v-model:roles="roles"
       v-model:cities="cities"

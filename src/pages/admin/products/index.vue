@@ -140,6 +140,20 @@ const {
 const products = computed(() => customerData.value.products)
 const totalProducts = computed(() => customerData.value.total)
 
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const tagOptions = computed(() => commonsyncCities.tagOptions)
+const groupOptions = computed(() => commonsyncCities.groupOptions)
+
+const tags = tagOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const groups = groupOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
 const certifications = ref([])
 const packagetypes = ref([])
 const quantitytypes = ref([])
@@ -584,6 +598,8 @@ onMounted(async () => {
       v-model:is-dialog-visible="isAddNewProductDialogVisible"
       v-model:manufacturers="manufacturers"
       v-model:suppliers="suppliers"
+      v-model:tags="tags"
+      v-model:groups="groups"
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"
@@ -601,6 +617,8 @@ onMounted(async () => {
       v-model:product="productDetail"
       v-model:manufacturers="manufacturers"
       v-model:suppliers="suppliers"
+      v-model:tags="tags"
+      v-model:groups="groups"
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"

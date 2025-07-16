@@ -7,6 +7,18 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  communities: {
+    type: Object,
+    required: false,
+    // eslint-disable-next-line vue/require-valid-default-prop
+    default: () => ([]),
+  },
+  cities: {
+    type: Object,
+    required: false,
+    // eslint-disable-next-line vue/require-valid-default-prop
+    default: () => ([]),
+  },
   group: {
     type: Object,
     required: false,
@@ -18,6 +30,7 @@ const props = defineProps({
       type: 'Fixed',
       amount: '',
       status: 'Active',
+      communities: [],
     }),
   },
 })
@@ -25,6 +38,8 @@ const props = defineProps({
 const emit = defineEmits([
   'update:isDrawerOpen',
   'userData',
+  'communities',
+  'cities',
   'group',
 ])
 
@@ -33,6 +48,11 @@ const toast = useToast()
 const isFormValid = ref(false)
 const refForm = ref()
 const groupData = ref(structuredClone(toRaw(props.group)))
+const cities = ref(structuredClone(toRaw(props.cities)))
+
+if(props.group.communities.length > 0) {
+  groupData.value.communities = props.group.communities.map(role => role._id)
+}
 
 // 👉 drawer close
 const closeNavigationDrawer = () => {
@@ -54,6 +74,7 @@ const submit = async () => {
           type: groupData.value.type,
           amount: groupData.value.amount,
           status: groupData.value.status,
+          communities: groupData.value.communities,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -68,6 +89,7 @@ const submit = async () => {
           type: groupData.value.type,
           amount: groupData.value.amount,
           status: groupData.value.status,
+          communities: groupData.value.communities,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -145,6 +167,17 @@ const errors = ref({
             @submit.prevent="onSubmit"
           >
             <VRow>
+              <!-- 👉 Role -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="groupData.communities"
+                  :items="props.communities"
+                  :placeholder="$t('Select Community')"
+                  :label="$t('Community')"
+                  multiple
+                  clearable
+                />
+              </VCol>
               <!-- 👉 Name -->
               <VCol cols="12">
                 <AppTextField

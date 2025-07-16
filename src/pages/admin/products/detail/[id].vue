@@ -41,6 +41,20 @@ const {
 
 const productData = computed(() => productDetail.value)
 
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const tagOptions = computed(() => commonsyncCities.tagOptions)
+const groupOptions = computed(() => commonsyncCities.groupOptions)
+
+const tags = tagOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const groups = groupOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
 const certifications = ref([])
 const packagetypes = ref([])
 const quantitytypes = ref([])
@@ -426,6 +440,60 @@ watch(productData, newVal => {
 
                   <VListItem>
                     <h6 class="text-h6">
+                      {{ $t('Tags') }}:
+                      <span class="text-body-1 d-inline-block">
+                        <VChip
+                          v-for="(tag, index) in productData.tags"
+                          :key="index"
+                          label
+                          color="primary"
+                          size="small"
+                          class="roles"
+                        >
+                          {{ tag.name }}
+                        </VChip>
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Groups') }}:
+                      <span class="text-body-1 d-inline-block">
+                        <VChip
+                          v-for="(group, index) in productData.groups"
+                          :key="index"
+                          label
+                          color="success"
+                          size="small"
+                          class="roles"
+                        >
+                          {{ group.name }}
+                        </VChip>
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Pickup Order') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.pickupOrder }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Product Order Number in Invoice') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.orderNumber }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
                       {{ $t('Purchase Price') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.purchasePrice }}
@@ -582,6 +650,8 @@ watch(productData, newVal => {
       v-model:product="productData"
       v-model:manufacturers="manufacturers"
       v-model:suppliers="suppliers"
+      v-model:tags="tags"
+      v-model:groups="groups"
       v-model:certifications="certifications"
       v-model:packagetypes="packagetypes"
       v-model:quantitytypes="quantitytypes"
@@ -594,3 +664,9 @@ watch(productData, newVal => {
     />
   </div>
 </template>
+
+<style lang="scss">
+  .roles {
+    margin-inline-end: 5px;
+  }
+</style>

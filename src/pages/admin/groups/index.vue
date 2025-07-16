@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-groups', 'admin-create-groups'],
@@ -56,6 +57,11 @@ const headers = computed(() => [
     key: 'status',
   },
   {
+    title: t('Community'),
+    key: 'communities',
+    sortable: false,
+  },
+  {
     title: t('Created By'),
     key: 'createdBy',
   },
@@ -94,6 +100,24 @@ const {
 
 const groups = computed(() => customerData.value.groups)
 const totalGroups = computed(() => customerData.value.total)
+
+const commonsync = await $api('/admin/communities/respond-with/extra-options').catch(err => console.log(err))
+
+const communityOptions = computed(() => commonsync.communityOptions)
+
+const communities = communityOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
+
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -275,6 +299,20 @@ const deleteGroup = async id => {
           </VChip>
         </template>
 
+        <!-- communities -->
+        <template #[`item.communities`]="{ item }">
+          <VChip
+            v-for="(community, index) in item.communities"
+            :key="index"
+            label
+            color="primary"
+            size="small"
+            class="roles"
+          >
+            {{ community.name }}
+          </VChip>
+        </template>
+
         <!-- createdBy -->
         <template #[`item.createdBy`]="{ item }">
           <RouterLink
@@ -355,6 +393,8 @@ const deleteGroup = async id => {
     <AddNewGroupDrawer
       v-if="isAddNewGroupDrawerVisible"
       v-model:is-drawer-open="isAddNewGroupDrawerVisible"
+      v-model:communities="communities"
+      v-model:cities="cities"
       @user-data="modifyGroup"
     />
 
@@ -362,6 +402,8 @@ const deleteGroup = async id => {
       v-if="isGroupDialogVisible"
       v-model:is-drawer-open="isGroupDialogVisible"
       v-model:group="groupDetail"
+      v-model:communities="communities"
+      v-model:cities="cities"
       @user-data="modifyGroup"
     />
   </section>
@@ -375,6 +417,10 @@ const deleteGroup = async id => {
 
   .invoice-list-filter {
     inline-size: 12rem;
+  }
+
+  .roles {
+    margin-inline-end: 5px;
   }
 }
 </style>

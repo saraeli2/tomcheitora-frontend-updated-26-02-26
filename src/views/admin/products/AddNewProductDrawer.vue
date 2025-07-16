@@ -26,6 +26,18 @@ const props = defineProps({
     // eslint-disable-next-line vue/require-valid-default-prop
     default: () => ([]),
   },
+  groups: {
+    type: Object,
+    required: false,
+    // eslint-disable-next-line vue/require-valid-default-prop
+    default: () => ([]),
+  },
+  tags: {
+    type: Object,
+    required: false,
+    // eslint-disable-next-line vue/require-valid-default-prop
+    default: () => ([]),
+  },
   certifications: {
     type: Object,
     required: true,
@@ -62,6 +74,8 @@ const props = defineProps({
       description: '',
       status: 'Active',
       categoryIDs: [],
+      tags: [],
+      groups: [],
     }),
   },
 })
@@ -70,6 +84,8 @@ const emit = defineEmits([
   'update:isDrawerOpen',
   'manufacturers',
   'suppliers',
+  'groups',
+  'tags',
   'certifications',
   'packagetypes',
   'quantitytypes',
@@ -219,9 +235,13 @@ const submit = async () => {
           certificationID: productData.value.certificationID ? productData.value.certificationID : null,
           packagetypeID: productData.value.packagetypeID ? productData.value.packagetypeID : null,
           quantitytypeID: productData.value.quantitytypeID ? productData.value.quantitytypeID : null,
+          tags: productData.value.tags,
+          groups: productData.value.groups,
           internalRemarks: productData.value.internalRemarks,
           remarks: productData.value.remarks,
           description: productData.value.description,
+          pickupOrder: productData.value.pickupOrder,
+          orderNumber: productData.value.orderNumber,
           purchasePrice: productData.value.purchasePrice ?? 0,
           salePrice: productData.value.salePrice ?? 0,
           maxStock: productData.value.maxStock ?? 0,
@@ -246,9 +266,13 @@ const submit = async () => {
           certificationID: productData.value.certificationID ? productData.value.certificationID : null,
           packagetypeID: productData.value.packagetypeID ? productData.value.packagetypeID : null,
           quantitytypeID: productData.value.quantitytypeID ? productData.value.quantitytypeID : null,
+          tags: productData.value.tags,
+          groups: productData.value.groups,
           internalRemarks: productData.value.internalRemarks,
           remarks: productData.value.remarks,
           description: productData.value.description,
+          pickupOrder: productData.value.pickupOrder,
+          orderNumber: productData.value.orderNumber,
           purchasePrice: productData.value.purchasePrice ?? 0,
           salePrice: productData.value.salePrice ?? 0,
           maxStock: productData.value.maxStock ?? 0,
@@ -303,6 +327,8 @@ const errors = ref({
   internalRemarks: undefined,
   remarks: undefined,
   description: undefined,
+  pickupOrder: undefined,
+  orderNumber: undefined,
   purchasePrice: undefined,
   salePrice: undefined,
   maxStock: undefined,
@@ -579,6 +605,50 @@ const isIndeterminate = node => {
                   :error-messages="errors.quantitytypeID"
                   clearable
                   @update:model-value="onQuantitytypeChange"
+                />
+              </VCol>
+
+              <!-- 👉 Tag -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="productData.tags"
+                  :items="props.tags"
+                  :label="$t('Tags')"
+                  :placeholder="$t('Select Tag')"
+                  clearable
+                  multiple
+                />
+              </VCol>
+
+              <!-- 👉 Group -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="productData.groups"
+                  :items="props.groups"
+                  :label="$t('Groups')"
+                  :placeholder="$t('Select Group')"
+                  clearable
+                  multiple
+                />
+              </VCol>
+
+              <!-- 👉 Product Order number in invoice -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="productData.pickupOrder"
+                  :label="$t('Pickup Order')"
+                  :placeholder="$t('Pickup Order')"
+                  :error-messages="errors.pickupOrder"
+                />
+              </VCol>
+
+              <!-- 👉 Pickup order -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="productData.orderNumber"
+                  :label="$t('Product Order Number in Invoice')"
+                  :placeholder="$t('Product Order Number in Invoice')"
+                  :error-messages="errors.orderNumber"
                 />
               </VCol>
 
