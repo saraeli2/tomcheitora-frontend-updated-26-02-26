@@ -851,3 +851,7 @@ $grey-3:#aaaaaa;
     left: 1px;
     right: auto;
 }
+.layout-content-width-boxed .layout-page-content,.layout-content-width-boxed.layout-wrapper.layout-nav-type-vertical .layout-navbar, .layout-content-width-boxed.layout-wrapper.layout-nav-type-vertical .layout-footer{
+  width: 100%!important;
+  max-inline-size: 100%!important
+}
