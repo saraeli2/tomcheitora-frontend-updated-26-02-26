@@ -1,5 +1,5 @@
 <script setup>
-import CategoryBuilderProductNode from '@/views/admin/settings/CategoryBuilderProductNode.vue'
+import CategoryTreeNode from '@/views/admin/settings/CategoryTreeNode.vue'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps({
@@ -208,50 +208,71 @@ const {
 
 const categories = computed(() => categoryBuilderData.value.categories)
 
-const tree = ref([])
+const searchTerm = ref('')
+const showList = ref(false)
+const dropdownWrapper = ref(null)
 
-const buildTree = categories => {
+const buildTree = (categories, searchTerm = '') => {
   const categoryMap = {}
 
-  // 1. Initialize all categories with empty children array
+  // Initialize categories with children array
   categories.forEach(cat => {
     categoryMap[cat._id.toString()] = { ...cat, children: [] }
   })
 
   const roots = []
 
-  // 2. Build the tree by assigning children to their parents
+  // Assign children to their parents
   categories.forEach(cat => {
     if (cat.parentId) {
       const parentId = cat.parentId.toString()
       if (categoryMap[parentId]) {
         categoryMap[parentId].children.push(categoryMap[cat._id.toString()])
       } else {
-        // If parent not found, consider as root or handle error
         roots.push(categoryMap[cat._id.toString()])
       }
     } else {
-      // No parentId means root node
       roots.push(categoryMap[cat._id.toString()])
     }
   })
 
-  // 3. Optionally sort children by a property, e.g. 'sortOrder'
+  // Recursive sort by sortOrder
   const sortChildren = nodes => {
     nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
     nodes.forEach(node => {
-      if (node.children?.length) {
-        sortChildren(node.children)
-      }
+      if (node.children?.length) sortChildren(node.children)
     })
   }
 
   sortChildren(roots)
 
-  return roots
+  // ✅ Apply search filter
+  if (!searchTerm) return roots
+
+  const term = searchTerm.toLowerCase()
+
+  const filterTree = nodes => {
+    return nodes
+      .map(node => {
+        const matchedChildren = node.children ? filterTree(node.children) : []
+        const isMatch = node.name.toLowerCase().includes(term)
+
+        if (isMatch || matchedChildren.length > 0) {
+          return {
+            ...node,
+            children: matchedChildren,
+          }
+        }
+
+        return null
+      })
+      .filter(Boolean)
+  }
+
+  return filterTree(roots)
 }
 
-tree.value = buildTree(categories.value)
+const tree = computed(() => buildTree(categories.value, searchTerm.value))
 
 const checkedCategories = ref(props.supplier.categoryIDs)
 const getNodeId = node => node.realId || node._id
@@ -316,6 +337,21 @@ const isIndeterminate = node => {
 
   return selectedCount > 0 && selectedCount < descendants.length
 }
+
+// Hide on outside click
+const handleClickOutside = e => {
+  if (dropdownWrapper.value && !dropdownWrapper.value.contains(e.target)) {
+    showList.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
 </script>
 
 <template>
@@ -407,6 +443,39 @@ const isIndeterminate = node => {
                 :placeholder="$t('House Number')"
                 :error-messages="errors.houseNumber"
               />
+            </VCol>
+
+            <VCol cols="12">
+              <div
+                ref="dropdownWrapper"
+                class="relative w-full max-w-xl"
+              >
+                <!-- Search input -->
+                <AppTextField
+                  v-model="searchTerm"
+                  :label="$t('Category')"
+                  :placeholder="$t('Search Category')"
+                  @focus="showList = true"
+                />
+
+                <!-- Category dropdown -->
+                <div
+                  v-if="showList"
+                  class="absolute-category z-50 w-full bg-white border border-gray-300 rounded mt-1 max-h-80 overflow-y-auto shadow"
+                  @mousedown.prevent
+                >
+                  <ul class="p-3">
+                    <CategoryTreeNode
+                      v-for="node in tree"
+                      :key="node.realId"
+                      :node="node"
+                      :selected="checkedCategories"
+                      :indeterminate="isIndeterminate(node)"
+                      @toggle-select="onToggleSelect"
+                    />
+                  </ul>
+                </div>
+              </div>
             </VCol>
 
             <!-- 👉 status -->
@@ -538,22 +607,6 @@ const isIndeterminate = node => {
                 :label="$t('Email')"
                 :placeholder="$t('Email')"
               />
-            </VCol>
-
-            <VCol cols="12">
-              <div>
-                <h6 class="text-h6 mb-2">
-                  {{ $t('Category') }}
-                </h6>
-                <CategoryBuilderProductNode
-                  v-for="node in tree"
-                  :key="node.realId"
-                  :node="node"
-                  :selected="checkedCategories"
-                  :indeterminate="isIndeterminate(node)"
-                  @toggle-select="onToggleSelect"
-                />
-              </div>
             </VCol>
               
             <!-- 👉 Submit and Cancel -->

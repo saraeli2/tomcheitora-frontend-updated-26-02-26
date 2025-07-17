@@ -239,7 +239,7 @@ const onReset = () => {
                 v-else
                 v-model="adminData.email"
                 :rules="[requiredValidator, emailValidator]"
-                ::label="$t('Email')"
+                :label="$t('Email')"
                 :placeholder="$t('Email')"
                 :error-messages="errors.email"
               />

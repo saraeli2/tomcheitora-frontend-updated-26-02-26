@@ -173,6 +173,11 @@ watch(props, () => {
     adminData.value = props.admin
   }
 })
+
+const onReset = () => {
+  emit('update:isDialogVisible', false)
+  refForm.value?.reset()
+}
 </script>
 
 <template>
@@ -248,7 +253,7 @@ watch(props, () => {
                 v-else
                 v-model="adminData.email"
                 :rules="[requiredValidator, emailValidator]"
-                ::label="$t('Email')"
+                :label="$t('Email')"
                 :placeholder="$t('Email')"
                 :error-messages="errors.email"
               />

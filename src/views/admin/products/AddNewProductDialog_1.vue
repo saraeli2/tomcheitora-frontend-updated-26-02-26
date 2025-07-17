@@ -3,7 +3,7 @@ import AddNewManufacturerDialog from '@/views/admin/manufacturers/AddNewManufact
 import AddNewCertificationDialog from '@/views/admin/settings/AddNewCertificationDialog.vue'
 import AddNewPackagetypeDialog from '@/views/admin/settings/AddNewPackagetypeDialog.vue'
 import AddNewQuantitytypeDialog from '@/views/admin/settings/AddNewQuantitytypeDialog.vue'
-import CategoryTreeNode from '@/views/admin/settings/CategoryTreeNode.vue'
+import CategoryBuilderProductNode from '@/views/admin/settings/CategoryBuilderProductNode.vue'
 import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
 import { can } from '@layouts/plugins/casl'
 import { useToast } from 'vue-toastification'
@@ -118,8 +118,8 @@ const useSelectableList = (propRef, permissionKey, addNewTitle) => {
     () => propRef.value,
     newVal => {
       const cloned = structuredClone(toRaw(newVal))
-      
-      if (can(permissionKey, `Create ${addNewTitle}`)) {
+
+      if (can(permissionKey, `Create ${permissionKey.split('-')[1]}`)) {
         cloned.unshift({
           value: '__add_new__',
           title: `➕ Create New ${addNewTitle}`,
@@ -354,71 +354,52 @@ const {
 
 const categories = computed(() => categoryBuilderData.value.categories)
 
-const searchTerm = ref('')
-const showList = ref(false)
-const dropdownWrapper = ref(null)
+const tree = ref([])
 
-const buildTree = (categories, searchTerm = '') => {
+const buildTree = categories => {
   const categoryMap = {}
 
-  // Initialize categories with children array
+  // 1. Initialize all categories with empty children array
   categories.forEach(cat => {
     categoryMap[cat._id.toString()] = { ...cat, children: [] }
   })
 
   const roots = []
 
-  // Assign children to their parents
+  // 2. Build the tree by assigning children to their parents
   categories.forEach(cat => {
     if (cat.parentId) {
       const parentId = cat.parentId.toString()
       if (categoryMap[parentId]) {
         categoryMap[parentId].children.push(categoryMap[cat._id.toString()])
       } else {
+        // If parent not found, consider as root or handle error
         roots.push(categoryMap[cat._id.toString()])
       }
     } else {
+      // No parentId means root node
       roots.push(categoryMap[cat._id.toString()])
     }
   })
 
-  // Recursive sort by sortOrder
+  // 3. Optionally sort children by a property, e.g. 'sortOrder'
   const sortChildren = nodes => {
     nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
     nodes.forEach(node => {
-      if (node.children?.length) sortChildren(node.children)
+      if (node.children?.length) {
+        sortChildren(node.children)
+      }
     })
   }
 
   sortChildren(roots)
 
-  // ✅ Apply search filter
-  if (!searchTerm) return roots
-
-  const term = searchTerm.toLowerCase()
-
-  const filterTree = nodes => {
-    return nodes
-      .map(node => {
-        const matchedChildren = node.children ? filterTree(node.children) : []
-        const isMatch = node.name.toLowerCase().includes(term)
-
-        if (isMatch || matchedChildren.length > 0) {
-          return {
-            ...node,
-            children: matchedChildren,
-          }
-        }
-
-        return null
-      })
-      .filter(Boolean)
-  }
-
-  return filterTree(roots)
+  return roots
 }
 
-const tree = computed(() => buildTree(categories.value, searchTerm.value))
+tree.value = buildTree(categories.value)
+
+
 
 const checkedCategories = ref(props.product.categoryIDs)
 const getNodeId = node => node.realId || node._id
@@ -484,8 +465,84 @@ const isIndeterminate = node => {
   return selectedCount > 0 && selectedCount < descendants.length
 }
 
+
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
+
+const searchTerm = ref('')
+const selected = ref([])
+const showList = ref(false)
+const dropdownWrapper = ref(null)
+
+// Nested category structure
+const categories_lists = ref([
+  {
+    id: 1,
+    name: 'Clothing',
+    children: [
+      { id: 2, name: 'Woman' },
+      { id: 3, name: 'Man' },
+      { id: 4, name: 'T-shirt' },
+    ],
+  },
+  {
+    id: 5,
+    name: 'Electronics',
+    children: [
+      { id: 6, name: 'Phone' },
+    ],
+  },
+  {
+    id: 7,
+    name: 'Oil',
+    children: [
+      { id: 8, name: 'Mustard Oil' },
+      { id: 9, name: 'Sunflower' },
+    ],
+  },
+])
+
+// Computed filtered list
+const filteredCategories = computed(() => {
+  if (!searchTerm.value) return categories_lists.value
+
+  const term = searchTerm.value.toLowerCase()
+  return categories_lists.value
+    .map(cat => {
+      const matchedChildren = cat.children?.filter(child =>
+        child.name.toLowerCase().includes(term)
+      )
+      if (
+        cat.name.toLowerCase().includes(term) ||
+        (matchedChildren && matchedChildren.length)
+      ) {
+        return {
+          ...cat,
+          children: matchedChildren || [],
+        }
+      }
+      return null
+    })
+    .filter(Boolean)
+})
+
+// ✅ Auto check parent if child checked
+watch(selected, () => {
+  for (const cat of categories.value) {
+    if (cat.children && cat.children.length) {
+      const hasAnyChildChecked = cat.children.some(child => selected.value.includes(child.id))
+      const allChildrenUnchecked = cat.children.every(child => !selected.value.includes(child.id))
+
+      if (hasAnyChildChecked && !selected.value.includes(cat.id)) {
+        selected.value.push(cat.id)
+      } else if (allChildrenUnchecked && selected.value.includes(cat.id)) {
+        selected.value = selected.value.filter(id => id !== cat.id)
+      }
+    }
+  }
+})
+
 // Hide on outside click
-const handleClickOutside = e => {
+const handleClickOutside = (e) => {
   if (dropdownWrapper.value && !dropdownWrapper.value.contains(e.target)) {
     showList.value = false
   }
@@ -736,17 +793,17 @@ onBeforeUnmount(() => {
               />
             </VCol>
 
+            
+
+            
             <VCol cols="12">
-              <div
-                ref="dropdownWrapper"
-                class="relative w-full max-w-xl"
-              >
+              <div class="relative w-full max-w-xl" ref="dropdownWrapper">
                 <!-- Search input -->
                 <AppTextField
                   v-model="searchTerm"
+                  @focus="showList = true"
                   :label="$t('Category')"
                   :placeholder="$t('Search Category')"
-                  @focus="showList = true"
                 />
 
                 <!-- Category dropdown -->
@@ -756,14 +813,35 @@ onBeforeUnmount(() => {
                   @mousedown.prevent
                 >
                   <ul class="p-3">
-                    <CategoryTreeNode
-                      v-for="node in tree"
-                      :key="node.realId"
-                      :node="node"
-                      :selected="checkedCategories"
-                      :indeterminate="isIndeterminate(node)"
-                      @toggle-select="onToggleSelect"
-                    />
+                    <template v-for="category in filteredCategories" :key="category.id">
+                      <li>
+                        <label class="flex items-center space-x-2 font-semibold">
+                          <VCheckbox
+                            v-model="selected"
+                            hide-details
+                            dense
+                            class="me-2"
+                            :value="category.id"
+                            :label="category.name"
+                            :indeterminate="indeterminate"
+                          />
+                        </label>
+
+                        <ul v-if="category.children?.length" class="ml-5">
+                          <li v-for="child in category.children" :key="child.id">
+                            <VCheckbox
+                              v-model="selected"
+                              hide-details
+                              dense
+                              class="me-2"
+                              :value="child.id"
+                              :label="child.name"
+                              :indeterminate="indeterminate"
+                            />
+                          </li>
+                        </ul>
+                      </li>
+                    </template>
                   </ul>
                 </div>
               </div>
