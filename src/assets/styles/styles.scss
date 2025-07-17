@@ -855,3 +855,19 @@ $grey-3:#aaaaaa;
   width: 100%!important;
   max-inline-size: 100%!important
 }
+
+
+.absolute-category {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    background: #fff;
+    z-index: 99;
+    padding: 10px 10px;
+}
+.relative{
+  position: relative;
+}
+.absolute-category ul{
+  list-style: none;
+}
