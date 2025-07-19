@@ -1,33 +1,40 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 
-definePage({
-  meta: {
-    action: ['admin-view-groups', 'admin-create-groups'],
-    subject: ['View Groups', 'Create Groups'],
-    title: 'Groups',
+const props = defineProps({
+  saleid: {
+    type: String,
+    required: true,
   },
 })
 
-import AddNewGroupDrawer from '@/views/admin/groups/AddNewGroupDrawer.vue'
+definePage({
+  meta: {
+    action: ['admin-view-orders', 'admin-create-orders'],
+    subject: ['View Orders', 'Create Orders'],
+    title: 'Orders',
+  },
+})
+
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
 
-const searchQuery = ref('')
+const selectedUser = ref('')
 const selectedStatus = ref()
 const selectedRows = ref([])
+const selectedSale = ref(props.saleid)
 
 // Data table options
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(5)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isGroupDialogVisible = ref(false)
-const isAddNewGroupDrawerVisible = ref(false)
-const groupDetail = ref()
+const isOrderDialogVisible = ref(false)
+const isAddNewOrderDrawerVisible = ref(false)
+const orderDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -37,37 +44,33 @@ const updateOptions = options => {
 
 const headers = computed(() => [
   {
-    title: t('Name'),
-    key: 'name',
+    title: t('User'),
+    key: 'userID',
   },
   {
-    title: t('Sale ID'),
-    key: 'saleID',
+    title: t('Total Quantity'),
+    key: 'quantity',
   },
   {
-    title: t('Type'),
-    key: 'type',
+    title: t('SubTotal'),
+    key: 'subTotal',
   },
   {
-    title: t('Amount'),
-    key: 'amount',
+    title: t('Vat'),
+    key: 'totalVat',
   },
   {
-    title: t('Active'),
-    key: 'status',
+    title: t('Discount'),
+    key: 'totalDiscount',
   },
   {
-    title: t('Community'),
-    key: 'communities',
+    title: t('Total Amount'),
+    key: 'total',
     sortable: false,
   },
   {
-    title: t('Created By'),
-    key: 'createdBy',
-  },
-  {
-    title: t('Updated By'),
-    key: 'updatedBy',
+    title: t('Status'),
+    key: 'status',
   },
   {
     title: t('Created At'),
@@ -86,10 +89,11 @@ const headers = computed(() => [
 
 const {
   data: customerData,
-  execute: fetchGroups,
-} = await useApi(createUrl('/admin/groups', {
+  execute: fetchOrders,
+} = await useApi(createUrl('/admin/orders', {
   query: {
-    keyword: searchQuery,
+    sale: selectedSale,
+    user: selectedUser,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -98,52 +102,59 @@ const {
   },
 }))
 
-const groups = computed(() => customerData.value.groups)
-const totalGroups = computed(() => customerData.value.total)
+const orders = computed(() => customerData.value.orders)
+const totalOrders = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/communities/respond-with/extra-options').catch(err => console.log(err))
+const commonsync = await $api('/admin/users/respond-with/extra-options').catch(err => console.log(err))
 
-const communityOptions = computed(() => commonsync.communityOptions)
+const userOptions = computed(() => commonsync.userOptions)
 
-const communities = communityOptions.value.map(item => ({
+const users = userOptions.value.map(item => ({
   value: item._id,
-  title: item.name,
+  title: `${ item.firstName } ${ item.lastName }`,
 }))
-
-const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
-const cityOptions = computed(() => commonsyncCities.cityOptions)
-
-const cities = cityOptions.value.map(item => ({
-  value: item._id,
-  title: `${item.nameHe}`,
-}))
-
 
 const resolveStatusVariantAndIcon = status => {
-  if (status === 'Active')
+  if (status === 'Processing') {
+    return {
+      variant: 'info',
+      title: status,
+    }
+  } else if (status === 'Delivered') {
+    return {
+      variant: 'primary',
+      title: status,
+    }
+  } else if (status === 'Completed') {
     return {
       variant: 'success',
-      title: 'Yes',
+      title: status,
     }
+  } else if (status === 'Cancelled') {
+    return {
+      variant: 'error',
+      title: status,
+    }
+  }
   
   return {
     variant: 'secondary',
-    title: 'No',
+    title: status,
   }
 }
 
-const modifyGroup = async userData => {
-  // refetch Group
-  fetchGroups()
+const modifyOrder = async userData => {
+  // refetch Order
+  fetchOrders()
 }
 
-const editGroup = async value => {
-  groupDetail.value = value
+const editOrder = async value => {
+  orderDetail.value = value
   
-  isGroupDialogVisible.value = true
+  isOrderDialogVisible.value = true
 }
 
-const deleteGroup = async id => {
+const deleteOrder = async id => {
   Swal.fire({
     title: t('delete.Are You Sure?'),
     html: t('delete.confirmMessage', {
@@ -163,8 +174,8 @@ const deleteGroup = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/groups/${ id }`, { method: 'DELETE' })
-        fetchGroups()
+        await $api(`/admin/orders/${ id }`, { method: 'DELETE' })
+        fetchOrders()
       }
     })  
 }
@@ -177,7 +188,7 @@ const deleteGroup = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Groups') }}
+              {{ $t('Orders') }}
             </h5>
           </VCol>
         </VRow>
@@ -192,6 +203,7 @@ const deleteGroup = async id => {
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
+                { value: 5, title: '5' },
                 { value: 10, title: '10' },
                 { value: 25, title: '25' },
                 { value: 50, title: '50' },
@@ -201,13 +213,13 @@ const deleteGroup = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Group -->
+          <!-- 👉 Create Order -->
           <VBtn
-            v-if="can('admin-create-groups', 'Create Groups')"
+            v-if="can('admin-create-orders', 'Create Orders')"
             prepend-icon="tabler-plus"
-            @click="isAddNewGroupDrawerVisible = true"
+            :to="{ name: 'admin-orders-create', query: { saleid: selectedSale } }"
           >
-            {{ $t('Create Group') }}
+            {{ $t('Create Order') }}
           </VBtn>
         </div>
 
@@ -217,7 +229,7 @@ const deleteGroup = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-groups', 'View Groups')"
+        v-if="can('admin-view-orders', 'View Orders')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -230,9 +242,11 @@ const deleteGroup = async id => {
                   cols="12"
                   sm="4"
                 >
-                  <AppTextField
-                    v-model="searchQuery"
-                    :placeholder="$t('Search Group')"
+                  <AppAutocomplete
+                    v-model="selectedUser"
+                    :items="users"
+                    :placeholder="$t('User')"
+                    clearable
                   />
                 </VCol>
                 <VCol
@@ -242,8 +256,11 @@ const deleteGroup = async id => {
                   <AppAutocomplete
                     v-model="selectedStatus"
                     :items="[
-                      { value: 'Active', title: 'Active' },
-                      { value: 'Inactive', title: 'Inactive' },
+                      { value: 'Pending', title: 'Pending' },
+                      { value: 'Processing', title: 'Processing' },
+                      { value: 'Delivered', title: 'Delivered' },
+                      { value: 'Completed', title: 'Completed' },
+                      { value: 'Canceled', title: 'Canceled' },
                     ]"
                     :placeholder="$t('Status')"
                     clearable
@@ -255,39 +272,40 @@ const deleteGroup = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-groups', 'View Groups')" />
+      <VDivider v-if="can('admin-view-orders', 'View Orders')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-groups', 'View Groups')"
+        v-if="can('admin-view-orders', 'View Orders')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalGroups"
+        :items-length="totalOrders"
         :headers="headers"
-        :items="groups"
+        :items="orders"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          {{ item.name }}
+        <!-- userID -->
+        <template #[`item.userID`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-users', 'View Users') && item.userID"
+            :to="{ name: 'admin-users-detail-id', params: { id: item.userID._id } }"
+          >
+            {{ item.userID.firstName + ' ' + item.userID.lastName }}
+          </RouterLink>
+          <span v-else>{{ item.userID ? item.userID.firstName + ' ' + item.userID.lastName : '' }}</span>
         </template>
-        
-        <!-- saleID -->
-        <template #[`item.saleID`]="{ item }">
-          {{ item.saleID }}
+
+        <!-- quantity -->
+        <template #[`item.quantity`]="{ item }">
+          {{ item.orderItems.length }}
         </template>
-        
-        <!-- type -->
-        <template #[`item.type`]="{ item }">
-          {{ item.type }}
-        </template>
-        
-        <!-- amount -->
-        <template #[`item.amount`]="{ item }">
-          {{ item.amount ?? '' }}
+
+        <!-- Total -->
+        <template #[`item.total`]="{ item }">
+          {{ item.subTotal + item.totalVat - item.totalDiscount }}
         </template>
 
         <!-- status -->
@@ -299,42 +317,6 @@ const deleteGroup = async id => {
           >
             {{ resolveStatusVariantAndIcon(item.status).title }}
           </VChip>
-        </template>
-
-        <!-- communities -->
-        <template #[`item.communities`]="{ item }">
-          <VChip
-            v-for="(community, index) in item.communities"
-            :key="index"
-            label
-            color="primary"
-            size="small"
-            class="roles"
-          >
-            {{ community.name }}
-          </VChip>
-        </template>
-
-        <!-- createdBy -->
-        <template #[`item.createdBy`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-admins', 'View Admins') && item.createdBy"
-            :to="{ name: 'admin-admins-detail-id', params: { id: item.createdBy._id } }"
-          >
-            {{ item.createdBy.name }}
-          </RouterLink>
-          <span v-else>{{ item.createdBy ? item.createdBy.name : '' }}</span>
-        </template>
-
-        <!-- updatedBy -->
-        <template #[`item.updatedBy`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-admins', 'View Admins') && item.updatedBy"
-            :to="{ name: 'admin-admins-detail-id', params: { id: item.updatedBy._id } }"
-          >
-            {{ item.updatedBy.name }}
-          </RouterLink>
-          <span v-else>{{ item.updatedBy ? item.updatedBy.name : '' }}</span>
         </template>
 
         <!-- Created At -->
@@ -357,9 +339,16 @@ const deleteGroup = async id => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
+                <VListItem :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }">
+                  <template #prepend>
+                    <VIcon icon="tabler-eye" />
+                  </template>
+                  <VListItemTitle>View</VListItemTitle>
+                </VListItem>
+
                 <VListItem
-                  v-if="can('admin-update-groups', 'Update Groups')"
-                  @click="editGroup(item)"
+                  v-if="can('admin-update-orders', 'Update Orders')"
+                  :to="{ name: 'admin-orders-edit-id', params: { id: item._id } }"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -368,8 +357,8 @@ const deleteGroup = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-groups', 'Delete Groups')"
-                  @click="deleteGroup(item._id)"
+                  v-if="can('admin-delete-orders', 'Delete Orders')"
+                  @click="deleteOrder(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -386,28 +375,12 @@ const deleteGroup = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalGroups"
+            :total-items="totalOrders"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewGroupDrawer
-      v-if="isAddNewGroupDrawerVisible"
-      v-model:is-drawer-open="isAddNewGroupDrawerVisible"
-      v-model:communities="communities"
-      v-model:cities="cities"
-      @user-data="modifyGroup"
-    />
-
-    <AddNewGroupDrawer
-      v-if="isGroupDialogVisible"
-      v-model:is-drawer-open="isGroupDialogVisible"
-      v-model:group="groupDetail"
-      v-model:communities="communities"
-      v-model:cities="cities"
-      @user-data="modifyGroup"
-    />
   </section>
 </template>
 
@@ -419,10 +392,6 @@ const deleteGroup = async id => {
 
   .invoice-list-filter {
     inline-size: 12rem;
-  }
-
-  .roles {
-    margin-inline-end: 5px;
   }
 }
 </style>

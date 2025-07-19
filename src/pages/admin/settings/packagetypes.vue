@@ -112,14 +112,16 @@ const editPackagetype = async value => {
 
 const deletePackagetype = async id => {
   Swal.fire({
-    title: 'Are You Sure?',
-    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    title: t('delete.Are You Sure?'),
+    html: t('delete.confirmMessage', {
+      action: `<strong>${t('delete.confirmaction')}</strong>`,
+    }),
     // eslint-disable-next-line global-require
     icon: 'warning',
     reverseButtons: true,
     showCancelButton: true,
-    cancelButtonText: 'No, Cancel',
-    confirmButtonText: 'Yes, Delete!',
+    cancelButtonText: t('delete.No, Cancel'),
+    confirmButtonText: t('delete.Yes, Delete!'),
     customClass: {
       confirmButton: 'btn btn-primary ml-1',
       cancelButton: 'btn btn-outline-primary',
@@ -207,8 +209,8 @@ const deletePackagetype = async id => {
                   <AppAutocomplete
                     v-model="selectedStatus"
                     :items="[
-                      { value: 1, title: 'Active' },
-                      { value: 0, title: 'Inactive' },
+                      { value: 'Active', title: 'Active' },
+                      { value: 'Inactive', title: 'Inactive' },
                     ]"
                     :placeholder="$t('Status')"
                     clearable

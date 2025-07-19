@@ -139,10 +139,10 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
       >
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Welcome to <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
+            {{ $t('Welcome to') }} <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
           </h4>
           <p class="mb-0">
-            Please sign-in to your account and start the adventure
+            {{ $t('Please sign-in to your account and start the adventure') }}
           </p>
         </VCardText>
         <VCardText>
@@ -155,8 +155,8 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <VCol cols="12">
                 <AppTextField
                   v-model="credentials.email"
-                  label="Email"
-                  placeholder="johndoe@email.com"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
                   type="email"
                   autofocus
                   :rules="[requiredValidator, emailValidator]"
@@ -168,7 +168,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <VCol cols="12">
                 <AppTextField
                   v-model="credentials.password"
-                  label="Password"
+                  :label="$t('Password')"
                   placeholder="············"
                   :rules="[requiredValidator]"
                   :type="isPasswordVisible ? 'text' : 'password'"
@@ -181,13 +181,13 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
                 <div class="d-flex align-center flex-wrap justify-space-between my-6">
                   <VCheckbox
                     v-model="rememberMe"
-                    label="Remember me"
+                    :label="$t('Remember me')"
                   />
                   <RouterLink
                     class="text-primary ms-2 mb-1"
                     :to="{ name: 'forgot-password' }"
                   >
-                    Forgot Password?
+                    {{ $t('Forgot Password?') }}
                   </RouterLink>
                 </div>
 
@@ -195,7 +195,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
                   block
                   type="submit"
                 >
-                  Login
+                  {{ $t('Login') }}
                 </VBtn>
               </VCol>
             </VRow>

@@ -362,6 +362,8 @@
     "watchWithFilter": true,
     "whenever": true,
     "formatDateWithTime": true,
-    "numericValidator": true
+    "numericValidator": true,
+    "formatTime": true,
+    "usePaginationMeta": true
   }
 }

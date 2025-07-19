@@ -8,12 +8,16 @@ definePage({
   },
 })
 
-import AddNewUserDialog from '@/views/admin/users/AddNewUserDialog.vue'
 import KidModule from '@/pages/admin/users/kids.vue'
+import AddNewUserDialog from '@/views/admin/users/AddNewUserDialog.vue'
 
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
+
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const isUserDialogVisible = ref(false)
 
@@ -74,14 +78,16 @@ const modifyUser = async userData => {
 
 const deleteUser = async () => {
   Swal.fire({
-    title: 'Are You Sure?',
-    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    title: t('delete.Are You Sure?'),
+    html: t('delete.confirmMessage', {
+      action: `<strong>${t('delete.confirmaction')}</strong>`,
+    }),
     // eslint-disable-next-line global-require
     icon: 'warning',
     reverseButtons: true,
     showCancelButton: true,
-    cancelButtonText: 'No, Cancel',
-    confirmButtonText: 'Yes, Delete!',
+    cancelButtonText: t('delete.No, Cancel'),
+    confirmButtonText: t('delete.Yes, Delete!'),
     customClass: {
       confirmButton: 'btn btn-primary ml-1',
       cancelButton: 'btn btn-outline-primary',
@@ -404,8 +410,8 @@ onMounted( async () => {
       v-model:is-dialog-visible="isUserDialogVisible"
       v-model:user="adminFromData"
       v-model:communities="communities"
-      @communities="handleUpdatedCommunities"
       v-model:cities="cities"
+      @communities="handleUpdatedCommunities"
       @user-data="modifyUser"
     />
   </div>

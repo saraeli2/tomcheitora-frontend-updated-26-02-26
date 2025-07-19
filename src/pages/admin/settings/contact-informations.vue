@@ -129,14 +129,16 @@ const editContactInfo = async value => {
 
 const deleteContactInfo = async id => {
   Swal.fire({
-    title: 'Are You Sure?',
-    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    title: t('delete.Are You Sure?'),
+    html: t('delete.confirmMessage', {
+      action: `<strong>${t('delete.confirmaction')}</strong>`,
+    }),
     // eslint-disable-next-line global-require
     icon: 'warning',
     reverseButtons: true,
     showCancelButton: true,
-    cancelButtonText: 'No, Cancel',
-    confirmButtonText: 'Yes, Delete!',
+    cancelButtonText: t('delete.No, Cancel'),
+    confirmButtonText: t('delete.Yes, Delete!'),
     customClass: {
       confirmButton: 'btn btn-primary ml-1',
       cancelButton: 'btn btn-outline-primary',

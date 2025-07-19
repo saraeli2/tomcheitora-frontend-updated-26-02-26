@@ -8,7 +8,8 @@ import products from './products'
 import roles from './roles'
 import settings from './settings'
 import stations from './stations'
+import sales from './sales'
 import suppliers from './suppliers'
 import users from './users'
 
-export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...suppliers, ...users]
+export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...sales, ...suppliers, ...users]

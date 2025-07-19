@@ -1,69 +1,64 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 const props = defineProps({
-  userid: {
+  saleid: {
     type: String,
     required: true,
   },
 })
 
+const emit = defineEmits([
+  'tabData',
+])
+
 definePage({
   meta: {
-    action: ['admin-view-users', 'admin-create-users'],
-    subject: ['View Users', 'Create Users'],
-    title: 'Kid Informations',
+    action: ['admin-view-sale-stations', 'admin-create-sale-stations'],
+    subject: ['View Sale Stations', 'Create Sale Stations'],
+    title: 'Sale Stations',
   },
 })
 
-import AddNewKidDrawer from '@/views/admin/users/AddNewKidDrawer.vue'
+import AddNewSaleStationDrawer from '@/views/admin/sales/AddNewSaleStationDrawer.vue'
 import { can } from '@layouts/plugins/casl'
-
-const ability = useAbility()
-
-import Swal from 'sweetalert2'
 
 const { t } = useI18n()
 
-const searchQuery = ref('')
-const selectedStatus = ref()
+import Swal from 'sweetalert2'
+
 const selectedRows = ref([])
+const isSaleStationDialogVisible = ref(false)
+const isAddNewSaleStationDrawerVisible = ref(false)
+const saleStationDetail = ref()
+const selectedSale = ref(props.saleid)
 
 // Data table options
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(5)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isKidDialogVisible = ref(false)
-const isAddNewKidDrawerVisible = ref(false)
-const kidDetail = ref()
-const selectedUserID = ref(props.userid)
-const panel = ref()
+const selectedStation = ref()
 
 const updateOptions = options => {
   sortBy.value = options.sortBy[0]?.key
   orderBy.value = options.sortBy[0]?.order
 }
 
+// 👉 headers
 const headers = computed(() => [
   {
-    title: t('First Name'),
-    key: 'firstName',
+    title: t('Station'),
+    key: 'stationID',
+    sortable: false,
   },
   {
-    title: t('Last Name'),
-    key: 'lastName',
+    title: t('Date of Distribution'),
+    key: 'date',
   },
   {
-    title: t('DoB'),
-    key: 'dob',
-  },
-  {
-    title: t('ID Number'),
-    key: 'IDNumber',
-  },
-  {
-    title: t('Marital Status'),
-    key: 'maritalStatus',
+    title: t('HH:MM of Distribution'),
+    key: 'time',
   },
   {
     title: t('Created At'),
@@ -81,13 +76,12 @@ const headers = computed(() => [
 ])
 
 const {
-  data: customerData,
-  execute: fetchCommunities,
-} = await useApi(createUrl('/admin/kids', {
+  data: saleStationData,
+  execute: fetchSaleStations,
+} = await useApi(createUrl('/admin/sale-stations', {
   query: {
-    keyword: searchQuery,
-    status: selectedStatus,
-    communityID: selectedUserID,
+    sale: selectedSale,
+    station: selectedStation,
     itemsPerPage,
     page,
     sortBy,
@@ -95,34 +89,31 @@ const {
   },
 }))
 
-const kids = computed(() => customerData.value.kids)
-const totalKids = computed(() => customerData.value.total)
+const saleStations = computed(() => saleStationData.value.saleStations)
+const totalSaleStations = computed(() => saleStationData.value.total)
 
-const resolveStatusVariantAndIcon = status => {
-  if (status === 'Active')
-    return {
-      variant: 'success',
-      title: 'Yes',
-    }
+const commonsync = await $api('/admin/stations/respond-with/extra-options').catch(err => console.log(err))
+
+const stationOptions = computed(() => commonsync.stationOptions)
+
+const stations = stationOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const modifySaleStation = async userData => {
+  // refetch Station
+  fetchSaleStations()
+  emit('tabData')
+}
+
+const editSaleStation = async value => {
+  saleStationDetail.value = value
   
-  return {
-    variant: 'secondary',
-    title: 'No',
-  }
+  isSaleStationDialogVisible.value = true
 }
 
-const modifyKid = async userData => {
-  // refetch Kid
-  fetchCommunities()
-}
-
-const editKid = async value => {
-  kidDetail.value = value
-  
-  isKidDialogVisible.value = true
-}
-
-const deleteKid = async id => {
+const deleteSaleStation = async id => {
   Swal.fire({
     title: t('delete.Are You Sure?'),
     html: t('delete.confirmMessage', {
@@ -142,8 +133,9 @@ const deleteKid = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/kids/${ id }`, { method: 'DELETE' })
-        fetchCommunities()
+        await $api(`/admin/sale-stations/${ id }`, { method: 'DELETE' })
+        fetchSaleStations()
+        emit('tabData')
       }
     })  
 }
@@ -156,7 +148,7 @@ const deleteKid = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Kid Informations') }}
+              {{ $t('Sale Stations') }}
             </h5>
           </VCol>
         </VRow>
@@ -171,6 +163,7 @@ const deleteKid = async id => {
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
+                { value: 5, title: '5' },
                 { value: 10, title: '10' },
                 { value: 25, title: '25' },
                 { value: 50, title: '50' },
@@ -180,84 +173,67 @@ const deleteKid = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Kid -->
+          <!-- 👉 Create Station -->
           <VBtn
-            v-if="can('admin-create-users', 'Create Users')"
+            v-if="can('admin-create-sale-stations', 'Create Sale Stations')"
             prepend-icon="tabler-plus"
-            @click="isAddNewKidDrawerVisible = true"
+            @click="isAddNewSaleStationDrawerVisible = true"
           >
-            {{ $t('Create Kid Information') }}
+            {{ $t('Add Sale Station') }}
           </VBtn>
         </div>
 
-        <div class="d-flex align-center flex-wrap gap-4" />
+        <div class="d-flex align-center flex-wrap gap-4">
+          <!-- 👉 Select status -->
+          <div class="invoice-list-filter">
+            <AppSelect
+              v-model="selectedStation"
+              :placeholder="$t('Select Station')"
+              clearable
+              clear-icon="tabler-x"
+              single-line
+              :items="stations"
+            />
+          </div>
+        </div>
       </VCardText>
 
       <VDivider />
-      
-      <VExpansionPanels
-        v-if="can('admin-view-users', 'View Users')"
-        v-model="panel"
-      >
-        <VExpansionPanel>
-          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
-          <VExpansionPanelText>
-            <VCardText>
-              <VRow>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppTextField
-                    v-model="searchQuery"
-                    :placeholder="$t('Search Kid Information')"
-                  />
-                </VCol>
-              </VRow>
-            </VCardText>
-          </VExpansionPanelText>
-        </VExpansionPanel>
-      </VExpansionPanels>
-
-      <VDivider v-if="can('admin-view-users', 'View Users')" />
+      <VDivider v-if="can('admin-view-sale-stations', 'View Sale Stations')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-users', 'View Users')"
+        v-if="can('admin-view-sale-stations', 'View Sale Stations')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalKids"
+        :items-length="totalSaleStations"
         :headers="headers"
-        :items="kids"
+        :items="saleStations"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- firstName -->
-        <template #[`item.firstName`]="{ item }">
-          {{ item.firstName }}
+        <!-- stationID -->
+        <template #[`item.stationID`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-stations', 'View Stations') && item.stationID"
+            :to="{ name: 'admin-stations-detail-id', params: { id: item.stationID._id } }"
+          >
+            {{ item.stationID.name }}
+          </RouterLink>
+          <span v-else>{{ item.stationID ? item.stationID.name : '' }}</span>
         </template>
 
-        <!-- lastName -->
-        <template #[`item.lastName`]="{ item }">
-          {{ item.lastName }}
+        <!-- date -->
+        <template #[`item.date`]="{ item }">
+          {{ formatDate(item.distributionDate) }}
         </template>
 
-        <!-- dob -->
-        <template #[`item.dob`]="{ item }">
-          {{ item.dob ? formatDate(item.dob) : '' }}
-        </template>
-
-        <!-- IDNumber -->
-        <template #[`item.IDNumber`]="{ item }">
-          {{ item.IDNumber }}
-        </template>
-
-        <!-- maritalStatus -->
-        <template #[`item.maritalStatus`]="{ item }">
-          {{ item.maritalStatus }}
+        <!-- time -->
+        <template #[`item.time`]="{ item }">
+          {{ formatTime(item.distributionDate) }}
         </template>
 
         <!-- Created At -->
@@ -281,8 +257,8 @@ const deleteKid = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-users', 'Update Users')"
-                  @click="editKid(item)"
+                  v-if="can('admin-update-sale-stations', 'Update Sale Stations')"
+                  @click="editSaleStation(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -291,8 +267,8 @@ const deleteKid = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-users', 'Delete Users')"
-                  @click="deleteKid(item._id)"
+                  v-if="can('admin-delete-sale-stations', 'Delete Sale Stations')"
+                  @click="deleteSaleStation(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -309,25 +285,28 @@ const deleteKid = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalKids"
+            :total-items="totalSaleStations"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewKidDrawer
-      v-if="isAddNewKidDrawerVisible"
-      v-model:is-drawer-open="isAddNewKidDrawerVisible"
-      v-model:userid="selectedUserID"
-      @user-data="modifyKid"
+
+    <AddNewSaleStationDrawer
+      v-if="isAddNewSaleStationDrawerVisible"
+      v-model:is-drawer-open="isAddNewSaleStationDrawerVisible"
+      v-model:stations="stations"
+      v-model:saleid="selectedSale"
+      @user-data="modifySaleStation"
     />
 
-    <AddNewKidDrawer
-      v-if="isKidDialogVisible"
-      v-model:is-drawer-open="isKidDialogVisible"
-      v-model:kid="kidDetail"
-      v-model:userid="selectedUserID"
-      @user-data="modifyKid"
+    <AddNewSaleStationDrawer
+      v-if="isSaleStationDialogVisible"
+      v-model:is-drawer-open="isSaleStationDialogVisible"
+      v-model:sale-station="saleStationDetail"
+      v-model:stations="stations"
+      v-model:saleid="selectedSale"
+      @user-data="modifySaleStation"
     />
   </section>
 </template>

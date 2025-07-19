@@ -4,7 +4,7 @@
     <span class="d-flex align-center text-medium-emphasis">
       &copy;
       {{ new Date().getFullYear() }}
-      Developed by <a
+      {{ $t('Developed by') }} <a
         href="https://www.annanovas.com"
         target="_blank"
         rel="noopener noreferrer"

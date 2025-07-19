@@ -34,6 +34,11 @@ export const formatDateWithTime = ( value, formatting = { month: 'short', day: '
     return new Intl.DateTimeFormat('en-US', formatting).format(new Date(value)) 
 }
 
+export const formatTime = ( value, formatting = { hour: 'numeric', minute: 'numeric', hour12: true, } ) => { 
+    if (!value) return value 
+    return new Intl.DateTimeFormat('en-US', formatting).format(new Date(value)) 
+}
+
 /**
  * Return short human friendly month representation of date
  * Can also convert date to only time if date is of today (Better UX)

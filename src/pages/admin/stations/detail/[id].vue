@@ -14,6 +14,10 @@ import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
 
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
 const isStationDialogVisible = ref(false)
 
 const resolveStatusVariantAndIcon = status => {
@@ -65,14 +69,16 @@ const modifyStation = async userData => {
 
 const deleteStation = async () => {
   Swal.fire({
-    title: 'Are You Sure?',
-    html: 'Selecting Delete will <strong>permanently delete</strong> this item. This action cannot be undone.',
+    title: t('delete.Are You Sure?'),
+    html: t('delete.confirmMessage', {
+      action: `<strong>${t('delete.confirmaction')}</strong>`,
+    }),
     // eslint-disable-next-line global-require
     icon: 'warning',
     reverseButtons: true,
     showCancelButton: true,
-    cancelButtonText: 'No, Cancel',
-    confirmButtonText: 'Yes, Delete!',
+    cancelButtonText: t('delete.No, Cancel'),
+    confirmButtonText: t('delete.Yes, Delete!'),
     customClass: {
       confirmButton: 'btn btn-primary ml-1',
       cancelButton: 'btn btn-outline-primary',

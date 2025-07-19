@@ -129,7 +129,7 @@ const logout = async () => {
                 append-icon="tabler-logout"
                 @click="logout"
               >
-                Logout
+                {{ $t('Logout') }}
               </VBtn>
             </div>
           </PerfectScrollbar>

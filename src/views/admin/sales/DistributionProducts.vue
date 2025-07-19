@@ -1,69 +1,68 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 const props = defineProps({
-  userid: {
+  saleid: {
     type: String,
     required: true,
   },
 })
 
+const emit = defineEmits([
+  'tabData',
+])
+
 definePage({
   meta: {
-    action: ['admin-view-users', 'admin-create-users'],
-    subject: ['View Users', 'Create Users'],
-    title: 'Kid Informations',
+    action: ['admin-view-sale-products', 'admin-create-sale-products'],
+    subject: ['View Sale Products', 'Create Sale Products'],
+    title: 'Sale Products',
   },
 })
 
-import AddNewKidDrawer from '@/views/admin/users/AddNewKidDrawer.vue'
+import AddNewSaleProductDrawer from '@/views/admin/sales/AddNewSaleProductDrawer.vue'
 import { can } from '@layouts/plugins/casl'
-
-const ability = useAbility()
-
-import Swal from 'sweetalert2'
 
 const { t } = useI18n()
 
-const searchQuery = ref('')
-const selectedStatus = ref()
+import Swal from 'sweetalert2'
+
 const selectedRows = ref([])
+const isSaleProductDialogVisible = ref(false)
+const isAddNewSaleProductDrawerVisible = ref(false)
+const saleProductDetail = ref()
+const selectedSale = ref(props.saleid)
 
 // Data table options
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(5)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isKidDialogVisible = ref(false)
-const isAddNewKidDrawerVisible = ref(false)
-const kidDetail = ref()
-const selectedUserID = ref(props.userid)
-const panel = ref()
+const selectedProduct = ref()
 
 const updateOptions = options => {
   sortBy.value = options.sortBy[0]?.key
   orderBy.value = options.sortBy[0]?.order
 }
 
+// 👉 headers
 const headers = computed(() => [
   {
-    title: t('First Name'),
-    key: 'firstName',
+    title: t('Product'),
+    key: 'productID',
+    sortable: false,
   },
   {
-    title: t('Last Name'),
-    key: 'lastName',
+    title: t('Price'),
+    key: 'price',
   },
   {
-    title: t('DoB'),
-    key: 'dob',
+    title: t('Limit Per Customer'),
+    key: 'limitPerCustomer',
   },
   {
-    title: t('ID Number'),
-    key: 'IDNumber',
-  },
-  {
-    title: t('Marital Status'),
-    key: 'maritalStatus',
+    title: t('Max Unit'),
+    key: 'maxUnit',
   },
   {
     title: t('Created At'),
@@ -81,13 +80,12 @@ const headers = computed(() => [
 ])
 
 const {
-  data: customerData,
-  execute: fetchCommunities,
-} = await useApi(createUrl('/admin/kids', {
+  data: saleProductData,
+  execute: fetchSaleProducts,
+} = await useApi(createUrl('/admin/sale-products', {
   query: {
-    keyword: searchQuery,
-    status: selectedStatus,
-    communityID: selectedUserID,
+    sale: selectedSale,
+    product: selectedProduct,
     itemsPerPage,
     page,
     sortBy,
@@ -95,34 +93,31 @@ const {
   },
 }))
 
-const kids = computed(() => customerData.value.kids)
-const totalKids = computed(() => customerData.value.total)
+const saleProducts = computed(() => saleProductData.value.saleProducts)
+const totalSaleProducts = computed(() => saleProductData.value.total)
 
-const resolveStatusVariantAndIcon = status => {
-  if (status === 'Active')
-    return {
-      variant: 'success',
-      title: 'Yes',
-    }
+const commonsync = await $api('/admin/products/respond-with/extra-options').catch(err => console.log(err))
+
+const productOptions = computed(() => commonsync.productOptions)
+
+const products = productOptions.value.map(item => ({
+  value: item._id,
+  title: item.name,
+}))
+
+const modifySaleProduct = async userData => {
+  // refetch Product
+  fetchSaleProducts()
+  emit('tabData')
+}
+
+const editSaleProduct = async value => {
+  saleProductDetail.value = value
   
-  return {
-    variant: 'secondary',
-    title: 'No',
-  }
+  isSaleProductDialogVisible.value = true
 }
 
-const modifyKid = async userData => {
-  // refetch Kid
-  fetchCommunities()
-}
-
-const editKid = async value => {
-  kidDetail.value = value
-  
-  isKidDialogVisible.value = true
-}
-
-const deleteKid = async id => {
+const deleteSaleProduct = async id => {
   Swal.fire({
     title: t('delete.Are You Sure?'),
     html: t('delete.confirmMessage', {
@@ -142,8 +137,9 @@ const deleteKid = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/kids/${ id }`, { method: 'DELETE' })
-        fetchCommunities()
+        await $api(`/admin/sale-products/${ id }`, { method: 'DELETE' })
+        fetchSaleProducts()
+        emit('tabData')
       }
     })  
 }
@@ -156,7 +152,7 @@ const deleteKid = async id => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Kid Informations') }}
+              {{ $t('Sale Products') }}
             </h5>
           </VCol>
         </VRow>
@@ -171,6 +167,7 @@ const deleteKid = async id => {
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
+                { value: 5, title: '5' },
                 { value: 10, title: '10' },
                 { value: 25, title: '25' },
                 { value: 50, title: '50' },
@@ -180,84 +177,72 @@ const deleteKid = async id => {
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
-          <!-- 👉 Create Kid -->
+          <!-- 👉 Create Product -->
           <VBtn
-            v-if="can('admin-create-users', 'Create Users')"
+            v-if="can('admin-create-sale-products', 'Create Sale Products')"
             prepend-icon="tabler-plus"
-            @click="isAddNewKidDrawerVisible = true"
+            @click="isAddNewSaleProductDrawerVisible = true"
           >
-            {{ $t('Create Kid Information') }}
+            {{ $t('Add Sale Product') }}
           </VBtn>
         </div>
 
-        <div class="d-flex align-center flex-wrap gap-4" />
+        <div class="d-flex align-center flex-wrap gap-4">
+          <!-- 👉 Select status -->
+          <div class="invoice-list-filter">
+            <AppSelect
+              v-model="selectedProduct"
+              :placeholder="$t('Select Product')"
+              clearable
+              clear-icon="tabler-x"
+              single-line
+              :items="products"
+            />
+          </div>
+        </div>
       </VCardText>
 
       <VDivider />
-      
-      <VExpansionPanels
-        v-if="can('admin-view-users', 'View Users')"
-        v-model="panel"
-      >
-        <VExpansionPanel>
-          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
-          <VExpansionPanelText>
-            <VCardText>
-              <VRow>
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppTextField
-                    v-model="searchQuery"
-                    :placeholder="$t('Search Kid Information')"
-                  />
-                </VCol>
-              </VRow>
-            </VCardText>
-          </VExpansionPanelText>
-        </VExpansionPanel>
-      </VExpansionPanels>
-
-      <VDivider v-if="can('admin-view-users', 'View Users')" />
+      <VDivider v-if="can('admin-view-sale-products', 'View Sale Products')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-users', 'View Users')"
+        v-if="can('admin-view-sale-products', 'View Sale Products')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
-        :items-length="totalKids"
+        :items-length="totalSaleProducts"
         :headers="headers"
-        :items="kids"
+        :items="saleProducts"
         item-value="id"
         class="text-no-wrap"
         @update:options="updateOptions"
       >
-        <!-- firstName -->
-        <template #[`item.firstName`]="{ item }">
-          {{ item.firstName }}
+        <!-- productID -->
+        <template #[`item.productID`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-products', 'View Products') && item.productID"
+            :to="{ name: 'admin-products-detail-id', params: { id: item.productID._id } }"
+          >
+            {{ item.productID.name }}
+          </RouterLink>
+          <span v-else>{{ item.productID ? item.productID.name : '' }}</span>
         </template>
 
-        <!-- lastName -->
-        <template #[`item.lastName`]="{ item }">
-          {{ item.lastName }}
+        <!-- price -->
+        <template #[`item.price`]="{ item }">
+          {{ item.price }}
         </template>
 
-        <!-- dob -->
-        <template #[`item.dob`]="{ item }">
-          {{ item.dob ? formatDate(item.dob) : '' }}
+        <!-- limitPerCustomer -->
+        <template #[`item.limitPerCustomer`]="{ item }">
+          {{ item.limitPerCustomer }}
         </template>
 
-        <!-- IDNumber -->
-        <template #[`item.IDNumber`]="{ item }">
-          {{ item.IDNumber }}
-        </template>
-
-        <!-- maritalStatus -->
-        <template #[`item.maritalStatus`]="{ item }">
-          {{ item.maritalStatus }}
+        <!-- maxUnit -->
+        <template #[`item.maxUnit`]="{ item }">
+          {{ item.maxUnit }}
         </template>
 
         <!-- Created At -->
@@ -281,8 +266,8 @@ const deleteKid = async id => {
             <VMenu activator="parent">
               <VList>
                 <VListItem
-                  v-if="can('admin-update-users', 'Update Users')"
-                  @click="editKid(item)"
+                  v-if="can('admin-update-sale-products', 'Update Sale Products')"
+                  @click="editSaleProduct(item)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
@@ -291,8 +276,8 @@ const deleteKid = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-users', 'Delete Users')"
-                  @click="deleteKid(item._id)"
+                  v-if="can('admin-delete-sale-products', 'Delete Sale Products')"
+                  @click="deleteSaleProduct(item._id)"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
@@ -309,25 +294,28 @@ const deleteKid = async id => {
           <TablePagination
             v-model:page="page"
             :items-per-page="itemsPerPage"
-            :total-items="totalKids"
+            :total-items="totalSaleProducts"
           />
         </template>
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
-    <AddNewKidDrawer
-      v-if="isAddNewKidDrawerVisible"
-      v-model:is-drawer-open="isAddNewKidDrawerVisible"
-      v-model:userid="selectedUserID"
-      @user-data="modifyKid"
+
+    <AddNewSaleProductDrawer
+      v-if="isAddNewSaleProductDrawerVisible"
+      v-model:is-drawer-open="isAddNewSaleProductDrawerVisible"
+      v-model:products="products"
+      v-model:saleid="selectedSale"
+      @user-data="modifySaleProduct"
     />
 
-    <AddNewKidDrawer
-      v-if="isKidDialogVisible"
-      v-model:is-drawer-open="isKidDialogVisible"
-      v-model:kid="kidDetail"
-      v-model:userid="selectedUserID"
-      @user-data="modifyKid"
+    <AddNewSaleProductDrawer
+      v-if="isSaleProductDialogVisible"
+      v-model:is-drawer-open="isSaleProductDialogVisible"
+      v-model:sale-product="saleProductDetail"
+      v-model:products="products"
+      v-model:saleid="selectedSale"
+      @user-data="modifySaleProduct"
     />
   </section>
 </template>
