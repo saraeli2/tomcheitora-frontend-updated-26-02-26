@@ -152,7 +152,7 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 company -->
+              <!-- 👉 Password -->
               <VCol cols="12">
                 <AppTextField
                   v-model="password"
@@ -166,7 +166,7 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 company -->
+              <!-- 👉 Confirm Password -->
               <VCol cols="12">
                 <AppTextField
                   v-model="confirmPassword"

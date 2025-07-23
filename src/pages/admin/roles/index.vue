@@ -321,7 +321,7 @@ const resolveStatusVariantAndIcon = status => {
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
                   </template>
-                  <VListItemTitle>Edit</VListItemTitle>
+                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -331,7 +331,7 @@ const resolveStatusVariantAndIcon = status => {
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
                   </template>
-                  <VListItemTitle>Delete</VListItemTitle>
+                  <VListItemTitle>{{ $t('Delete') }}</VListItemTitle>
                 </VListItem>
               </VList>
             </VMenu>

@@ -156,6 +156,7 @@ const errors = ref({
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="saleStationData.stationID"
+                  :rules="[requiredValidator]"
                   :items="props.stations"
                   :placeholder="$t('Select Station')"
                   :label="$t('Station')"

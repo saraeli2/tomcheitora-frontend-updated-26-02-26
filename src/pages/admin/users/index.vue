@@ -9,6 +9,7 @@ definePage({
 })
 
 import AddNewUserDialog from '@/views/admin/users/AddNewUserDialog.vue'
+import ResetPasswordDrawer from '@/views/admin/users/ResetPasswordDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -30,6 +31,7 @@ const sortBy = ref()
 const orderBy = ref()
 const isUserDialogVisible = ref(false)
 const isAddNewUserDialogVisible = ref(false)
+const isResetPasswordDrawerVisible = ref(false)
 const userDetail = ref()
 const panel = ref()
 
@@ -210,6 +212,11 @@ const deleteUser = async id => {
 onMounted(async () => {
   await handleUpdatedCommunities()
 })
+
+const resetPassword = val => {
+  userDetail.value = val
+  isResetPasswordDrawerVisible.value = true
+}
 </script>
 
 <template>
@@ -460,7 +467,17 @@ onMounted(async () => {
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
-                  <VListItemTitle>View</VListItemTitle>
+                  <VListItemTitle>{{ $t('View') }}</VListItemTitle>
+                </VListItem>
+
+                <VListItem
+                  v-if="can('admin-update-users', 'Update Users')"
+                  @click="resetPassword(item)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-password-user" />
+                  </template>
+                  <VListItemTitle>{{ $t('Reset Password') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -470,7 +487,7 @@ onMounted(async () => {
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
                   </template>
-                  <VListItemTitle>Edit</VListItemTitle>
+                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -515,6 +532,13 @@ onMounted(async () => {
       v-model:user="userDetail"
       @communities="handleUpdatedCommunities"
       v-model:cities="cities"
+      @user-data="modifyUser"
+    />
+    <!-- 👉 Reset Password -->
+    <ResetPasswordDrawer
+      v-if="isResetPasswordDrawerVisible"
+      v-model:is-drawer-open="isResetPasswordDrawerVisible"
+      v-model:user="userDetail"
       @user-data="modifyUser"
     />
   </section>

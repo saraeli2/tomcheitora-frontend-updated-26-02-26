@@ -558,7 +558,7 @@ onMounted(async () => {
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
-                  <VListItemTitle>View</VListItemTitle>
+                  <VListItemTitle>{{ $t('View') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -568,7 +568,7 @@ onMounted(async () => {
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
                   </template>
-                  <VListItemTitle>Edit</VListItemTitle>
+                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -578,7 +578,7 @@ onMounted(async () => {
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
                   </template>
-                  <VListItemTitle>Delete</VListItemTitle>
+                  <VListItemTitle>{{ $t('Delete') }}</VListItemTitle>
                 </VListItem>
               </VList>
             </VMenu>

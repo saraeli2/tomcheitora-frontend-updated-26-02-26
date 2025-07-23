@@ -3,10 +3,10 @@ import { useToast } from 'vue-toastification'
 
 definePage({
   meta: {
-    action: ['admin-create-orders'],
-    subject: ['Create Orders'],
+    action: ['admin-update-orders'],
+    subject: ['Update Orders'],
     navActiveLink: 'admin-sales',
-    title: 'Create Order',
+    title: 'Update Order',
   },
 })
 
@@ -29,7 +29,7 @@ const users = ref([])
 const route = useRoute('admin-orders-edit-id')
 const router = useRouter()
 
-const handleCustomers = async val => {
+const handleUsers = async val => {
   if(val) {
     const commonsync = await $api('/admin/users/respond-with/extra-options', {
       query: {
@@ -76,7 +76,7 @@ const orderData = computed(() => shopDetail.value)
 formData.value = orderData.value
 orderItems.value = orderData.value.orderItems
 
-handleCustomers(orderData.value.saleID._id)
+handleUsers(orderData.value.saleID._id)
 handleProducts(orderData.value.saleID._id)
 
 const errors = ref({
@@ -184,6 +184,16 @@ const cancel = async () => {
         router.push({ name: 'admin-orders-detail-id', params: { id: route.params.id } })
       }
     })
+}
+
+const handleProductPrices = async (val, key) => {
+  if(val) {
+    const data = await $api(`/admin/sale-products/${ val }`).catch(err => console.log(err))
+    orderItems[key].limitPerCustomer = data.limitPerCustomer;
+  } else {
+    orderItems[key].limitPerCustomer = 0
+  }
+  
 }
 </script>
 
@@ -367,6 +377,7 @@ const cancel = async () => {
                       :placeholder="$t('Select Product')"
                       :label="$t('Product')"
                       :error-messages="errors.products?.[key]?.productID || ''"
+                      @update:model-value="(val) => handleProductPrices(val, key)"
                     />
                   </VCol>
                   <VCol
@@ -379,6 +390,7 @@ const cancel = async () => {
                       :placeholder="$t('Quantity')"
                       type="number"
                       :label="$t('Quantity')"
+                      :max="orderItem.limitPerCustomer || ''"
                       :error-messages="errors.products?.[key]?.quantity || ''"
                     />
                   </VCol>

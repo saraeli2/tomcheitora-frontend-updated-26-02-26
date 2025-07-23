@@ -10,6 +10,7 @@ definePage({
 
 import KidModule from '@/pages/admin/users/kids.vue'
 import AddNewUserDialog from '@/views/admin/users/AddNewUserDialog.vue'
+import ResetPasswordDrawer from '@/views/admin/users/ResetPasswordDrawer.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -20,6 +21,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const isUserDialogVisible = ref(false)
+const isResetPasswordDrawerVisible = ref(false)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Active')
@@ -382,6 +384,18 @@ onMounted( async () => {
                   @click="isUserDialogVisible = !isUserDialogVisible"
                 >
                   {{ $t('Edit User') }}
+                </VBtn>
+              </VCardText>
+
+              <VCardText
+                v-if="can('admin-update-users', 'Update Users')"
+                class="text-center"
+              >
+                <VBtn
+                  block
+                  @click="isResetPasswordDrawerVisible = !isResetPasswordDrawerVisible"
+                >
+                  {{ $t('Reset Password') }}
                 </VBtn>
               </VCardText>
             </VCard>

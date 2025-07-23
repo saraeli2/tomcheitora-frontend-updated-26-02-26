@@ -26,11 +26,17 @@ const parentId = ref()
 const isAddNewCategoryDrawerVisible = ref(false)
 const isCategoryDialogVisible = ref(false)
 const categoryDetail = ref()
+const searchQuery = ref('')
+const panel = ref()
 
 const {
   data: categoryBuilderData,
   execute: fetchCategoryBuilders,
-} = await useApi(createUrl('/admin/settings/categories'))
+} = await useApi(createUrl('/admin/settings/categories', {
+  query: {
+    search: searchQuery,
+  },
+}))
 
 const categories = computed(() => categoryBuilderData.value.categories)
 
@@ -186,6 +192,34 @@ watch(categoryBuilderData, newVal => {
           </VBtn>
         </div>
       </VCardText>
+
+      <VDivider />
+      
+      <VExpansionPanels
+        v-if="can('admin-view-tags', 'View Tags')"
+        v-model="panel"
+      >
+        <VExpansionPanel>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
+
+          <VExpansionPanelText>
+            <VCardText>
+              <VRow>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppTextField
+                    v-model="searchQuery"
+                    :placeholder="$t('Search Category')"
+                  />
+                </VCol>
+              </VRow>
+            </VCardText>
+          </VExpansionPanelText>
+        </VExpansionPanel>
+      </VExpansionPanels>
+      <VDivider />
     </VCard>
 
     <VCard

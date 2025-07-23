@@ -104,7 +104,6 @@ const submit = async () => {
           email: adminData.value.email,
           position: adminData.value.position,
           roles: adminData.value.roles,
-          password: password.value,
           status: adminData.value.status,
           cityID: adminData.value.cityID,
           street: adminData.value.street,
@@ -112,6 +111,7 @@ const submit = async () => {
           remarks: adminData.value.remarks,
           phone1: adminData.value.phone1,
           phone2: adminData.value.phone2,
+          password: password.value,
           confirmPassword: confirmPassword.value,
         },
         onResponseError({ response }) {
@@ -151,13 +151,13 @@ const errors = ref({
   position: undefined,
   status: undefined,
   roles: undefined,
-  password: undefined,
   cityID: undefined,
   street: undefined,
   houseNumber: undefined,
   remarks: undefined,
   phone1: undefined,
   phone2: undefined,
+  password: undefined,
   confirmPassword: undefined,
 })
 

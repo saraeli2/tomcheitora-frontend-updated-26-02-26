@@ -51,7 +51,7 @@ if(props.saleProduct._id) {
   }
 }
 
-const handleSubCategories = async val => {
+const handleProductPrices = async val => {
   if(val) {
     const data = await $api(`/admin/products/${ val }`).catch(err => console.log(err))
     saleProductData.value.price = data.salePrice
@@ -174,20 +174,21 @@ const errors = ref({
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="saleProductData.productID"
+                  :rules="[requiredValidator]"
                   :items="props.products"
                   :placeholder="$t('Select Product')"
                   :label="$t('Product')"
                   :error-messages="errors.productID"
                   clearable
-                  @update:model-value="handleSubCategories"
+                  @update:model-value="handleProductPrices"
                 />
               </VCol>
 
-              <!-- 👉 Limit Per Customer -->
+              <!-- 👉 Price -->
               <VCol cols="12">
                 <AppTextField
                   v-model="saleProductData.price"
-                  :rules="[numericValidator]"
+                  :rules="[requiredValidator, numericValidator]"
                   :label="$t('Price')"
                   :placeholder="$t('Price')"
                   :error-messages="errors.price"
@@ -198,18 +199,18 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="saleProductData.limitPerCustomer"
-                  :rules="[integerValidator]"
+                  :rules="[requiredValidator, integerValidator]"
                   :label="$t('Limit Per Customer')"
                   :placeholder="$t('Limit Per Customer')"
                   :error-messages="errors.limitPerCustomer"
                 />
               </VCol>
 
-              <!-- 👉 Limit Per Customer -->
+              <!-- 👉 Max Unit -->
               <VCol cols="12">
                 <AppTextField
                   v-model="saleProductData.maxUnit"
-                  :rules="[integerValidator]"
+                  :rules="[requiredValidator, integerValidator]"
                   :label="$t('Max Unit')"
                   :placeholder="$t('Max Unit')"
                   :error-messages="errors.maxUnit"

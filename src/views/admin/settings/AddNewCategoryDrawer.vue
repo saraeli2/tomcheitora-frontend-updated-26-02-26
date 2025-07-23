@@ -23,6 +23,7 @@ const props = defineProps({
       name: '',
       description: '',
       status: 'Active',
+      shownImageName: false,
     }),
   },
 })
@@ -66,6 +67,10 @@ const submit = async () => {
 
   if(categoryData.value.description) {
     formData.append('description', categoryData.value.description)
+  }
+
+  if(categoryData.value.shownImageName) {
+    formData.append('shownImageName', categoryData.value.shownImageName)
   }
 
   if(props.parent) {
@@ -181,8 +186,8 @@ const handleImageChange = file => {
                 <AppTextField
                   v-model="categoryData.name"
                   :rules="[requiredValidator]"
-                  label="$t('Name')"
-                  placeholder="$t('Name')"
+                  :label="$t('Name')"
+                  :placeholder="$t('Name')"
                   :error-messages="errors.name"
                 />
               </VCol>
@@ -191,10 +196,17 @@ const handleImageChange = file => {
               <VCol cols="12">
                 <AppTextarea
                   v-model="categoryData.description"
-                  :rules="[requiredValidator]"
                   :label="$t('Description')"
                   :placeholder="$t('Description')"
                   :error-messages="errors.description"
+                />
+              </VCol>
+
+              <!-- 👉 statusLabel -->
+              <VCol cols="12">
+                <VSwitch
+                  v-model="categoryData.shownImageName"
+                  :label="$t('Show Image & Name')"
                 />
               </VCol>
 

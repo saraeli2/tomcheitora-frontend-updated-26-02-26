@@ -72,7 +72,7 @@ const {
   execute: fetchTags,
 } = await useApi(createUrl('/admin/settings/tags', {
   query: {
-    keyword: searchQuery,
+    search: searchQuery,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -300,7 +300,7 @@ const deleteTag = async id => {
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
                   </template>
-                  <VListItemTitle>Edit</VListItemTitle>
+                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -310,7 +310,7 @@ const deleteTag = async id => {
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
                   </template>
-                  <VListItemTitle>Delete</VListItemTitle>
+                  <VListItemTitle>{{ $t('Delete') }}</VListItemTitle>
                 </VListItem>
               </VList>
             </VMenu>

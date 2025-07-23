@@ -156,6 +156,7 @@ const errors = ref({
               <VCol cols="12">
                 <AppAutocomplete
                   v-model="saleGroupData.groupID"
+                  :rules="[requiredValidator]"
                   :items="props.groups"
                   :placeholder="$t('Select Group')"
                   :label="$t('Group')"
@@ -168,7 +169,7 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="saleGroupData.limitPerCustomer"
-                  :rules="[integerValidator]"
+                  :rules="[requiredValidator, integerValidator]"
                   :label="$t('Limit Per Customer')"
                   :placeholder="$t('Limit Per Customer')"
                   :error-messages="errors.limitPerCustomer"

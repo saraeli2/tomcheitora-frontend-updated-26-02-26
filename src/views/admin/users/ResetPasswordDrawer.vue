@@ -7,23 +7,23 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
-  admin: {
+  user: {
     type: Object,
     required: false,
     default: () => ({
       // eslint-disable-next-line camelcase
       _id: '',
-      name: '',
+      firstName: '',
+      lastName: '',
       email: '',
-      phone1: '',
-      position: '',
+      phone: '',
     }),
   },
 })
 
 const emit = defineEmits([
   'update:isDrawerOpen',
-  'update:admin',
+  'update:user',
   'userData',
 ])
 
@@ -31,7 +31,7 @@ const toast = useToast()
 
 const isFormValid = ref(false)
 const refForm = ref()
-const adminData = ref(structuredClone(toRaw(props.admin)))
+const adminData = ref(structuredClone(toRaw(props.user)))
 const password = ref('')
 const confirmPassword = ref('')
 const isNewPasswordVisible = ref(false)
@@ -53,7 +53,7 @@ const errors = ref({
 
 const onSubmit = async () => {
   try {
-    const res = await $api(`/admin/distribution-managers/${ props.admin._id }/update/password`, {
+    const res = await $api(`/admin/users/${ props.user._id }/update/password`, {
       method: 'PATCH',
       body: {
         confirmPassword: confirmPassword.value,
@@ -81,12 +81,6 @@ const onSubmit = async () => {
 const handleDrawerModelValueUpdate = val => {
   emit('update:isDrawerOpen', val)
 }
-
-watch(props, () => {
-  if (props.admin) {
-    adminData.value = props.admin
-  }
-})
 </script>
 
 <template>
@@ -116,11 +110,20 @@ watch(props, () => {
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <!-- 👉 Full name -->
+              <!-- 👉 First Name -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="adminData.name"
-                  :label="$t('Name')"
+                  v-model="adminData.firstName"
+                  :label="$t('First Name')"
+                  disabled
+                />
+              </VCol>
+
+              <!-- 👉 Last Name -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="adminData.lastName"
+                  :label="$t('Last Name')"
                   disabled
                 />
               </VCol>
@@ -134,20 +137,11 @@ watch(props, () => {
                 />
               </VCol>
 
-              <!-- 👉 Position -->
+              <!-- 👉 Phone -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="adminData.position"
-                  :label="$t('Position')"
-                  disabled
-                />
-              </VCol>
-
-              <!-- 👉 Phone 1 -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.phone1"
-                  :label="$t('Phone 1')"
+                  v-model="adminData.phone"
+                  :label="$t('Phone')"
                   disabled
                 />
               </VCol>

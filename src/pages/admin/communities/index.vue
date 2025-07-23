@@ -22,7 +22,7 @@ const selectedCity = ref()
 const selectedRows = ref([])
 
 // Data table options
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(50)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
@@ -42,14 +42,6 @@ const headers = computed(() => [
     key: 'name',
   },
   {
-    title: t('City'),
-    key: 'cityID',
-  },
-  {
-    title: t('Street'),
-    key: 'street',
-  },
-  {
     title: t('House Number'),
     key: 'houseNumber',
   },
@@ -64,6 +56,16 @@ const headers = computed(() => [
   {
     title: t('Active'),
     key: 'status',
+  },
+  {
+    title: t('Users Count'),
+    key: 'totalUsers',
+    sortable: false,
+  },
+  {
+    title: t('Active User Count'),
+    key: 'activeUsers',
+    sortable: false,
   },
   {
     title: t('Created At'),
@@ -181,10 +183,10 @@ const deleteCommunity = async id => {
             <AppSelect
               :model-value="itemsPerPage"
               :items="[
-                { value: 10, title: '10' },
                 { value: 25, title: '25' },
                 { value: 50, title: '50' },
                 { value: 100, title: '100' },
+                { value: 200, title: '200' },
               ]"
               style="inline-size: 5.5rem;"
               @update:model-value="itemsPerPage = parseInt($event, 10)"
@@ -279,16 +281,6 @@ const deleteCommunity = async id => {
           </RouterLink>
         </template>
 
-        <!-- cityID -->
-        <template #[`item.cityID`]="{ item }">
-          {{ item.cityID ? item.cityID.nameHe : '' }}
-        </template>
-
-        <!-- street -->
-        <template #[`item.street`]="{ item }">
-          {{ item.street }}
-        </template>
-
         <!-- houseNumber -->
         <template #[`item.houseNumber`]="{ item }">
           {{ item.houseNumber }}
@@ -339,7 +331,7 @@ const deleteCommunity = async id => {
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
-                  <VListItemTitle>View</VListItemTitle>
+                  <VListItemTitle>{{ $t('View') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -349,7 +341,7 @@ const deleteCommunity = async id => {
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
                   </template>
-                  <VListItemTitle>Edit</VListItemTitle>
+                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem
@@ -359,7 +351,7 @@ const deleteCommunity = async id => {
                   <template #prepend>
                     <VIcon icon="tabler-trash" />
                   </template>
-                  <VListItemTitle>Delete</VListItemTitle>
+                  <VListItemTitle>{{ $t('Delete') }}</VListItemTitle>
                 </VListItem>
               </VList>
             </VMenu>

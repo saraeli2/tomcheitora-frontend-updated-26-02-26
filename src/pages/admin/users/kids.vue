@@ -18,8 +18,6 @@ definePage({
 import AddNewKidDrawer from '@/views/admin/users/AddNewKidDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
-const ability = useAbility()
-
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
@@ -287,7 +285,7 @@ const deleteKid = async id => {
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
                   </template>
-                  <VListItemTitle>Edit</VListItemTitle>
+                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
                 </VListItem>
 
                 <VListItem

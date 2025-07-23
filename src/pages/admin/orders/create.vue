@@ -44,7 +44,7 @@ const users = ref([])
 const route = useRoute('admin-orders-create')
 const router = useRouter()
 
-const handleCustomers = async val => {
+const handleUsers = async val => {
   if(val) {
     const commonsync = await $api('/admin/users/respond-with/extra-options', {
       query: {
@@ -188,13 +188,23 @@ const cancel = async () => {
 
 onMounted( async () => {
   if(route.query.saleid) {    
-    handleCustomers(route.query.saleid)
+    handleUsers(route.query.saleid)
     handleProducts(route.query.saleid)
     saleID.value = route.query.saleid
   } else {
     saleID.value = ''
   }
 })
+
+const handleProductPrices = async (val, key) => {
+  if(val) {
+    const data = await $api(`/admin/sale-products/${ val }`).catch(err => console.log(err))
+    orderItems[key].limitPerCustomer = data.limitPerCustomer;
+  } else {
+    orderItems[key].limitPerCustomer = 0
+  }
+  
+}
 </script>
 
 <template>
@@ -377,6 +387,7 @@ onMounted( async () => {
                       :placeholder="$t('Select Product')"
                       :label="$t('Product')"
                       :error-messages="errors.products?.[key]?.productID || ''"
+                      @update:model-value="(val) => handleProductPrices(val, key)"
                     />
                   </VCol>
                   <VCol
@@ -389,6 +400,7 @@ onMounted( async () => {
                       :placeholder="$t('Quantity')"
                       type="number"
                       :label="$t('Quantity')"
+                      :max="orderItem.limitPerCustomer || ''"
                       :error-messages="errors.products?.[key]?.quantity || ''"
                     />
                   </VCol>
