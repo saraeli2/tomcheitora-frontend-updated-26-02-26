@@ -225,7 +225,7 @@ const deleteSupplier = async id => {
           <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
-            <VCardText>
+            <VCardText style="padding:0;">
               <VRow>
                 <VCol
                   cols="12"

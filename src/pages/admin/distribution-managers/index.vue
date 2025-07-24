@@ -22,6 +22,9 @@ const selectedRole = ref()
 const selectedCity = ref()
 const selectedStatus = ref()
 const selectedRows = ref([])
+const selectedPhone1 = ref()
+const selectedPhone2 = ref()
+const selectedCreatedBy = ref()
 
 // Data table options
 const itemsPerPage = ref(10)
@@ -114,6 +117,9 @@ const {
     status: selectedStatus,
     cityID: selectedCity,
     role: selectedRole,
+    phone1: selectedPhone1,
+    phone2: selectedPhone2,
+    createdBy: selectedCreatedBy,
     itemsPerPage,
     page,
     sortBy,
@@ -133,12 +139,19 @@ const roles = roleOptions.value.map(item => ({
   title: item.name,
 }))
 
-const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
-const cityOptions = computed(() => commonsyncCities.cityOptions)
+const commonsyncOptions = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncOptions.cityOptions)
 
 const cities = cityOptions.value.map(item => ({
   value: item._id,
   title: `${item.nameHe}`,
+}))
+
+const adminOptions = computed(() => commonsyncOptions.adminOptions)
+
+const admins = adminOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.name}`,
 }))
 
 const resolveStatusVariantAndIcon = status => {
@@ -253,11 +266,11 @@ const resetPassword = val => {
           <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
-            <VCardText>
+            <VCardText style="padding:0">
               <VRow>
                 <VCol
                   cols="12"
-                  sm="4"
+                  md="3"
                 >
                   <AppTextField
                     v-model="searchQuery"
@@ -266,7 +279,36 @@ const resetPassword = val => {
                 </VCol>
                 <VCol
                   cols="12"
-                  sm="4"
+                  md="3"
+                >
+                  <AppTextField
+                    v-model="selectedPhone1"
+                    :placeholder="$t('Phone 1')"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  md="3"
+                >
+                  <AppTextField
+                    v-model="selectedPhone2"
+                    :placeholder="$t('Phone 2')"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  md="3"
+                >
+                  <AppAutocomplete
+                    v-model="selectedCreatedBy"
+                    :items="admins"
+                    :placeholder="$t('Created By')"
+                    clearable
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  md="3"
                 >
                   <AppAutocomplete
                     v-model="selectedRole"
@@ -278,7 +320,7 @@ const resetPassword = val => {
 
                 <VCol
                   cols="12"
-                  sm="4"
+                  md="3"
                 >
                   <AppAutocomplete
                     v-model="selectedCity"
@@ -290,7 +332,7 @@ const resetPassword = val => {
                 
                 <VCol
                   cols="12"
-                  sm="4"
+                  md="3"
                 >
                   <AppAutocomplete
                     v-model="selectedStatus"

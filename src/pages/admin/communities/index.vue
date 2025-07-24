@@ -20,6 +20,8 @@ const searchQuery = ref('')
 const selectedStatus = ref()
 const selectedCity = ref()
 const selectedRows = ref([])
+const selectedDiscountPercentage = ref()
+const selectedDiscountFixed = ref()
 
 // Data table options
 const itemsPerPage = ref(50)
@@ -87,8 +89,10 @@ const {
   execute: fetchCommunities,
 } = await useApi(createUrl('/admin/communities', {
   query: {
-    keyword: searchQuery,
+    search: searchQuery,
     status: selectedStatus,
+    discountPercentage: selectedDiscountPercentage,
+    discountFixed: selectedDiscountFixed,
     cityID: selectedCity,
     itemsPerPage,
     page,
@@ -215,11 +219,11 @@ const deleteCommunity = async id => {
           <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
 
           <VExpansionPanelText>
-            <VCardText>
+            <VCardText style="padding:0">
               <VRow>
                 <VCol
                   cols="12"
-                  sm="4"
+                  sm="3"
                 >
                   <AppTextField
                     v-model="searchQuery"
@@ -229,7 +233,27 @@ const deleteCommunity = async id => {
 
                 <VCol
                   cols="12"
-                  sm="4"
+                  sm="3"
+                >
+                  <AppTextField
+                    v-model="selectedDiscountPercentage"
+                    :placeholder="$t('Discount in')"
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="3"
+                >
+                  <AppTextField
+                    v-model="selectedDiscountFixed"
+                    :placeholder="$t('Discount Fixed Number')"
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="3"
                 >
                   <AppAutocomplete
                     v-model="selectedCity"
@@ -241,7 +265,7 @@ const deleteCommunity = async id => {
                 
                 <VCol
                   cols="12"
-                  sm="4"
+                  sm="3"
                 >
                   <AppAutocomplete
                     v-model="selectedStatus"
