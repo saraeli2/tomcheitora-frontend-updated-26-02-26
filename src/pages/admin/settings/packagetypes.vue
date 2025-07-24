@@ -72,6 +72,7 @@ const headers = computed(() => [
 const {
   data: customerData,
   execute: fetchPackagetypes,
+  error,
 } = await useApi(createUrl('/admin/settings/packagetypes', {
   query: {
     keyword: searchQuery,
