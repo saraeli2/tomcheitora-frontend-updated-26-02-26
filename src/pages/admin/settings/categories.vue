@@ -19,6 +19,8 @@ import { can } from '@layouts/plugins/casl'
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
+const ability = useAbility()
+const router = useRouter()
 
 const toast = useToast()
 
@@ -32,11 +34,29 @@ const panel = ref()
 const {
   data: categoryBuilderData,
   execute: fetchCategoryBuilders,
+  error,
 } = await useApi(createUrl('/admin/settings/categories', {
   query: {
     search: searchQuery,
   },
 }))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const categories = computed(() => categoryBuilderData.value.categories)
 

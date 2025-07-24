@@ -12,6 +12,19 @@ export const setupGuards = router => {
          */
     if (to.meta.public)
       return
+    
+    
+    const router = useRouter()
+
+    window.addEventListener('storage', event => {
+        if (event.key === 'logoutEvent') {
+          const authStore = useAuthStore()
+          localStorage.removeItem('logoutEvent')
+          authStore.logout() // If you have a defined logout() action to clear state
+          router.push({ name: 'admin-login' })
+          location.href = '/admin/login'
+        }
+    })
 
     const authStore = useAuthStore()
     let userData = ''

@@ -22,6 +22,8 @@ const isRoleDialogVisible = ref(false)
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
+const ability = useAbility()
+const router = useRouter()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -84,6 +86,7 @@ const headers = computed(() => [
 const {
   data: roleData,
   execute: fetchRoles,
+  error,
 } = await useApi(createUrl('/admin/roles', {
   query: {
     search: searchQuery,
@@ -94,6 +97,23 @@ const {
     orderBy,
   },
 }))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const roles = computed(() => roleData.value.roles)
 const totalRoles = computed(() => roleData.value.total)

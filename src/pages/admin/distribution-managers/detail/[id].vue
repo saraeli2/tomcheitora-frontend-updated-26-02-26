@@ -18,6 +18,7 @@ import Swal from 'sweetalert2'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const ability = useAbility()
 
 const isAdminDialogVisible = ref(false)
 const isResetPasswordDrawerVisible = ref(false)
@@ -41,8 +42,25 @@ const router = useRouter()
 const userTab = ref(0)
 
 const {
-  data: adminDetail, execute: fetchAdmins,
+  data: adminDetail, execute: fetchAdmins, error,
 } = await useApi(createUrl(`/admin/distribution-managers/${ route.params.id }`))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const adminData = computed(() => adminDetail.value)
 

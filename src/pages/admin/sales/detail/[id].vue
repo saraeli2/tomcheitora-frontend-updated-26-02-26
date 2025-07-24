@@ -19,6 +19,7 @@ import { can } from '@layouts/plugins/casl'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const ability = useAbility()
 
 import { hexToRgb } from '@layouts/utils'
 import Swal from 'sweetalert2'
@@ -52,8 +53,25 @@ const route = useRoute('admin-sales-detail-id')
 const router = useRouter()
 
 const {
-  data: saleDetail, execute: fetchSales,
+  data: saleDetail, execute: fetchSales, error,
 } = await useApi(createUrl(`/admin/sales/${ route.params.id }`))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const saleData = computed(() => saleDetail.value)
 
@@ -111,18 +129,18 @@ const resolveOrderStatusVariantAndIcon = status => {
   const normalizedStatus = status?.toString().trim()
 
   switch (normalizedStatus) {
-    case 'Pending':
-      return { variant: 'warning', title: status }
-    case 'Processing':
-      return { variant: 'info', title: status }
-    case 'Delivered':
-      return { variant: 'primary', title: status }
-    case 'Completed':
-      return { variant: 'success', title: status }
-    case 'Cancelled':
-      return { variant: 'error', title: status }
-    default:
-      return { variant: 'secondary', title: status }
+  case 'Pending':
+    return { variant: 'warning', title: status }
+  case 'Processing':
+    return { variant: 'info', title: status }
+  case 'Delivered':
+    return { variant: 'primary', title: status }
+  case 'Completed':
+    return { variant: 'success', title: status }
+  case 'Cancelled':
+    return { variant: 'error', title: status }
+  default:
+    return { variant: 'secondary', title: status }
   }
 }
 

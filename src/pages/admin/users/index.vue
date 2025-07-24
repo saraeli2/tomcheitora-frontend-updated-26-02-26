@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+
 definePage({
   meta: {
     action: ['admin-view-users', 'admin-create-users'],
@@ -15,6 +16,8 @@ import { can } from '@layouts/plugins/casl'
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
+const ability = useAbility()
+const router = useRouter()
 
 const searchQuery = ref('')
 const israeliIDNumber = ref('')
@@ -116,6 +119,7 @@ const headers = computed(() => [
 const {
   data: customerData,
   execute: fetchUsers,
+  error,
 } = await useApi(createUrl('/admin/users', {
   query: {
     search: searchQuery,
@@ -130,6 +134,23 @@ const {
     orderBy,
   },
 }))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const users = computed(() => customerData.value.users)
 const totalUsers = computed(() => customerData.value.total)
@@ -520,8 +541,8 @@ const resetPassword = val => {
       v-if="isAddNewUserDialogVisible"
       v-model:is-dialog-visible="isAddNewUserDialogVisible"
       v-model:communities="communities"
-      @communities="handleUpdatedCommunities"
       v-model:cities="cities"
+      @communities="handleUpdatedCommunities"
       @user-data="modifyUser"
     />
 
@@ -530,8 +551,8 @@ const resetPassword = val => {
       v-model:is-dialog-visible="isUserDialogVisible"
       v-model:communities="communities"
       v-model:user="userDetail"
-      @communities="handleUpdatedCommunities"
       v-model:cities="cities"
+      @communities="handleUpdatedCommunities"
       @user-data="modifyUser"
     />
     <!-- 👉 Reset Password -->

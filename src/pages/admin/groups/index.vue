@@ -15,6 +15,8 @@ import { can } from '@layouts/plugins/casl'
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
+const ability = useAbility()
+const router = useRouter()
 
 const searchQuery = ref('')
 const selectedStatus = ref()
@@ -87,6 +89,7 @@ const headers = computed(() => [
 const {
   data: customerData,
   execute: fetchGroups,
+  error,
 } = await useApi(createUrl('/admin/groups', {
   query: {
     keyword: searchQuery,
@@ -97,6 +100,23 @@ const {
     orderBy,
   },
 }))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const groups = computed(() => customerData.value.groups)
 const totalGroups = computed(() => customerData.value.total)

@@ -12,6 +12,7 @@ export const useAuthStore = defineStore('auth', {
       localStorage.setItem('userAbilityRules', JSON.stringify(userAbilityRules))
       localStorage.setItem('userData', JSON.stringify(userData))
       localStorage.setItem('accessToken', JSON.stringify(accessToken))
+      localStorage.removeItem('logoutEvent')
       this.userData = userData
       this.accessToken = accessToken
       this.userAbilityRules = userAbilityRules

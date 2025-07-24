@@ -15,8 +15,7 @@ import Swal from 'sweetalert2'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
-
-const isOrderDialogVisible = ref(false)
+const ability = useAbility()
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Processing') {
@@ -51,8 +50,25 @@ const route = useRoute('admin-orders-detail-id')
 const router = useRouter()
 
 const {
-  data: orderDetail, execute: fetchOrders,
+  data: orderDetail, execute: fetchOrders, error,
 } = await useApi(createUrl(`/admin/orders/${ route.params.id }`))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const orderData = computed(() => orderDetail.value)
 

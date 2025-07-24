@@ -21,6 +21,8 @@ import { can } from '@layouts/plugins/casl'
 import Swal from 'sweetalert2'
 
 const { t } = useI18n()
+const ability = useAbility()
+const router = useRouter()
 
 const selectedUser = ref('')
 const selectedStatus = ref()
@@ -32,9 +34,6 @@ const itemsPerPage = ref(5)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
-const isOrderDialogVisible = ref(false)
-const isAddNewOrderDrawerVisible = ref(false)
-const orderDetail = ref()
 const panel = ref()
 
 const updateOptions = options => {
@@ -90,6 +89,7 @@ const headers = computed(() => [
 const {
   data: customerData,
   execute: fetchOrders,
+  error,
 } = await useApi(createUrl('/admin/orders', {
   query: {
     sale: selectedSale,
@@ -101,6 +101,23 @@ const {
     orderBy,
   },
 }))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const orders = computed(() => customerData.value.orders)
 const totalOrders = computed(() => customerData.value.total)
@@ -146,12 +163,6 @@ const resolveStatusVariantAndIcon = status => {
 const modifyOrder = async userData => {
   // refetch Order
   fetchOrders()
-}
-
-const editOrder = async value => {
-  orderDetail.value = value
-  
-  isOrderDialogVisible.value = true
 }
 
 const deleteOrder = async id => {

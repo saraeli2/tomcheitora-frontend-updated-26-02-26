@@ -15,6 +15,7 @@ import Swal from 'sweetalert2'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const ability = useAbility()
 
 const toast = useToast()
 
@@ -64,12 +65,29 @@ const handleProducts = async val => {
 }
 
 const {
-  data: shopDetail, execute: fetchOrders,
+  data: shopDetail, execute: fetchOrders, error,
 } = await useApi(createUrl(`/admin/orders/${ route.params.id }`, {
   query: {
     edit: 1,
   },
 }))
+
+if(error.value == 'Unauthorized') {
+// Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'admin-login' })
+
+  location.href = '/admin/login'
+}
 
 const orderData = computed(() => shopDetail.value)
 
@@ -189,7 +207,8 @@ const cancel = async () => {
 const handleProductPrices = async (val, key) => {
   if(val) {
     const data = await $api(`/admin/sale-products/${ val }`).catch(err => console.log(err))
-    orderItems[key].limitPerCustomer = data.limitPerCustomer;
+
+    orderItems[key].limitPerCustomer = data.limitPerCustomer
   } else {
     orderItems[key].limitPerCustomer = 0
   }

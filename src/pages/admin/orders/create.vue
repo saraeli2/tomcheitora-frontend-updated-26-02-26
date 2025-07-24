@@ -1,6 +1,6 @@
 <script setup>
-import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
 
 const props = defineProps({
   order: {
@@ -199,7 +199,8 @@ onMounted( async () => {
 const handleProductPrices = async (val, key) => {
   if(val) {
     const data = await $api(`/admin/sale-products/${ val }`).catch(err => console.log(err))
-    orderItems[key].limitPerCustomer = data.limitPerCustomer;
+
+    orderItems[key].limitPerCustomer = data.limitPerCustomer
   } else {
     orderItems[key].limitPerCustomer = 0
   }

@@ -12,14 +12,11 @@ const authStore = useAuthStore()
 const userData = authStore.userData
 
 const logout = async () => {
-
   if(userData) {
     try {
       await $api('/admin/logout', {
         method: 'POST',
-        body: {
-          roles: authStore.accessToken,
-        },
+        credentials: 'include',
       })
 
       // Remove "userData" from cookie
@@ -33,6 +30,7 @@ const logout = async () => {
   localStorage.removeItem('userData')
   localStorage.removeItem('accessToken')
   localStorage.removeItem('userAbilityRules')
+  localStorage.setItem('logoutEvent', Date.now())
 
   // Reset ability to initial ability
   ability.update([])
