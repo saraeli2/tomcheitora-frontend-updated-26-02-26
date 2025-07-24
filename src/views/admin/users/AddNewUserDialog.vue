@@ -58,6 +58,7 @@ const isFormValid = ref(false)
 const isAddNewCommunityDialogVisible = ref(false)
 const refForm = ref()
 const imageID = ref()
+const imageUrl = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const adminData = ref(structuredClone(toRaw(props.user)))
 const cities = ref(structuredClone(toRaw(props.cities)))
@@ -79,7 +80,26 @@ const submit = async () => {
   const formData = new FormData()
 
   if(imageID.value) {
-    formData.append('imageID', imageID.value)
+    //formData.append('imageID', imageID.value)
+    const formDataImage = new FormData()
+    
+    formDataImage.append('file', imageID.value)
+    formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+
+    try {
+      const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
+        method: 'POST',
+        body: formDataImage,
+      })
+
+      const data = await response.json()
+
+      imageUrl.value = data.secure_url
+    } catch (error) {
+      console.error('Cloudinary upload error:', error)
+    }
+  }else if(adminData.value.imageID){
+    formData.append('imageUrl', adminData.value.imageID)
   }
 
   if(adminData.value.email) {
@@ -165,13 +185,35 @@ const submit = async () => {
         'Authorization': `Bearer ${authStore.accessToken}`,
       },
     }).then(async response => {
-      await nextTick(() => {
-        emit('userData')
-        emit('update:isDialogVisible', false)
-        refForm.value?.reset()
-        refForm.value?.resetValidation()
-        toast.success("Successfully updated")
-      })
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateImage(formData, props.user._id)
+
+        await nextTick(() => {
+          //emit('updateData')
+          //emit('update:isDrawerOpen', false)
+          emit('update:isDialogVisible', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully updated")
+        })
+      }else{
+        await nextTick(() => {
+          emit('userData')
+          emit('update:isDialogVisible', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully updated")
+        })
+      }
+
+      // await nextTick(() => {
+      //   emit('userData')
+      //   emit('update:isDialogVisible', false)
+      //   refForm.value?.reset()
+      //   refForm.value?.resetValidation()
+      //   toast.success("Successfully updated")
+      // })
     })
       .catch(e => {
         errors.value = e.response.data.errors
@@ -183,18 +225,57 @@ const submit = async () => {
         'Authorization': `Bearer ${authStore.accessToken}`,
       },
     }).then(async response => {
-      await nextTick(() => {
-        emit('userData')
-        emit('update:isDialogVisible', false)
-        refForm.value?.reset()
-        refForm.value?.resetValidation()
-        toast.success("Successfully saved")
-      })
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateImage(formData, response.data.data._id)
+
+        await nextTick(() => {
+          //emit('updateData')
+          //emit('update:isDrawerOpen', false)
+          emit('update:isDialogVisible', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully saved")
+        })
+      }else{
+        await nextTick(() => {
+          emit('userData')
+          emit('update:isDialogVisible', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully saved")
+        })
+      }
+
+      // await nextTick(() => {
+      //   emit('userData')
+      //   emit('update:isDialogVisible', false)
+      //   refForm.value?.reset()
+      //   refForm.value?.resetValidation()
+      //   toast.success("Successfully saved")
+      // })
     })
       .catch(e => {
         errors.value = e.response.data.errors
       })
   }
+}
+
+const updateImage = async (formData, modelId) => {
+  const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${ modelId }`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${authStore.accessToken}`,
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      emit('userData')
+      emit('update:isDialogVisible', false)
+    })
+  })
+    .catch(e => {
+      errors.value = e.response.data.errors
+    })
 }
 
 const onSubmit = () => {
@@ -466,6 +547,14 @@ watch(() => props.communities,
             <VCol cols="12">
               <div class="app-picker-field">
                 <label class="v-label mb-1 text-body-2">{{ $t('Image of ID') }}</label>
+              </div>
+              <div v-if="adminData?.imageID">
+                <VImg
+                  :src="adminData.imageID"
+                  alt="logo"
+                  width="120"
+                  height="120"
+                />
               </div>
               <VFileInput
                 :rules="rules"

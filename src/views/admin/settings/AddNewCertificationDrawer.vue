@@ -34,6 +34,7 @@ const toast = useToast()
 const isFormValid = ref(false)
 const refForm = ref()
 const logo = ref()
+const imageUrl = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const certificationData = ref(structuredClone(toRaw(props.certification)))
 
@@ -49,7 +50,26 @@ const closeNavigationDrawer = () => {
 const submit = async () => {
   const formData = new FormData()
   if(logo.value) {
-    formData.append('logo', logo.value)
+    //formData.append('logo', logo.value)
+    const formDataImage = new FormData()
+    
+    formDataImage.append('file', logo.value)
+    formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+
+    try {
+      const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
+        method: 'POST',
+        body: formDataImage,
+      })
+
+      const data = await response.json()
+
+      imageUrl.value = data.secure_url
+    } catch (error) {
+      console.error('Cloudinary upload error:', error)
+    }
+  }else if(certificationData.value.logo){
+    formData.append('imageUrl', certificationData.value.logo)
   }
 
   if(certificationData.value.name) {
@@ -67,13 +87,27 @@ const submit = async () => {
         'Authorization': `Bearer ${authStore.accessToken}`,
       },
     }).then(async response => {
-      await nextTick(() => {
-        emit('updateData')
-        emit('update:isDrawerOpen', false)
-        refForm.value?.reset()
-        refForm.value?.resetValidation()
-        toast.success("Successfully updated")
-      })
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateImage(formData, props.certification._id)
+
+        await nextTick(() => {
+          //emit('updateData')
+          //emit('update:isDrawerOpen', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully updated")
+        })
+      }else{
+        await nextTick(() => {
+          emit('updateData')
+          emit('update:isDrawerOpen', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully updated")
+        })
+      }
+      
     })
       .catch(e => {
         errors.value = e.response.data.errors
@@ -85,18 +119,49 @@ const submit = async () => {
         'Authorization': `Bearer ${authStore.accessToken}`,
       },
     }).then(async response => {
-      await nextTick(() => {
-        emit('updateData')
-        emit('update:isDrawerOpen', false)
-        refForm.value?.reset()
-        refForm.value?.resetValidation()
-        toast.success("Successfully saved")
-      })
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateImage(formData, response.data.data._id)
+
+        await nextTick(() => {
+          //emit('updateData')
+          //emit('update:isDrawerOpen', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully saved")
+        })
+      }else{
+        await nextTick(() => {
+          emit('updateData')
+          emit('update:isDrawerOpen', false)
+          refForm.value?.reset()
+          refForm.value?.resetValidation()
+          toast.success("Successfully saved")
+        })
+      }
+      
     })
       .catch(e => {
         errors.value = e.response.data.errors
       })
   }
+}
+
+const updateImage = async (formData, modelId) => {
+  const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/settings/certifications/${ modelId }`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${authStore.accessToken}`,
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      emit('updateData')
+      emit('update:isDrawerOpen', false)
+    })
+  })
+    .catch(e => {
+      errors.value = e.response.data.errors
+    })
 }
 
 const onSubmit = () => {
@@ -192,6 +257,14 @@ const handleLogoChange = file => {
               <VCol cols="12">
                 <div class="app-picker-field">
                   <label class="v-label mb-1 text-body-2">{{ $t('Logo') }}</label>
+                </div>
+                <div v-if="certificationData?.logo">
+                  <VImg
+                    :src="certificationData.logo"
+                    alt="logo"
+                    width="120"
+                    height="120"
+                  />
                 </div>
                 <VFileInput
                   :rules="rules"

@@ -42,6 +42,8 @@ const toast = useToast()
 const isFormValid = ref(false)
 const refForm = ref()
 const image = ref()
+const imageUrl = ref()
+const categoryId = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const categoryData = ref(structuredClone(toRaw(props.category)))
 
@@ -58,7 +60,25 @@ const submit = async () => {
 
   const formData = new FormData()
   if(image.value) {
-    formData.append('image', image.value)
+    const formDataImage = new FormData()
+    
+    formDataImage.append('file', image.value)
+    formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+
+    try {
+      const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
+        method: 'POST',
+        body: formDataImage,
+      })
+
+      const data = await response.json()
+
+      imageUrl.value = data.secure_url
+    } catch (error) {
+      console.error('Cloudinary upload error:', error)
+    }
+  }else if(categoryData.value.image){
+    formData.append('imageUrl', categoryData.value.image)
   }
 
   if(categoryData.value.name) {
@@ -80,12 +100,20 @@ const submit = async () => {
   formData.append('status', 'Active')
 
   if(props.category._id) {
+
+    categoryId.value = props.category._id
+
     const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/settings/categories/${ props.category._id }`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${authStore.accessToken}`,
       },
     }).then(async response => {
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateCategory(formData, categoryId.value)
+      }
+      
       await nextTick(() => {
         emit('updateData')
         emit('update:isDrawerOpen', false)
@@ -104,6 +132,11 @@ const submit = async () => {
         'Authorization': `Bearer ${authStore.accessToken}`,
       },
     }).then(async response => {
+      categoryId.value = response.data.data._id
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateCategory(formData, categoryId.value)
+      }
       await nextTick(() => {
         emit('updateData')
         emit('update:isDrawerOpen', false)
@@ -116,6 +149,24 @@ const submit = async () => {
         errors.value = e.response.data.errors
       })
   }
+}
+
+// update after image added
+const updateCategory = async (formData, categoryId) => {
+  const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/settings/categories/${ categoryId }`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${authStore.accessToken}`,
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      emit('updateData')
+      emit('update:isDrawerOpen', false)
+    })
+  })
+    .catch(e => {
+      errors.value = e.response.data.errors
+    })
 }
 
 const onSubmit = () => {
