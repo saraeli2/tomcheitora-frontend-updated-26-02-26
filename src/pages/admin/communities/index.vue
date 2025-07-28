@@ -10,6 +10,7 @@ definePage({
 })
 
 import AddNewCommunityDialog from '@/views/admin/communities/AddNewCommunityDialog.vue'
+import AddNewImportUserDrawer from '@/views/admin/communities/AddNewImportUserDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -32,6 +33,7 @@ const sortBy = ref()
 const orderBy = ref()
 const isCommunityDialogVisible = ref(false)
 const isAddNewCommunityDialogVisible = ref(false)
+const isImportUserDialogVisible = ref(false)
 const communityDetail = ref()
 const panel = ref()
 
@@ -158,6 +160,13 @@ const editCommunity = async value => {
   isCommunityDialogVisible.value = true
 }
 
+const importUsers = async value => {
+
+  communityDetail.value = value
+  
+  isImportUserDialogVisible.value = true
+}
+
 const deleteCommunity = async id => {
   Swal.fire({
     title: t('delete.Are You Sure?'),
@@ -169,7 +178,32 @@ const deleteCommunity = async id => {
     reverseButtons: true,
     showCancelButton: true,
     cancelButtonText: t('delete.No, Cancel'),
-    confirmButtonText: t('delete.Yes, Delete!'),
+    confirmButtonText: t('delete.Delete all users as well'),
+    customClass: {
+      confirmButton: 'btn btn-primary ml-1',
+      cancelButton: 'btn btn-outline-primary',
+    },
+    buttonsStyling: false,
+  })
+    .then(async result => {
+      if (result.value) {
+        deleteCommunitywithUser(id)
+      }
+    })  
+}
+
+const deleteCommunitywithUser = async id => {
+  Swal.fire({
+    title: t('delete.Are You Sure?'),
+    html: t('delete.confirmMessage', {
+      action: `<strong>${t('delete.confirmaction')}</strong>`,
+    }),
+    // eslint-disable-next-line global-require
+    icon: 'warning',
+    reverseButtons: true,
+    showCancelButton: true,
+    cancelButtonText: t('delete.No, Cancel'),
+    confirmButtonText: t('delete.Are You Sure?'),
     customClass: {
       confirmButton: 'btn btn-primary ml-1',
       cancelButton: 'btn btn-outline-primary',
@@ -379,6 +413,16 @@ const deleteCommunity = async id => {
                 </VListItem>
 
                 <VListItem
+                  v-if="can('admin-create-users', 'Create Users')"
+                  @click="importUsers(item)"
+                >
+                  <template #prepend>
+                    <VIcon icon="tabler-upload" />
+                  </template>
+                  <VListItemTitle>{{ $t('Import') }}</VListItemTitle>
+                </VListItem>
+
+                <VListItem
                   v-if="can('admin-update-communities', 'Update Community')"
                   @click="editCommunity(item)"
                 >
@@ -425,6 +469,13 @@ const deleteCommunity = async id => {
       v-model:is-dialog-visible="isCommunityDialogVisible"
       v-model:community="communityDetail"
       v-model:cities="cities"
+      @update-data="modifyCommunity"
+    />
+
+    <AddNewImportUserDrawer
+      v-if="isImportUserDialogVisible"
+      v-model:is-drawer-open="isImportUserDialogVisible"
+      v-model:community="communityDetail"
       @update-data="modifyCommunity"
     />
   </section>

@@ -447,12 +447,12 @@ watch(() => props.communities,
               />
             </VCol>
 
-            <!-- 👉 Street -->
+            <!-- 👉 Flat No. -->
             <VCol cols="12">
               <AppTextField
                 v-model="adminData.street"
-                :label="$t('Street')"
-                :placeholder="$t('Street')"
+                :label="$t('Flat No.')"
+                :placeholder="$t('Flat No.')"
                 :error-messages="errors.street"
               />
             </VCol>
@@ -464,6 +464,16 @@ watch(() => props.communities,
                 :label="$t('House Number')"
                 :placeholder="$t('House Number')"
                 :error-messages="errors.houseNumber"
+              />
+            </VCol>
+
+            <!-- 👉 Address -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="adminData.address"
+                :label="$t('Address')"
+                :placeholder="$t('Address')"
+                :error-messages="errors.address"
               />
             </VCol>
 

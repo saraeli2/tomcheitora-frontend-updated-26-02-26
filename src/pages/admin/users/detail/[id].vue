@@ -284,7 +284,7 @@ onMounted( async () => {
 
                   <VListItem>
                     <h6 class="text-h6">
-                      {{ $t('Street') }}:
+                      {{ $t('Flat No.') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.street }}
                       </span>
@@ -296,6 +296,15 @@ onMounted( async () => {
                       {{ $t('House Number') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ adminData.houseNumber }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Address') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ adminData.address }}
                       </span>
                     </h6>
                   </VListItem>

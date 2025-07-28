@@ -88,7 +88,32 @@ const deleteCommunity = async () => {
     reverseButtons: true,
     showCancelButton: true,
     cancelButtonText: t('delete.No, Cancel'),
-    confirmButtonText: t('delete.Yes, Delete!'),
+    confirmButtonText: t('delete.Delete all users as well'),
+    customClass: {
+      confirmButton: 'btn btn-primary ml-1',
+      cancelButton: 'btn btn-outline-primary',
+    },
+    buttonsStyling: false,
+  })
+    .then(async result => {
+      if (result.value) {
+        deleteCommunitywithUser()
+      }
+    })
+}
+
+const deleteCommunitywithUser = async () => {
+  Swal.fire({
+    title: t('delete.Are You Sure?'),
+    html: t('delete.confirmMessage', {
+      action: `<strong>${t('delete.confirmaction')}</strong>`,
+    }),
+    // eslint-disable-next-line global-require
+    icon: 'warning',
+    reverseButtons: true,
+    showCancelButton: true,
+    cancelButtonText: t('delete.No, Cancel'),
+    confirmButtonText: t('delete.Are You Sure?'),
     customClass: {
       confirmButton: 'btn btn-primary ml-1',
       cancelButton: 'btn btn-outline-primary',

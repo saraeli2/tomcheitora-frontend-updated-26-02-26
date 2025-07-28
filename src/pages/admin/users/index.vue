@@ -69,12 +69,8 @@ const headers = computed(() => [
     key: 'cityID',
   },
   {
-    title: t('Street'),
-    key: 'street',
-  },
-  {
-    title: t('House Number'),
-    key: 'houseNumber',
+    title: t('Address'),
+    key: 'address',
   },
   {
     title: t('Nationality'),
@@ -424,14 +420,9 @@ const resetPassword = val => {
           {{ item.cityID ? item.cityID.nameHe : '' }}
         </template>
 
-        <!-- street -->
-        <template #[`item.street`]="{ item }">
-          {{ item.street }}
-        </template>
-
-        <!-- houseNumber -->
-        <template #[`item.houseNumber`]="{ item }">
-          {{ item.houseNumber }}
+        <!-- address -->
+        <template #[`item.address`]="{ item }">
+          {{ item.address }}
         </template>
 
         <!-- nationality -->
