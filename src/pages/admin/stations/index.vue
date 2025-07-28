@@ -21,6 +21,7 @@ const router = useRouter()
 const searchQuery = ref('')
 const selectedStatus = ref()
 const selectedCity = ref()
+const selectedDM = ref()
 const selectedRows = ref([])
 
 // Data table options
@@ -92,6 +93,7 @@ const {
     search: searchQuery,
     status: selectedStatus,
     cityID: selectedCity,
+    dm: selectedDM,
     itemsPerPage,
     page,
     sortBy,
@@ -260,6 +262,18 @@ const deleteStation = async id => {
                     v-model="selectedCity"
                     :items="cities"
                     :placeholder="$t('City')"
+                    clearable
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  md="3"
+                >
+                  <AppAutocomplete
+                    v-model="selectedDM"
+                    :items="admins"
+                    :placeholder="$t('Distribution Manager')"
                     clearable
                   />
                 </VCol>

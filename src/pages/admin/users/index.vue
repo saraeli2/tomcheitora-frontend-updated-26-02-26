@@ -300,6 +300,15 @@ const resetPassword = val => {
                   cols="12"
                   sm="4"
                 >
+                  <AppTextField
+                    v-model="searchQuery"
+                    :placeholder="$t('Search User')"
+                  />
+                </VCol>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
                   <!-- 👉 Select Community -->
                   <AppAutocomplete
                     v-model="selectedCommunity"
@@ -321,15 +330,7 @@ const resetPassword = val => {
                   />
                 </VCol>
 
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppTextField
-                    v-model="searchQuery"
-                    :placeholder="$t('Search User')"
-                  />
-                </VCol>
+                
                 <VCol
                   cols="12"
                   sm="4"
