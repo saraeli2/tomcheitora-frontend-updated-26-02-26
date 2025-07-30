@@ -874,3 +874,9 @@ $grey-3:#aaaaaa;
 .v-expansion-panels .v-card-text {
     padding: 0;
 }
+.absolute-category{
+  max-height: 350px;
+}
+.v-theme--dark .absolute-category{
+  background-color: #2f3349;
+}

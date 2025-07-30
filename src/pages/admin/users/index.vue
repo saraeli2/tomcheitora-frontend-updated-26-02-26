@@ -383,7 +383,7 @@ const resetPassword = val => {
         <!-- communityID -->
         <template #[`item.communityID`]="{ item }">
           <RouterLink
-            v-if="can('admin-update-communities', 'Update Community') && item.communityID"
+            v-if="can('admin-update-communities', 'Update Community') && item.communityID && !item.communityID?.deletedAt"
             :to="{ name: 'admin-communities-detail-id', params: { id: item.communityID._id } }"
           >
             {{ item.communityID.name }}
