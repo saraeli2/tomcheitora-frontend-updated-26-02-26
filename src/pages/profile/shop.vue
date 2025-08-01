@@ -12,8 +12,9 @@ const store = useConfigStore()
 store.skin = 'default'
 definePage({
   meta: {
+    action: ['read'],
+    subject: ['Read'],
     layout: 'blank',
-    public: true,
   },
 })
 

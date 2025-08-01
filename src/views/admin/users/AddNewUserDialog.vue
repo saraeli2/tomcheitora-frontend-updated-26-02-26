@@ -448,7 +448,7 @@ watch(() => props.communities,
               />
             </VCol>
 
-            <VCol cols="12">
+            <VCol cols="12" >
               <AppTextField
                 v-model="adminData.password"
                 :label="$t('Password')"

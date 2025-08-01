@@ -8,8 +8,9 @@ import product24 from '@images/ecommerce-images/product-24.png'
 
 definePage({
   meta: {
+    action: ['read'],
+    subject: ['Read'],
     layout: 'blank',
-    public: true,
   },
 })
 
