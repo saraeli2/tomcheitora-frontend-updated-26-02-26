@@ -7,6 +7,9 @@ import CategoryTreeNode from '@/views/admin/settings/CategoryTreeNode.vue'
 import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
 import { can } from '@layouts/plugins/casl'
 import { useToast } from 'vue-toastification'
+import { useAuthStore } from '@/stores'
+import axios from 'axios'
+
 
 const props = defineProps({
   isDialogVisible: {
@@ -57,6 +60,13 @@ const props = defineProps({
       _id: '',
       name: '',
       slug: '',
+      quantity: '',
+      amount_in_package: '',
+      packages_in_box: '',
+      currency: 'nis',
+      unit_price: '',
+      unit_price_including_vat: '',
+      box_price: '',
       internalSKU: '',
       externalSKU: '',
       boxSKU: '',
@@ -92,6 +102,10 @@ const emit = defineEmits([
   'product',
 ])
 
+const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
+
+const authStore = useAuthStore()
+
 const toast = useToast()
 
 const isFormValid = ref(false)
@@ -102,6 +116,9 @@ const isAddNewCertificationDialogVisible = ref(false)
 const isAddNewManufacturerDialogVisible = ref(false)
 const isAddNewSupplierDialogVisible = ref(false)
 const productData = ref(structuredClone(toRaw(props.product)))
+const image = ref()
+const imageUrl = ref()
+const productId = ref()
 
 if(props.product.tags.length > 0) {
   productData.value.tags = props.product.tags.map(tag => tag._id)
@@ -219,7 +236,33 @@ const cities = cityOptions.value.map(item => ({
 
 const submit = async () => {
   try {
+    if(image.value) {
+      const formDataImage = new FormData()
+      
+      formDataImage.append('file', image.value)
+      formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+
+      try {
+        const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
+          method: 'POST',
+          body: formDataImage,
+        })
+
+        const data = await response.json()
+
+        imageUrl.value = data.secure_url
+      } catch (error) {
+        console.error('Cloudinary upload error:', error)
+      }
+    }else if(productData.value.image){
+      imageUrl.value = productData.value.image
+    }
+
+    
+
     if(props.product._id) {
+      productId.value = props.product._id
+
       const res = await $api(`/admin/products/${ props.product._id }`, {
         method: 'PATCH',
         body: {
@@ -244,7 +287,14 @@ const submit = async () => {
           salePrice: productData.value.salePrice ?? 0,
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
-          categoryIDs: checkedCategories.value,
+          quantity: productData.value.quantity,
+          amount_in_package: productData.value.amount_in_package,
+          packages_in_box: productData.value.packages_in_box,
+          currency: productData.value.currency,
+          unit_price: productData.value.unit_price,
+          unit_price_including_vat: productData.value.unit_price_including_vat,
+          box_price: productData.value.box_price,
+          model: productData.value.model,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -276,14 +326,30 @@ const submit = async () => {
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
           categoryIDs: checkedCategories.value,
+          quantity: productData.value.quantity,
+          amount_in_package: productData.value.amount_in_package,
+          packages_in_box: productData.value.packages_in_box,
+          currency: productData.value.currency,
+          unit_price: productData.value.unit_price,
+          unit_price_including_vat: productData.value.unit_price_including_vat,
+          box_price: productData.value.box_price,
+          model: productData.value.model,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
         },
       })
+
+      if(res){
+        productId.value = res.data.data._id
+      }
     }
 
     await nextTick(() => {
+
+      if(imageUrl.value){
+        updateProduct()
+      }
       emit('userData')
       emit('update:isDialogVisible', false)
       refForm.value?.reset()
@@ -295,9 +361,56 @@ const submit = async () => {
       }
       
     })
+    
   } catch (err) {
     console.log(err)
   }
+}
+
+// update after image added
+const updateProduct = async () => {
+  const res = await $api(`/admin/products/${ props.product._id }`, {
+    method: 'PATCH',
+    body: {
+      name: productData.value.name,
+      slug: productData.value.slug,
+      internalSKU: productData.value.internalSKU,
+      externalSKU: productData.value.externalSKU,
+      boxSKU: productData.value.boxSKU,
+      manufacturerID: productData.value.manufacturerID ? productData.value.manufacturerID : null,
+      supplierID: productData.value.supplierID ? productData.value.supplierID : null,
+      certificationID: productData.value.certificationID ? productData.value.certificationID : null,
+      packagetypeID: productData.value.packagetypeID ? productData.value.packagetypeID : null,
+      quantitytypeID: productData.value.quantitytypeID ? productData.value.quantitytypeID : null,
+      tags: productData.value.tags,
+      groups: productData.value.groups,
+      internalRemarks: productData.value.internalRemarks,
+      remarks: productData.value.remarks,
+      description: productData.value.description,
+      pickupOrder: productData.value.pickupOrder,
+      orderNumber: productData.value.orderNumber,
+      purchasePrice: productData.value.purchasePrice ?? 0,
+      salePrice: productData.value.salePrice ?? 0,
+      maxStock: productData.value.maxStock ?? 0,
+      status: productData.value.status,
+      quantity: productData.value.quantity,
+      amount_in_package: productData.value.amount_in_package,
+      packages_in_box: productData.value.packages_in_box,
+      currency: productData.value.currency,
+      unit_price: productData.value.unit_price,
+      unit_price_including_vat: productData.value.unit_price_including_vat,
+      box_price: productData.value.box_price,
+      model: productData.value.model,
+      imageUrl: imageUrl.value,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  })
+
+  await nextTick(() => {
+    emit('updateData')
+  })
 }
 
 const onSubmit = () => {
@@ -341,6 +454,14 @@ const errors = ref({
   salePrice: undefined,
   maxStock: undefined,
   status: undefined,
+
+  quantity: undefined,
+  amount_in_package: undefined,
+  packages_in_box: undefined,
+  currency: undefined,
+  unit_price: undefined,
+  unit_price_including_vat: undefined,
+  box_price: undefined,
 })
 
 watch(() => productData.value.name, val => {
@@ -498,6 +619,17 @@ onMounted(() => {
 onBeforeUnmount(() => {
   document.removeEventListener('click', handleClickOutside)
 })
+const handleImageChange = file => {
+  const fileReader = new FileReader()
+  const { files } = file.target
+  if (files && files.length) {
+    fileReader.readAsDataURL(files[0])
+    fileReader.onload = () => {
+      if (typeof fileReader.result === 'string')
+        image.value = fileReader.result
+    }
+  }
+}
 </script>
 
 <template>
@@ -510,13 +642,13 @@ onBeforeUnmount(() => {
     <DialogCloseBtn @click="onReset" />
 
     <VCard class="pa-sm-10 pa-2">
-      <VCardText>
+      <VCardText style="padding:0">
         <!-- 👉 Title -->
         <h4 class="text-h4 text-center mb-2">
           {{ props.product._id ? $t('Edit Product') : $t('Create Product') }}
         </h4>
 
-        <VDivider />
+        <VDivider style="margin:10px 0 20px" />
 
         <!-- 👉 Form -->
         <VForm 
@@ -525,6 +657,38 @@ onBeforeUnmount(() => {
           @submit.prevent="onSubmit"
         >
           <VRow>
+            <VCol cols="12">
+              <div
+                ref="dropdownWrapper"
+                class="relative w-full max-w-xl"
+              >
+                <!-- Search input -->
+                <AppTextField
+                  v-model="searchTerm"
+                  :label="$t('Category')"
+                  :placeholder="$t('Search Category')"
+                  @focus="showList = true"
+                />
+
+                <!-- Category dropdown -->
+                <div
+                  v-if="showList"
+                  class="absolute-category z-50 w-full bg-white border border-gray-300 rounded mt-1 max-h-80 overflow-y-auto shadow"
+                  @mousedown.prevent
+                >
+                  <ul class="p-3">
+                    <CategoryTreeNode
+                      v-for="node in tree"
+                      :key="node.realId"
+                      :node="node"
+                      :selected="checkedCategories"
+                      :indeterminate="isIndeterminate(node)"
+                      @toggle-select="onToggleSelect"
+                    />
+                  </ul>
+                </div>
+              </div>
+            </VCol>
             <!-- 👉 Name -->
             <VCol cols="12">
               <AppTextField
@@ -533,6 +697,117 @@ onBeforeUnmount(() => {
                 :label="$t('Name')"
                 :placeholder="$t('Name')"
                 :error-messages="errors.name"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.model"
+                :rules="[requiredValidator]"
+                :label="$t('Model')"
+                :placeholder="$t('Model')"
+                :error-messages="errors.model"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.quantity"
+                :rules="[requiredValidator]"
+                :label="$t('Quantity')"
+                :placeholder="$t('Quantity')"
+                :error-messages="errors.quantity"
+                type="number"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.amount_in_package"
+                :rules="[requiredValidator]"
+                :label="$t('Amount in package')"
+                :placeholder="$t('Amount in package')"
+                :error-messages="errors.amount_in_package"
+                type="number"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.packages_in_box"
+                :rules="[requiredValidator]"
+                :label="$t('Packages in box')"
+                :placeholder="$t('Packages in box')"
+                :error-messages="errors.packages_in_box"
+                type="number"
+              />
+            </VCol>
+
+            <!-- 👉 status -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.currency"
+                :rules="[requiredValidator]"
+                :items="[
+                  { value: 'nis', title: 'NIS' },
+                ]"
+                :placeholder="$t('Select Currency')"
+                :label="$t('Currency')"
+                :error-messages="errors.currency"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.unit_price"
+                :rules="[requiredValidator]"
+                :label="$t('Unit price')"
+                :placeholder="$t('Unit price')"
+                :error-messages="errors.unit_price"
+                type="number"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.unit_price_including_vat"
+                :rules="[requiredValidator]"
+                :label="$t('Unit price including VAT')"
+                :placeholder="$t('Unit price including VAT')"
+                :error-messages="errors.unit_price_including_vat"
+                type="number"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.box_price"
+                :rules="[requiredValidator]"
+                :label="$t('Box price')"
+                :placeholder="$t('Box price')"
+                :error-messages="errors.box_price"
+                type="number"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <div class="app-picker-field">
+                <label class="v-label mb-1 text-body-2">{{ $t('Image') }}</label>
+              </div>
+              <div v-if="productData?.image">
+                <VImg
+                  :src="productData.image"
+                  alt="Product Image"
+                  width="120"
+                  height="120"
+                />
+              </div>
+              <VFileInput
+                :rules="rules"
+                accept="image/png, image/jpeg, image/bmp"
+                prepend-icon="tabler-camera"
+                :error-messages="errors.image"
+                @change="handleImageChange"
               />
             </VCol>
 
@@ -546,6 +821,7 @@ onBeforeUnmount(() => {
                 :error-messages="errors.slug"
               />
             </VCol>
+            
 
             <!-- 👉 Internal SKU -->
             <VCol cols="12">
@@ -736,38 +1012,7 @@ onBeforeUnmount(() => {
               />
             </VCol>
 
-            <VCol cols="12">
-              <div
-                ref="dropdownWrapper"
-                class="relative w-full max-w-xl"
-              >
-                <!-- Search input -->
-                <AppTextField
-                  v-model="searchTerm"
-                  :label="$t('Category')"
-                  :placeholder="$t('Search Category')"
-                  @focus="showList = true"
-                />
-
-                <!-- Category dropdown -->
-                <div
-                  v-if="showList"
-                  class="absolute-category z-50 w-full bg-white border border-gray-300 rounded mt-1 max-h-80 overflow-y-auto shadow"
-                  @mousedown.prevent
-                >
-                  <ul class="p-3">
-                    <CategoryTreeNode
-                      v-for="node in tree"
-                      :key="node.realId"
-                      :node="node"
-                      :selected="checkedCategories"
-                      :indeterminate="isIndeterminate(node)"
-                      @toggle-select="onToggleSelect"
-                    />
-                  </ul>
-                </div>
-              </div>
-            </VCol>
+            
 
             <!-- 👉 Description -->
             <VCol cols="12">

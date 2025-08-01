@@ -198,6 +198,7 @@ const onReset = () => {
                 :items="props.roles"
                 :placeholder="$t('Select Role')"
                 :label="$t('Role')"
+                :rules="[requiredValidator]"
                 multiple
                 :error-messages="errors.roles"
                 clearable
@@ -317,6 +318,7 @@ const onReset = () => {
                 v-model="password"
                 :label="$t('Password')"
                 placeholder="············"
+                :rules="[requiredValidator]"
                 :type="isNewPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                 :error-messages="errors.password"
@@ -333,6 +335,7 @@ const onReset = () => {
                 v-model="confirmPassword"
                 :label="$t('Confirm Password')"
                 placeholder="············"
+                :rules="[requiredValidator]"
                 :type="isConfirmPasswordVisible ? 'text' : 'password'"
                 :append-inner-icon="isConfirmPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
                 :error-messages="errors.confirmPassword"

@@ -35,6 +35,8 @@ const props = defineProps({
       nationality: '',
       israeliIDNumber: '',
       passportNumber: '',
+      username: '',
+      password: '',
       noOfKids: '',
       status: 'Active',
       maritalStatus: '',
@@ -51,7 +53,7 @@ const emit = defineEmits([
 ])
 
 const authStore = useAuthStore()
-
+const isNewPasswordVisible = ref(false)
 const toast = useToast()
 
 const isFormValid = ref(false)
@@ -105,6 +107,14 @@ const submit = async () => {
   if(adminData.value.email) {
     formData.append('email', adminData.value.email)
   }
+
+  if(adminData.value.username) {
+    formData.append('username', adminData.value.username)
+  }
+  if(adminData.value.password) {
+    formData.append('password', adminData.value.password)
+  }
+
 
   if(adminData.value.firstName) {
     formData.append('firstName', adminData.value.firstName)
@@ -321,6 +331,8 @@ const errors = ref({
   israeliIDNumber: undefined,
   passportNumber: undefined,
   noOfKids: undefined,
+  username: undefined,
+  password: undefined,
   imageID: undefined,
 })
 
@@ -422,6 +434,30 @@ watch(() => props.communities,
                 :label="$t('Email')"
                 :placeholder="$t('Email')"
                 :error-messages="errors.email"
+              />
+            </VCol>
+
+            <!-- 👉 Email -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="adminData.username"
+                :rules="[requiredValidator]"
+                :label="$t('Username')"
+                :placeholder="$t('Username')"
+                :error-messages="errors.username"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="adminData.password"
+                :label="$t('Password')"
+                placeholder="············"
+                :rules="[requiredValidator]"
+                :type="isNewPasswordVisible ? 'text' : 'password'"
+                :append-inner-icon="isNewPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'"
+                :error-messages="errors.password"
+                @click:append-inner="isNewPasswordVisible = !isNewPasswordVisible"
               />
             </VCol>
 

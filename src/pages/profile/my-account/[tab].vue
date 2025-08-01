@@ -6,7 +6,7 @@ import AccountSettingsBillingAndPlans from '@/views/front-pages/my-account/Accou
 import OrderHistory from '@/views/front-pages/my-account/OrderHistory.vue'
 import AccountSettingsSecurity from '@/views/front-pages/my-account/AccountSettingsSecurity.vue'
 
-const route = useRoute('front-pages-my-account-tab')
+const route = useRoute('profile-my-account-tab')
 
 const activeTab = computed({
   get: () => route.params.tab,
@@ -75,7 +75,7 @@ definePage({
           v-for="item in tabs"
           :key="item.icon"
           :value="item.tab"
-          :to="{ name: 'front-pages-my-account-tab', params: { tab: item.tab } }"
+          :to="{ name: 'profile-my-account-tab', params: { tab: item.tab } }"
         >
           <VIcon
             size="20"

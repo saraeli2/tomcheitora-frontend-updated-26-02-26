@@ -397,5 +397,14 @@
         "item": "item"
       }
     }
-  }
+  },
+  "Model": "Model",
+  "Quantity": "Quantity",
+  "Amount in package": "Amount in package",
+  "Packages in box": "Packages in box",
+  "Select Currency": "Select Currency",
+  "Currency": "Currency",
+  "Unit price": "Unit price",
+  "Unit price including VAT": "Unit price including VAT",
+  "Box price": "Box price",
 }

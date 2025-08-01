@@ -12,6 +12,14 @@ import authV2MaskDark from '@images/pages/misc-mask-dark.png'
 import authV2MaskLight from '@images/pages/misc-mask-light.png'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { useConfigStore } from '@core/stores/config'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
+const configStore = useConfigStore()
+
+configStore.isAppRTL = true
 
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
@@ -30,14 +38,14 @@ const ability = useAbility()
 const authStore = useAuthStore()
 
 const errors = ref({
-  email: undefined,
+  username: undefined,
   password: undefined,
 })
 
 const refVForm = ref()
 
 const credentials = ref({
-  email: '',
+  username: '',
   password: '',
 })
 
@@ -45,14 +53,14 @@ const rememberMe = ref(false)
 
 const login = async () => {
   try {
-    const res = await $api('/admin/login', {
+    const res = await $api('/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       credentials: 'include',
       body: {
-        email: credentials.value.email,
+        username: credentials.value.username,
         password: credentials.value.password,
       },
       onResponseError({ response }) {
@@ -88,45 +96,10 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
 </script>
 
 <template>
-  <RouterLink to="/">
-    <div class="auth-logo d-flex align-center gap-x-3">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
-
   <VRow
     no-gutters
     class="auth-wrapper bg-surface"
   >
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
-    >
-      <div class="position-relative bg-background w-100 me-0">
-        <div
-          class="d-flex align-center justify-center w-100 h-100"
-          style="padding-inline: 6.25rem;"
-        >
-          <VImg
-            max-width="613"
-            :src="authThemeImg"
-            class="auth-illustration mt-16 mb-2"
-          />
-        </div>
-
-        <img
-          class="auth-footer-mask"
-          :src="authThemeMask"
-          alt="auth-footer-mask"
-          height="280"
-          width="100"
-        >
-      </div>
-    </VCol>
-
     <VCol
       cols="12"
       md="4"
@@ -138,9 +111,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
         class="mt-12 mt-sm-0 pa-4"
       >
         <VCardText>
-          <h4 class="text-h4 mb-1">
-            {{ $t('Welcome to') }} <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
-          </h4>
+          <img style="width: 200px; height: auto;" src="/images/logo.png">
           <p class="mb-0">
             {{ $t('Please sign-in to your account and start the adventure') }}
           </p>
@@ -154,13 +125,12 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <!-- email -->
               <VCol cols="12">
                 <AppTextField
-                  v-model="credentials.email"
-                  :label="$t('Email')"
-                  :placeholder="$t('Email')"
-                  type="email"
+                  v-model="credentials.username"
+                  :label="$t('Username')"
+                  :placeholder="$t('Username')"
                   autofocus
-                  :rules="[requiredValidator, emailValidator]"
-                  :error-messages="errors.email"
+                  :rules="[requiredValidator]"
+                  :error-messages="errors.username"
                 />
               </VCol>
 
@@ -202,6 +172,31 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
           </VForm>
         </VCardText>
       </VCard>
+    </VCol>
+    <VCol
+      md="8"
+      class="d-none d-md-flex"
+    >
+      <div class="position-relative bg-background w-100 me-0">
+        <div
+          class="d-flex align-center justify-center w-100 h-100"
+          style="padding-inline: 6.25rem;"
+        >
+          <VImg
+            max-width="613"
+            :src="authThemeImg"
+            class="auth-illustration mt-16 mb-2"
+          />
+        </div>
+
+        <img
+          class="auth-footer-mask"
+          :src="authThemeMask"
+          alt="auth-footer-mask"
+          height="280"
+          width="100"
+        >
+      </div>
     </VCol>
   </VRow>
 </template>
