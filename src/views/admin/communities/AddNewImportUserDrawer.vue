@@ -165,7 +165,6 @@ const onSubmit = () => {
                   :rules="[requiredValidator, rules]"
                   accept=".xlsx, .xls, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
                   prepend-icon="tabler-camera"
-                  :error-messages="errors.image"
                   @change="handleFileChange"
                 />
               </VCol>

@@ -341,7 +341,8 @@ const submit = async () => {
       })
 
       if(res){
-        productId.value = res.data.data._id
+        //console.log(res.data)
+        productId.value = res.data._id
       }
     }
 
@@ -355,9 +356,9 @@ const submit = async () => {
       refForm.value?.reset()
       refForm.value?.resetValidation()
       if(props.product._id) {
-        toast.success("Successfully updated")
+        toast.success("הפריט עודכן בהצלחה")
       } else {
-        toast.success("Successfully saved")
+        toast.success("הפריט נשמר בהצלחה")
       }
       
     })
@@ -369,7 +370,7 @@ const submit = async () => {
 
 // update after image added
 const updateProduct = async () => {
-  const res = await $api(`/admin/products/${ props.product._id }`, {
+  const res = await $api(`/admin/products/${ productId.value }`, {
     method: 'PATCH',
     body: {
       name: productData.value.name,
@@ -409,7 +410,8 @@ const updateProduct = async () => {
   })
 
   await nextTick(() => {
-    emit('updateData')
+    emit('userData')
+    emit('update:isDialogVisible', false)
   })
 }
 
@@ -465,7 +467,16 @@ const errors = ref({
 })
 
 watch(() => productData.value.name, val => {
-  productData.value.slug = val.toLowerCase().trim().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+  const baseSlug = val
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9 -]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+  const timestamp = Date.now()
+
+  productData.value.slug = `${baseSlug}-${timestamp}`;
 })
 
 const {
@@ -637,10 +648,16 @@ const handleImageChange = file => {
     :width="$vuetify.display.smAndDown ? 'auto' : 900"
     :model-value="props.isDialogVisible"
     @update:model-value="onReset"
+    scrollable
+    content-class="scrollable-dialog"
   >
     <!-- 👉 Dialog close btn -->
     <DialogCloseBtn @click="onReset" />
-
+    <VForm 
+      ref="refForm"
+      v-model="isFormValid"
+      @submit.prevent="onSubmit"
+    >
     <VCard class="pa-sm-10 pa-2">
       <VCardText style="padding:0">
         <!-- 👉 Title -->
@@ -651,11 +668,7 @@ const handleImageChange = file => {
         <VDivider style="margin:10px 0 20px" />
 
         <!-- 👉 Form -->
-        <VForm 
-          ref="refForm"
-          v-model="isFormValid"
-          @submit.prevent="onSubmit"
-        >
+        
           <VRow>
             <VCol cols="12">
               <div
@@ -703,7 +716,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.model"
-                :rules="[requiredValidator]"
                 :label="$t('Model')"
                 :placeholder="$t('Model')"
                 :error-messages="errors.model"
@@ -713,7 +725,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.quantity"
-                :rules="[requiredValidator]"
                 :label="$t('Quantity')"
                 :placeholder="$t('Quantity')"
                 :error-messages="errors.quantity"
@@ -724,7 +735,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.amount_in_package"
-                :rules="[requiredValidator]"
                 :label="$t('Amount in package')"
                 :placeholder="$t('Amount in package')"
                 :error-messages="errors.amount_in_package"
@@ -735,7 +745,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.packages_in_box"
-                :rules="[requiredValidator]"
                 :label="$t('Packages in box')"
                 :placeholder="$t('Packages in box')"
                 :error-messages="errors.packages_in_box"
@@ -747,7 +756,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppAutocomplete
                 v-model="productData.currency"
-                :rules="[requiredValidator]"
                 :items="[
                   { value: 'nis', title: 'NIS' },
                 ]"
@@ -760,7 +768,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.unit_price"
-                :rules="[requiredValidator]"
                 :label="$t('Unit price')"
                 :placeholder="$t('Unit price')"
                 :error-messages="errors.unit_price"
@@ -771,7 +778,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.unit_price_including_vat"
-                :rules="[requiredValidator]"
                 :label="$t('Unit price including VAT')"
                 :placeholder="$t('Unit price including VAT')"
                 :error-messages="errors.unit_price_including_vat"
@@ -782,7 +788,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.box_price"
-                :rules="[requiredValidator]"
                 :label="$t('Box price')"
                 :placeholder="$t('Box price')"
                 :error-messages="errors.box_price"
@@ -815,7 +820,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.slug"
-                :rules="[requiredValidator]"
                 :label="$t('Slug')"
                 :placeholder="$t('Slug')"
                 :error-messages="errors.slug"
@@ -896,7 +900,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppAutocomplete
                 v-model="productData.packagetypeID"
-                :rules="[requiredValidator]"
                 :items="packagetypesUpdated"
                 :label="$t('Package Type')"
                 :placeholder="$t('Select Package Type')"
@@ -910,7 +913,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppAutocomplete
                 v-model="productData.quantitytypeID"
-                :rules="[requiredValidator]"
                 :items="quantitytypesUpdated"
                 :label="$t('Quantity Type')"
                 :placeholder="$t('Select Quantity Type')"
@@ -968,7 +970,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.purchasePrice"
-                :rules="[numericValidator]"
                 :label="$t('Purchase Price')"
                 :placeholder="$t('Purchase Price')"
                 :error-messages="errors.purchasePrice"
@@ -979,7 +980,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.salePrice"
-                :rules="[numericValidator]"
                 :label="$t('Sale Price')"
                 :placeholder="$t('Sale Price')"
                 :error-messages="errors.salePrice"
@@ -990,7 +990,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="productData.maxStock"
-                :rules="[integerValidator]"
                 :label="$t('Max Stock')"
                 :placeholder="$t('Max Stock')"
                 :error-messages="errors.maxStock"
@@ -1001,7 +1000,6 @@ const handleImageChange = file => {
             <VCol cols="12">
               <AppAutocomplete
                 v-model="productData.status"
-                :rules="[requiredValidator]"
                 :items="[
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },
@@ -1043,28 +1041,31 @@ const handleImageChange = file => {
                 :error-messages="errors.remarks"
               />
             </VCol>
-              
-            <!-- 👉 Submit and Cancel -->
-            <VCol cols="12">
-              <VBtn
-                type="submit"
-                class="me-3"
-              >
-                {{ $t('Submit') }}
-              </VBtn>
-              <VBtn
-                type="reset"
-                variant="tonal"
-                color="error"
-                @click="closeNavigationDrawer"
-              >
-                {{ $t('Cancel') }}
-              </VBtn>
-            </VCol>
           </VRow>
-        </VForm>
+        
       </VCardText>
+
+      <VDivider />
+
+      <VCardText style="padding-right: 0; padding-bottom:0;" class="d-flex justify-end flex-wrap gap-3 overflow-visible">
+        <VBtn
+            type="submit"
+            class="me-3"
+          >
+            {{ $t('Submit') }}
+          </VBtn>
+          <VBtn
+            type="reset"
+            variant="tonal"
+            color="error"
+            @click="closeNavigationDrawer"
+          >
+            {{ $t('Cancel') }}
+          </VBtn>
+      </VCardText>
+      
     </VCard>
+    </VForm>
   </VDialog>
 
   <AddNewPackagetypeDialog
@@ -1101,3 +1102,11 @@ const handleImageChange = file => {
     @update-data="modifySupplierDialog"
   />
 </template>
+<style lang="scss">
+.scrollable-dialog {
+  overflow: visible !important;
+}
+.v-dialog--scrollable > .v-overlay__content > form > .v-card > .v-card-text{
+  overflow-x: hidden;
+}
+</style>
