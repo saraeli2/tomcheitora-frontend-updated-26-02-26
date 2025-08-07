@@ -1,5 +1,8 @@
 <script setup>
 import { useAuthStore } from '@/stores'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
+
 definePage({
   meta: {
     layout: 'blank',
@@ -7,8 +10,8 @@ definePage({
   },
 })
 
-import { useRoute, useRouter } from 'vue-router'
 
+const { t } = useI18n()
 const ability = useAbility()
 
 const authStore = useAuthStore()
@@ -45,9 +48,9 @@ onMounted(async () => {
 
 <template>
   <div class="flex items-center justify-center min-h-screen verifing_page">
-    <div v-if="verifying">Verifying your email...</div>
-    <div v-else-if="error" class="text-red-600">{{ error }}</div>
-    <div v-else>Email verified successfully! Redirecting...</div>
+    <div v-if="verifying">{{ $t('Verifying your email...') }}</div>
+    <div v-else-if="error" class="text-red-600">{{ $t(error) }}</div>
+    <div v-else>{{ $t('Email verified successfully! Redirecting...') }}</div>
   </div>
 </template>
 
