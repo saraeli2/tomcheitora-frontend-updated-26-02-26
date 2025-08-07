@@ -2,11 +2,39 @@
 import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
 import AccountSettingsAccount from '@/views/front-pages/my-account/AccountSettingsAccount.vue'
-import AccountSettingsBillingAndPlans from '@/views/front-pages/my-account/AccountSettingsBillingAndPlans.vue'
-import OrderHistory from '@/views/front-pages/my-account/OrderHistory.vue'
+import AccountSettingsKidInformations from '@/views/front-pages/my-account/AccountSettingsKidInformations.vue'
+import DistributionStation from '@/views/front-pages/my-account/DistributionStation.vue'
 import AccountSettingsSecurity from '@/views/front-pages/my-account/AccountSettingsSecurity.vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
+
+import { useAuthStore } from '@/stores'
+
+const authStore = useAuthStore()
 const route = useRoute('profile-my-account-tab')
+
+const {
+  data: adminDetail, execute: fetchUsers, error,
+} = await useApi(createUrl(`/admin/users/${ authStore.userData._id }`))
+
+const adminData = computed(() => adminDetail.value)
+const adminFromData = computed(() => adminDetail.value)
+
+const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const stationOptions = computed(() => commonsyncCities.stationOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
+
+const stations = stationOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.name}`,
+}))
 
 const activeTab = computed({
   get: () => route.params.tab,
@@ -26,14 +54,14 @@ const tabs = [
     tab: 'security',
   },
   {
-    title: 'Billing',
+    title: 'Kid Informations',
     icon: 'tabler-file-text',
-    tab: 'billing',
+    tab: 'kid-informations',
   },
   {
-    title: 'Order History',
-    icon: 'tabler-bell',
-    tab: 'order-history',
+    title: 'Distribution station',
+    icon: 'tabler-truck',
+    tab: 'distribution-station',
   },
 ]
 
@@ -50,6 +78,7 @@ definePage({
     action: ['read'],
     subject: ['Read'],
     layout: 'blank',
+    title: 'My Account',
   },
 })
 </script>
@@ -60,7 +89,7 @@ definePage({
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
         <VCardText class="text-center subpage-tittle">
-          <h2>My Account</h2>
+          <h2>{{ $t('My Account') }}</h2>
         </VCardText>
       </VContainer>
     </div>
@@ -82,7 +111,7 @@ definePage({
             start
             :icon="item.icon"
           />
-          {{ item.title }}
+          {{ $t(item.title) }}
         </VTab>
       </VTabs>
 
@@ -93,22 +122,22 @@ definePage({
       >
         <!-- Account -->
         <VWindowItem value="account">
-          <AccountSettingsAccount />
+          <AccountSettingsAccount :user="adminData" :cities="cities"/>
         </VWindowItem>
 
         <!-- Security -->
         <VWindowItem value="security">
-          <AccountSettingsSecurity />
+          <AccountSettingsSecurity :user="adminData" />
         </VWindowItem>
 
         <!-- Billing -->
-        <VWindowItem value="billing">
-          <AccountSettingsBillingAndPlans />
+        <VWindowItem value="kid-informations">
+          <AccountSettingsKidInformations :user="adminData"/>
         </VWindowItem>
 
         <!-- Notification -->
-        <VWindowItem value="order-history">
-          <OrderHistory />
+        <VWindowItem value="distribution-station">
+          <DistributionStation :user="adminData" :stations="stations"/>
         </VWindowItem>
       </VWindow>
       </div>

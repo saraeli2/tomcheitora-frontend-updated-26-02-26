@@ -1,31 +1,260 @@
 <script setup>
 import avatar1 from '@images/avatars/avatar-1.png'
+import { useToast } from 'vue-toastification'
+import axios from 'axios'
+import { useAuthStore } from '@/stores'
 
-const accountData = {
-  avatarImg: avatar1,
-  firstName: 'john',
-  lastName: 'Doe',
-  email: 'johnDoe@example.com',
-  org: 'Pixinvent',
-  phone: '+1 (917) 543-9876',
-  address: '123 Main St, New York, NY 10001',
-  state: 'New York',
-  zip: '10001',
-  country: 'USA',
-  language: 'English',
-  timezone: '(GMT-11:00) International Date Line West',
-  currency: 'USD',
+const props = defineProps({
+  cities: {
+    type: Object,
+    required: true,
+  },
+  user: {
+    type: Object,
+    required: false,
+    default: () => ({
+      // eslint-disable-next-line camelcase
+      _id: '',
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      communityID: '',
+      cityID: '',
+      street: '',
+      houseNumber: '',
+      nationality: '',
+      israeliIDNumber: '',
+      passportNumber: '',
+      username: '',
+      password: '',
+      noOfKids: '',
+      status: 'Active',
+      maritalStatus: '',
+    }),
+  },
+})
+
+const authStore = useAuthStore()
+const isNewPasswordVisible = ref(false)
+const toast = useToast()
+
+const isFormValid = ref(false)
+const isAddNewCommunityDialogVisible = ref(false)
+const refForm = ref()
+const imageID = ref()
+const imageUrl = ref()
+const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
+const adminData = ref(structuredClone(toRaw(props.user)))
+const cities = ref(structuredClone(toRaw(props.cities)))
+
+if(props.user._id) {
+  if(props.user.cityID) {
+    adminData.value.cityID = props.user.cityID._id
+  }
+  
+  if(props.user.communityID) {
+    adminData.value.communityID = props.user.communityID._id
+  }
 }
 
-const refInputEl = ref()
-const isConfirmDialogOpen = ref(false)
-const accountDataLocal = ref(structuredClone(accountData))
-const isAccountDeactivated = ref(false)
-const validateAccountDeactivation = [v => !!v || 'Please confirm account deactivation']
+const submit = async () => {
 
-const resetForm = () => {
-  accountDataLocal.value = structuredClone(accountData)
+  const formData = new FormData()
+
+  if(imageID.value) {
+    //formData.append('imageID', imageID.value)
+    const formDataImage = new FormData()
+    
+    formDataImage.append('file', imageID.value)
+    formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+
+    try {
+      const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
+        method: 'POST',
+        body: formDataImage,
+      })
+
+      const data = await response.json()
+
+      imageUrl.value = data.secure_url
+    } catch (error) {
+      console.error('Cloudinary upload error:', error)
+    }
+  }else if(adminData.value.imageID){
+    formData.append('imageUrl', adminData.value.imageID)
+  }
+
+  if(adminData.value.email) {
+    formData.append('email', adminData.value.email)
+  }
+
+  if(adminData.value.username) {
+    formData.append('username', adminData.value.username)
+  }
+  if(adminData.value.password) {
+    formData.append('password', adminData.value.password)
+  }
+
+
+  if(adminData.value.firstName) {
+    formData.append('firstName', adminData.value.firstName)
+  }
+
+  if(adminData.value.lastName) {
+    formData.append('lastName', adminData.value.lastName)
+  }
+
+  if(adminData.value.maritalStatus) {
+    formData.append('maritalStatus', adminData.value.maritalStatus)
+  } else {
+    formData.append('maritalStatus', '')
+  }
+
+  if(adminData.value.communityID) {
+    formData.append('communityID', adminData.value.communityID)
+  } else {
+    formData.append('communityID', '')
+  }
+
+  if(adminData.value.cityID) {
+    formData.append('cityID', adminData.value.cityID)
+  } else {
+    formData.append('cityID', '')
+  }
+
+  if(adminData.value.street) {
+    formData.append('street', adminData.value.street)
+  } else {
+    formData.append('street', '')
+  }
+
+  if(adminData.value.houseNumber) {
+    formData.append('houseNumber', adminData.value.houseNumber)
+  } else {
+    formData.append('houseNumber', '')
+  }
+
+  if(adminData.value.phone) {
+    formData.append('phone', adminData.value.phone)
+  } else {
+    formData.append('phone', '')
+  }
+
+  if(adminData.value.nationality) {
+    formData.append('nationality', adminData.value.nationality)
+  } else {
+    formData.append('nationality', '')
+  }
+
+  if(adminData.value.israeliIDNumber) {
+    formData.append('israeliIDNumber', adminData.value.israeliIDNumber)
+  } else {
+    formData.append('israeliIDNumber', '')
+  }
+
+  if(adminData.value.passportNumber) {
+    formData.append('passportNumber', adminData.value.passportNumber)
+  } else {
+    formData.append('passportNumber', '')
+  }
+
+  if(adminData.value.noOfKids) {
+    formData.append('noOfKids', adminData.value.noOfKids)
+  } else {
+    formData.append('noOfKids', 0)
+  }
+
+  if(adminData.value.status) {
+    formData.append('status', adminData.value.status)
+  }
+
+  if(props.user._id) {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${ props.user._id }`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authStore.accessToken}`,
+      },
+    }).then(async response => {
+      if(imageUrl.value){
+        formData.append('imageUrl', imageUrl.value)
+        updateImage(formData, props.user._id)
+
+        await nextTick(() => {
+          refForm.value?.resetValidation()
+          toast.success("Successfully updated")
+        })
+      }else{
+        await nextTick(() => {
+          refForm.value?.resetValidation()
+          toast.success("Successfully updated")
+        })
+      }
+
+    })
+      .catch(e => {
+        errors.value = e.response.data.errors
+      })
+  }
 }
+
+const updateImage = async (formData, modelId) => {
+  const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${ modelId }`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      'Authorization': `Bearer ${authStore.accessToken}`,
+    },
+  }).then(async response => {
+    await nextTick(() => {
+    })
+  })
+    .catch(e => {
+      errors.value = e.response.data.errors
+    })
+}
+
+const onSubmit = () => {
+  refForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      submit()
+  })
+}
+
+
+
+const errors = ref({
+  firstName: undefined,
+  lastName: undefined,
+  email: undefined,
+  phone: undefined,
+  status: undefined,
+  maritalStatus: undefined,
+  communityID: undefined,
+  cityID: undefined,
+  street: undefined,
+  houseNumber: undefined,
+  nationality: undefined,
+  israeliIDNumber: undefined,
+  passportNumber: undefined,
+  noOfKids: undefined,
+  username: undefined,
+  password: undefined,
+  imageID: undefined,
+})
+
+const handleImageChange = file => {
+  const fileReader = new FileReader()
+  const { files } = file.target
+  if (files && files.length) {
+    fileReader.readAsDataURL(files[0])
+    fileReader.onload = () => {
+      if (typeof fileReader.result === 'string')
+        imageID.value = fileReader.result
+    }
+  }
+}
+
+
 
 const changeAvatar = file => {
   const fileReader = new FileReader()
@@ -38,297 +267,209 @@ const changeAvatar = file => {
     }
   }
 }
-
-// reset avatar image
-const resetAvatar = () => {
-  accountDataLocal.value.avatarImg = accountData.avatarImg
-}
-
-const timezones = [
-  '(GMT-11:00) International Date Line West',
-  '(GMT-11:00) Midway Island',
-  '(GMT-10:00) Hawaii',
-  '(GMT-09:00) Alaska',
-  '(GMT-08:00) Pacific Time (US & Canada)',
-  '(GMT-08:00) Tijuana',
-  '(GMT-07:00) Arizona',
-  '(GMT-07:00) Chihuahua',
-  '(GMT-07:00) La Paz',
-  '(GMT-07:00) Mazatlan',
-  '(GMT-07:00) Mountain Time (US & Canada)',
-  '(GMT-06:00) Central America',
-  '(GMT-06:00) Central Time (US & Canada)',
-  '(GMT-06:00) Guadalajara',
-  '(GMT-06:00) Mexico City',
-  '(GMT-06:00) Monterrey',
-  '(GMT-06:00) Saskatchewan',
-  '(GMT-05:00) Bogota',
-  '(GMT-05:00) Eastern Time (US & Canada)',
-  '(GMT-05:00) Indiana (East)',
-  '(GMT-05:00) Lima',
-  '(GMT-05:00) Quito',
-  '(GMT-04:00) Atlantic Time (Canada)',
-  '(GMT-04:00) Caracas',
-  '(GMT-04:00) La Paz',
-  '(GMT-04:00) Santiago',
-  '(GMT-03:30) Newfoundland',
-  '(GMT-03:00) Brasilia',
-  '(GMT-03:00) Buenos Aires',
-  '(GMT-03:00) Georgetown',
-  '(GMT-03:00) Greenland',
-  '(GMT-02:00) Mid-Atlantic',
-  '(GMT-01:00) Azores',
-  '(GMT-01:00) Cape Verde Is.',
-  '(GMT+00:00) Casablanca',
-  '(GMT+00:00) Dublin',
-  '(GMT+00:00) Edinburgh',
-  '(GMT+00:00) Lisbon',
-  '(GMT+00:00) London',
-]
-
-const currencies = [
-  'USD',
-  'EUR',
-  'GBP',
-  'AUD',
-  'BRL',
-  'CAD',
-  'CNY',
-  'CZK',
-  'DKK',
-  'HKD',
-  'HUF',
-  'INR',
-]
 </script>
 
 <template>
   <VRow>
     <VCol cols="12">
       <VCard>
-        <VCardText class="d-flex">
-          <!-- 👉 Avatar -->
-          <VAvatar
-            rounded
-            size="100"
-            class="me-6"
-            :image="accountDataLocal.avatarImg"
-          />
-
-          <!-- 👉 Upload Photo -->
-          <form class="d-flex flex-column justify-center gap-4">
-            <div class="d-flex flex-wrap gap-4">
-              <VBtn
-                color="primary"
-                size="small"
-                @click="refInputEl?.click()"
-              >
-                <VIcon
-                  icon="tabler-cloud-upload"
-                  class="d-sm-none"
-                />
-                <span class="d-none d-sm-block">Upload new photo</span>
-              </VBtn>
-
-              <input
-                ref="refInputEl"
-                type="file"
-                name="file"
-                accept=".jpeg,.png,.jpg,GIF"
-                hidden
-                @input="changeAvatar"
-              >
-
-              <VBtn
-                type="reset"
-                size="small"
-                color="secondary"
-                variant="tonal"
-                @click="resetAvatar"
-              >
-                <span class="d-none d-sm-block">Reset</span>
-                <VIcon
-                  icon="tabler-refresh"
-                  class="d-sm-none"
-                />
-              </VBtn>
-            </div>
-
-            <p class="text-body-1 mb-0">
-              Allowed JPG, GIF or PNG. Max size of 800K
-            </p>
-          </form>
-        </VCardText>
-
-        <VCardText class="pt-2">
-          <!-- 👉 Form -->
-          <VForm class="mt-3">
+        <VCardText>
+          <VForm 
+            ref="refForm"
+            v-model="isFormValid"
+            @submit.prevent="onSubmit"
+          >
             <VRow>
-              <!-- 👉 First Name -->
-              <VCol
-                md="6"
-                cols="12"
-              >
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.firstName"
-                  placeholder="John"
-                  label="First Name"
+                  v-model="adminData.firstName"
+                  :rules="[requiredValidator]"
+                  :label="$t('First Name')"
+                  :placeholder="$t('First Name')"
+                  :error-messages="errors.firstName"
                 />
               </VCol>
 
-              <!-- 👉 Last Name -->
-              <VCol
-                md="6"
-                cols="12"
-              >
+              <!-- 👉 Last name -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.lastName"
-                  placeholder="Doe"
-                  label="Last Name"
+                  v-model="adminData.lastName"
+                  :rules="[requiredValidator]"
+                  :label="$t('Last Name')"
+                  :placeholder="$t('Last Name')"
+                  :error-messages="errors.lastName"
                 />
               </VCol>
 
               <!-- 👉 Email -->
-              <VCol
-                cols="12"
-                md="6"
-              >
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.email"
-                  label="E-mail"
-                  placeholder="johndoe@gmail.com"
-                  type="email"
+                  v-model="adminData.email"
+                  :rules="[requiredValidator, emailValidator]"
+                  :label="$t('Email')"
+                  :placeholder="$t('Email')"
+                  :error-messages="errors.email"
                 />
               </VCol>
 
-              <!-- 👉 Organization -->
-              <VCol
-                cols="12"
-                md="6"
-              >
+              <!-- 👉 phone -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.org"
-                  label="Organization"
-                  placeholder="Pixinvent"
+                  v-model="adminData.phone"
+                  :label="$t('Phone')"
+                  :placeholder="$t('Phone')"
+                  :error-messages="errors.phone"
                 />
               </VCol>
 
-              <!-- 👉 Phone -->
-              <VCol
-                cols="12"
-                md="6"
-              >
+              <!-- 👉 City -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="adminData.cityID"
+                  :items="cities"
+                  :label="$t('City')"
+                  :placeholder="$t('Select City')"
+                  :error-messages="errors.cityID"
+                  clearable
+                />
+              </VCol>
+
+              <!-- 👉 Flat No. -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.phone"
-                  label="Phone Number"
-                  placeholder="+1 (917) 543-9876"
+                  v-model="adminData.street"
+                  :label="$t('Flat No.')"
+                  :placeholder="$t('Flat No.')"
+                  :error-messages="errors.street"
+                />
+              </VCol>
+
+              <!-- 👉 House Number -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="adminData.houseNumber"
+                  :label="$t('House Number')"
+                  :placeholder="$t('House Number')"
+                  :error-messages="errors.houseNumber"
                 />
               </VCol>
 
               <!-- 👉 Address -->
-              <VCol
-                cols="12"
-                md="6"
-              >
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.address"
-                  label="Address"
-                  placeholder="123 Main St, New York, NY 10001"
+                  v-model="adminData.address"
+                  :label="$t('Address')"
+                  :placeholder="$t('Address')"
+                  :error-messages="errors.address"
                 />
               </VCol>
 
-              <!-- 👉 State -->
-              <VCol
-                cols="12"
-                md="6"
-              >
+              <!-- 👉 Nationality -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.state"
-                  label="State"
-                  placeholder="New York"
+                  v-model="adminData.nationality"
+                  :label="$t('Nationality')"
+                  :placeholder="$t('Nationality')"
+                  :error-messages="errors.nationality"
                 />
               </VCol>
 
-              <!-- 👉 Zip Code -->
-              <VCol
-                cols="12"
-                md="6"
-              >
+              <!-- 👉 Israeli ID Number -->
+              <VCol cols="12">
                 <AppTextField
-                  v-model="accountDataLocal.zip"
-                  label="Zip Code"
-                  placeholder="10001"
+                  v-model="adminData.israeliIDNumber"
+                  :label="$t('Israeli ID Number')"
+                  :placeholder="$t('Israeli ID Number')"
+                  disabled
+                  :error-messages="errors.israeliIDNumber"
                 />
               </VCol>
 
-              <!-- 👉 Country -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <AppSelect
-                  v-model="accountDataLocal.country"
-                  label="Country"
-                  :items="['USA', 'Canada', 'UK', 'India', 'Australia']"
-                  placeholder="Select Country"
+              <!-- 👉 Passport Number -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="adminData.passportNumber"
+                  :label="$t('Passport Number')"
+                  :placeholder="$t('Passport Number')"
+                  :error-messages="errors.passportNumber"
                 />
               </VCol>
 
-              <!-- 👉 Language -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <AppSelect
-                  v-model="accountDataLocal.language"
-                  label="Language"
-                  placeholder="Select Language"
-                  :items="['English', 'Spanish', 'Arabic', 'Hindi', 'Urdu']"
+              <!-- 👉 No. Of Kids -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="adminData.noOfKids"
+                  :rules="[integerValidator]"
+                  :label="$t('No. Of Kids')"
+                  :placeholder="$t('No. Of Kids')"
+                  :error-messages="errors.noOfKids"
                 />
               </VCol>
 
-              <!-- 👉 Timezone -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <AppSelect
-                  v-model="accountDataLocal.timezone"
-                  label="Timezone"
-                  placeholder="Select Timezone"
-                  :items="timezones"
-                  :menu-props="{ maxHeight: 200 }"
+              <!-- 👉 maritalStatus -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="adminData.maritalStatus"
+                  :items="[
+                    { value: 'Single', title: 'Single' },
+                    { value: 'Married', title: 'Married' },
+                    { value: 'Divorced', title: 'Divorced' },
+                    { value: 'Widowed', title: 'Widowed' },
+                    { value: 'Separated', title: 'Separated' },
+                    { value: 'In a civil partnership', title: 'In a civil partnership' },
+                    { value: 'Cohabiting', title: 'Cohabiting' },
+                  ]"
+                  :placeholder="$t('Select Marital Status')"
+                  :label="$t('Marital Status')"
+                  :error-messages="errors.maritalStatus"
+                  clearable
                 />
               </VCol>
 
-              <!-- 👉 Currency -->
-              <VCol
-                cols="12"
-                md="6"
-              >
-                <AppSelect
-                  v-model="accountDataLocal.currency"
-                  label="Currency"
-                  placeholder="Select Currency"
-                  :items="currencies"
-                  :menu-props="{ maxHeight: 200 }"
+              <!-- 👉 status -->
+              <VCol cols="12">
+                <AppAutocomplete
+                  v-model="adminData.status"
+                  :rules="[requiredValidator]"
+                  :items="[
+                    { value: 'Active', title: 'Active' },
+                    { value: 'Inactive', title: 'Inactive' },
+                  ]"
+                  :placeholder="$t('Select Status')"
+                  :label="$t('Status')"
+                  :error-messages="errors.status"
                 />
               </VCol>
 
-              <!-- 👉 Form Actions -->
-              <VCol
-                cols="12"
-                class="d-flex flex-wrap gap-4"
-              >
-                <VBtn>Save changes</VBtn>
-
+              <!-- 👉 imageID -->
+              <VCol cols="12">
+                <div class="app-picker-field">
+                  <label class="v-label mb-1 text-body-2">{{ $t('Image of ID') }}</label>
+                </div>
+                <div v-if="adminData?.imageID">
+                  <VImg
+                    :src="adminData.imageID"
+                    alt="logo"
+                    width="120"
+                    height="120"
+                  />
+                </div>
+                <VFileInput
+                  :rules="rules"
+                  accept="image/png, image/jpeg, image/bmp"
+                  prepend-icon="tabler-camera"
+                  :error-messages="errors.imageID"
+                  @change="handleImageChange"
+                />
+              </VCol>
+                
+              <!-- 👉 Submit and Cancel -->
+              <VCol cols="12">
                 <VBtn
-                  color="secondary"
-                  variant="tonal"
-                  type="reset"
-                  @click.prevent="resetForm"
+                  type="submit"
+                  class="me-3"
                 >
-                  Cancel
+                  {{ $t('Submit') }}
                 </VBtn>
               </VCol>
             </VRow>

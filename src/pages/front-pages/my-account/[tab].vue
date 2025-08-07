@@ -2,7 +2,7 @@
 import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
 import AccountSettingsAccount from '@/views/front-pages/my-account/AccountSettingsAccount.vue'
-import AccountSettingsBillingAndPlans from '@/views/front-pages/my-account/AccountSettingsBillingAndPlans.vue'
+import AccountSettingsBillingAndPlans from '@/views/front-pages/my-account/AccountSettingsKidInformations.vue'
 import OrderHistory from '@/views/front-pages/my-account/OrderHistory.vue'
 import AccountSettingsSecurity from '@/views/front-pages/my-account/AccountSettingsSecurity.vue'
 

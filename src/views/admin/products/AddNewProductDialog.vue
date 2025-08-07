@@ -288,6 +288,7 @@ const submit = async () => {
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
           quantity: productData.value.quantity,
+          categoryIDs: checkedCategories.value,
           amount_in_package: productData.value.amount_in_package,
           packages_in_box: productData.value.packages_in_box,
           currency: productData.value.currency,
@@ -758,6 +759,8 @@ const handleImageChange = file => {
                 v-model="productData.currency"
                 :items="[
                   { value: 'nis', title: 'NIS' },
+                  { value: 'usd', title: 'US Dollar' },
+                  { value: 'EUR', title: 'Euro' },
                 ]"
                 :placeholder="$t('Select Currency')"
                 :label="$t('Currency')"

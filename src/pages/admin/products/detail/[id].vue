@@ -371,6 +371,94 @@ watch(productData, newVal => {
 
                   <VListItem>
                     <h6 class="text-h6">
+                      {{ $t('Model') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.model }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Quantity') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.quantity }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Amount in package') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.amount_in_package }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Packages in box') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.packages_in_box }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Currency') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.currency }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Unit price') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.unit_price }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Unit price including VAT') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.unit_price_including_vat }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Box price') }}:
+                      <span class="text-body-1 d-inline-block">
+                        {{ productData.box_price }}
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
+                      {{ $t('Image') }}:
+                      <span class="text-body-1 d-inline-block">
+                        <div v-if="productData?.image">
+                          <VImg
+                            :src="productData.image"
+                            alt="Product Image"
+                            width="120"
+                            height="120"
+                          />
+                        </div>
+                      </span>
+                    </h6>
+                  </VListItem>
+
+                  <VListItem>
+                    <h6 class="text-h6">
                       {{ $t('Slug') }}:
                       <span class="text-body-1 d-inline-block">
                         {{ productData.slug }}

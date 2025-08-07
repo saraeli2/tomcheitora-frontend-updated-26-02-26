@@ -437,17 +437,6 @@ watch(() => props.communities,
               />
             </VCol>
 
-            <!-- 👉 Email -->
-            <VCol cols="12">
-              <AppTextField
-                v-model="adminData.username"
-                :rules="[requiredValidator]"
-                :label="$t('Username')"
-                :placeholder="$t('Username')"
-                :error-messages="errors.username"
-              />
-            </VCol>
-
             <VCol cols="12" >
               <AppTextField
                 v-model="adminData.password"

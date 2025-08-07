@@ -14,6 +14,9 @@ import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 import { useConfigStore } from '@core/stores/config'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 const { t } = useI18n()
 
@@ -64,22 +67,21 @@ const login = async () => {
         password: credentials.value.password,
       },
       onResponseError({ response }) {
-        errors.value = response._data.errors
+        //console.log(response);
+        //errors.value = response._data.message
+        toast.success(response._data.message)
       },
     })
 
     const { userData, accessToken, userAbilityRules } = res
-
+    
     ability.update(userAbilityRules)
-
     await authStore.login(accessToken, userData, userAbilityRules)
-
-    // Redirect to `to` query if exist or redirect to index route
-
-    // ❗ nextTick is required to wait for DOM updates and later redirect
     await nextTick(() => {
       router.replace(route.query.to ? String(route.query.to) : userData.userRedirectURL)
     })
+
+    
   } catch (err) {
     console.error(err)
   }

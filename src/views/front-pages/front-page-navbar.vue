@@ -6,14 +6,19 @@ import navImg from '@images/front-pages/misc/nav-item-col-img.png'
 import NavbarThemeSwitcher from '@/layouts/components/NavbarThemeSwitcher.vue'
 import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
+import { useAuthStore } from '@/stores'
+import { useAbility } from '@casl/vue'
 
 const props = defineProps({ activeId: String })
+const authStore = useAuthStore()
+const userData = authStore.userData
 
 const display = useDisplay()
 const { y } = useWindowScroll()
 const route = useRoute()
 const router = useRouter()
 const sidebar = ref(false)
+const ability = useAbility()
 
 watch(() => display, () => {
   return display.mdAndUp ? sidebar.value = false : sidebar.value
@@ -59,6 +64,38 @@ const isCurrentRoute = to => {
 }
 
 const isPageActive = computed(() => menuItems.some(item => item.navItems.some(listItem => isCurrentRoute(listItem.to))))
+
+const logout = async () => {
+  if(userData) {
+    try {
+      await $api('/logout', {
+        method: 'POST',
+        credentials: 'include',
+      })
+
+      // Remove "userData" from cookie
+      userData.value = null
+    } catch (err) {
+      console.error('Router push failed:', err)
+    }
+  }
+
+  // Remove "accessToken" from cookie
+  localStorage.removeItem('userData')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('userAbilityRules')
+  localStorage.setItem('logoutEvent', Date.now())
+
+  // Reset ability to initial ability
+  ability.update([])
+
+  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+  // Redirect to login page
+  router.push({ name: 'login' })
+  
+  location.href = '/login'
+}
 </script>
 
 <template>
@@ -187,6 +224,8 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
           >
             {{ $t('Checkout') }}
           </RouterLink>
+
+          
           </div>
         </div>
 
@@ -215,6 +254,7 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
             {{ $t('My Account') }}
           </VBtn>
 
+
           <VBtn
             v-else
             rounded
@@ -226,6 +266,15 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
             rel="noopener noreferrer"
           >
             <VIcon icon="tabler-shopping-cart" />
+          </VBtn>
+
+          <VBtn
+            v-if="userData"
+            icon
+            variant="elevated"
+            @click="logout"
+          >
+            <VIcon icon="tabler-logout" />
           </VBtn>
         </div>
       </VAppBar>

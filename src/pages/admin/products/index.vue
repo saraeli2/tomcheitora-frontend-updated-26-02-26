@@ -45,12 +45,20 @@ const updateOptions = options => {
 
 const headers = computed(() => [
   {
+    title: t('Category'),
+    key: 'catgoryIds',
+  },
+  {
     title: t('Name'),
     key: 'name',
   },
   {
-    title: t('Slug'),
-    key: 'slug',
+    title: t('Model'),
+    key: 'model',
+  },
+  {
+    title: t('Internal serial number'),
+    key: 'serial_number',
   },
   {
     title: t('Internal SKU'),
@@ -61,45 +69,42 @@ const headers = computed(() => [
     key: 'externalSKU',
   },
   {
-    title: t('Box SKU'),
-    key: 'boxSKU',
+    title: t('Quantity'),
+    key: 'quantity',
   },
   {
-    title: t('Manufacturer'),
-    key: 'manufacturerID',
+    title: t('Amount of boxes'),
+    key: 'amount_of_boxes',
   },
   {
-    title: t('Supplier'),
-    key: 'supplierID',
+    title: t('Amount in package'),
+    key: 'amount_in_package',
   },
   {
-    title: t('Certification'),
-    key: 'certificationID',
+    title: t('Amount of packages in box'),
+    key: 'packages_in_box',
   },
   {
-    title: t('Package Type'),
-    key: 'packagetypeID',
+    title: t('Unit price (before VAT)'),
+    key: 'unit_price',
   },
   {
-    title: t('Quantity Type'),
-    key: 'quantitytypeID',
+    title: t('Unit price (including VAT)'),
+    key: 'unit_price_including_vat',
   },
   {
-    title: t('Purchase Price'),
-    key: 'purchasePrice',
+    title: t('Box price'),
+    key: 'box_price',
   },
   {
-    title: t('Sale Price'),
-    key: 'salePrice',
+    title: t('Size'),
+    key: 'size',
   },
   {
-    title: t('Max Stock'),
-    key: 'maxStock',
+    title: t('Color'),
+    key: 'color',
   },
-  {
-    title: t('Remaining Stock'),
-    key: 'remainingStock',
-  },
+  
   {
     title: t('Active'),
     key: 'status',
