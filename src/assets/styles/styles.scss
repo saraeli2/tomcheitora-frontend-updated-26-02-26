@@ -880,3 +880,9 @@ $grey-3:#aaaaaa;
 .v-theme--dark .absolute-category{
   background-color: #2f3349;
 }
+
+
+html[lang="he"] .justify-space-between .tabler-settings{
+  margin-left: 0!important;
+  margin-right: auto
+}

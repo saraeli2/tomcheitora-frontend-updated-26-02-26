@@ -358,377 +358,377 @@ watch(productData, newVal => {
                 </h5>
 
                 <VDivider class="my-4" />
+                <VRow>
+                  <VCol md="6">
+                    <VList class="card-list mt-2">
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Name') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.name }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                <VList class="card-list mt-2">
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Name') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.name }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Model') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.model }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Model') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.model }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Quantity') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.quantity }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Quantity') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.quantity }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Amount in package') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.amount_in_package }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Amount in package') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.amount_in_package }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Packages in box') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.packages_in_box }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Packages in box') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.packages_in_box }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Currency') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.currency }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Currency') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.currency }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Unit price') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.unit_price }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Unit price') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.unit_price }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Unit price including VAT') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.unit_price_including_vat }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Unit price including VAT') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.unit_price_including_vat }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Box price') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.box_price }}
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Box price') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.box_price }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Image') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <div v-if="productData?.image">
-                          <VImg
-                            :src="productData.image"
-                            alt="Product Image"
-                            width="120"
-                            height="120"
-                          />
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Slug') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.slug }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Internal SKU') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.internalSKU }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('External SKU') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.externalSKU }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Box SKU') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.boxSKU }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Manufacturer') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <RouterLink
+                              v-if="can('admin-view-manufacturers', 'View Manufacturers') && productData.manufacturerID"
+                              :to="{ name: 'admin-manufacturers-detail-id', params: { id: productData.manufacturerID._id } }"
+                            >
+                              {{ productData.manufacturerID.name }}
+                            </RouterLink>
+                            <span v-else>{{ productData.manufacturerID ? productData.manufacturerID.name : '' }}</span>
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Supplier') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <RouterLink
+                              v-if="can('admin-view-suppliers', 'View Suppliers') && productData.supplierID"
+                              :to="{ name: 'admin-suppliers-detail-id', params: { id: productData.supplierID._id } }"
+                            >
+                              {{ productData.supplierID.name }}
+                            </RouterLink>
+                            <span v-else>{{ productData.supplierID ? productData.supplierID.name : '' }}</span>
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Certification') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.certificationID ? productData.certificationID.name : '' }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Package Type') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.packagetypeID ? productData.packagetypeID.name : '' }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Quantity Type') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.quantitytypeID ? productData.quantitytypeID.name : '' }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Tags') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <VChip
+                              v-for="(tag, index) in productData.tags"
+                              :key="index"
+                              label
+                              color="primary"
+                              size="small"
+                              class="roles"
+                            >
+                              {{ tag.name }}
+                            </VChip>
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Groups') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <VChip
+                              v-for="(group, index) in productData.groups"
+                              :key="index"
+                              label
+                              color="success"
+                              size="small"
+                              class="roles"
+                            >
+                              {{ group.name }}
+                            </VChip>
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Pickup Order') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.pickupOrder }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Product Order Number in Invoice') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.orderNumber }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Purchase Price') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.purchasePrice }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Sale Price') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.salePrice }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Max Stock') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.maxStock }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Remaining Stock') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.remainingStock }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <div class="d-flex gap-x-2 align-center">
+                          <h6 class="text-h6">
+                            {{ $t('Status') }}:
+                          </h6>
+                          <VChip
+                            label
+                            :color="resolveStatusVariantAndIcon(productData.status).variant"
+                            size="small"
+                          >
+                            {{ resolveStatusVariantAndIcon(productData.status).title }}
+                          </VChip>
                         </div>
-                      </span>
-                    </h6>
-                  </VListItem>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Slug') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.slug }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <div class="mb-2">
+                          <h6 class="text-h6 mb-1">
+                            {{ $t('Category') }}:
+                          </h6>
+                          <div class="ps-2">
+                            <CategoryBuilderProductDetailNode
+                              v-for="node in tree"
+                              :key="node.realId || node._id"
+                              :node="node"
+                              :selected="productData.categoryIDs"
+                              :indeterminate="isIndeterminate(node)"
+                            />
+                          </div>
+                        </div>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Internal SKU') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.internalSKU }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Description') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.description" />
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('External SKU') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.externalSKU }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Internal Remarks') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.internalRemarks" />
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Box SKU') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.boxSKU }}
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Remarks') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.remarks" />
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Manufacturer') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <RouterLink
-                          v-if="can('admin-view-manufacturers', 'View Manufacturers') && productData.manufacturerID"
-                          :to="{ name: 'admin-manufacturers-detail-id', params: { id: productData.manufacturerID._id } }"
-                        >
-                          {{ productData.manufacturerID.name }}
-                        </RouterLink>
-                        <span v-else>{{ productData.manufacturerID ? productData.manufacturerID.name : '' }}</span>
-                      </span>
-                    </h6>
-                  </VListItem>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Created By') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <RouterLink
+                              v-if="can('admin-view-admins', 'View Admins') && productData.createdBy"
+                              :to="{ name: 'admin-admins-detail-id', params: { id: productData.createdBy._id } }"
+                            >
+                              {{ productData.createdBy.name }}
+                            </RouterLink>
+                            <span v-else>{{ productData.createdBy ? productData.createdBy.name : '' }}</span>
+                          </span>
+                        </h6>
+                      </VListItem>
 
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Supplier') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <RouterLink
-                          v-if="can('admin-view-suppliers', 'View Suppliers') && productData.supplierID"
-                          :to="{ name: 'admin-suppliers-detail-id', params: { id: productData.supplierID._id } }"
-                        >
-                          {{ productData.supplierID.name }}
-                        </RouterLink>
-                        <span v-else>{{ productData.supplierID ? productData.supplierID.name : '' }}</span>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Certification') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.certificationID ? productData.certificationID.name : '' }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Package Type') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.packagetypeID ? productData.packagetypeID.name : '' }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Quantity Type') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.quantitytypeID ? productData.quantitytypeID.name : '' }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Tags') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <VChip
-                          v-for="(tag, index) in productData.tags"
-                          :key="index"
-                          label
-                          color="primary"
-                          size="small"
-                          class="roles"
-                        >
-                          {{ tag.name }}
-                        </VChip>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Groups') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <VChip
-                          v-for="(group, index) in productData.groups"
-                          :key="index"
-                          label
-                          color="success"
-                          size="small"
-                          class="roles"
-                        >
-                          {{ group.name }}
-                        </VChip>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Pickup Order') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.pickupOrder }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Product Order Number in Invoice') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.orderNumber }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Purchase Price') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.purchasePrice }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Sale Price') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.salePrice }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Max Stock') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.maxStock }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Remaining Stock') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ productData.remainingStock }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <div class="d-flex gap-x-2 align-center">
-                      <h6 class="text-h6">
-                        {{ $t('Status') }}:
-                      </h6>
-                      <VChip
-                        label
-                        :color="resolveStatusVariantAndIcon(productData.status).variant"
-                        size="small"
-                      >
-                        {{ resolveStatusVariantAndIcon(productData.status).title }}
-                      </VChip>
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Updated By') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <RouterLink
+                              v-if="can('admin-view-admins', 'View Admins') && productData.updatedBy"
+                              :to="{ name: 'admin-admins-detail-id', params: { id: productData.updatedBy._id } }"
+                            >
+                              {{ productData.updatedBy.name }}
+                            </RouterLink>
+                            <span v-else>{{ productData.updatedBy ? productData.updatedBy.name : '' }}</span>
+                          </span>
+                        </h6>
+                      </VListItem>
+                    </VList>
+                  </VCol>
+                  <VCol md="6">
+                    <div v-if="productData?.image">
+                      <h3 style="margin:0 0 10px">{{ $t('Image') }}</h3>
+                      <VImg
+                        :src="productData.image"
+                        alt="Product Image"
+                        width="120"
+                        height="120"
+                      />
                     </div>
-                  </VListItem>
-
-                  <VListItem>
-                    <div class="mb-2">
-                      <h6 class="text-h6 mb-1">
-                        {{ $t('Category') }}:
-                      </h6>
-                      <div class="ps-2">
-                        <CategoryBuilderProductDetailNode
-                          v-for="node in tree"
-                          :key="node.realId || node._id"
-                          :node="node"
-                          :selected="productData.categoryIDs"
-                          :indeterminate="isIndeterminate(node)"
-                        />
-                      </div>
-                    </div>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Description') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <div v-html="productData?.description" />
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Internal Remarks') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <div v-html="productData?.internalRemarks" />
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Remarks') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <div v-html="productData?.remarks" />
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Created By') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && productData.createdBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: productData.createdBy._id } }"
-                        >
-                          {{ productData.createdBy.name }}
-                        </RouterLink>
-                        <span v-else>{{ productData.createdBy ? productData.createdBy.name : '' }}</span>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Updated By') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && productData.updatedBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: productData.updatedBy._id } }"
-                        >
-                          {{ productData.updatedBy.name }}
-                        </RouterLink>
-                        <span v-else>{{ productData.updatedBy ? productData.updatedBy.name : '' }}</span>
-                      </span>
-                    </h6>
-                  </VListItem>
-                </VList>
+                  </VCol>
+                </VRow>
               </VCardText>
 
               <VCardText

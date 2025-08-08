@@ -262,6 +262,10 @@ const deleteQuantitytype = async id => {
         <!-- name -->
         <template #[`item.name`]="{ item }">
           {{ item.name }}
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editQuantitytype(item)" class="tabler-pencil" 
+          />
         </template>
 
         <!-- quantity -->

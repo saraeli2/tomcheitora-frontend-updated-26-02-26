@@ -431,5 +431,7 @@
   "Email verified successfully! Redirecting...": "האימייל אומת בהצלחה! מפנה מחדש...",
   "Verify your OTP": "אימות ה-OTP שלך",
   "Enter your otp": "הזן את ה-OTP שלך",
-  "Reset your password": "איפוס הסיסמה שלך"
+  "Reset your password": "איפוס הסיסמה שלך",
+  "Manage Columns": "ניהול עמודות",
+  "Close": "לִסְגוֹר"
 }

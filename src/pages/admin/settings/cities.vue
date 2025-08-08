@@ -274,6 +274,10 @@ const deleteCity = async id => {
         <!-- cityId -->
         <template #[`item.cityId`]="{ item }">
           {{ item.cityId }}
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editCity(item)" class="tabler-pencil" 
+          />
         </template>
         
         <!-- nameHe -->

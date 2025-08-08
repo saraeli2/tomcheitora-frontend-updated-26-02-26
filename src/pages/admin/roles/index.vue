@@ -281,6 +281,10 @@ const resolveStatusVariantAndIcon = status => {
         <!-- name -->
         <template #[`item.name`]="{ item }">
           {{ item.name }}
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editRole(item)" class="tabler-pencil" 
+          />
         </template>
 
         <!-- modules -->

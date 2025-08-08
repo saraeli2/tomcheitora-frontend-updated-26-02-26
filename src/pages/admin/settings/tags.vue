@@ -258,6 +258,10 @@ const deleteTag = async id => {
         <!-- name -->
         <template #[`item.name`]="{ item }">
           {{ item.name }}
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editTag(item)" class="tabler-pencil" 
+          />
         </template>
 
         <!-- status -->

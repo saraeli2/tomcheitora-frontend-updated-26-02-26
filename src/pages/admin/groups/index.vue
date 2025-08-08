@@ -1,5 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
+import Draggable from 'vuedraggable'
 
 definePage({
   meta: {
@@ -37,54 +38,65 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-const headers = computed(() => [
+const defaultColumns = [
   {
     title: t('Name'),
     key: 'name',
+    visible: true,
   },
   {
     title: t('Sale ID'),
     key: 'saleID',
+    visible: true,
   },
   {
     title: t('Type'),
     key: 'type',
+    visible: true,
   },
   {
     title: t('Amount'),
     key: 'amount',
+    visible: true,
   },
   {
     title: t('Active'),
     key: 'status',
+    visible: true,
   },
   {
     title: t('Community'),
     key: 'communities',
     sortable: false,
+    visible: true,
   },
   {
     title: t('Created By'),
     key: 'createdBy',
+    visible: true,
   },
   {
     title: t('Updated By'),
     key: 'updatedBy',
+    visible: true,
   },
   {
     title: t('Created At'),
     key: 'createdAt',
+    visible: true,
   },
   {
     title: t('Updated At'),
     key: 'updatedAt',
+    visible: true,
   },
   {
     title: t('Actions'),
     key: 'actions',
     sortable: false,
+    visible: true,
   },
-])
+]
 
 const {
   data: customerData,
@@ -188,6 +200,38 @@ const deleteGroup = async id => {
       }
     })  
 }
+
+const showColumnDialog = ref(false)
+const allColumns = ref([...defaultColumns])
+
+const visibleHeaders = computed(() =>
+  allColumns.value
+    .filter(col => col.visible)
+    .map(col => ({
+      key: col.key,
+      title: t(col.title),
+      sortable: col.sortable !== false, // default true
+    }))
+)
+
+onMounted(() => {
+  const saved = localStorage.getItem('group-columns')
+  if (saved) {
+    try {
+      allColumns.value = JSON.parse(saved)
+    } catch {
+      allColumns.value = [...defaultColumns]
+    }
+  }
+})
+
+watch(
+  allColumns,
+  val => {
+    localStorage.setItem('group-columns', JSON.stringify(val))
+  },
+  { deep: true }
+)
 </script>
 
 <template>
@@ -230,6 +274,8 @@ const deleteGroup = async id => {
             {{ $t('Create Group') }}
           </VBtn>
         </div>
+
+        <VIcon style="margin-left: auto" @click="showColumnDialog = true" class="tabler-settings" />
 
         <div class="d-flex align-center flex-wrap gap-4" />
       </VCardText>
@@ -284,7 +330,7 @@ const deleteGroup = async id => {
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
         :items-length="totalGroups"
-        :headers="headers"
+        :headers="visibleHeaders"
         :items="groups"
         item-value="id"
         class="text-no-wrap"
@@ -293,6 +339,10 @@ const deleteGroup = async id => {
         <!-- name -->
         <template #[`item.name`]="{ item }">
           {{ item.name }}
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editGroup(item)" class="tabler-pencil" 
+          />
         </template>
         
         <!-- saleID -->
@@ -429,6 +479,40 @@ const deleteGroup = async id => {
       @user-data="modifyGroup"
     />
   </section>
+  <VDialog class="reorderDialog" v-model="showColumnDialog" max-width="500">
+    <VCard>
+      <VCardTitle class="text-h6">
+        {{ $t('Manage Columns') }}
+      </VCardTitle>
+
+      <VCardText>
+        <!-- Only render draggable when dialog is active -->
+         <Draggable
+          v-model="allColumns"
+          item-key="key"
+          tag="div"
+          @end="onSortEnd"
+        >
+          <template #item="{ element }">
+            <div class="d-flex align-center mb-2">
+              <VIcon icon="tabler-arrows-down-up" class="mr-2" />
+              <VCheckbox
+                v-model="element.visible"
+                :label="$t(element.title)"
+                hide-details
+                density="compact"
+              />
+            </div>
+          </template>
+        </Draggable>
+      </VCardText>
+
+      <VCardActions>
+        <VSpacer />
+        <VBtn variant="text" @click="showColumnDialog = false">{{ $t('Close') }}</VBtn>
+      </VCardActions>
+    </VCard>
+  </VDialog>
 </template>
 
 <style lang="scss">

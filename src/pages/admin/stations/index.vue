@@ -318,6 +318,11 @@ const deleteStation = async id => {
           <RouterLink :to="{ name: 'admin-stations-detail-id', params: { id: item._id } }">
             {{ item.name }}
           </RouterLink>
+
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editStation(item)" class="tabler-pencil" 
+          />
         </template>
 
         <!-- neighbourhood -->

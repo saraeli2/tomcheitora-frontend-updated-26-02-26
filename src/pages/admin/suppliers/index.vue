@@ -321,6 +321,11 @@ const deleteSupplier = async id => {
           <RouterLink :to="{ name: 'admin-suppliers-detail-id', params: { id: item._id } }">
             {{ item.name }}
           </RouterLink>
+
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editSupplier(item)" class="tabler-pencil" 
+          />
         </template>
 
         <!-- businessID -->

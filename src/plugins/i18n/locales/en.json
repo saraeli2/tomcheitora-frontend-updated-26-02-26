@@ -434,5 +434,7 @@
   "Email verified successfully! Redirecting...": "Email verified successfully! Redirecting...",
   "Verify your OTP": "Verify your OTP",
   "Enter your otp": "Enter your otp",
-  "Reset your password": "Reset your password"
+  "Reset your password": "Reset your password",
+  "Manage Columns": "Manage Columns",
+  "Close": "Close"
 }

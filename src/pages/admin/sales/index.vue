@@ -275,6 +275,11 @@ const deleteSale = async id => {
           <RouterLink :to="{ name: 'admin-sales-detail-id', params: { id: item._id } }">
             {{ item.name }}
           </RouterLink>
+
+          <VIcon 
+            style="margin-left:6px" 
+            @click="editSale(item)" class="tabler-pencil" 
+          />
         </template>
         
         <!-- startDate -->
