@@ -8,6 +8,7 @@ import { VNodeRenderer } from '@layouts/components/VNodeRenderer'
 import { themeConfig } from '@themeConfig'
 import { useAuthStore } from '@/stores'
 import { useAbility } from '@casl/vue'
+import NavBarI18n from '@core/components/I18n.vue'
 
 const props = defineProps({ activeId: String })
 const authStore = useAuthStore()
@@ -267,6 +268,11 @@ const logout = async () => {
           >
             <VIcon icon="tabler-shopping-cart" />
           </VBtn>
+
+          <NavBarI18n
+            v-if="themeConfig.app.i18n.enable && themeConfig.app.i18n.langConfig?.length"
+            :languages="themeConfig.app.i18n.langConfig"
+          />
 
           <VBtn
             v-if="userData"

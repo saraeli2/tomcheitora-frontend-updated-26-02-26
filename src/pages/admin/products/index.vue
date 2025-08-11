@@ -1,4 +1,5 @@
 <script setup>
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Draggable from 'vuedraggable'
 
@@ -30,7 +31,7 @@ const selectedStatus = ref()
 const selectedRows = ref([])
 
 // Data table options
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(25)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
@@ -47,7 +48,7 @@ const updateOptions = options => {
 const defaultColumns = [
   {
     title: t('Category'),
-    key: 'catgoryIds',
+    key: 'categoryIDs',
     visible: true,
   },
   {
@@ -144,46 +145,125 @@ const defaultColumns = [
   },
 ]
 
-const {
-  data: customerData,
-  execute: fetchProducts,
-  error,
-} = await useApi(createUrl('/admin/products', {
-  query: {
-    search: searchQuery,
-    sku: searchSku,
-    manufacturer: selectedManufacturer,
-    supplier: selectedSupplier,
-    certification: selectedCertification,
-    packagetype: selectedPackagetype,
-    quantitytype: selectedQuantitytype,
-    status: selectedStatus,
-    itemsPerPage,
-    page,
-    sortBy,
-    orderBy,
-  },
-}))
+const products = ref([])
+const totalProducts = ref(0)
+const loadingMore = ref(false)
 
-if(error.value == 'Unauthorized') {
-// Remove "accessToken" from cookie
-  localStorage.removeItem('userData')
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('userAbilityRules')
+// const {
+//   data: customerData,
+//   execute: fetchProducts,
+//   error,
+// } = await useApi(createUrl('/admin/products', {
+//   query: {
+//     search: searchQuery,
+//     sku: searchSku,
+//     manufacturer: selectedManufacturer,
+//     supplier: selectedSupplier,
+//     certification: selectedCertification,
+//     packagetype: selectedPackagetype,
+//     quantitytype: selectedQuantitytype,
+//     status: selectedStatus,
+//     itemsPerPage,
+//     page,
+//     sortBy,
+//     orderBy,
+//   },
+// }))
 
-  // Reset ability to initial ability
-  ability.update([])
+async function loadProducts(newPage = 1) {
+  console.log('dfdf');
+  if (loadingMore.value) return
+  loadingMore.value = true
 
-  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+  try {
+    const response = await useApi(createUrl('/admin/products', {
+      query: {
+        search: searchQuery.value,
+        sku: searchSku.value,
+        manufacturer: selectedManufacturer.value,
+        supplier: selectedSupplier.value,
+        certification: selectedCertification.value,
+        packagetype: selectedPackagetype.value,
+        quantitytype: selectedQuantitytype.value,
+        status: selectedStatus.value,
+        itemsPerPage: itemsPerPage.value,
+        page: newPage,
+        sortBy: sortBy.value,
+        orderBy: orderBy.value,
+      },
+    }))
 
-  // Redirect to login page
-  router.push({ name: 'admin-login' })
+    if (newPage === 1) {
+      products.value = response.data._value.products
+    } else {
+      products.value.push(...response.data._value.products)
+    }
+    totalProducts.value = response.data._value.total
+    page.value = newPage
 
-  location.href = '/admin/login'
+    //console.log(response.data._value.products);
+  } catch (err) {
+    console.error('Failed to load products:', err)
+  } finally {
+    loadingMore.value = false
+  }
 }
 
-const products = computed(() => customerData.value.products)
-const totalProducts = computed(() => customerData.value.total)
+// Call loadProducts initially and on filters change
+onMounted(() => loadProducts(1))
+
+// Watch filters, reset page to 1 and reload products
+watch(
+  [
+    searchQuery,
+    searchSku,
+    selectedManufacturer,
+    selectedSupplier,
+    selectedCertification,
+    selectedPackagetype,
+    selectedQuantitytype,
+    selectedStatus,
+    itemsPerPage,
+    sortBy,
+    orderBy,
+  ],
+  () => {
+    loadProducts(1)
+  }
+)
+
+function handleWindowScroll() {
+  if (loadingMore.value) return
+  if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 200)) {
+    // If not loaded all yet
+    if (products.value.length < totalProducts.value) {
+      loadProducts(page.value + 1)
+    }
+  }
+}
+
+// Add and remove scroll listener
+onMounted(() => window.addEventListener('scroll', handleWindowScroll))
+onUnmounted(() => window.removeEventListener('scroll', handleWindowScroll))
+
+// if(error.value == 'Unauthorized') {
+// // Remove "accessToken" from cookie
+//   localStorage.removeItem('userData')
+//   localStorage.removeItem('accessToken')
+//   localStorage.removeItem('userAbilityRules')
+
+//   // Reset ability to initial ability
+//   ability.update([])
+
+//   // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+
+//   // Redirect to login page
+//   router.push({ name: 'admin-login' })
+
+//   location.href = '/admin/login'
+// }
+
+
 
 const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
 const tagOptions = computed(() => commonsyncCities.tagOptions)
@@ -269,7 +349,7 @@ const resolveStatusVariantAndIcon = status => {
 
 const modifyProduct = async userData => {
   // refetch Product
-  fetchProducts()
+  loadProducts(1)
 }
 
 const editProduct = async value => {
@@ -301,7 +381,7 @@ const deleteProduct = async id => {
     .then(async result => {
       if (result.value) {
         await $api(`/admin/products/${ id }`, { method: 'DELETE' })
-        fetchProducts()
+        loadProducts(1)
       }
     })  
 }
@@ -346,7 +426,7 @@ watch(
 </script>
 
 <template>
-  <section>
+  <section class="no-pagination">
     <VCard id="invoice-list">
       <VCardText class="d-flex justify-space-between align-center flex-wrap">
         <VRow>
@@ -504,177 +584,179 @@ watch(
       <VDivider v-if="can('admin-view-products', 'View Products')" />
 
       <!-- SECTION Datatable -->
-      <VDataTableServer
-        v-if="can('admin-view-products', 'View Products')"
-        v-model="selectedRows"
-        v-model:items-per-page="itemsPerPage"
-        v-model:page="page"
-        :items-length="totalProducts"
-        :headers="visibleHeaders"
-        :items="products"
-        item-value="id"
-        class="text-no-wrap"
-        @update:options="updateOptions"
-      >
-        <!-- name -->
-        <template #[`item.name`]="{ item }">
-          <RouterLink :to="{ name: 'admin-products-detail-id', params: { id: item._id } }">
-            {{ item.name }}
-          </RouterLink>
-          <VIcon 
-            style="margin-left:6px" 
-            @click="editProduct(item)" class="tabler-pencil" 
-          />
-        </template>
+       
+        <VDataTableServer
+          v-if="can('admin-view-products', 'View Products')"
+          v-model="selectedRows"
+          v-model:items-per-page="itemsPerPage"
+          v-model:page="page"
+          :items-length="totalProducts"
+          :headers="visibleHeaders"
+          :items="products"
+          item-value="id"
+          class="text-no-wrap"
+          :disable-pagination="true"
+          @update:options="updateOptions"
+        >
+          <!-- name -->
+          <template #[`item.name`]="{ item }">
+            <RouterLink :to="{ name: 'admin-products-detail-id', params: { id: item._id } }">
+              {{ item.name }}
+            </RouterLink>
+            <VIcon 
+              style="margin-left:6px" 
+              @click="editProduct(item)" class="tabler-pencil" 
+            />
+          </template>
 
-        <!-- slug -->
-        <template #[`item.slug`]="{ item }">
-          {{ item.slug }}
-        </template>
+          <!-- slug -->
+          <template #[`item.slug`]="{ item }">
+            {{ item.slug }}
+          </template>
 
-        <!-- internalSKU -->
-        <template #[`item.internalSKU`]="{ item }">
-          {{ item.internalSKU }}
-        </template>
+          <!-- internalSKU -->
+          <template #[`item.internalSKU`]="{ item }">
+            {{ item.internalSKU }}
+          </template>
 
-        <!-- externalSKU -->
-        <template #[`item.externalSKU`]="{ item }">
-          {{ item.externalSKU }}
-        </template>
+          <!-- externalSKU -->
+          <template #[`item.externalSKU`]="{ item }">
+            {{ item.externalSKU }}
+          </template>
 
-        <!-- boxSKU -->
-        <template #[`item.boxSKU`]="{ item }">
-          {{ item.boxSKU }}
-        </template>
+          <template #[`item.categoryIDs`]="{ item }">
+            <ul class="cat_list" v-if="item.categoryIDs && item.categoryIDs.length">
+              <li v-for="cat in item.categoryIDs">
+                {{ cat.name }}
+              </li>
+            </ul>
+          </template>
 
-        <!-- manufacturerID -->
-        <template #[`item.manufacturerID`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-manufacturers', 'View Manufacturers') && item.manufacturerID"
-            :to="{ name: 'admin-manufacturers-detail-id', params: { id: item.manufacturerID._id } }"
-          >
-            {{ item.manufacturerID.name }}
-          </RouterLink>
-          <span v-else>{{ item.manufacturerID ? item.manufacturerID.name : '' }}</span>
-        </template>
+          <!-- boxSKU -->
+          <template #[`item.boxSKU`]="{ item }">
+            {{ item.boxSKU }}
+          </template>
 
-        <!-- supplierID -->
-        <template #[`item.supplierID`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-suppliers', 'View Suppliers') && item.supplierID"
-            :to="{ name: 'admin-suppliers-detail-id', params: { id: item.supplierID._id } }"
-          >
-            {{ item.supplierID.name }}
-          </RouterLink>
-          <span v-else>{{ item.supplierID ? item.supplierID.name : '' }}</span>
-        </template>
+          <!-- manufacturerID -->
+          <template #[`item.manufacturerID`]="{ item }">
+            <RouterLink
+              v-if="can('admin-view-manufacturers', 'View Manufacturers') && item.manufacturerID"
+              :to="{ name: 'admin-manufacturers-detail-id', params: { id: item.manufacturerID._id } }"
+            >
+              {{ item.manufacturerID.name }}
+            </RouterLink>
+            <span v-else>{{ item.manufacturerID ? item.manufacturerID.name : '' }}</span>
+          </template>
 
-        <!-- certificationID -->
-        <template #[`item.certificationID`]="{ item }">
-          {{ item.certificationID ? item.certificationID.name : '' }}
-        </template>
+          <!-- supplierID -->
+          <template #[`item.supplierID`]="{ item }">
+            <RouterLink
+              v-if="can('admin-view-suppliers', 'View Suppliers') && item.supplierID"
+              :to="{ name: 'admin-suppliers-detail-id', params: { id: item.supplierID._id } }"
+            >
+              {{ item.supplierID.name }}
+            </RouterLink>
+            <span v-else>{{ item.supplierID ? item.supplierID.name : '' }}</span>
+          </template>
 
-        <!-- packagetypeID -->
-        <template #[`item.packagetypeID`]="{ item }">
-          {{ item.packagetypeID ? item.packagetypeID.name : '' }}
-        </template>
+          <!-- certificationID -->
+          <template #[`item.certificationID`]="{ item }">
+            {{ item.certificationID ? item.certificationID.name : '' }}
+          </template>
 
-        <!-- quantitytypeID -->
-        <template #[`item.quantitytypeID`]="{ item }">
-          {{ item.quantitytypeID ? item.packagetypeID.name : '' }}
-        </template>
+          <!-- packagetypeID -->
+          <template #[`item.packagetypeID`]="{ item }">
+            {{ item.packagetypeID ? item.packagetypeID.name : '' }}
+          </template>
 
-        <!-- purchasePrice -->
-        <template #[`item.purchasePrice`]="{ item }">
-          {{ item.purchasePrice }}
-        </template>
+          <!-- quantitytypeID -->
+          <template #[`item.quantitytypeID`]="{ item }">
+            {{ item.quantitytypeID ? item.packagetypeID.name : '' }}
+          </template>
 
-        <!-- salePrice -->
-        <template #[`item.salePrice`]="{ item }">
-          {{ item.salePrice }}
-        </template>
+          <!-- purchasePrice -->
+          <template #[`item.purchasePrice`]="{ item }">
+            {{ item.purchasePrice }}
+          </template>
 
-        <!-- maxStock -->
-        <template #[`item.maxStock`]="{ item }">
-          {{ item.maxStock }}
-        </template>
+          <!-- salePrice -->
+          <template #[`item.salePrice`]="{ item }">
+            {{ item.salePrice }}
+          </template>
 
-        <!-- remainingStock -->
-        <template #[`item.remainingStock`]="{ item }">
-          {{ item.remainingStock }}
-        </template>
+          <!-- maxStock -->
+          <template #[`item.maxStock`]="{ item }">
+            {{ item.maxStock }}
+          </template>
 
-        <!-- status -->
-        <template #[`item.status`]="{ item }">
-          <VChip
-            label
-            :color="resolveStatusVariantAndIcon(item.status).variant"
-            size="small"
-          >
-            {{ resolveStatusVariantAndIcon(item.status).title }}
-          </VChip>
-        </template>
+          <!-- remainingStock -->
+          <template #[`item.remainingStock`]="{ item }">
+            {{ item.remainingStock }}
+          </template>
 
-        <!-- Created At -->
-        <template #[`item.createdAt`]="{ item }">
-          {{ formatDateWithTime(item.createdAt) }}
-        </template>
+          <!-- status -->
+          <template #[`item.status`]="{ item }">
+            <VChip
+              label
+              :color="resolveStatusVariantAndIcon(item.status).variant"
+              size="small"
+            >
+              {{ resolveStatusVariantAndIcon(item.status).title }}
+            </VChip>
+          </template>
 
-        <!-- Updated At -->
-        <template #[`item.updatedAt`]="{ item }">
-          {{ formatDateWithTime(item.updatedAt) }}
-        </template>
+          <!-- Created At -->
+          <template #[`item.createdAt`]="{ item }">
+            {{ formatDateWithTime(item.createdAt) }}
+          </template>
 
-        <!-- Actions -->
-        <template #[`item.actions`]="{ item }">
-          <VBtn
-            icon
-            variant="text"
-            color="medium-emphasis"
-          >
-            <VIcon icon="tabler-dots-vertical" />
-            <VMenu activator="parent">
-              <VList>
-                <VListItem :to="{ name: 'admin-products-detail-id', params: { id: item._id } }">
-                  <template #prepend>
-                    <VIcon icon="tabler-eye" />
-                  </template>
-                  <VListItemTitle>{{ $t('View') }}</VListItemTitle>
-                </VListItem>
+          <!-- Updated At -->
+          <template #[`item.updatedAt`]="{ item }">
+            {{ formatDateWithTime(item.updatedAt) }}
+          </template>
 
-                <VListItem
-                  v-if="can('admin-update-products', 'Update Products')"
-                  @click="editProduct(item)"
-                >
-                  <template #prepend>
-                    <VIcon icon="tabler-pencil" />
-                  </template>
-                  <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
-                </VListItem>
+          <!-- Actions -->
+          <template #[`item.actions`]="{ item }">
+            <VBtn
+              icon
+              variant="text"
+              color="medium-emphasis"
+            >
+              <VIcon icon="tabler-dots-vertical" />
+              <VMenu activator="parent">
+                <VList>
+                  <VListItem :to="{ name: 'admin-products-detail-id', params: { id: item._id } }">
+                    <template #prepend>
+                      <VIcon icon="tabler-eye" />
+                    </template>
+                    <VListItemTitle>{{ $t('View') }}</VListItemTitle>
+                  </VListItem>
 
-                <VListItem
-                  v-if="can('admin-delete-products', 'Delete Products')"
-                  @click="deleteProduct(item._id)"
-                >
-                  <template #prepend>
-                    <VIcon icon="tabler-trash" />
-                  </template>
-                  <VListItemTitle>{{ $t('Delete') }}</VListItemTitle>
-                </VListItem>
-              </VList>
-            </VMenu>
-          </VBtn>
-        </template>
+                  <VListItem
+                    v-if="can('admin-update-products', 'Update Products')"
+                    @click="editProduct(item)"
+                  >
+                    <template #prepend>
+                      <VIcon icon="tabler-pencil" />
+                    </template>
+                    <VListItemTitle>{{ $t('Edit') }}</VListItemTitle>
+                  </VListItem>
 
-        <!-- pagination -->
-        <template #bottom>
-          <TablePagination
-            v-model:page="page"
-            :items-per-page="itemsPerPage"
-            :total-items="totalProducts"
-          />
-        </template>
-      </VDataTableServer>
+                  <VListItem
+                    v-if="can('admin-delete-products', 'Delete Products')"
+                    @click="deleteProduct(item._id)"
+                  >
+                    <template #prepend>
+                      <VIcon icon="tabler-trash" />
+                    </template>
+                    <VListItemTitle>{{ $t('Delete') }}</VListItemTitle>
+                  </VListItem>
+                </VList>
+              </VMenu>
+            </VBtn>
+          </template>
+        </VDataTableServer>
+        <!-- Loading spinner or text while loading more -->
     <!-- !SECTION -->
     </VCard>
 

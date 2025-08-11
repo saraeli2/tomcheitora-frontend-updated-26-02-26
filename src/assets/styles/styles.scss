@@ -424,7 +424,7 @@ $grey-3:#aaaaaa;
           .product-photo{
             overflow: hidden;
             position: relative;
-            padding: 15px;
+            padding: 0px;
             .v-responsive{
               position: relative;
               &.active-photo{
@@ -434,7 +434,7 @@ $grey-3:#aaaaaa;
                 display: none;
               }
               .v-responsive__sizer{
-                padding-bottom: 73% !important;
+                padding-bottom: 100px !important;
               }
               img{
                 object-fit: cover !important;
@@ -520,7 +520,28 @@ $grey-3:#aaaaaa;
   }
 
 }
-
+.product-photo .v-responsive.v-img img {
+    max-height: 100px !important;
+    width: auto !important;
+    display: inline-block !important;
+}
+.product-photo .v-responsive.v-img{
+  text-align: center;
+}
+.product-page .product-wrapper .product-area .custom-single-product a .product-photo .v-responsive {
+    text-align: center;
+    width: 100px;
+    margin: 0 auto;
+}
+.layout-blank .tabler-language{
+  color: #fff;
+}
+.product-details-wrapper .product-info-detail-wrapper .product-details-content .product-btn-group-dt .product-cart-btn {
+    padding-right: 0;
+    gap: 10px;
+    display: flex
+;
+}
 .filter-overlay{
   .v-card-title{
     padding: 30px 24px 20px 24px;
@@ -885,4 +906,28 @@ $grey-3:#aaaaaa;
 html[lang="he"] .justify-space-between .tabler-settings{
   margin-left: 0!important;
   margin-right: auto
+}
+
+.custom_field .v-row + .v-row{
+  margin-top: 0!important;
+}
+.d-flex.justify-between.align-center.List_block{
+  display: none!important;
+}
+.d-flex.justify-between.align-center.List_block:has(input[checked]) {
+    display: flex !important;
+}
+.selected_cat .mb-2.px-2.py-1.bg-grey-lighten-4.rounded {
+    padding: 0 !important;
+}
+.no-pagination .v-data-table-footer{
+  display: none!important;
+}
+.cat_list{
+  li{
+    display: inline-block;
+  }
+  li + li:before{
+    content: ", ";
+  }
 }

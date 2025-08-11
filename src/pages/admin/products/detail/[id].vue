@@ -314,6 +314,11 @@ watch(productData, newVal => {
       </div>
       <div class="d-flex gap-4">
         <VBtn
+          @click="isProductDialogVisible = !isProductDialogVisible"
+        >
+          {{ $t('Edit Product') }}
+        </VBtn>
+        <VBtn
           v-if="can('admin-delete-products', 'Delete Products')"
           variant="tonal"
           color="error"
@@ -668,6 +673,17 @@ watch(productData, newVal => {
                         </h6>
                       </VListItem>
 
+                      <VListItem v-if="productData.customFields && productData.customFields.length > 0">
+                        <h4 class="mb-3">
+                          {{ $t('Custom Fields') }}
+                        </h4>
+                        <ul>
+                          <li v-for="(field, index) in productData.customFields" :key="index">
+                            <strong>{{ field.title }}:</strong> {{ field.value }}
+                          </li>
+                        </ul>
+                      </VListItem>
+
                       <VListItem>
                         <h6 class="text-h6">
                           {{ $t('Internal Remarks') }}:
@@ -729,18 +745,6 @@ watch(productData, newVal => {
                     </div>
                   </VCol>
                 </VRow>
-              </VCardText>
-
-              <VCardText
-                v-if="can('admin-update-products', 'Update Products')"
-                class="text-center"
-              >
-                <VBtn
-                  block
-                  @click="isProductDialogVisible = !isProductDialogVisible"
-                >
-                  {{ $t('Edit Product') }}
-                </VBtn>
               </VCardText>
             </VCard>
           </VWindowItem>

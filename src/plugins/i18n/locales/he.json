@@ -433,5 +433,20 @@
   "Enter your otp": "הזן את ה-OTP שלך",
   "Reset your password": "איפוס הסיסמה שלך",
   "Manage Columns": "ניהול עמודות",
-  "Close": "לִסְגוֹר"
+  "Close": "לִסְגוֹר",
+  "Sleeve length": "אורך שרוול",
+  "Fit": "גזרה",
+  "Custom Fields": "שדות מותאמים אישית",
+  "Internal serial number": "מספר סידורי פנימי",
+  "Amount of boxes": "כמות הקופסאות",
+  "Amount of packages in box": "כמות החבילות בקופסה",
+  "Unit price (before VAT)": "מחיר ליחידה (לפני מע\"מ)",
+  "Unit price (including VAT)": "מחיר ליחידה (כולל מע\"מ)",
+  "Size": "גוֹדֶל",
+  "Color": "צֶבַע",
+  "Add Field": "הוסף שדה",
+  "Title": "כּוֹתֶרֶת",
+  "Value": "עֵרֶך",
+  "Add To CART": "הוסף לעגלה",
+  "Previous page": "עמוד קודם"
 }

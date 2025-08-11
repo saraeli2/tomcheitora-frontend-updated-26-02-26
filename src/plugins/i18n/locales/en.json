@@ -436,5 +436,20 @@
   "Enter your otp": "Enter your otp",
   "Reset your password": "Reset your password",
   "Manage Columns": "Manage Columns",
-  "Close": "Close"
+  "Close": "Close",
+  "Sleeve length": "Sleeve length",
+  "Fit": "Fit",
+  "Custom Fields": "Custom Fields",
+  "Internal serial number": "Internal serial number",
+  "Amount of boxes": "Amount of boxes",
+  "Amount of packages in box": "Amount of packages in box",
+  "Unit price (before VAT)": "Unit price (before VAT)",
+  "Unit price (including VAT)": "Unit price (including VAT)",
+  "Size": "Size",
+  "Color": "Color",
+  "Add Field": "Add Field",
+  "Title": "Title",
+  "Value": "Value",
+  "Add To CART": "Add To CART",
+  "Previous page": "Previous page"
 }

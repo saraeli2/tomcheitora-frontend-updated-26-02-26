@@ -5,6 +5,7 @@ import AddNewPackagetypeDialog from '@/views/admin/settings/AddNewPackagetypeDia
 import AddNewQuantitytypeDialog from '@/views/admin/settings/AddNewQuantitytypeDialog.vue'
 import CategoryTreeNode from '@/views/admin/settings/CategoryTreeNode.vue'
 import AddNewSupplierDialog from '@/views/admin/suppliers/AddNewSupplierDialog.vue'
+import CategoryBuilderProductDetailNodeList from '@/views/admin/settings/CategoryBuilderProductDetailNodeList.vue'
 import { can } from '@layouts/plugins/casl'
 import { useToast } from 'vue-toastification'
 import { useAuthStore } from '@/stores'
@@ -85,6 +86,10 @@ const props = defineProps({
       categoryIDs: [],
       tags: [],
       groups: [],
+      sleeveLength: '',
+      pocket: '',
+      fit: '',
+      customFields: []
     }),
   },
 })
@@ -296,6 +301,10 @@ const submit = async () => {
           unit_price_including_vat: productData.value.unit_price_including_vat,
           box_price: productData.value.box_price,
           model: productData.value.model,
+          customFields: productData.value.customFields,
+          sleeveLength: productData.value.sleeveLength,
+          pocket: productData.value.pocket,
+          fit: productData.value.fit
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -335,6 +344,10 @@ const submit = async () => {
           unit_price_including_vat: productData.value.unit_price_including_vat,
           box_price: productData.value.box_price,
           model: productData.value.model,
+          customFields: productData.value.customFields,
+          sleeveLength: productData.value.sleeveLength,
+          pocket: productData.value.pocket,
+          fit: productData.value.fit
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -642,6 +655,14 @@ const handleImageChange = file => {
     }
   }
 }
+
+const addCustomField = () => {
+  productData.value.customFields.push({ title: "", value: "" })
+}
+
+const removeCustomField = index => {
+  productData.value.customFields.splice(index, 1)
+}
 </script>
 
 <template>
@@ -700,6 +721,16 @@ const handleImageChange = file => {
                       @toggle-select="onToggleSelect"
                     />
                   </ul>
+                </div>
+
+                <div class="selected_cat" v-if="checkedCategories && checkedCategories.length > 0">
+                  <CategoryBuilderProductDetailNodeList
+                    v-for="node in tree"
+                    :key="node.realId || node._id"
+                    :node="node"
+                    :selected="checkedCategories"
+                    :indeterminate="isIndeterminate(node)"
+                  />
                 </div>
               </div>
             </VCol>
@@ -1044,14 +1075,77 @@ const handleImageChange = file => {
                 :error-messages="errors.remarks"
               />
             </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.sleeveLength"
+                :label="$t('Sleeve length')"
+                :placeholder="$t('Sleeve length')"
+                :error-messages="errors.sleeveLength"
+              />
+            </VCol>
+
+            
+            <VCol cols="12">
+              <AppSelect
+                v-model="productData.pocket"
+                :items="[
+                  { value: 'Yes', title: 'Yes' },
+                  { value: 'No', title: 'No' },
+                ]"
+                :placeholder="$t('Select Pocket')"
+                :label="$t('Pocket')"
+                :error-messages="errors.pocket"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.fit"
+                :label="$t('Fit')"
+                :placeholder="$t('Fit')"
+                :error-messages="errors.fit"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <div class="custom_field">
+                <h4 class="mb-3">{{ $t('Custom Fields') }}</h4>
+                <VRow v-for="(field, index) in productData.customFields" :key="index" class="d-flex">
+                  <VCol md="5">
+                    <AppTextField 
+                      v-model="field.title" 
+                      :placeholder="$t('Title')" 
+                      class="form-control me-1" 
+                      :rules="[requiredValidator]"
+                    />
+                  </VCol>
+                  <VCol md="5">
+                    <AppTextField 
+                      v-model="field.value" 
+                      :placeholder="$t('Value')" 
+                      class="form-control me-1"
+                      :rules="[requiredValidator]"
+                    />
+                  </VCol>
+                  <VCol md="2">
+                    <VIcon type="button" class="btn btn-danger" @click="removeCustomField(index)" icon="tabler-trash">
+
+                    </VIcon>
+                  </VCol>
+                </VRow>
+
+                <VBtn type="button" class="mt-3" @click="addCustomField">
+                  + {{ $t('Add Field') }}
+                </VBtn>
+              </div>
+            </VCol>
           </VRow>
-        
-      </VCardText>
+        </VCardText>
 
-      <VDivider />
-
-      <VCardText style="padding-right: 0; padding-bottom:0;" class="d-flex justify-end flex-wrap gap-3 overflow-visible">
-        <VBtn
+        <VDivider />
+        <VCardText style="padding-right: 0; padding-bottom:0;" class="d-flex justify-end flex-wrap gap-3 overflow-visible">
+          <VBtn
             type="submit"
             class="me-3"
           >

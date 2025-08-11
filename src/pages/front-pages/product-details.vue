@@ -3,6 +3,9 @@ import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
 import { useConfigStore } from '@core/stores/config'
 import laptopGirl from '@images/illustrations/laptop-girl.png'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const columnRadio = ref('radio-1')
 const columnRadio2 = ref('radio-1')
@@ -215,7 +218,7 @@ const faqs = [
               </div>
               <div class="product-quantity">
                 <div class="dt-block-tittle">
-                  <h3>Quantity:</h3>
+                  <h3>{{ $t('Quantity') }}:</h3>
                 </div>
                 <div class="quantity-block">
                   <AppTextField
@@ -229,94 +232,14 @@ const faqs = [
                 <div class="product-cart-btn">
                   
                   <VBtn to="/front-pages/checkout" prepend-icon="tabler-shopping-cart" class="cart-btn-dt">
-                      Add To cART
+                      {{ $t('Add To CART') }}
+                  </VBtn>
+                  <VBtn to="/front-pages/shop" class="cart-btn-dt">
+                      {{ $t('Previous page') }}
                   </VBtn>
                 </div>
                 
               </div>
-            </div>
-          </VCol>
-        </VRow>
-        <VRow class="product-info-tab-section">
-          <VCol cols="12">
-            <div class="product-info-tab-container">
-                <VCard>
-                  <VTabs v-model="currentTab">
-                    <VTab>Description</VTab>
-                    <VTab>Additional Info</VTab>
-                    <VTab>Tab Three</VTab>
-                  </VTabs>
-
-                  <VCardText>
-                    <VWindow v-model="currentTab">
-                      <VWindowItem
-                        v-for="item in 3"
-                        :key="item"
-                        :value="`item-${item}`"
-                      >
-                        {{ tabItemContent }}
-                      </VWindowItem>
-                    </VWindow>
-                  </VCardText>
-                </VCard>
-            </div>
-          </VCol>
-        </VRow>
-
-        <VRow class="related-product-section">
-          <VCol cols="12" class="related-tittle-section">
-            <h5 class="text-h5">Related Product</h5>
-          </VCol>
-
-          <VCol cols="12" md="4" sm="6" lg="4">
-            <div class="custom-single-product">
-              <a href="#">
-                <div class="product-photo">
-                  <VImg class="active-photo" src="/images/rice-1.png"/>
-                  <VImg class="hover-photo" src="/images/rice-2.png"/>
-                </div>
-                <div class="product-info-block">
-                  <h5 class="text-h5">Aarong Natural Nazirshail Rice</h5>
-                  <h4>
-                    <span class="product-price text-body-1">Tk 1800.00</span>
-                    <span class="regular-price text-body-1">Tk 2100.00</span>
-                  </h4>
-                </div>
-              </a>
-            </div>
-          </VCol>
-          <VCol cols="12" md="4" sm="6" lg="4">
-            <div class="custom-single-product">
-              <a href="#">
-                <div class="product-photo">
-                  <VImg class="active-photo" src="/images/rupchanda-oil-1.png"/>
-                  <VImg class="hover-photo" src="/images/rupchanda-oil-2.png"/>
-                </div>
-                <div class="product-info-block">
-                  <h5 class="text-h5">Rupchanda Fortified Soyabean Oil</h5>
-                  <h4>
-                    <span class="product-price text-body-1">Tk 1800.00</span>
-                    <span class="regular-price text-body-1">Tk 2100.00</span>
-                  </h4>
-                </div>
-              </a>
-            </div>
-          </VCol>
-          <VCol cols="12" md="4" sm="6" lg="4">
-            <div class="custom-single-product">
-              <a href="#">
-                <div class="product-photo">
-                  <VImg class="active-photo" src="/images/tata-tea-1.png"/>
-                  <VImg class="hover-photo" src="/images/teat-2.png"/>
-                </div>
-                <div class="product-info-block">
-                  <h5 class="text-h5">Tata Tea Premium</h5>
-                  <h4>
-                    <span class="product-price text-body-1">Tk 1800.00</span>
-                    <span class="regular-price text-body-1">Tk 2100.00</span>
-                  </h4>
-                </div>
-              </a>
             </div>
           </VCol>
         </VRow>
