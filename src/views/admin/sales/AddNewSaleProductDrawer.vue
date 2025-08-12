@@ -54,7 +54,7 @@ if(props.saleProduct._id) {
 const handleProductPrices = async val => {
   if(val) {
     const data = await $api(`/admin/products/${ val }`).catch(err => console.log(err))
-    saleProductData.value.price = data.salePrice
+    saleProductData.value.price = data.unit_price
   } else {
     saleProductData.value.price = ''
   }

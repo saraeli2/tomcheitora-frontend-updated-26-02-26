@@ -673,15 +673,40 @@ watch(productData, newVal => {
                         </h6>
                       </VListItem>
 
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Sleeve length') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.sleeveLength" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Pocket') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.pocket" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Fit') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.fit" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
                       <VListItem v-if="productData.customFields && productData.customFields.length > 0">
-                        <h4 class="mb-3">
+                        <h4 class="">
                           {{ $t('Custom Fields') }}
                         </h4>
-                        <ul>
-                          <li v-for="(field, index) in productData.customFields" :key="index">
-                            <strong>{{ field.title }}:</strong> {{ field.value }}
-                          </li>
-                        </ul>
+                          <h6 style="padding-top: 20px" class="text-h6" v-for="(field, index) in productData.customFields" :key="index">
+                            {{ field.title }}: {{ field.value }}
+                          </h6>
                       </VListItem>
 
                       <VListItem>

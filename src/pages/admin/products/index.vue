@@ -171,7 +171,7 @@ const loadingMore = ref(false)
 // }))
 
 async function loadProducts(newPage = 1) {
-  console.log('dfdf');
+  
   if (loadingMore.value) return
   loadingMore.value = true
 

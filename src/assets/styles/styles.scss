@@ -444,7 +444,7 @@ $grey-3:#aaaaaa;
             }
           }
           .product-info-block{
-            padding: 15px 0px 15px 0px;
+            padding: 15px 0px 0px 0px;
             text-align: center;
             h5{
               color: rgba(var(--v-theme-on-background), var(--v-high-emphasis-opacity));
@@ -522,7 +522,7 @@ $grey-3:#aaaaaa;
 }
 .product-photo .v-responsive.v-img img {
     max-height: 100px !important;
-    width: auto !important;
+    width: 100px;
     display: inline-block !important;
 }
 .product-photo .v-responsive.v-img{

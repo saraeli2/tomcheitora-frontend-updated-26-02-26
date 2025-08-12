@@ -198,20 +198,6 @@ const logout = async () => {
 
           <!-- landing page sections -->
           <div class="text-base align-center d-none d-md-flex">
-            <RouterLink
-            to="#"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('Home') }}
-          </RouterLink>
-
-          <RouterLink
-            to="#"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('About Us') }}
-          </RouterLink>
-
           <RouterLink
             to="/front-pages/shop"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"

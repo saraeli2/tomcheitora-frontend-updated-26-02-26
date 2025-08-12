@@ -128,7 +128,6 @@ const submit = async () => {
       body: {
         saleID: saleID.value,
         status: formData.value.status,
-        status: formData.value.status,
         vat: formData.value.vat,
         vatType: formData.value.vatType,
         discount: formData.value.discount,
