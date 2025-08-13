@@ -71,15 +71,12 @@ orderItems.value = order.value.orderItems
 
 
 
-
 const productAddToCart = (productID, quantity) => {
-  const index = orderItems.value.findIndex(item => item.productID === productID);
+  const index = orderItems.value.findIndex(item => item.productID === productID)
 
   if (index !== -1) {
-    // Product exists, update quantity (e.g., add new quantity)
-    orderItems.value[index].quantity += parseInt(quantity);
+    orderItems.value[index].quantity += parseInt(quantity)
   } else {
-    // New product, push to array
     orderItems.value.push({
       productID,
       quantity,
@@ -106,38 +103,29 @@ const createOrder = async () => {
         userID: authStore.userData._id,
       },
       onResponseError({ response }) {
-        //errors.value = response._data.errors
-        fetchOrder()
         const firstError = Object.values(response._data.errors)[0].msg
-        
+
         toast.error(firstError)
-        
+        setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
       },
     })
 
-    await nextTick(() => {
-      orderItems.value = []
-
-      // refForm.value?.reset()
-      // refForm.value?.resetValidation()
+    await nextTick(async () => {
       toast.success(res.message)
-
-      fetchOrder()
-
-      // router.push({ name: 'admin-orders-detail-id', params: { id: res.data._id } })
+      await fetchOrderAndSyncOrderItems()
     })
   } catch (err) {
     console.log(err)
   }
 }
 
-// Update Order
 const updateOrder = async () => {
   try {
     const res = await $api(`/orders/${ order.value?._id }`, {
       method: 'PATCH',
       body: {
         saleID: saleId.value,
+        orderID: order.value?._id,
         status: order.value.status,
         userID: authStore.userData._id,
         products: orderItems.value,
@@ -146,16 +134,23 @@ const updateOrder = async () => {
         const firstError = Object.values(response._data.errors)[0].msg
         
         toast.error(firstError)
+        setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
       },
     })
 
-    await nextTick(() => {
+    await nextTick(async () => {
       toast.success(res.message)
-      fetchOrder()
+      await fetchOrderAndSyncOrderItems()
     })
   } catch (err) {
     console.log(err)
   }
+}
+
+// Helper to fetch fresh order and sync orderItems local state
+const fetchOrderAndSyncOrderItems = async () => {
+  await fetchOrder()
+  orderItems.value = order.value?.orderItems || []
 }
 </script>
 

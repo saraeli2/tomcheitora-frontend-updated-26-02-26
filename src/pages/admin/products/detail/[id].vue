@@ -675,6 +675,24 @@ watch(productData, newVal => {
 
                       <VListItem>
                         <h6 class="text-h6">
+                          {{ $t('Size') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.size" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Color') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.color" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
                           {{ $t('Sleeve length') }}:
                           <span class="text-body-1 d-inline-block">
                             <div v-html="productData?.sleeveLength" />

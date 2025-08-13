@@ -86,6 +86,8 @@ const props = defineProps({
       categoryIDs: [],
       tags: [],
       groups: [],
+      size: '',
+      color: '',
       sleeveLength: '',
       pocket: '',
       fit: '',
@@ -301,6 +303,8 @@ const submit = async () => {
           unit_price_including_vat: productData.value.unit_price_including_vat,
           box_price: productData.value.box_price,
           model: productData.value.model,
+          size: productData.value.size,
+          color: productData.value.color,
           customFields: productData.value.customFields,
           sleeveLength: productData.value.sleeveLength,
           pocket: productData.value.pocket,
@@ -344,6 +348,8 @@ const submit = async () => {
           unit_price_including_vat: productData.value.unit_price_including_vat,
           box_price: productData.value.box_price,
           model: productData.value.model,
+          size: productData.value.size,
+          color: productData.value.color,
           customFields: productData.value.customFields,
           sleeveLength: productData.value.sleeveLength,
           pocket: productData.value.pocket,
@@ -416,6 +422,12 @@ const updateProduct = async () => {
       unit_price_including_vat: productData.value.unit_price_including_vat,
       box_price: productData.value.box_price,
       model: productData.value.model,
+      size: productData.value.size,
+      color: productData.value.color,
+      customFields: productData.value.customFields,
+      sleeveLength: productData.value.sleeveLength,
+      pocket: productData.value.pocket,
+      fit: productData.value.fit,
       imageUrl: imageUrl.value,
     },
     onResponseError({ response }) {
@@ -1073,6 +1085,23 @@ const removeCustomField = index => {
                 :label="$t('Remarks')"
                 :placeholder="$t('Remarks')"
                 :error-messages="errors.remarks"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.size"
+                :label="$t('Size')"
+                :placeholder="$t('Size')"
+                :error-messages="errors.size"
+              />
+            </VCol>
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.color"
+                :label="$t('Color')"
+                :placeholder="$t('Color')"
+                :error-messages="errors.color"
               />
             </VCol>
 
