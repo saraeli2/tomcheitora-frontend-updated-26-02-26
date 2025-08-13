@@ -47,7 +47,7 @@ const menuItems = [
       },
       {
         name: 'Checkout',
-        to: { name: 'front-pages-checkout' },
+        to: { name: 'profile-checkout' },
       },
       
     ],
@@ -116,28 +116,7 @@ const logout = async () => {
         <div class="d-flex flex-column gap-y-4 pa-4">
 
           <RouterLink
-            to="#"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('Home') }}
-          </RouterLink>
-
-          <RouterLink
-            to="#"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('About Us') }}
-          </RouterLink>
-
-          <RouterLink
-            to="/front-pages/shop"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('Shop') }}
-          </RouterLink>
-
-          <RouterLink
-            to="/front-pages/checkout"
+            to="/profile/checkout"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
             {{ $t('Checkout') }}
@@ -198,20 +177,20 @@ const logout = async () => {
 
           <!-- landing page sections -->
           <div class="text-base align-center d-none d-md-flex">
-          <RouterLink
-            to="/front-pages/shop"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('Shop') }}
-          </RouterLink>
 
           <RouterLink
-            to="/front-pages/checkout"
+            to="/profile/checkout"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
             {{ $t('Checkout') }}
           </RouterLink>
 
+          <RouterLink
+            to="/profile/orders"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('Orders') }}
+          </RouterLink>
           
           </div>
         </div>
@@ -225,7 +204,7 @@ const logout = async () => {
             prepend-icon="tabler-shopping-cart"
             variant="elevated"
             color="primary"
-            href="/front-pages/checkout"
+            href="/profile/checkout"
             rel="noopener noreferrer"
           >
             {{ $t('Cart') }}
@@ -235,7 +214,7 @@ const logout = async () => {
             prepend-icon="tabler-user-circle"
             variant="elevated"
             color="primary"
-            href="/front-pages/my-account/account"
+            href="/profile/my-account/account"
             rel="noopener noreferrer"
           >
             {{ $t('My Account') }}

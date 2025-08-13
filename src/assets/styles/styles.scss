@@ -931,3 +931,10 @@ html[lang="he"] .justify-space-between .tabler-settings{
     content: ", ";
   }
 }
+
+
+.v-progress-circular{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
