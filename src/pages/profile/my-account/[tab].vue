@@ -16,12 +16,12 @@ const route = useRoute('profile-my-account-tab')
 
 const {
   data: adminDetail, execute: fetchUsers, error,
-} = await useApi(createUrl(`/admin/users/${ authStore.userData._id }`))
+} = await useApi(createUrl(`/users/${ authStore.fuserData._id }`))
 
 const adminData = computed(() => adminDetail.value)
 const adminFromData = computed(() => adminDetail.value)
 
-const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
+const commonsyncCities = await $api('/commonsync/extra-options').catch(err => console.log(err))
 const cityOptions = computed(() => commonsyncCities.cityOptions)
 
 const stationOptions = computed(() => commonsyncCities.stationOptions)

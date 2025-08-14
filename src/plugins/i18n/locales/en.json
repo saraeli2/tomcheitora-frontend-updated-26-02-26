@@ -465,5 +465,6 @@
   "Orders placed": "Orders placed",
   "Date": "Date",
   "You have no order": "You have no order",
-  "View Order": "View Order"
+  "View Order": "View Order",
+  "You have no open order.": "You have no open order."
 }

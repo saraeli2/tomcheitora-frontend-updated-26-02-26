@@ -41,19 +41,34 @@ const errors = ref({
   products: [],
 })
 
-store.skin = 'default'
-
 const router = useRouter()
+
 const route = useRoute('sales-id-products-pid')
-
-const {
-  data: productData, execute: fetctProduct, error,
-} = await useApi(createUrl(`/sales/${ route.params.id }/products/${ route.params.pid }`))
-
 const productId = ref(route.params.pid || '')
 const saleId = ref(route.params.id || '')
 
-const productDetails = computed(() => productData.value)
+store.skin = 'default'
+
+
+
+const {
+  data: productData, execute: fetctProduct, error,
+} = await useApi(createUrl(`/sales/${ route.params.id }/products/${ route.params.pid }?userID=${authStore.fuserData._id}&saleID=${saleId.value}`))
+
+
+
+const productDetails = computed(() => productData.value.productObj)
+const saleProduct = computed(() => productData.value.saleProductObj)
+if(productData.value){
+  const preQuantity = computed(() => productData.value.quantity)
+
+  if(preQuantity.value){
+    quantity.value = preQuantity.value
+  }
+}
+
+
+
 
 const goBack = () => {
   window.history.back()
@@ -63,11 +78,14 @@ onMounted(() => fetchOrder())
 
 const {
   data: orderData, execute: fetchOrder,
-} = await useApi(createUrl(`/sales/${ route.params.id }/orders?userId=${authStore.userData._id}`))
+} = await useApi(createUrl(`/sales/${ route.params.id }/orders?userId=${authStore.fuserData._id}`))
 
 const order = computed(() => orderData.value)
 
-orderItems.value = order.value.orderItems
+if(order.value){
+  orderItems.value = order.value.orderItems
+}
+
 
 
 
@@ -75,7 +93,7 @@ const productAddToCart = (productID, quantity) => {
   const index = orderItems.value.findIndex(item => item.productID === productID)
 
   if (index !== -1) {
-    orderItems.value[index].quantity += parseInt(quantity)
+    orderItems.value[index].quantity = parseInt(quantity)
   } else {
     orderItems.value.push({
       productID,
@@ -100,7 +118,7 @@ const createOrder = async () => {
         saleID: saleId.value,
         products: orderItems.value,
         status: 'Pending',
-        userID: authStore.userData._id,
+        userID: authStore.fuserData._id,
       },
       onResponseError({ response }) {
         const firstError = Object.values(response._data.errors)[0].msg
@@ -127,7 +145,7 @@ const updateOrder = async () => {
         saleID: saleId.value,
         orderID: order.value?._id,
         status: order.value.status,
-        userID: authStore.userData._id,
+        userID: authStore.fuserData._id,
         products: orderItems.value,
       },
       onResponseError({ response }) {
@@ -160,7 +178,7 @@ const fetchOrderAndSyncOrderItems = async () => {
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
         <VCardText class="text-center subpage-tittle">
-          <h2>{{ productDetails.productID?.name }}</h2>
+          <h2>{{ productDetails?.name }}</h2>
         </VCardText>
       </VContainer>
     </div>
@@ -170,8 +188,8 @@ const fetchOrderAndSyncOrderItems = async () => {
         <VRow class="product-info-detail-wrapper">
           <VCol cols="12" md="6" sm="6" lg="7">
             <div class="product-details-slider">
-              <div class="product-large-photo" v-if="productDetails.productID?.image">
-                <VImg :src="productDetails.productID?.image"/>
+              <div class="product-large-photo" v-if="productDetails.image">
+                <VImg :src="productDetails.image"/>
               </div>
               <div class="product-large-photo" v-else>
                 <VImg src="/images/no-img.jpg"/>
@@ -181,16 +199,225 @@ const fetchOrderAndSyncOrderItems = async () => {
           <VCol cols="12" md="6" sm="6" lg="5">
             <div class="product-details-content">
               <div class="product-dt-tittle">
-                <h5 class="text-h5">{{ productDetails.productID?.name }}</h5>
+                <h5 class="text-h5">{{ productDetails.name }}</h5>
               </div>
               <div class="product-price-label">
                 <h4>
-                  <span class="product-price text-h5">{{ productDetails.price }} <span style="text-transform: uppercase; padding:0;">{{ productDetails.productID?.currency }}</span></span>
+                  <span class="product-price text-h5">{{ saleProduct.price }} <span style="text-transform: uppercase; padding:0;">{{ productDetails.currency }}</span></span>
                 </h4>
               </div>
-              <div class="product-description" v-if="productDetails.productID?.description">
-                <p class="text-body-1">{{ productDetails.productID?.description }}</p>
+              <div class="product-description" v-if="productDetails.description">
+                <p class="text-body-1">{{ productDetails.description }}</p>
               </div>
+
+              <VListItem v-if="productDetails.model">
+                <h6 class="text-h6">
+                  {{ $t('Model') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.model }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.amount_in_package">
+                <h6 class="text-h6">
+                  {{ $t('Amount in package') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.amount_in_package }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.packages_in_box">
+                <h6 class="text-h6">
+                  {{ $t('Packages in box') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.packages_in_box }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.internalSKU">
+                <h6 class="text-h6">
+                  {{ $t('Internal SKU') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.internalSKU }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.externalSKU">
+                <h6 class="text-h6">
+                  {{ $t('External SKU') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.externalSKU }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.boxSKU">
+                <h6 class="text-h6">
+                  {{ $t('Box SKU') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.boxSKU }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.manufacturerID">
+                <h6 class="text-h6">
+                  {{ $t('Manufacturer') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <span>{{ productDetails.manufacturerID ? productDetails.manufacturerID.name : '' }}</span>
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.supplierID">
+                <h6 class="text-h6">
+                  {{ $t('Supplier') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <span>{{ productDetails.supplierID ? productDetails.supplierID.name : '' }}</span>
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.certificationID">
+                <h6 class="text-h6">
+                  {{ $t('Certification') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.certificationID ? productDetails.certificationID.name : '' }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.packagetypeID">
+                <h6 class="text-h6">
+                  {{ $t('Package Type') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.packagetypeID ? productDetails.packagetypeID.name : '' }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.quantitytypeID">
+                <h6 class="text-h6">
+                  {{ $t('Quantity Type') }}:
+                  <span class="text-body-1 d-inline-block">
+                    {{ productDetails.quantitytypeID ? productDetails.quantitytypeID.name : '' }}
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.tags && productDetails.tags.length > 0">
+                <h6 class="text-h6">
+                  {{ $t('Tags') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <VChip
+                      v-for="(tag, index) in productDetails.tags"
+                      :key="index"
+                      label
+                      color="primary"
+                      size="small"
+                      class="roles"
+                    >
+                      {{ tag.name }}
+                    </VChip>
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.groups && productDetails.groups.length > 0">
+                <h6 class="text-h6">
+                  {{ $t('Groups') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <VChip
+                      v-for="(group, index) in productDetails.groups"
+                      :key="index"
+                      label
+                      color="success"
+                      size="small"
+                      class="roles"
+                    >
+                      {{ group.name }}
+                    </VChip>
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.size">
+                <h6 class="text-h6">
+                  {{ $t('Size') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.size" />
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.color">
+                <h6 class="text-h6">
+                  {{ $t('Color') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.color" />
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.sleeveLength">
+                <h6 class="text-h6">
+                  {{ $t('Sleeve length') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.sleeveLength" />
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.pocket">
+                <h6 class="text-h6">
+                  {{ $t('Pocket') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.pocket" />
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.fit">
+                <h6 class="text-h6">
+                  {{ $t('Fit') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.fit" />
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.customFields && productDetails.customFields.length > 0">
+                <h4 class="">
+                  {{ $t('Custom Fields') }}
+                </h4>
+                  <h6 style="padding-top: 20px" class="text-h6" v-for="(field, index) in productDetails.customFields" :key="index">
+                    {{ field.title }}: {{ field.value }}
+                  </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.internalRemarks">
+                <h6 class="text-h6">
+                  {{ $t('Internal Remarks') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.internalRemarks" />
+                  </span>
+                </h6>
+              </VListItem>
+
+              <VListItem v-if="productDetails.remarks">
+                <h6 class="text-h6">
+                  {{ $t('Remarks') }}:
+                  <span class="text-body-1 d-inline-block">
+                    <div v-html="productDetails.remarks" />
+                  </span>
+                </h6>
+              </VListItem>
+
+
               
               <div class="product-quantity">
                 <div class="dt-block-tittle">
@@ -209,7 +436,7 @@ const fetchOrderAndSyncOrderItems = async () => {
                   <VBtn 
                     prepend-icon="tabler-shopping-cart" 
                     class="cart-btn-dt"
-                    @click="productAddToCart(productDetails.productID?._id, quantity)"
+                    @click="productAddToCart(productDetails._id, quantity)"
                   >
                     {{ $t('Add To CART') }}
                   </VBtn>

@@ -67,14 +67,17 @@ const currentStep = ref(0)
 
 const {
   data: orderData, execute: fetchOrder,
-} = await useApi(createUrl(`/pending-order?userId=${authStore.userData._id}`))
+} = await useApi(createUrl(`/pending-order?userId=${authStore.fuserData._id}`))
 
 //const order = computed(() => orderData.value)
 
 const order = computed(() => orderData.value)
 
 formData.value = orderData.value
-orderItems.value = orderData.value.orderItems
+if(orderData.value){
+  orderItems.value = orderData.value.orderItems
+}
+
 
 const errors = ref({
   status: undefined,
@@ -91,13 +94,16 @@ const errors = ref({
 
 const validSale = ref(false)
 const now = new Date()
-const end = new Date(order.value.lockTime)
+if(order.value){
+  const end = new Date(order.value.lockTime)
 
-const isValidTime = now <= end
+  const isValidTime = now <= end
 
-if (isValidTime) {
-  validSale.value = true
+  if (isValidTime) {
+    validSale.value = true
+  }
 }
+
 const showLoader = ref(false)
 
 const onQtyChange = async () => {
@@ -114,7 +120,7 @@ const onQtyChange = async () => {
         saleID: order.value?.saleID._id,
         orderID: order.value?._id,
         status: order.value.status,
-        userID: authStore.userData._id,
+        userID: authStore.fuserData._id,
         products: cleanedOrderItems,
       },
       onResponseError({ response }) {
@@ -145,6 +151,21 @@ const removeItem = index => {
   orderItems.value.splice(index, 1)
   onQtyChange()
 }
+
+
+// Address tab
+const nextStep = () => {
+  currentStep.value = currentStep.value + 1
+}
+
+//Payment
+const cardFormData = ref({
+  cardNumber: null,
+  cardName: '',
+  cardExpiry: '',
+  cardCvv: null,
+  isCardSave: true,
+})
 </script>
 
 <template>
@@ -209,10 +230,12 @@ const removeItem = index => {
                           :class="index ? 'border-t' : ''"
                         >
                           <IconBtn
+                            :disabled="!validSale"
                             class="checkout-item-remove-btn"
                             @click="removeItem(index)"
                           >
                             <VIcon
+
                               size="18"
                               icon="tabler-x"
                               class="text-disabled"
@@ -312,9 +335,9 @@ const removeItem = index => {
 
                           
 
-                          <div class="d-flex justify-space-between mb-2">
-                            <span>{{ $t('Order Total') }}</span>
-                            <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
+                          <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
+                            <span>{{ $t('Discount') }}</span>
+                            <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
                           </div>
                         </div>
                       </VCardText>
@@ -338,32 +361,286 @@ const removeItem = index => {
                         class="mt-4"
                         @click="nextStep"
                       >
-                        {{ $t('Make Payment') }}
+                        {{ $t('Add Address') }}
                       </VBtn>
                     </div>
                   </VCol>
                 </VRow>
               </VWindowItem>
               <VWindowItem>
-                <AddressContent
-                  v-model:current-step="currentStep"
-                  v-model:checkout-data="checkoutData"
-                />
+                <VRow>
+                  <VCol cols="12">
+                    <h6 class="text-h6 font-weight-medium">
+                      Enter Your Address.
+                    </h6>
+                  </VCol>
+
+                  <VCol
+                    cols="12"
+                    md="6"
+                  >
+                    <AppTextField
+                      v-model="formData.address"
+                      placeholder="98 Borough bridge Road, Birmingham"
+                      label="Address"
+                    />
+                  </VCol>
+
+                  <VCol
+                    cols="12"
+                    md="6"
+                  >
+                    <AppTextField
+                      v-model="formData.landmark"
+                      placeholder="Borough bridge"
+                      label="Landmark"
+                    />
+                  </VCol>
+
+                  <VCol
+                    cols="12"
+                    md="6"
+                  >
+                    <AppTextField
+                      v-model="formData.pincode"
+                      placeholder="658921"
+                      label="Pincode"
+                      type="number"
+                    />
+                  </VCol>
+
+                  <VCol
+                    cols="12"
+                    md="6"
+                  >
+                    <AppTextField
+                      v-model="formData.city"
+                      placeholder="New York"
+                      label="City"
+                    />
+                  </VCol>
+                </VRow>
+
+                <div>
+                  <VBtn
+                    v-if="order.status == 'Pending'"
+                    class="mt-4"
+                    @click="nextStep"
+                  >
+                    {{ $t('Make Payment') }}
+                  </VBtn>
+                </div>
               </VWindowItem>
               <VWindowItem>
-                <PaymentContent
-                  v-model:current-step="currentStep"
-                  v-model:checkout-data="checkoutData"
-                />
+                <VForm class="mt-3">
+                  <VRow class="ma-0 pa-n2">
+                    <VCol cols="12">
+                      <AppTextField
+                        v-model="cardFormData.cardNumber"
+                        type="number"
+                        label="Card Number"
+                        placeholder="1356 3215 6548 7898"
+                      />
+                    </VCol>
+
+                    <VCol
+                      cols="12"
+                      md="4"
+                    >
+                      <AppTextField
+                        v-model="cardFormData.cardName"
+                        label="Name"
+                        placeholder="John Doe"
+                      />
+                    </VCol>
+
+                    <VCol
+                      cols="6"
+                      md="4"
+                    >
+                      <AppTextField
+                        v-model="cardFormData.cardExpiry"
+                        label="Expiry"
+                        placeholder="MM/YY"
+                      />
+                    </VCol>
+
+                    <VCol
+                      cols="6"
+                      md="4"
+                    >
+                      <AppTextField
+                        v-model="cardFormData.cardCvv"
+                        label="CVV"
+                        placeholder="123"
+                        type="number"
+                      >
+                        <template #append-inner>
+                          <VTooltip
+                            text="Card Verification Value"
+                            location="bottom"
+                          >
+                            <template #activator="{ props: tooltipProps }">
+                              <VIcon
+                                v-bind="tooltipProps"
+                                size="20"
+                                icon="tabler-help"
+                              />
+                            </template>
+                          </VTooltip>
+                        </template>
+                      </AppTextField>
+                    </VCol>
+
+                    <VCol
+                      cols="12"
+                      class="pt-1"
+                    >
+                      <VSwitch
+                        v-model="cardFormData.isCardSave"
+                        label="Save Card for future billing?"
+                      />
+
+                      <div class="mt-4">
+                        <VBtn
+                          class="me-4"
+                          @click="nextStep"
+                        >
+                          Save Changes
+                        </VBtn>
+                        <VBtn
+                          variant="tonal"
+                          color="secondary"
+                        >
+                          Reset
+                        </VBtn>
+                      </div>
+                    </VCol>
+                  </VRow>
+                </VForm>
               </VWindowItem>
               <VWindowItem>
-                <ConfirmationContent v-model:checkout-data="checkoutData" />
+                
+                    <VRow v-if="orderItems">
+                      <VCol
+                        cols="12"
+                        lg="8"
+                      >
+                        <div
+                          v-if="orderItems.length"
+                          class="border rounded"
+                        >
+                          <template
+                            v-for="(item, index) in orderItems"
+                            :key="item.productID._id"
+                          >
+                            <div
+                              class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row"
+                              :class="index ? 'border-t' : ''"
+                            >
+                              <div v-if="item.productID?.image">
+                                <VImg
+                                  width="140"
+                                  :src="item.productID?.image"
+                                />
+                              </div>
+                              <div v-else>
+                                <VImg
+                                  width="140"
+                                  src="/images/no-img.jpg"
+                                />
+                              </div>
+
+                              <div class="d-flex w-100 flex-column flex-md-row">
+                                <div class="d-flex flex-column gap-y-2">
+                                  <h6 class="text-h6">
+                                    {{ item.productID?.name }}
+                                  </h6>
+                                  <p>
+                                    Qty: {{ item.quantity }}
+                                  </p>
+                                </div>
+
+                                <VSpacer />
+
+                                <div
+                                  class="d-flex flex-column mt-5 text-start text-md-end"
+                                  :class="$vuetify.display.mdAndDown ? 'gap-2' : 'gap-4'"
+                                >
+                                  <div class="d-flex text-base align-self-md-end">
+                                    <div class="text-primary">
+                                      <span style="text-transform: uppercase;">{{ item.productID?.currency }}</span> {{ item.price }}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </template>
+                        </div>
+
+                        <!-- 👉 Empty Cart -->
+                        <div v-else>
+                          <VImg :src="emptyCartImg" />
+                        </div>
+                      </VCol>
+
+                      <VCol
+                        cols="12"
+                        lg="4"
+                      >
+                        <VCard
+                          flat
+                          variant="outlined"
+                        >
+                          
+
+                          <!-- 👉 Price details -->
+                          <VCardText>
+                            <h6 class="text-h6 mb-4">
+                              {{ $t('Price Details') }}
+                            </h6>
+
+                            <div class="text-high-emphasis">
+                              <div class="d-flex justify-space-between mb-2">
+                                <span>{{ $t('Bag Total') }}</span>
+                                <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
+                              </div>
+
+                              
+
+                              <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
+                                <span>{{ $t('Discount') }}</span>
+                                <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
+                              </div>
+                            </div>
+                          </VCardText>
+
+                          <VDivider />
+
+                          <VCardText class="d-flex justify-space-between pa-6">
+                            <h6 class="text-h6">
+                              {{ $t('Total') }}
+                            </h6>
+                            <h6 class="text-h6">
+                              {{ numberFormat(order.total) }}
+                            </h6>
+                          </VCardText>
+                        </VCard>
+                      </VCol>
+                    </VRow>
+                  
               </VWindowItem>
             </VWindow>
           </VCardText>
         </VCard>
       </div>
     </VContainer>
+    <VContainer v-else>
+      <div class="checkout-card" style="margin:100px 0 150px">
+        <h1>{{ $t('You have no open order.') }}</h1>
+      </div>
+    </VContainer>
+
     <Footer />
   </div>
 

@@ -51,7 +51,7 @@ const validSale = ref(false)
 const userValid = ref(false)
 
 const exists = saleGroups.value.some(group =>
-  group.groupID?.communities?.includes(authStore.userData.communityID)
+  group.groupID?.communities?.includes(authStore.fuserData.communityID)
 )
 
 if (exists) {
@@ -168,9 +168,9 @@ onUnmounted(() => window.removeEventListener('scroll', handleWindowScroll))
                   params: { id: saleData._id, pid: product._id },
                 }"
               >
-                <div class="product-photo" v-if="product.image">
-                  <VImg class="active-photo" :src="product.image"/>
-                  <VImg class="hover-photo" :src="product.image"/>
+                <div class="product-photo" v-if="product.productID?.image">
+                  <VImg class="active-photo" :src="product.productID?.image"/>
+                  <VImg class="hover-photo" :src="product.productID?.image"/>
                 </div>
                 <div class="product-photo" v-else>
                   <VImg class="active-photo" src="/images/no-img.jpg"/>

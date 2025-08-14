@@ -12,7 +12,7 @@ import NavBarI18n from '@core/components/I18n.vue'
 
 const props = defineProps({ activeId: String })
 const authStore = useAuthStore()
-const userData = authStore.userData
+const userData = authStore.fuserData
 
 const display = useDisplay()
 const { y } = useWindowScroll()
@@ -68,34 +68,44 @@ const isPageActive = computed(() => menuItems.some(item => item.navItems.some(li
 
 const logout = async () => {
   if(userData) {
-    try {
-      await $api('/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
+    const res = await $api('/logout', {
+      method: 'POST',
+      credentials: 'include',
+    })
 
-      // Remove "userData" from cookie
-      userData.value = null
-    } catch (err) {
-      console.error('Router push failed:', err)
-    }
+    const { error, message } = res
+
+    // try {
+    //   await $api('/logout', {
+    //     method: 'POST',
+    //     credentials: 'include',
+    //   })
+
+    //   // Remove "userData" from cookie
+    //   userData.value = null
+    // } catch (err) {
+    //   console.error('Router push failed:', err)
+    // }
+
+    await authStore.logoutAsUser()
+    await router.push('/login')
   }
 
   // Remove "accessToken" from cookie
-  localStorage.removeItem('userData')
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('userAbilityRules')
-  localStorage.setItem('logoutEvent', Date.now())
+  // localStorage.removeItem('userData')
+  // localStorage.removeItem('accessToken')
+  // localStorage.removeItem('userAbilityRules')
+  // localStorage.setItem('logoutEvent', Date.now())
 
-  // Reset ability to initial ability
-  ability.update([])
+  // // Reset ability to initial ability
+  // ability.update([])
 
-  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
+  // // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
 
-  // Redirect to login page
-  router.push({ name: 'login' })
+  // // Redirect to login page
+  // router.push({ name: 'login' })
   
-  location.href = '/login'
+  // location.href = '/login'
 }
 </script>
 

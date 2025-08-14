@@ -135,6 +135,11 @@ if(props.product.groups.length > 0) {
   productData.value.groups = props.product.groups.map(group => group._id)
 }
 
+if(props.product.customFields.length > 0) {
+  productData.value.customFields = props.product.customFields
+}
+//console.log(props.product.customFields)
+
 const useSelectableList = (propRef, permissionKey, addNewTitle) => {
   const updated = ref([])
 
@@ -308,7 +313,8 @@ const submit = async () => {
           customFields: productData.value.customFields,
           sleeveLength: productData.value.sleeveLength,
           pocket: productData.value.pocket,
-          fit: productData.value.fit
+          fit: productData.value.fit,
+          imageUrl: imageUrl.value,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -353,7 +359,8 @@ const submit = async () => {
           customFields: productData.value.customFields,
           sleeveLength: productData.value.sleeveLength,
           pocket: productData.value.pocket,
-          fit: productData.value.fit
+          fit: productData.value.fit,
+          imageUrl: imageUrl.value,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -369,7 +376,7 @@ const submit = async () => {
     await nextTick(() => {
 
       if(imageUrl.value){
-        updateProduct()
+        //updateProduct()
       }
       emit('userData')
       emit('update:isDialogVisible', false)

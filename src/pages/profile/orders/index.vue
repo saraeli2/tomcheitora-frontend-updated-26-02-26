@@ -83,13 +83,12 @@ const {
     itemsPerPage,
     sortBy,
     orderBy,
-    userID: authStore.userData._id,
+    userID: authStore.fuserData._id,
   },
 }))
 
 const orders = computed(() => ordersData.value.orders)
 const totalOrder = computed(() => ordersData.value.total)
-
 </script>
 
 <template>
@@ -203,7 +202,9 @@ const totalOrder = computed(() => ordersData.value.total)
         </VCard>
       </VContainer>
       <VContainer v-else>
-        <h3>{{ $t('You have no order') }}</h3>
+        <div class="checkout-card" style="margin:100px 0 150px">
+          <h1>{{ $t('You have no order') }}</h1>
+        </div>
       </VContainer>
     </div>
     <VCard class="pricing-card">

@@ -11,6 +11,15 @@ export default function useHelper() {
     return '0.00'
   }
 
+  const isAdmin = () => {
+    const host = window.location.href
+    //const adminPrefix = `${import.meta.env.VITE_ADMIN_URL_PREFIX}.`
+    const adminUrlStr = 'admin';
+    
+    return !!(host.includes(adminUrlStr))
+    //return !!(host.includes('/backend-part'))
+  }
+
 //   const dateFormat = (date, format = null) => {
 //     if (date) {
 //       if (format) {
@@ -25,5 +34,6 @@ export default function useHelper() {
 
   return {
     numberFormat,
+    isAdmin,
   }
 }

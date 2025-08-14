@@ -1,6 +1,9 @@
 import { useAuthStore } from '@/stores'
 import { canNavigate } from '@layouts/plugins/casl'
 import { themeConfig } from '@themeConfig'
+import useHelper from '@/mixins/helper'
+
+const { isAdmin } = useHelper()
 
 export const setupGuards = router => {
   // 👉 router.beforeEach
@@ -12,61 +15,78 @@ export const setupGuards = router => {
          */
     if (to.meta.public)
       return
-    
-    
-    const router = useRouter()
-
-    window.addEventListener('storage', event => {
-        if (event.key === 'logoutEvent') {
-          const authStore = useAuthStore()
-          localStorage.removeItem('logoutEvent')
-          authStore.logout() // If you have a defined logout() action to clear state
-          router.push({ name: 'admin-login' })
-          location.href = '/admin/login'
-        }
-    })
 
     const authStore = useAuthStore()
+    let fuserData = ''
+    let fuserToken = ''
     let userData = ''
-    let accessToken = ''
+    let userToken = ''
     if(authStore) {
-      userData = authStore.userData
-      accessToken = authStore.accessToken
+      if(authStore.fuserToken) {
+        fuserData = authStore.fuserData
+        fuserToken = authStore.fuserToken
+      }
+      if(authStore.userToken) {
+        userData = authStore.userData
+        userToken = authStore.userToken
+      }
     }
-    
-    const { title } = to.meta;
 
-    document.title = themeConfig.app.title + ' Panel | ' + title
+    document.title = themeConfig.app.title + ' Panel | ' + to.meta.title
 
     /**
-         * Check if user is logged in by checking if token & user data exists in local storage
-         * Feel free to update this logic to suit your needs
-         */
-    const isLoggedIn = !!(userData && accessToken)
+    * Check if user is logged in by checking if token & user data exists in local storage
+    * Feel free to update this logic to suit your needs
+    */
+    const isUserLoggedIn = !!(fuserData && fuserToken)
+    const isAdminLoggedIn = !!(userData && userToken)
 
     /*
-          If user is logged in and is trying to access login like page, redirect to home
-          else allow visiting the page
-          (WARN: Don't allow executing further by return statement because next code will check for permissions)
-         */
-    if (to.meta.unauthenticatedOnly) {
-      if (isLoggedIn)
-        return '/'
-      else
-        return undefined
-    }
-    if (!canNavigate(to) && to.matched.length) {
-      /* eslint-disable indent */
-            return isLoggedIn
-                ? { name: 'not-authorized' }
-                : {
-                    name: 'admin-login',
-                    query: {
-                        ...to.query,
-                        to: to.fullPath !== '/' ? to.path : undefined,
-                    },
-                }
-            /* eslint-enable indent */
+    If user is logged in and is trying to access login like page, redirect to home
+    else allow visiting the page
+    (WARN: Don't allow executing further by return statement because next code will check for permissions)
+   */
+
+    if(isAdmin()) {
+      if (to.meta.unauthenticatedOnly) {
+        if (isAdminLoggedIn)
+          return '/admin/dashboards'
+        else
+          return undefined
+      }
+      if (!canNavigate(to) && to.matched.length) {
+        if(isAdminLoggedIn) {
+            return { name: 'not-authorized' }
+        } else {
+            return {
+                name: 'admin-login',
+                query: {
+                    ...to.query,
+                    to: to.fullPath !== '/' ? to.path : undefined,
+                },
+            }
+        }
+      }
+    } else {
+      if (to.meta.unauthenticatedOnly) {
+        if (isUserLoggedIn)
+          return '/'
+        else
+          return undefined
+      }
+      
+      //console.log(to);
+
+      if (!canNavigate(to) && to.matched.length) {
+        if(isUserLoggedIn) {
+            return { name: 'not-authorized' }
+        } else {
+            return {
+                name: 'login',
+                query: { to: to.fullPath }
+            }
+        }
+      }
     }
   })
 }

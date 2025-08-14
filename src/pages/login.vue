@@ -73,12 +73,12 @@ const login = async () => {
       },
     })
 
-    const { userData, accessToken, userAbilityRules } = res
+    const { fuserData, faccessToken, fuserAbilityRules } = res
     
-    ability.update(userAbilityRules)
-    await authStore.login(accessToken, userData, userAbilityRules)
+    ability.update(fuserAbilityRules)
+    await authStore.loginAsUser(faccessToken, fuserData, fuserAbilityRules)
     await nextTick(() => {
-      router.replace(route.query.to ? String(route.query.to) : userData.userRedirectURL)
+      router.replace(route.query.to ? String(route.query.to) : fuserData.userRedirectURL)
     })
 
     

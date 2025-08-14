@@ -6,6 +6,10 @@ export const useAuthStore = defineStore('auth', {
     userData: localStorage.getItem('userData') ? JSON.parse(localStorage.getItem('userData')) : '',
     accessToken: localStorage.getItem('accessToken') ? JSON.parse(localStorage.getItem('accessToken')) : '',
     userAbilityRules: localStorage.getItem('userAbilityRules') ? JSON.parse(localStorage.getItem('userAbilityRules')) : [],
+
+    fuserData: localStorage.getItem('fuserData') ? JSON.parse(localStorage.getItem('fuserData')) : '',
+    faccessToken: localStorage.getItem('faccessToken') ? JSON.parse(localStorage.getItem('faccessToken')) : '',
+    fuserAbilityRules: localStorage.getItem('fuserAbilityRules') ? JSON.parse(localStorage.getItem('fuserAbilityRules')) : [],
   }),
   actions: {
     login(accessToken, userData, userAbilityRules) {
@@ -24,6 +28,25 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('userData')
       localStorage.removeItem('accessToken')
       localStorage.removeItem('userAbilityRules')
+    },
+
+    logoutAsUser() {
+      this.fuserData = ''
+      this.faccessToken = ''
+      this.fuserAbilityRules = []
+      localStorage.removeItem('fuserData')
+      localStorage.removeItem('faccessToken')
+      localStorage.removeItem('fuserAbilityRules')
+    },
+
+    loginAsUser(faccessToken, fuserData, fuserAbilityRules) {
+      localStorage.setItem('fuserAbilityRules', JSON.stringify(fuserAbilityRules))
+      localStorage.setItem('fuserData', JSON.stringify(fuserData))
+      localStorage.setItem('faccessToken', JSON.stringify(faccessToken))
+      //localStorage.removeItem('logoutEvent')
+      this.fuserData = fuserData
+      this.faccessToken = faccessToken
+      this.fuserAbilityRules = fuserAbilityRules
     },
   },
 })

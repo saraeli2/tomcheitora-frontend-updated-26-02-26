@@ -67,7 +67,7 @@ const currentStep = ref(0)
 
 const {
   data: orderData, execute: fetchOrder,
-} = await useApi(createUrl(`/pending-order?userId=${authStore.userData._id}`))
+} = await useApi(createUrl(`/pending-order?userId=${authStore.fuserData._id}`))
 
 //const order = computed(() => orderData.value)
 
@@ -114,7 +114,7 @@ const onQtyChange = async () => {
         saleID: order.value?.saleID._id,
         orderID: order.value?._id,
         status: order.value.status,
-        userID: authStore.userData._id,
+        userID: authStore.fuserData._id,
         products: cleanedOrderItems,
       },
       onResponseError({ response }) {
