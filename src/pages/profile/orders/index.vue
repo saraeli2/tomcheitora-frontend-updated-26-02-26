@@ -36,27 +36,27 @@ const updateOptions = options => {
 
 const headers = [
   {
-    title: 'Order',
+    title: t('Order'),
     key: 'order',
   },
   {
-    title: 'Sale',
+    title: t('Sale'),
     key: 'sale',
   },
   {
-    title: 'Date',
+    title: t('Date'),
     key: 'date',
   },
   {
-    title: 'Status',
+    title: t('Status'),
     key: 'status',
   },
   {
-    title: 'Spent',
+    title: t( 'Total Amount'),
     key: 'spent',
   },
   {
-    title: 'Actions',
+    title: t('Actions'),
     key: 'actions',
     sortable: false,
   },
@@ -98,110 +98,109 @@ const totalOrder = computed(() => ordersData.value.total)
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
         <VCardText class="text-center subpage-tittle">
-          <h2>{{ $t('Product List') }}</h2>
+          <h2>{{ $t('Orders') }}</h2>
         </VCardText>
       </VContainer>
     </div>
 
     <div class="order-tables" style="margin: 30px 0">
       <VContainer v-if="orders && orders.length">
-          <VCard>
-            <VCardText>
-              <div class="d-flex justify-space-between flex-wrap align-center gap-4">
-                <h5 class="text-h5">
-                  Orders placed
-                </h5>
-                <div>
-                  <AppTextField
-                    v-model="searchQuery"
-                    placeholder="Search Order"
-                    style=" max-inline-size: 200px; min-inline-size: 200px;"
-                  />
-                </div>
-              </div>
-            </VCardText>
-
-            <VDivider />
-            <VDataTableServer
-              v-model:items-per-page="itemsPerPage"
-              v-model:page="page"
-              :headers="headers"
-              :items="orders"
-              item-value="id"
-              :items-length="totalOrder"
-              class="text-no-wrap"
-              @update:options="updateOptions"
-            >
-              <!-- Order ID -->
-              <template #item.order="{ item }">
-                <RouterLink :to="`/profile/orders/${item._id}`">
-                  #{{ item._id }}
-                </RouterLink>
-              </template>
-
-              <!-- Date -->
-              <template #item.sale="{ item }">
-                <RouterLink :to="`/sales/${item.saleID?._id}`">
-                  {{ item.saleID?.name }}
-                </RouterLink>
-                
-              </template>
-
-              <!-- Date -->
-              <template #item.date="{ item }">
-                {{ new Date(item.createdAt).toLocaleString() }}
-              </template>
-
-              <!-- Status -->
-              <template #item.status="{ item }">
-                <VChip
-                  label
-                  :color="resolveStatus(item.status)?.color"
-                  size="small"
-                >
-                  {{ item.status }}
-                </VChip>
-              </template>
-
-              <!-- Spent -->
-              <template #item.spent="{ item }">
-                {{ numberFormat(item.subTotal) }}
-              </template>
-
-              <!-- Actions -->
-              <template #item.actions="{ item }">
-                <IconBtn>
-                  <VIcon icon="tabler-dots-vertical" />
-                  <VMenu activator="parent">
-                    <VList>
-                      <VListItem
-                        v-if="item.status == 'Pending'"
-                        value="view"
-                        to="/profile/checkout"
-                      >
-                        {{ $t('Edit Order') }}
-                      </VListItem>
-                      <VListItem
-                        value="view"
-                        :to="`/profile/orders/${item._id}`"
-                      >
-                        {{ $t('View Order') }}
-                      </VListItem>
-                    </VList>
-                  </VMenu>
-                </IconBtn>
-              </template>
-
-              <!-- pagination -->
-              <template #bottom>
-                <TablePagination
-                  v-model:page="page"
-                  :items-per-page="itemsPerPage"
-                  :total-items="totalOrder"
+        <VCard>
+          <VCardText>
+            <div class="d-flex justify-space-between flex-wrap align-center gap-4">
+              <h5 class="text-h5">
+                {{ $t('Orders placed') }}
+              </h5>
+              <!-- <div>
+                <AppTextField
+                  v-model="searchQuery"
+                  placeholder="Search Order"
+                  style=" max-inline-size: 200px; min-inline-size: 200px;"
                 />
-              </template>
-            </VDataTableServer>
-          </VCard>
+              </div> -->
+            </div>
+          </VCardText>
+
+          <VDivider />
+          <VDataTableServer
+            v-model:items-per-page="itemsPerPage"
+            v-model:page="page"
+            :headers="headers"
+            :items="orders"
+            item-value="id"
+            :items-length="totalOrder"
+            class="text-no-wrap"
+            @update:options="updateOptions"
+          >
+            <!-- Order ID -->
+            <template #item.order="{ item }">
+              <RouterLink :to="`/profile/orders/${item._id}`">
+                #{{ item._id }}
+              </RouterLink>
+            </template>
+
+            <!-- Date -->
+            <template #item.sale="{ item }">
+              <RouterLink :to="`/sales/${item.saleID?._id}`">
+                {{ item.saleID?.name }}
+              </RouterLink>
+            </template>
+
+            <!-- Date -->
+            <template #item.date="{ item }">
+              {{ new Date(item.createdAt).toLocaleString() }}
+            </template>
+
+            <!-- Status -->
+            <template #item.status="{ item }">
+              <VChip
+                label
+                :color="resolveStatus(item.status)?.color"
+                size="small"
+              >
+                {{ item.status }}
+              </VChip>
+            </template>
+
+            <!-- Spent -->
+            <template #item.spent="{ item }">
+              {{ numberFormat(item.subTotal) }}
+            </template>
+
+            <!-- Actions -->
+            <template #item.actions="{ item }">
+              <IconBtn>
+                <VIcon icon="tabler-dots-vertical" />
+                <VMenu activator="parent">
+                  <VList>
+                    <VListItem
+                      v-if="item.status == 'Pending'"
+                      value="view"
+                      to="/profile/checkout"
+                    >
+                      {{ $t('Edit Order') }}
+                    </VListItem>
+                    <VListItem
+                      value="view"
+                      :to="`/profile/orders/${item._id}`"
+                    >
+                      {{ $t('View Order') }}
+                    </VListItem>
+                  </VList>
+                </VMenu>
+              </IconBtn>
+            </template>
+
+            <!-- pagination -->
+            <template #bottom>
+              <TablePagination
+                v-model:page="page"
+                :items-per-page="itemsPerPage"
+                :total-items="totalOrder"
+              />
+            </template>
+          </VDataTableServer>
+        </VCard>
       </VContainer>
       <VContainer v-else>
         <h3>{{ $t('You have no order') }}</h3>

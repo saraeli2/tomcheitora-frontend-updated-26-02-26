@@ -43,19 +43,19 @@ const router = useRouter()
 
 const checkoutSteps = [
   {
-    title: 'Cart',
+    title: t('Cart'),
     icon: customCart,
   },
   {
-    title: 'Address',
+    title: t('Address'),
     icon: customAddress,
   },
   {
-    title: 'Payment',
+    title: t('Payment'),
     icon: customPayment,
   },
   {
-    title: 'Confirmation',
+    title: t('Confirmation'),
     icon: customTrending,
   },
 ]
@@ -153,7 +153,7 @@ const removeItem = index => {
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
         <VCardText class="text-center subpage-tittle">
-          <h2>Checkout</h2>
+          <h2>{{ $t('Checkout') }}</h2>
         </VCardText>
       </VContainer>
     </div>
@@ -182,7 +182,7 @@ const removeItem = index => {
                 <VRow>
                   <VCol md="12">
                     <h5 class="text-h5 my-4">
-                      My Shopping Bag ({{ orderItems.length }} Items)
+                      {{ $t('My Shopping Bag') }} ({{ orderItems.length }} {{ $t('Items') }})
                     </h5>
                   </VCol>
                 </VRow>
@@ -333,11 +333,12 @@ const removeItem = index => {
 
                     <div>
                       <VBtn
+                        v-if="order.status == 'Pending'"
                         block
                         class="mt-4"
                         @click="nextStep"
                       >
-                        Place Order
+                        {{ $t('Make Payment') }}
                       </VBtn>
                     </div>
                   </VCol>

@@ -452,5 +452,18 @@
   "Value": "Value",
   "Add To CART": "Add To CART",
   "Previous page": "Previous page",
-  "You are not allowed to view this page.": "You are not allowed to view this page."
+  "You are not allowed to view this page.": "You are not allowed to view this page.",
+  "Payment": "Payment",
+  "Confirmation": "Confirmation",
+  "My Shopping Bag": "My Shopping Bag",
+  "Items": "Items",
+  "Price Details": "Price Details",
+  "Make Payment": "Make Payment",
+  "Add more products": "Add more products",
+  "Bag Total": "Bag Total",
+  "Order Total": "Order Total",
+  "Orders placed": "Orders placed",
+  "Date": "Date",
+  "You have no order": "You have no order",
+  "View Order": "View Order"
 }
