@@ -63,7 +63,7 @@ const headers = [
 ]
 
 const resolveStatus = status => {
-  if (status === 'Delivered')
+  if (status === 'Processing')
     return { color: 'success' }
   if (status === 'Out for Delivery')
     return { color: 'primary' }

@@ -24,6 +24,7 @@ import { useConfigStore } from '@core/stores/config'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores'
 import { useToast } from 'vue-toastification'
+import axios from 'axios'
 
 const { numberFormat } = useHelper()
 
@@ -64,6 +65,7 @@ const checkoutSteps = [
 
 
 const currentStep = ref(0)
+const user = ref()
 
 const {
   data: orderData, execute: fetchOrder,
@@ -76,6 +78,7 @@ const order = computed(() => orderData.value)
 formData.value = orderData.value
 if(orderData.value){
   orderItems.value = orderData.value.orderItems
+  user.value = orderData.value.userID
 }
 
 
@@ -166,6 +169,111 @@ const cardFormData = ref({
   cardCvv: null,
   isCardSave: true,
 })
+
+const commonsyncCities = await $api('/commonsync/extra-options').catch(err => console.log(err))
+const cityOptions = computed(() => commonsyncCities.cityOptions)
+
+const stationOptions = computed(() => commonsyncCities.stationOptions)
+
+const cities = cityOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.nameHe}`,
+}))
+
+const cityID = ref(null)
+const street = ref()
+const houseNumber = ref()
+const address = ref()
+
+if(user.value) {
+  cityID.value = user.value.cityID
+  street.value = user.value.street
+  houseNumber.value = user.value.houseNumber
+  address.value = user.value.address
+}
+
+
+const onSubmit = () => {
+  refForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      submit()
+  })
+}
+
+const submit = async () => {
+
+  const formData = new FormData()
+
+  if(cityID.value) {
+    formData.append('cityID', cityID.value)
+  }
+
+  if(street.value) {
+    formData.append('street', street.value)
+  }
+
+  if(houseNumber.value) {
+    formData.append('houseNumber', houseNumber.value)
+  }
+
+  if(address.value) {
+    formData.append('address', address.value)
+  }
+
+  if(user.value.communityID) {
+    formData.append('communityID', user.value.communityID)
+  }
+
+  if(user.value._id) {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/${ user.value._id }`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${authStore.faccessToken}`,
+      },
+    }).then(async response => {
+      await nextTick(() => {
+        currentStep.value = currentStep.value + 1
+      })
+
+    })
+      .catch(e => {
+        errors.value = e.response.data.errors
+      })
+  }
+}
+
+const paymentMethod = ref('Cash on Delivery')
+
+const {
+  data: orderDataupdate, execute: fetchOrderUpdatedOrder,
+} = await useApi(createUrl(`/orders/${ order.value?._id }`))
+
+order.value = computed(() => orderDataupdate.value)
+
+user.value = order.value.userID
+
+const onSubmitPayment = async() =>{
+  try {
+    const res = await $api(`/orders/update-status/${ order.value?._id }`, {
+      method: 'POST',
+      body: {
+        paymentMethod: paymentMethod.value,
+        status: 'Processing',
+      },
+      onResponseError({ response }) {
+        //console.log(response._data.message)
+        
+        toast.error(t(response._data.message))
+      },
+    })
+
+    await nextTick(async () => {
+      fetchOrderUpdatedOrder()
+      currentStep.value = currentStep.value + 1
+    })
+  } catch (err) {
+  }
+}
 </script>
 
 <template>
@@ -349,7 +457,7 @@ const cardFormData = ref({
                           {{ $t('Total') }}
                         </h6>
                         <h6 class="text-h6">
-                          {{ numberFormat(order.subTotal) }}
+                          {{ numberFormat(order.total) }}
                         </h6>
                       </VCardText>
                     </VCard>
@@ -368,266 +476,416 @@ const cardFormData = ref({
                 </VRow>
               </VWindowItem>
               <VWindowItem>
-                <VRow>
-                  <VCol cols="12">
-                    <h6 class="text-h6 font-weight-medium">
-                      Enter Your Address.
-                    </h6>
-                  </VCol>
-
-                  <VCol
-                    cols="12"
-                    md="6"
-                  >
-                    <AppTextField
-                      v-model="formData.address"
-                      placeholder="98 Borough bridge Road, Birmingham"
-                      label="Address"
-                    />
-                  </VCol>
-
-                  <VCol
-                    cols="12"
-                    md="6"
-                  >
-                    <AppTextField
-                      v-model="formData.landmark"
-                      placeholder="Borough bridge"
-                      label="Landmark"
-                    />
-                  </VCol>
-
-                  <VCol
-                    cols="12"
-                    md="6"
-                  >
-                    <AppTextField
-                      v-model="formData.pincode"
-                      placeholder="658921"
-                      label="Pincode"
-                      type="number"
-                    />
-                  </VCol>
-
-                  <VCol
-                    cols="12"
-                    md="6"
-                  >
-                    <AppTextField
-                      v-model="formData.city"
-                      placeholder="New York"
-                      label="City"
-                    />
-                  </VCol>
-                </VRow>
-
-                <div>
-                  <VBtn
-                    v-if="order.status == 'Pending'"
-                    class="mt-4"
-                    @click="nextStep"
-                  >
-                    {{ $t('Make Payment') }}
-                  </VBtn>
-                </div>
-              </VWindowItem>
-              <VWindowItem>
-                <VForm class="mt-3">
-                  <VRow class="ma-0 pa-n2">
+                <VForm 
+                  ref="refForm"
+                  v-model="isFormValid"
+                  @submit.prevent="onSubmit"
+                >
+                  <VRow>
                     <VCol cols="12">
-                      <AppTextField
-                        v-model="cardFormData.cardNumber"
-                        type="number"
-                        label="Card Number"
-                        placeholder="1356 3215 6548 7898"
-                      />
+                      <h6 class="text-h6 font-weight-medium">
+                        {{ $t('Enter Your Address') }}
+                      </h6>
                     </VCol>
-
+                  </VRow>
+                  <VRow v-if="orderItems">
                     <VCol
                       cols="12"
-                      md="4"
+                      lg="8"
                     >
-                      <AppTextField
-                        v-model="cardFormData.cardName"
-                        label="Name"
-                        placeholder="John Doe"
-                      />
-                    </VCol>
-
-                    <VCol
-                      cols="6"
-                      md="4"
-                    >
-                      <AppTextField
-                        v-model="cardFormData.cardExpiry"
-                        label="Expiry"
-                        placeholder="MM/YY"
-                      />
-                    </VCol>
-
-                    <VCol
-                      cols="6"
-                      md="4"
-                    >
-                      <AppTextField
-                        v-model="cardFormData.cardCvv"
-                        label="CVV"
-                        placeholder="123"
-                        type="number"
-                      >
-                        <template #append-inner>
-                          <VTooltip
-                            text="Card Verification Value"
-                            location="bottom"
-                          >
-                            <template #activator="{ props: tooltipProps }">
-                              <VIcon
-                                v-bind="tooltipProps"
-                                size="20"
-                                icon="tabler-help"
-                              />
-                            </template>
-                          </VTooltip>
-                        </template>
-                      </AppTextField>
-                    </VCol>
-
-                    <VCol
-                      cols="12"
-                      class="pt-1"
-                    >
-                      <VSwitch
-                        v-model="cardFormData.isCardSave"
-                        label="Save Card for future billing?"
-                      />
-
-                      <div class="mt-4">
-                        <VBtn
-                          class="me-4"
-                          @click="nextStep"
+                      <VRow>
+                        <VCol 
+                          cols="12" 
+                          lg="6"
                         >
-                          Save Changes
-                        </VBtn>
-                        <VBtn
-                          variant="tonal"
-                          color="secondary"
+                          <AppAutocomplete
+                            v-model="cityID"
+                            :items="cities"
+                            :label="$t('City')"
+                            :placeholder="$t('Select City')"
+                            :error-messages="errors.cityID"
+                            :rules="[requiredValidator]"
+                            clearable
+                          />
+                        </VCol>
+
+                        <!-- 👉 Flat No. -->
+                        <VCol 
+                          cols="12" 
+                          lg="6"
                         >
-                          Reset
+                          <AppTextField
+                            v-model="street"
+                            :label="$t('Flat No.')"
+                            :placeholder="$t('Flat No.')"
+                            :error-messages="errors.street"
+                            :rules="[requiredValidator]"
+                          />
+                        </VCol>
+
+                        <!-- 👉 House Number -->
+                        <VCol 
+                          cols="12" 
+                          lg="6"
+                        >
+                          <AppTextField
+                            v-model="houseNumber"
+                            :label="$t('House Number')"
+                            :placeholder="$t('House Number')"
+                            :error-messages="errors.houseNumber"
+                          />
+                        </VCol>
+
+                        <!-- 👉 Address -->
+                        <VCol 
+                          cols="12" 
+                          lg="6"
+                        >
+                          <AppTextField
+                            v-model="address"
+                            :label="$t('Address')"
+                            :placeholder="$t('Address')"
+                            :error-messages="errors.address"
+                            :rules="[requiredValidator]"
+                          />
+                        </VCol>
+                      </VRow>
+                      <div>
+                        <VBtn
+                          class="mt-4"
+                          type="submit"
+                        >
+                          {{ $t('Save Changes') }}
                         </VBtn>
                       </div>
+                    </VCol>
+
+                    <VCol
+                      cols="12"
+                      lg="4"
+                    >
+                      <VCard
+                        flat
+                        variant="outlined"
+                      >
+                        
+
+                        <!-- 👉 Price details -->
+                        <VCardText>
+                          <h6 class="text-h6 mb-4">
+                            {{ $t('Price Details') }}
+                          </h6>
+
+                          <div class="text-high-emphasis">
+                            <div class="d-flex justify-space-between mb-2">
+                              <span>{{ $t('Bag Total') }}</span>
+                              <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
+                            </div>
+
+                            
+
+                            <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
+                              <span>{{ $t('Discount') }}</span>
+                              <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
+                            </div>
+                          </div>
+                        </VCardText>
+
+                        <VDivider />
+
+                        <VCardText class="d-flex justify-space-between pa-6">
+                          <h6 class="text-h6">
+                            {{ $t('Total') }}
+                          </h6>
+                          <h6 class="text-h6">
+                            {{ numberFormat(order.total) }}
+                          </h6>
+                        </VCardText>
+                      </VCard>
                     </VCol>
                   </VRow>
                 </VForm>
               </VWindowItem>
               <VWindowItem>
-                
-                    <VRow v-if="orderItems">
-                      <VCol
-                        cols="12"
-                        lg="8"
+                <VForm 
+                  ref="refForm"
+                  v-model="isFormValid"
+                  @submit.prevent="onSubmitPayment"
+                >
+                  <VRow>
+                    <VCol cols="12">
+                      <h6 class="text-h6 font-weight-medium">
+                        {{ $t('Payment Methods') }}
+                      </h6>
+                    </VCol>
+                  </VRow>
+                  <VRow v-if="orderItems">
+                    <VCol
+                      cols="12"
+                      lg="8"
+                    >
+                      <VRow>
+                        <VCol>
+                          <VRadio
+                            v-model="paymentMethod"
+                            :label="$t('Cash on Delivery')"
+                            value="Cash on Delivery"
+                          />
+                          <p>{{ $t('Cash on Delivery is a type of payment method where the recipient make payment for the order at the time of delivery rather than in advance.') }}</p>
+                        </VCol>
+                      </VRow>
+                      <div>
+                        <VBtn
+                          class="mt-4"
+                          type="submit"
+                        >
+                          {{ $t('Place Order') }}
+                        </VBtn>
+                      </div>
+                    </VCol>
+
+                    <VCol
+                      cols="12"
+                      lg="4"
+                    >
+                      <VCard
+                        flat
+                        variant="outlined"
+                      >
+                        <VCardText>
+                          <h6 class="text-h6 mb-4">
+                            {{ $t('Price Details') }}
+                          </h6>
+
+                          <div class="text-high-emphasis">
+                            <div class="d-flex justify-space-between mb-2">
+                              <span>{{ $t('Bag Total') }}</span>
+                              <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
+                            </div>
+
+                            
+
+                            <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
+                              <span>{{ $t('Discount') }}</span>
+                              <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
+                            </div>
+                          </div>
+                        </VCardText>
+
+                        <VDivider />
+
+                        <VCardText class="d-flex justify-space-between pa-6">
+                          <h6 class="text-h6">
+                            {{ $t('Total') }}
+                          </h6>
+                          <h6 class="text-h6">
+                            {{ numberFormat(order.total) }}
+                          </h6>
+                        </VCardText>
+                      </VCard>
+                    </VCol>
+                  </VRow>
+                </VForm>
+              </VWindowItem>
+              <VWindowItem>
+                <VRow>
+                  <VCol>
+                    <div class="text-center">
+                      <h4 class="text-h4 mb-4">
+                        Thank You!
+                      </h4>
+                      <p>
+                        Your order <span class="text-body-1 font-weight-medium text-high-emphasis">#{{ order?._id }}</span> has been placed!
+                      </p>
+                      
+                      <div class="d-flex align-center gap-2 justify-center">
+                        <VIcon
+                          size="20"
+                          icon="tabler-clock"
+                          class="text-high-emphasis"
+                        />
+                        <span>Time placed: {{ new Date(order.updatedAt).toLocaleString() }}</span>
+                      </div>
+                    </div>
+                  </VCol>
+                </VRow>
+                <VRow class="border rounded ma-0 mt-6">
+                  <VCol
+                    cols="12"
+                    md="4"
+                    class="pa-6"
+                    :class="$vuetify.display.mdAndUp ? 'border-e' : 'border-b'"
+                  >
+                    <div class="d-flex align-center gap-2 text-high-emphasis mb-4">
+                      <VIcon
+                        icon="tabler-map-pin"
+                        size="20"
+                      />
+                      <span class="text-base font-weight-medium">
+                        {{ $t('Shipping') }}
+                      </span>
+                    </div>
+
+                    <p class="mb-0">
+                      {{ user.firstName }} {{ user.lastName }}
+                    </p>
+                    <p class="mb-4">
+                      {{ address }}, {{ houseNumber }}, {{ street }}
+                    </p>
+
+                    <div class="text-base" v-if="user.phone">
+                      {{ user.phone }}
+                    </div>
+                  </VCol>
+
+                  <VCol
+                    cols="12"
+                    md="4"
+                    class="pa-6"
+                    :class="$vuetify.display.mdAndUp ? 'border-e' : 'border-b'"
+                  >
+                    <div class="d-flex align-center gap-2 text-high-emphasis mb-4">
+                      <VIcon
+                        icon="tabler-credit-card"
+                        size="20"
+                      />
+                      <span class="text-base font-weight-medium">
+                        {{ $t('Billing Address') }}
+                      </span>
+                    </div>
+
+                    <p class="mb-0">
+                      {{ user.firstName }} {{ user.lastName }}
+                    </p>
+                    <p class="mb-4">
+                      {{ address }}, {{ houseNumber }}, {{ street }}
+                    </p>
+
+                    <div class="text-base" v-if="user.phone">
+                      {{ user.phone }}
+                    </div>
+                  </VCol>
+
+                  <VCol
+                    cols="12"
+                    md="4"
+                    class="pa-6"
+                  >
+                    <p class="font-weight-medium">
+                      Payment Method:
+                    </p>
+                    <p class="mb-0">
+                      {{ paymentMethod }}
+                    </p>
+                  </VCol>
+                </VRow>
+                <VRow v-if="orderItems">
+                  <VCol
+                    cols="12"
+                    lg="8"
+                  >
+                    <div
+                      v-if="orderItems.length"
+                      class="border rounded"
+                    >
+                      <template
+                        v-for="(item, index) in orderItems"
+                        :key="item.productID._id"
                       >
                         <div
-                          v-if="orderItems.length"
-                          class="border rounded"
+                          class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row"
+                          :class="index ? 'border-t' : ''"
                         >
-                          <template
-                            v-for="(item, index) in orderItems"
-                            :key="item.productID._id"
-                          >
+                          <div v-if="item.productID?.image">
+                            <VImg
+                              width="140"
+                              :src="item.productID?.image"
+                            />
+                          </div>
+                          <div v-else>
+                            <VImg
+                              width="140"
+                              src="/images/no-img.jpg"
+                            />
+                          </div>
+
+                          <div class="d-flex w-100 flex-column flex-md-row">
+                            <div class="d-flex flex-column gap-y-2">
+                              <h6 class="text-h6">
+                                {{ item.productID?.name }}
+                              </h6>
+                              <p>
+                                Qty: {{ item.quantity }}
+                              </p>
+                            </div>
+
+                            <VSpacer />
+
                             <div
-                              class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row"
-                              :class="index ? 'border-t' : ''"
+                              class="d-flex flex-column mt-5 text-start text-md-end"
+                              :class="$vuetify.display.mdAndDown ? 'gap-2' : 'gap-4'"
                             >
-                              <div v-if="item.productID?.image">
-                                <VImg
-                                  width="140"
-                                  :src="item.productID?.image"
-                                />
-                              </div>
-                              <div v-else>
-                                <VImg
-                                  width="140"
-                                  src="/images/no-img.jpg"
-                                />
-                              </div>
-
-                              <div class="d-flex w-100 flex-column flex-md-row">
-                                <div class="d-flex flex-column gap-y-2">
-                                  <h6 class="text-h6">
-                                    {{ item.productID?.name }}
-                                  </h6>
-                                  <p>
-                                    Qty: {{ item.quantity }}
-                                  </p>
-                                </div>
-
-                                <VSpacer />
-
-                                <div
-                                  class="d-flex flex-column mt-5 text-start text-md-end"
-                                  :class="$vuetify.display.mdAndDown ? 'gap-2' : 'gap-4'"
-                                >
-                                  <div class="d-flex text-base align-self-md-end">
-                                    <div class="text-primary">
-                                      <span style="text-transform: uppercase;">{{ item.productID?.currency }}</span> {{ item.price }}
-                                    </div>
-                                  </div>
+                              <div class="d-flex text-base align-self-md-end">
+                                <div class="text-primary">
+                                  <span style="text-transform: uppercase;">{{ item.productID?.currency }}</span> {{ item.price }}
                                 </div>
                               </div>
                             </div>
-                          </template>
+                          </div>
                         </div>
+                      </template>
+                    </div>
 
-                        <!-- 👉 Empty Cart -->
-                        <div v-else>
-                          <VImg :src="emptyCartImg" />
-                        </div>
-                      </VCol>
+                    <!-- 👉 Empty Cart -->
+                    <div v-else>
+                      <VImg :src="emptyCartImg" />
+                    </div>
+                  </VCol>
 
-                      <VCol
-                        cols="12"
-                        lg="4"
-                      >
-                        <VCard
-                          flat
-                          variant="outlined"
-                        >
+                  <VCol
+                    cols="12"
+                    lg="4"
+                  >
+                    <VCard
+                      flat
+                      variant="outlined"
+                    >
+                      
+
+                      <!-- 👉 Price details -->
+                      <VCardText>
+                        <h6 class="text-h6 mb-4">
+                          {{ $t('Price Details') }}
+                        </h6>
+
+                        <div class="text-high-emphasis">
+                          <div class="d-flex justify-space-between mb-2">
+                            <span>{{ $t('Bag Total') }}</span>
+                            <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
+                          </div>
+
                           
 
-                          <!-- 👉 Price details -->
-                          <VCardText>
-                            <h6 class="text-h6 mb-4">
-                              {{ $t('Price Details') }}
-                            </h6>
+                          <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
+                            <span>{{ $t('Discount') }}</span>
+                            <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
+                          </div>
+                        </div>
+                      </VCardText>
 
-                            <div class="text-high-emphasis">
-                              <div class="d-flex justify-space-between mb-2">
-                                <span>{{ $t('Bag Total') }}</span>
-                                <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
-                              </div>
+                      <VDivider />
 
-                              
-
-                              <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
-                                <span>{{ $t('Discount') }}</span>
-                                <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
-                              </div>
-                            </div>
-                          </VCardText>
-
-                          <VDivider />
-
-                          <VCardText class="d-flex justify-space-between pa-6">
-                            <h6 class="text-h6">
-                              {{ $t('Total') }}
-                            </h6>
-                            <h6 class="text-h6">
-                              {{ numberFormat(order.total) }}
-                            </h6>
-                          </VCardText>
-                        </VCard>
-                      </VCol>
-                    </VRow>
+                      <VCardText class="d-flex justify-space-between pa-6">
+                        <h6 class="text-h6">
+                          {{ $t('Total') }}
+                        </h6>
+                        <h6 class="text-h6">
+                          {{ numberFormat(order.total) }}
+                        </h6>
+                      </VCardText>
+                    </VCard>
+                  </VCol>
+                </VRow>
                   
               </VWindowItem>
             </VWindow>

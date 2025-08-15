@@ -466,5 +466,15 @@
   "Date": "Date",
   "You have no order": "You have no order",
   "View Order": "View Order",
-  "You have no open order.": "You have no open order."
+  "You have no open order.": "You have no open order.",
+  "Add Address": "Add Address",
+  "Save Changes": "Save Changes",
+  "Enter Your Address": "Enter Your Address",
+  "Payment Methods": "Payment Methods",
+  "Cash on Delivery is a type of payment method where the recipient make payment for the order at the time of delivery rather than in advance.": "Cash on Delivery is a type of payment method where the recipient make payment for the order at the time of delivery rather than in advance.",
+  "Place Order": "Place Order",
+  "Order is void and cannot be modified.": "Order is void and cannot be modified.",
+  "You are not able to update your order" : "You are not able to update your order.",
+  "Order has been updated successfully.": "Order has been updated successfully.",
+  "Order has been created successfully.": "Order has been created successfully."
 }

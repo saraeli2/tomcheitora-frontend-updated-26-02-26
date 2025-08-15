@@ -31,6 +31,7 @@ const props = defineProps({
       noOfKids: '',
       status: 'Active',
       maritalStatus: '',
+      address: '',
     }),
   },
 })
@@ -168,12 +169,15 @@ const submit = async () => {
   if(adminData.value.status) {
     formData.append('status', adminData.value.status)
   }
+  if(adminData.value.address) {
+    formData.append('address', adminData.value.address)
+  }
 
   if(props.user._id) {
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${ props.user._id }`, formData, {
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/${ props.user._id }`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${authStore.accessToken}`,
+        'Authorization': `Bearer ${authStore.faccessToken}`,
       },
     }).then(async response => {
       if(imageUrl.value){
@@ -237,6 +241,7 @@ const errors = ref({
   israeliIDNumber: undefined,
   passportNumber: undefined,
   noOfKids: undefined,
+  address: undefined,
   username: undefined,
   password: undefined,
   imageID: undefined,
@@ -478,14 +483,4 @@ const changeAvatar = file => {
       </VCard>
     </VCol>
   </VRow>
-
-  <!-- Confirm Dialog -->
-  <ConfirmDialog
-    v-model:is-dialog-visible="isConfirmDialogOpen"
-    confirmation-question="Are you sure you want to deactivate your account?"
-    confirm-title="Deactivated!"
-    confirm-msg="Your account has been deactivated successfully."
-    cancel-title="Cancelled"
-    cancel-msg="Account Deactivation Cancelled!"
-  />
 </template>

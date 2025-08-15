@@ -943,3 +943,13 @@ html[lang="he"] .justify-space-between .tabler-settings{
     padding-left: 0;
     padding-right: 0;
 }
+
+.cursor-pointer.app-stepper-step.pa-1{
+  pointer-events: none;
+}
+.cursor-pointer.app-stepper-step.stepper-steps-completed{
+  pointer-events: auto;
+}
+.checkout-card .v-radio .v-selection-control__wrapper {
+    margin-left: -10px;
+}

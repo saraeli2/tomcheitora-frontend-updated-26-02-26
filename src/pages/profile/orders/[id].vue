@@ -67,7 +67,7 @@ const currentStep = ref(0)
 
 const {
   data: orderData, execute: fetchOrder,
-} = await useApi(createUrl(`/pending-order?userId=${authStore.fuserData._id}`))
+} = await useApi(createUrl(`/orders/${ route.params.id }`))
 
 //const order = computed(() => orderData.value)
 
@@ -246,11 +246,9 @@ const removeItem = index => {
                         <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
                       </div>
 
-                      
-
-                      <div class="d-flex justify-space-between mb-2">
-                        <span>{{ $t('Order Total') }}</span>
-                        <span class="text-medium-emphasis">{{ numberFormat(order.subTotal) }}</span>
+                     <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
+                        <span>{{ $t('Discount') }}</span>
+                        <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
                       </div>
                     </div>
                   </VCardText>
@@ -262,7 +260,7 @@ const removeItem = index => {
                       {{ $t('Total') }}
                     </h6>
                     <h6 class="text-h6">
-                      {{ numberFormat(order.subTotal) }}
+                      {{ numberFormat(order.total) }}
                     </h6>
                   </VCardText>
                 </VCard>
@@ -273,7 +271,7 @@ const removeItem = index => {
                     class="mt-4"
                     to="/profile/checkout"
                   >
-                    Edit Order
+                    {{ $('Edit Order') }}
                   </VBtn>
                 </div>
               </VCol>

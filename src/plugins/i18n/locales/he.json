@@ -463,5 +463,14 @@
   "Date": "תַאֲרִיך",
   "You have no order": "אין לך סדר",
   "View Order": "הצג הזמנה",
-  "You have no open order.": "אין לך הזמנה פתוחה."
+  "You have no open order.": "אין לך הזמנה פתוחה.",
+  "Add Address": "הוסף כתובת",
+  "Enter Your Address": "הזן את הכתובת שלך",
+  "Payment Methods": "אמצעי תשלום",
+  "Cash on Delivery is a type of payment method where the recipient make payment for the order at the time of delivery rather than in advance.": "תשלום במזומן במשלוח הוא סוג של אמצעי תשלום שבו הנמען מבצע את התשלום עבור ההזמנה בזמן המסירה ולא מראש.",
+  "Place Order": "בצע הזמנה",
+  "Order is void and cannot be modified.": "ההזמנה בטלה ולא ניתן לשנותה.",
+  "You are not able to update your order.": "אינך מצליח לעדכן את ההזמנה שלך.",
+  "Order has been updated successfully.": "ההזמנה עודכנה בהצלחה.",
+  "Order has been created successfully.": "ההזמנה נוצרה בהצלחה."
 }

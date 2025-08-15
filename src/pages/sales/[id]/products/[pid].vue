@@ -19,6 +19,8 @@ import { useToast } from 'vue-toastification'
 const authStore = useAuthStore()
 const toast = useToast()
 
+const showLoader = ref(false)
+
 const { t } = useI18n()
 
 const columnRadio = ref('radio-1')
@@ -112,6 +114,8 @@ const productAddToCart = (productID, quantity) => {
 
 const createOrder = async () => {
   try {
+    showLoader.value = true
+
     const res = await $api(`/sales/${ route.params.id }/orders`, {
       method: 'POST',
       body: {
@@ -121,6 +125,8 @@ const createOrder = async () => {
         userID: authStore.fuserData._id,
       },
       onResponseError({ response }) {
+        showLoader.value = false
+
         const firstError = Object.values(response._data.errors)[0].msg
 
         toast.error(firstError)
@@ -129,6 +135,7 @@ const createOrder = async () => {
     })
 
     await nextTick(async () => {
+      showLoader.value = false
       toast.success(res.message)
       await fetchOrderAndSyncOrderItems()
     })
@@ -139,6 +146,8 @@ const createOrder = async () => {
 
 const updateOrder = async () => {
   try {
+    showLoader.value = true
+
     const res = await $api(`/orders/${ order.value?._id }`, {
       method: 'PATCH',
       body: {
@@ -149,15 +158,22 @@ const updateOrder = async () => {
         products: orderItems.value,
       },
       onResponseError({ response }) {
-        const firstError = Object.values(response._data.errors)[0].msg
+        showLoader.value = false
+        if(response._data.message){
+          toast.error(t(response._data.message))
+        }else{
+          const firstError = Object.values(response._data.errors)[0].msg
         
-        toast.error(firstError)
-        setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+          toast.error(firstError)
+          setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+        }
+        
       },
     })
 
     await nextTick(async () => {
-      toast.success(res.message)
+      showLoader.value = false
+      toast.success(t(res.message))
       await fetchOrderAndSyncOrderItems()
     })
   } catch (err) {
@@ -462,15 +478,15 @@ const fetchOrderAndSyncOrderItems = async () => {
       </div>
     </VCard>
   </div>
-
-
-
-
-
-
-
-
-
+  <VDialog
+    v-model="showLoader"
+  >
+    <VProgressCircular
+        :size="40"
+        color="white"
+        indeterminate
+      />
+  </VDialog>
 </template>
 
 <style lang="scss" scoped>
