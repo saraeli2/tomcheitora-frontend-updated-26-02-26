@@ -244,13 +244,15 @@ const submit = async () => {
 
 const paymentMethod = ref('Cash on Delivery')
 
-const {
-  data: orderDataupdate, execute: fetchOrderUpdatedOrder,
-} = await useApi(createUrl(`/orders/${ order.value?._id }`))
+if(order.value){
+  const {
+    data: orderDataupdate, execute: fetchOrderUpdatedOrder,
+  } = await useApi(createUrl(`/orders/${ order.value?._id }`))
 
-order.value = computed(() => orderDataupdate.value)
+  order.value = computed(() => orderDataupdate.value)
+  user.value = order.value.userID
+}
 
-user.value = order.value.userID
 
 const onSubmitPayment = async() =>{
   try {
