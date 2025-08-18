@@ -32,23 +32,23 @@ const pagesList = [
 const demoList = [
   {
     title: 'Home',
-    to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-1/dashboards/analytics',
+    to: '#',
   },
   {
     title: 'About Us',
-    to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-5/dashboards/analytics',
+    to: '#',
   },
   {
     title: 'Contact',
-    to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-2/dashboards/analytics',
+    to: '#',
   },
   {
     title: 'Terms & Conditions',
-    to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-3/dashboards/analytics',
+    to: '#',
   },
   {
     title: 'Privacy Policy',
-    to: 'https://demos.pixinvent.com/vuexy-vuejs-admin-template/demo-4/dashboards/analytics',
+    to: '#',
   },
 ]
 </script>
@@ -182,7 +182,7 @@ const demoList = [
 
             {{ new Date().getFullYear() }}
             <a
-              href="https://pixinvent.com/"
+              href="#"
               target="_blank"
               rel="noopener noreferrer"
               class="font-weight-bold ms-1 text-white"
@@ -193,10 +193,10 @@ const demoList = [
           <div class="d-flex gap-x-6">
             <template
               v-for="(item, index) in [
-                { title: 'github', icon: 'tabler-brand-github-filled', href: 'https://github.com/pixinvent' },
-                { title: 'facebook', icon: 'tabler-brand-facebook-filled', href: 'https://www.facebook.com/pixinvents/' },
-                { title: 'twitter', icon: 'tabler-brand-twitter-filled', href: 'https://twitter.com/pixinvents' },
-                { title: 'google', icon: 'tabler-brand-youtube-filled', href: 'https://www.youtube.com/channel/UClOcB3o1goJ293ri_Hxpklg' },
+                { title: 'github', icon: 'tabler-brand-github-filled', href: '#' },
+                { title: 'facebook', icon: 'tabler-brand-facebook-filled', href: '#' },
+                { title: 'twitter', icon: 'tabler-brand-twitter-filled', href: '#' },
+                { title: 'google', icon: 'tabler-brand-youtube-filled', href: '#' },
               ]"
               :key="index"
             >

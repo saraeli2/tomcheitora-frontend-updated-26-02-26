@@ -209,6 +209,31 @@ const chartOptions = computed(() => {
     yaxis: { labels: { show: false } },
   }
 })
+
+const tabs = [
+  {
+    title: 'Statistics',
+    tab: 'statistics',
+  },
+  {
+    title: 'Orders',
+    tab: 'orders',
+  },
+  {
+    title: 'Sale Products',
+    tab: 'sale-products',
+  },
+  {
+    title: 'Sale Communities',
+    tab: 'sale-communities',
+  },
+  {
+    title: 'Sale Stations',
+    tab: 'sale-stations',
+  },
+]
+
+const currentTab = ref('statistics')
 </script>
 
 <template>
@@ -235,7 +260,14 @@ const chartOptions = computed(() => {
 
       <div>
         <h4 class="text-h4 mb-1">
-          {{ $t('Sale ID') }} #{{ route.params.id }}
+          {{ $t('Sale ID') }} #{{ route.params.id }} 
+
+          <VIcon 
+            v-if="can('admin-update-sales', 'Update Sales')"
+            style="margin-left:6px" 
+            class="tabler-pencil" 
+            @click="isSaleDialogVisible = !isSaleDialogVisible"
+          />
         </h4>
         <div class="text-body-1">
           {{ $t('Created At') }}: {{ formatDateWithTime(saleData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(saleData.updatedAt) }}
@@ -253,120 +285,26 @@ const chartOptions = computed(() => {
       </div>
     </div>
     <!-- 👉 Sale Details  -->
-    <VRow
-      v-if="reloadTab"
-      class="match-height"
+    <VTabs
+      v-model="currentTab"
+      class="v-tabs-pill"
     >
-      <VCol
-        cols="12"
-        md="6"
-        lg="6"
+      <VTab
+        v-for="item in tabs"
+        :key="item.tab"
+        :value="item.tab"
       >
-        <VCard>
-          <VRow no-gutters>
-            <VCol cols="12">
-              <VCardText>
-                <h5 class="text-h5">
-                  {{ $t('Details') }}
-                </h5>
+        {{ $t(item.title) }}
+      </VTab>
+    </VTabs>
 
-                <VDivider class="my-4" />
-
-                <VList class="card-list mt-2">
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Name') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ saleData.name }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Start Date') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ formatDateWithTime(saleData.startDate) }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('End Date') }}:
-                      <span class="text-body-1 d-inline-block">
-                        {{ formatDateWithTime(saleData.endDate) }}
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <div class="d-flex gap-x-2 align-center">
-                      <h6 class="text-h6">
-                        {{ $t('Status') }}:
-                      </h6>
-                      <VChip
-                        label
-                        :color="resolveStatusVariantAndIcon(saleData.status).variant"
-                        size="small"
-                      >
-                        {{ resolveStatusVariantAndIcon(saleData.status).title }}
-                      </VChip>
-                    </div>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Created By') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && saleData.createdBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: saleData.createdBy._id } }"
-                        >
-                          {{ saleData.createdBy.name }}
-                        </RouterLink>
-                        <span v-else>{{ saleData.createdBy ? saleData.createdBy.name : '' }}</span>
-                      </span>
-                    </h6>
-                  </VListItem>
-
-                  <VListItem>
-                    <h6 class="text-h6">
-                      {{ $t('Updated By') }}:
-                      <span class="text-body-1 d-inline-block">
-                        <RouterLink
-                          v-if="can('admin-view-admins', 'View Admins') && saleData.updatedBy"
-                          :to="{ name: 'admin-admins-detail-id', params: { id: saleData.updatedBy._id } }"
-                        >
-                          {{ saleData.updatedBy.name }}
-                        </RouterLink>
-                        <span v-else>{{ saleData.updatedBy ? saleData.updatedBy.name : '' }}</span>
-                      </span>
-                    </h6>
-                  </VListItem>
-                </VList>
-              </VCardText>
-
-              <VCardText
-                v-if="can('admin-update-sales', 'Update Sales')"
-                class="text-center"
-              >
-                <VBtn
-                  block
-                  @click="isSaleDialogVisible = !isSaleDialogVisible"
-                >
-                  {{ $t('Edit Sale') }}
-                </VBtn>
-              </VCardText>
-            </VCol>
-          </VRow>
-        </VCard>
-      </VCol>
-      <VCol
-        cols="12"
-        md="6"
-        lg="6"
-      >
+    <VWindow
+      v-model="currentTab"
+      class="mt-6 disable-tab-transition"
+      :touch="false"
+    >
+      <!-- Account -->
+      <VWindowItem value="statistics">
         <VCard :title="$t('Statistics')">
           <VCardText class="h-100">
             <VDivider class="my-4" />
@@ -391,7 +329,7 @@ const chartOptions = computed(() => {
                       {{ saleData.totalGroups }}
                     </h5>
                     <div class="text-sm">
-                      {{ $t('Groups') }}
+                      {{ $t('Communities') }}
                     </div>
                   </div>
                 </div>
@@ -486,56 +424,35 @@ const chartOptions = computed(() => {
             </VRow>
           </VCardText>
         </VCard>
-      </VCol>
-      <VCol
-        cols="12"
-        md="6"
-        lg="6"
-      >
-        <DistributionStations
-          :saleid="route.params.id" 
-          @tab-data="refreshTab"
-        />
-      </VCol>
-      <VCol
-        cols="12"
-        md="6"
-        lg="6"
-      >
-        <DistributionGroups
-          :saleid="route.params.id" 
-          @tab-data="refreshTab"
-        />
-      </VCol>
-      <VCol
-        cols="12"
-        md="6"
-        lg="6"
-      >
-        <DistributionProducts
-          :saleid="route.params.id" 
-          @tab-data="refreshTab"
-        />
-      </VCol>
-      <VCol
-        cols="12"
-        md="6"
-        lg="6"
-      >
+      </VWindowItem>
+
+      <VWindowItem value="orders">
         <DistributionOrders
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
-      </VCol>
-    </VRow>
-    <div v-else>
-      <VAlert
-        type="error"
-        variant="tonal"
-      >
-        {{ route.params.id }} {{ $t('Not Found!') }}
-      </VAlert>
-    </div>
+      </VWindowItem>
+      <VWindowItem value="sale-products">
+        <DistributionProducts
+          :saleid="route.params.id" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+      <VWindowItem value="sale-communities">
+        <DistributionGroups
+          :saleid="route.params.id" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+      <VWindowItem value="sale-stations">
+        <DistributionStations
+          :saleid="route.params.id" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+    </VWindow>
+    
+    
 
     <AddNewSaleDrawer
       v-if="isSaleDialogVisible"

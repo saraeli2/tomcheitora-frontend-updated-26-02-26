@@ -145,120 +145,112 @@ const logout = async () => {
   </VNavigationDrawer>
 
   <!-- 👉 Navbar for desktop devices  -->
+  
   <div class="front-page-navbar">
-    <div class="front-page-navbar">
-      <VAppBar
-        :color="$vuetify.theme.current.dark ? 'rgba(var(--v-theme-surface),0.38)' : 'rgba(var(--v-theme-surface), 0.38)'"
-        :class="y > 10 ? 'app-bar-scrolled' : [$vuetify.theme.current.dark ? 'app-bar-dark' : 'app-bar-light', 'elevation-0']"
-        class="navbar-blur"
+    <VAppBar
+      :color="$vuetify.theme.current.dark ? 'rgba(var(--v-theme-surface),0.38)' : 'rgba(var(--v-theme-surface), 0.38)'"
+      class="navbar-blur"
+    >
+      <!-- toggle icon for mobile device -->
+      <IconBtn
+        id="vertical-nav-toggle-btn"
+        class="ms-n3 me-2 d-inline-block d-md-none"
+        @click="sidebar = !sidebar"
       >
-        <!-- toggle icon for mobile device -->
-        <IconBtn
-          id="vertical-nav-toggle-btn"
-          class="ms-n3 me-2 d-inline-block d-md-none"
-          @click="sidebar = !sidebar"
-        >
-          <VIcon
-            size="26"
-            icon="tabler-menu-2"
-            color="rgba(var(--v-theme-on-surface))"
-          />
-        </IconBtn>
-        <!-- Title and Landing page sections -->
-        <div class="d-flex align-center">
-          <VAppBarTitle class="me-6">
-            <RouterLink
-              to="/"
-              class="d-flex gap-x-4"
-              :class="$vuetify.display.mdAndUp ? 'd-none' : 'd-block'"
-            >
-              <div class="app-logo">
-                <div class="logo-block">
-                  <v-img
-                        src="/images/logo.svg"
-                      ></v-img>
-                </div>
-                <h1 class="app-logo-title">
-                  {{ themeConfig.app.title }}
-                </h1>
+        <VIcon
+          size="26"
+          icon="tabler-menu-2"
+          color="rgba(var(--v-theme-on-surface))"
+        />
+      </IconBtn>
+      <!-- Title and Landing page sections -->
+      <div class="d-flex align-center">
+        <VAppBarTitle class="me-6">
+          <RouterLink
+            to="/"
+            class="d-flex gap-x-4"
+            :class="$vuetify.display.mdAndUp ? 'd-none' : 'd-block'"
+          >
+            <div class="app-logo">
+              <div class="logo-block">
+                <v-img
+                      src="/images/logo.svg"
+                    ></v-img>
               </div>
-            </RouterLink>
-          </VAppBarTitle>
-
-          <!-- landing page sections -->
-          <div class="text-base align-center d-none d-md-flex">
-
-          <RouterLink
-            to="/profile/checkout"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('Checkout') }}
+              <h1 class="app-logo-title">
+                {{ themeConfig.app.title }}
+              </h1>
+            </div>
           </RouterLink>
+        </VAppBarTitle>
 
-          <RouterLink
-            to="/profile/orders"
-            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-          >
-            {{ $t('Orders') }}
-          </RouterLink>
-          
-          </div>
+        <!-- landing page sections -->
+        <div class="text-base align-center d-none d-md-flex">
+
+        
+        
         </div>
+      </div>
 
-        <VSpacer />
+      <VSpacer />
 
-        <div class="d-flex gap-x-4 hdr-top-right">
+      <div class="d-flex gap-x-4 hdr-top-right">
 
-          <VBtn
-            v-if="$vuetify.display.lgAndUp"
-            prepend-icon="tabler-shopping-cart"
-            variant="elevated"
-            color="primary"
-            href="/profile/checkout"
-            rel="noopener noreferrer"
-          >
-            {{ $t('Cart') }}
-          </VBtn>
-          <VBtn
-            v-if="$vuetify.display.lgAndUp"
-            prepend-icon="tabler-user-circle"
-            variant="elevated"
-            color="primary"
-            href="/profile/my-account/account"
-            rel="noopener noreferrer"
-          >
-            {{ $t('My Account') }}
-          </VBtn>
+        <VBtn
+          v-if="$vuetify.display.lgAndUp"
+          variant="elevated"
+          href="/profile/checkout"
+          icon
+          rel="noopener noreferrer"
+        >
+          <VIcon icon="tabler-shopping-cart" />
+        </VBtn>
+        
+        <NavBarI18n
+          v-if="themeConfig.app.i18n.enable && themeConfig.app.i18n.langConfig?.length"
+          :languages="themeConfig.app.i18n.langConfig"
+        />
 
+        <VBtn
+          v-if="userData"
+          icon
+          variant="elevated"
+          @click="logout"
+        >
+          <VIcon icon="tabler-logout" />
+        </VBtn>
+      </div>
+    </VAppBar>
+  </div>
 
-          <VBtn
-            v-else
-            rounded
-            icon
-            variant="elevated"
-            color="primary"
-            href="https://1.envato.market/vuexy_admin"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <VIcon icon="tabler-shopping-cart" />
-          </VBtn>
+  <div class="nav_menu">
+    <div class="nav_container">
+      <RouterLink
+        to="/sales"
+        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+      >
+        {{ $t('Sales') }}
+      </RouterLink>
+      <RouterLink
+        to="/profile/checkout"
+        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+      >
+        {{ $t('Checkout') }}
+      </RouterLink>
 
-          <NavBarI18n
-            v-if="themeConfig.app.i18n.enable && themeConfig.app.i18n.langConfig?.length"
-            :languages="themeConfig.app.i18n.langConfig"
-          />
+      <RouterLink
+        to="/profile/orders"
+        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+      >
+        {{ $t('Orders') }}
+      </RouterLink>
 
-          <VBtn
-            v-if="userData"
-            icon
-            variant="elevated"
-            @click="logout"
-          >
-            <VIcon icon="tabler-logout" />
-          </VBtn>
-        </div>
-      </VAppBar>
+      <RouterLink
+        to="/profile/my-account/account"
+        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+      >
+        {{ $t('My Account') }}
+      </RouterLink>
     </div>
   </div>
 </template>

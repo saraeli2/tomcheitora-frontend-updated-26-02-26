@@ -260,7 +260,7 @@ const onSubmitPayment = async() =>{
       method: 'POST',
       body: {
         paymentMethod: paymentMethod.value,
-        status: 'Processing',
+        status: 'Pending',
       },
       onResponseError({ response }) {
         //console.log(response._data.message)
@@ -270,8 +270,9 @@ const onSubmitPayment = async() =>{
     })
 
     await nextTick(async () => {
-      fetchOrderUpdatedOrder()
       currentStep.value = currentStep.value + 1
+      fetchOrderUpdatedOrder()
+      
     })
   } catch (err) {
   }

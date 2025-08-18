@@ -14,6 +14,9 @@ import { useConfigStore } from '@core/stores/config'
 import laptopGirl from '@images/illustrations/laptop-girl.png'
 import { useAuthStore } from '@/stores'
 import { useI18n } from 'vue-i18n'
+import { useToast } from 'vue-toastification'
+
+const toast = useToast()
 
 const { t } = useI18n()
 
@@ -32,9 +35,9 @@ const products = ref([])
 const totalProducts = ref(0)
 const loadingMore = ref(false)
 const searchQuery = ref()
-const itemsPerPage = ref(15)
+const itemsPerPage = ref(20)
 const page = ref(1)
-
+const showLoader = ref(false)
 
 const {
   data: saleDetail, execute: fetchSales, error,
@@ -124,23 +127,156 @@ function handleWindowScroll() {
 // Add and remove scroll listener
 onMounted(() => window.addEventListener('scroll', handleWindowScroll))
 onUnmounted(() => window.removeEventListener('scroll', handleWindowScroll))
+
+const orderItems = ref([])
+const {
+  data: orderData, execute: fetchOrder,
+} = await useApi(createUrl(`/sales/${ route.params.id }/orders?userId=${authStore.fuserData._id}`))
+
+const order = computed(() => orderData.value)
+
+if(order.value){
+  orderItems.value = order.value.orderItems
+}
+
+const getProductStatus = productId =>{
+  const index = orderItems.value.findIndex(item => item.productID === productId)
+  if (index !== -1) {
+    return true
+  }else{
+    return false
+  }
+}
+
+function addToCart(productId) {
+  const index = orderItems.value.findIndex(item => item.productID === productId)
+  if (index !== -1) {
+    // Product already in cart, increment quantity
+    orderItems.value[index].quantity += 1
+  } else {
+    // Add new product
+    orderItems.value.push({
+      productID: productId,
+      quantity: 1
+    })
+  }
+
+  if(order.value && order.value?._id){
+    //console.log(orderItems.value)
+    updateOrder()
+  }else{
+    createOrder()
+  }
+}
+
+function decrementCart(productId) {
+  const index = orderItems.value.findIndex(item => item.productID === productId)
+  if (index !== -1) {
+    if (orderItems.value[index].quantity > 1) {
+      orderItems.value[index].quantity -= 1
+    } else {
+      // Remove item if quantity is 1
+      orderItems.value.splice(index, 1)
+    }
+  }
+
+  if(order.value && order.value?._id){
+    //console.log(orderItems.value)
+    updateOrder()
+  }else{
+    createOrder()
+  }
+}
+
+const createOrder = async () => {
+  try {
+    showLoader.value = true
+
+    const res = await $api(`/sales/${ route.params.id }/orders`, {
+      method: 'POST',
+      body: {
+        saleID: saleData.value?._id,
+        products: orderItems.value,
+        status: 'Pending',
+        userID: authStore.fuserData._id,
+      },
+      onResponseError({ response }) {
+        showLoader.value = false
+
+        const firstError = Object.values(response._data.errors)[0].msg
+
+        toast.error(firstError)
+        setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+      },
+    })
+
+    await nextTick(async () => {
+      showLoader.value = false
+      toast.success(res.message)
+      await fetchOrderAndSyncOrderItems()
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const updateOrder = async () => {
+  try {
+    showLoader.value = true
+
+    const res = await $api(`/orders/${ order.value?._id }`, {
+      method: 'PATCH',
+      body: {
+        saleID: saleData.value?._id,
+        orderID: order.value?._id,
+        status: order.value.status,
+        userID: authStore.fuserData._id,
+        products: orderItems.value,
+      },
+      onResponseError({ response }) {
+        showLoader.value = false
+        if(response._data.message){
+          toast.error(t(response._data.message))
+        }else{
+          const firstError = Object.values(response._data.errors)[0].msg
+        
+          toast.error(firstError)
+          setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+        }
+        
+      },
+    })
+
+    await nextTick(async () => {
+      showLoader.value = false
+      toast.success(t(res.message))
+      await fetchOrderAndSyncOrderItems()
+    })
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+// Helper to fetch fresh order and sync orderItems local state
+const fetchOrderAndSyncOrderItems = async () => {
+  await fetchOrder()
+  orderItems.value = order.value?.orderItems || []
+}
 </script>
 
 <template>
   <div class="product-page">
     <Navbar />
-    <div class="subpage-banner landing-hero landing-hero-light-bg">
-      <VContainer>
-        <VCardText class="text-center subpage-tittle">
-          <h2>{{ $t('Product List') }}</h2>
-        </VCardText>
-      </VContainer>
-    </div>
     <div 
       v-if="userValid && validSale"
       class="product-wrapper"
     >
       <VContainer>
+        <VRow>
+          <VCol>
+            <h3 class="page_title">{{ $t('Our Products') }}</h3>
+          </VCol>
+        </VRow>
         <VRow class="filter-area">
           <VCol cols="12" md="4" sm="4" lg="4">
             <div class="filter-btn">
@@ -160,29 +296,63 @@ onUnmounted(() => window.removeEventListener('scroll', handleWindowScroll))
           </VCol>
         </VRow>
         <VRow class="product-area">
-          <VCol cols="12" md="4" sm="6" lg="4" v-for="product in products">
+          <VCol cols="12" md="4" sm="6" lg="3" v-for="product in products">
             <div class="custom-single-product">
-              <RouterLink
-                :to="{
-                  name: 'sales-id-products-pid',
-                  params: { id: saleData._id, pid: product._id },
-                }"
+              <div 
+                v-if="product.productID?.image"  
+                class="product-photo"
               >
-                <div class="product-photo" v-if="product.productID?.image">
-                  <VImg class="active-photo" :src="product.productID?.image"/>
-                  <VImg class="hover-photo" :src="product.productID?.image"/>
-                </div>
-                <div class="product-photo" v-else>
-                  <VImg class="active-photo" src="/images/no-img.jpg"/>
-                  <VImg class="hover-photo" src="/images/no-img.jpg"/>
-                </div>
-                <div class="product-info-block">
-                  <h5 class="text-h5">{{ product.productID?.name }}</h5>
+                <RouterLink
+                  :to="{
+                    name: 'sales-id-products-pid',
+                    params: { id: saleData._id, pid: product._id },
+                  }"
+                >
+                  <VImg :src="product.productID?.image"/>
+                </RouterLink>
+              </div>
+              <div 
+                v-else
+                class="product-photo"
+              >
+                <RouterLink
+                  :to="{
+                    name: 'sales-id-products-pid',
+                    params: { id: saleData._id, pid: product._id },
+                  }"
+                >
+                  <VImg src="/images/no-img.jpg"/>
+                </RouterLink>
+              </div>
+              <div class="product-info-block">
+                <h5 class="text-h5">
+                  <RouterLink
+                    :to="{
+                      name: 'sales-id-products-pid',
+                      params: { id: saleData._id, pid: product._id },
+                    }"
+                  >
+                  {{ product.productID?.name }}
+                  </RouterLink>
+                </h5>
+                <div class="product-action-block">
                   <h4>
                     <span class="product-price text-body-1">{{ product.price }} <span style="text-transform: uppercase; padding:0;">{{ product.productID?.currency }}</span></span>
                   </h4>
+
+                  <div class="action_block">
+                    <div v-if="getProductStatus(product.productID?._id)" class="flex items-center space-x-2">
+                      <button @click="decrementCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">-</button>
+                      <span>{{ orderItems.find(item => item.productID === product.productID?._id)?.quantity }}</span>
+                      <button @click="addToCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">+</button>
+                    </div>
+
+                    <div v-else>
+                      <button @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded"> + </button>
+                    </div>
+                  </div>
                 </div>
-              </RouterLink>
+              </div>
             </div>
           </VCol>
         </VRow>
@@ -408,7 +578,15 @@ onUnmounted(() => window.removeEventListener('scroll', handleWindowScroll))
 
 
 
-
+  <VDialog
+    v-model="showLoader"
+  >
+    <VProgressCircular
+        :size="40"
+        color="white"
+        indeterminate
+      />
+  </VDialog>
 </template>
 
 <style lang="scss" scoped>
