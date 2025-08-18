@@ -16,6 +16,13 @@ import { useAuthStore } from '@/stores'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 
+import { Swiper, SwiperSlide } from 'swiper/vue'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+
+import { Navigation, Pagination, Autoplay } from 'swiper/modules'
+
 const toast = useToast()
 
 const { t } = useI18n()
@@ -39,15 +46,45 @@ const itemsPerPage = ref(20)
 const page = ref(1)
 const showLoader = ref(false)
 
-const {
-  data: saleDetail, execute: fetchSales, error,
-} = await useApi(createUrl(`/sales/${ route.params.id }`))
+const search = ref('')
+const selectedCategories = ref([])
+
+// const {
+//   data: saleDetail, execute: fetchSales, error,
+// } = await useApi(createUrl(`/sales/${ route.params.id }`))
+const searchText = search.value || ''           // your product search input
+
+const query = new URLSearchParams({
+  search: searchText,
+  categoryIDs: selectedCategories.value.join(','), // convert array to comma-separated string
+}).toString()
+
+const { data: saleDetail, execute: fetchSales, error } = await useApi(
+  createUrl(`/sales/${route.params.id}?${query}`)
+)
 
 const saleData = computed(() => saleDetail.value.saleObj)
 const saleGroups = computed(() => saleDetail.value.saleGroups)
 
 products.value = saleDetail.value.saleProducts
 totalProducts.value = saleDetail.value.totalProducts
+
+
+//
+const fetchProducts = async () => {
+  const params = {
+    search: search.value,
+    categoryIDs: selectedCategories.value
+  }
+
+  searchText.value = search.value
+
+  await fetchSales(params)
+
+  products.value = saleDetail.value?.saleProducts || []
+  totalProducts.value = saleDetail.value?.totalProducts || 0
+}
+
 
 //console.log(saleProducts)
 const validSale = ref(false)
@@ -262,11 +299,59 @@ const fetchOrderAndSyncOrderItems = async () => {
   await fetchOrder()
   orderItems.value = order.value?.orderItems || []
 }
+
+const {
+  data: categoryData, execute: fetchCategories, caterror,
+} = await useApi(createUrl(`/categories`))
+
+const categories = categoryData.value.data
+
 </script>
 
 <template>
   <div class="product-page">
     <Navbar />
+
+    <div
+      class="sales-wrapper category_slider"
+      v-if="categories && categories.length > 0"
+    >
+      <VContainer>
+        <VRow>
+          <VCol>
+            <h3 class="page_title">{{ $t('What do you looking for ?') }}</h3>
+          </VCol>
+        </VRow>
+        <VRow>
+          <VCol md="12">
+            <Swiper
+              :modules="[Navigation, Pagination, Autoplay]"
+              :slides-per-view="8"
+              :loop="false"
+              :autoplay="false"
+              navigation
+              :breakpoints="{
+                320: { slidesPerView: 2, spaceBetween: 10 },
+                768: { slidesPerView: 5, spaceBetween: 15 },
+                1024: { slidesPerView: 8, spaceBetween: 20 }
+              }"
+              class="rounded-lg shadow-lg"
+            >
+              <SwiperSlide v-for="category in categories" :key="category._id">
+                <div class="cat_item">
+                  <div class="cat_thumb">
+                    <img v-if="category.image" :src="category.image">
+                    <img v-else src="/images/no-img.jpg">
+                  </div>
+                  <h3 class="font-semibold">{{ category.name }}</h3>
+                </div>
+              </SwiperSlide>
+            </Swiper>
+          </VCol>
+        </VRow>
+      </VContainer>
+    </div>
+
     <div 
       v-if="userValid && validSale"
       class="product-wrapper"
@@ -286,7 +371,9 @@ const fetchOrderAndSyncOrderItems = async () => {
           <VCol cols="12" md="8" sm="8" lg="4">
             <div class="product-search">
               <AppTextField
+                v-model="search"
                 :placeholder="$t('Search Product')"
+                @input="fetchProducts"
                 class="search-input-custom"
               />
               <div class="search-btn-th">

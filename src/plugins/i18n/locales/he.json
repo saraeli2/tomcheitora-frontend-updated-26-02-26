@@ -472,5 +472,7 @@
   "Order is void and cannot be modified.": "ההזמנה בטלה ולא ניתן לשנותה.",
   "You are not able to update your order.": "אינך מצליח לעדכן את ההזמנה שלך.",
   "Order has been updated successfully.": "ההזמנה עודכנה בהצלחה.",
-  "Order has been created successfully.": "ההזמנה נוצרה בהצלחה."
+  "Order has been created successfully.": "ההזמנה נוצרה בהצלחה.",
+  "Selling Price": "מחיר מכירה",
+  "Pocket": "כִּיס"
 }

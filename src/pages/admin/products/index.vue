@@ -62,6 +62,11 @@ const defaultColumns = [
     visible: true,
   },
   {
+    title: t('Selling Price'),
+    key: 'salePrice',
+    visible: true,
+  },
+  {
     title: t('Internal serial number'),
     key: 'serial_number',
     visible: true,
@@ -94,6 +99,11 @@ const defaultColumns = [
   {
     title: t('Amount of packages in box'),
     key: 'packages_in_box',
+    visible: true,
+  },
+  {
+    title: t('Amount of boxes'),
+    key: 'amount_of_boxes',
     visible: true,
   },
   {

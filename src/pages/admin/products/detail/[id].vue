@@ -386,6 +386,15 @@ watch(productData, newVal => {
 
                       <VListItem>
                         <h6 class="text-h6">
+                          {{ $t('Selling Price') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.salePrice }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
                           {{ $t('Quantity') }}:
                           <span class="text-body-1 d-inline-block">
                             {{ productData.quantity }}
@@ -407,6 +416,15 @@ watch(productData, newVal => {
                           {{ $t('Packages in box') }}:
                           <span class="text-body-1 d-inline-block">
                             {{ productData.packages_in_box }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Amount of boxes') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.amount_of_boxes }}
                           </span>
                         </h6>
                       </VListItem>
@@ -605,14 +623,7 @@ watch(productData, newVal => {
                         </h6>
                       </VListItem>
 
-                      <VListItem>
-                        <h6 class="text-h6">
-                          {{ $t('Sale Price') }}:
-                          <span class="text-body-1 d-inline-block">
-                            {{ productData.salePrice }}
-                          </span>
-                        </h6>
-                      </VListItem>
+                      
 
                       <VListItem>
                         <h6 class="text-h6">

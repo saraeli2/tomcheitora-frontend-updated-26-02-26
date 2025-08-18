@@ -64,6 +64,7 @@ const props = defineProps({
       quantity: '',
       amount_in_package: '',
       packages_in_box: '',
+      amount_of_boxes: '',
       currency: 'nis',
       unit_price: '',
       unit_price_including_vat: '',
@@ -303,6 +304,7 @@ const submit = async () => {
           categoryIDs: checkedCategories.value,
           amount_in_package: productData.value.amount_in_package,
           packages_in_box: productData.value.packages_in_box,
+          amount_of_boxes: productData.value.amount_of_boxes,
           currency: productData.value.currency,
           unit_price: productData.value.unit_price,
           unit_price_including_vat: productData.value.unit_price_including_vat,
@@ -349,6 +351,7 @@ const submit = async () => {
           quantity: productData.value.quantity,
           amount_in_package: productData.value.amount_in_package,
           packages_in_box: productData.value.packages_in_box,
+          amount_of_boxes: productData.value.amount_of_boxes,
           currency: productData.value.currency,
           unit_price: productData.value.unit_price,
           unit_price_including_vat: productData.value.unit_price_including_vat,
@@ -424,6 +427,7 @@ const updateProduct = async () => {
       quantity: productData.value.quantity,
       amount_in_package: productData.value.amount_in_package,
       packages_in_box: productData.value.packages_in_box,
+      amount_of_boxes: productData.value.amount_of_boxes,
       currency: productData.value.currency,
       unit_price: productData.value.unit_price,
       unit_price_including_vat: productData.value.unit_price_including_vat,
@@ -493,6 +497,7 @@ const errors = ref({
   quantity: undefined,
   amount_in_package: undefined,
   packages_in_box: undefined,
+  amount_of_boxes: undefined,
   currency: undefined,
   unit_price: undefined,
   unit_price_including_vat: undefined,
@@ -773,6 +778,16 @@ const removeCustomField = index => {
               />
             </VCol>
 
+            <!-- 👉 Sale Price -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.salePrice"
+                :label="$t('Selling Price')"
+                :placeholder="$t('Selling Price')"
+                :error-messages="errors.salePrice"
+              />
+            </VCol>
+
             <VCol cols="12">
               <AppTextField
                 v-model="productData.quantity"
@@ -799,6 +814,16 @@ const removeCustomField = index => {
                 :label="$t('Packages in box')"
                 :placeholder="$t('Packages in box')"
                 :error-messages="errors.packages_in_box"
+                type="number"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.amount_of_boxes"
+                :label="$t('Amount of boxes')"
+                :placeholder="$t('Amount of boxes')"
+                :error-messages="errors.amount_of_boxes"
                 type="number"
               />
             </VCol>
@@ -1029,15 +1054,7 @@ const removeCustomField = index => {
               />
             </VCol>
 
-            <!-- 👉 Sale Price -->
-            <VCol cols="12">
-              <AppTextField
-                v-model="productData.salePrice"
-                :label="$t('Sale Price')"
-                :placeholder="$t('Sale Price')"
-                :error-messages="errors.salePrice"
-              />
-            </VCol>
+            
 
             <!-- 👉 Max Stock -->
             <VCol cols="12">

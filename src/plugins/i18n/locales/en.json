@@ -476,5 +476,7 @@
   "Order is void and cannot be modified.": "Order is void and cannot be modified.",
   "You are not able to update your order" : "You are not able to update your order.",
   "Order has been updated successfully.": "Order has been updated successfully.",
-  "Order has been created successfully.": "Order has been created successfully."
+  "Order has been created successfully.": "Order has been created successfully.",
+  "Selling Price": "Selling Price",
+  "Pocket": "Pocket"
 }
