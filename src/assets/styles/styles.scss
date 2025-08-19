@@ -309,7 +309,7 @@ $grey-3:#aaaaaa;
   background:  linear-gradient(138.18deg, #eae8fd, #fce5e6 94.44%);
   background-size: cover;
   border-radius: 0 0 50px 50px;
-  padding-block: 9.75rem 3rem;
+  padding-block: 5.75rem 3rem;
 
   .v-card-text{
     padding: 0;
@@ -1318,6 +1318,27 @@ html .app-stepper.app-stepper-icons:not(.stepper-icon-step-bg) .stepper-steps-ac
 
 body .v-btn--variant-elevated:not(.v-btn--loading, .v-btn--disabled).bg-primary:hover, body .v-btn--variant-elevated:not(.v-btn--loading, .v-btn--disabled).bg-primary:active, body .v-btn--variant-elevated:not(.v-btn--loading, .v-btn--disabled).bg-primary:focus, body .v-btn--variant-flat:not(.v-btn--loading, .v-btn--disabled).bg-primary:hover, body .v-btn--variant-flat:not(.v-btn--loading, .v-btn--disabled).bg-primary:active, body .v-btn--variant-flat:not(.v-btn--loading, .v-btn--disabled).bg-primary:focus{
   background-color: #32A744 !important;;;;
+}
+body .app-text-field .v-label:has(+ .v-input .v-field.v-field--focused .v-field__outline.text-primary), body .app-select .v-label:has(+ .v-input .v-field.v-field--focused .v-field__outline.text-primary), body .app-autocomplete .v-label:has(+ .v-input .v-field.v-field--focused .v-field__outline.text-primary), body .app-combobox .v-label:has(+ .v-input .v-field.v-field--focused .v-field__outline.text-primary), body .app-textarea .v-label:has(+ .v-input .v-field.v-field--focused .v-field__outline.text-primary), body .app-picker-field .v-label:has(+ .v-input .v-field.v-field--focused .v-field__outline.text-primary){
+  color: #2f2b3de6!important;
+}
+.custom-single-product {
+    position: relative;
+}
+.stock_out {
+    font-size: 12px;
+    position: absolute;
+    z-index: 9;
+    background: red;
+    display: inline-block;
+    color: #fff;
+    border-radius: 3px;
+    padding: 3px 8px;
+    left: 12px;
+}
+button.addToCart_disable.px-4.py-2.bg-primary.text-white.rounded {
+    pointer-events: none;
+    opacity: 0.7;
 }
 
 @media only screen and (max-width: 767px) {

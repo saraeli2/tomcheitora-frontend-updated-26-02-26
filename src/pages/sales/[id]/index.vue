@@ -459,6 +459,9 @@ const updateSelectedCategory = catId => {
               <VRow class="product-area" v-if="products.length > 0">
                 <VCol cols="12" md="4" sm="6" lg="3" v-for="product in products">
                   <div class="custom-single-product">
+                    <div class="stock_out" v-if="!getProductStatus(product.productID?._id) && product.maxUnit == product.reservedQty">
+                      {{ $t('Out of stock') }}
+                    </div>
                     <div 
                       v-if="product.productID?.image"  
                       class="product-photo"
@@ -482,7 +485,7 @@ const updateSelectedCategory = catId => {
                           params: { id: saleData._id, pid: product._id },
                         }"
                       >
-                        <VImg src="/images/no-img.jpg"/>
+                        <VImg src="/images/no-img.jpg" />
                       </RouterLink>
                     </div>
                     <div class="product-info-block">
@@ -509,7 +512,7 @@ const updateSelectedCategory = catId => {
                           </div>
 
                           <div v-else>
-                            <button @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded"> + </button>
+                            <button :class="product.maxUnit == product.reservedQty ? 'addToCart_disable' : ''" @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded"> + </button>
                           </div>
                         </div>
                       </div>

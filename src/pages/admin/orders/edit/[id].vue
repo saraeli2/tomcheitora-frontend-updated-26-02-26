@@ -287,7 +287,7 @@ const handleProductPrices = async (val, key) => {
                       { value: 'Processing', title: 'Processing' },
                       { value: 'Delivered', title: 'Delivered' },
                       { value: 'Completed', title: 'Completed' },
-                      { value: 'Canceled', title: 'Canceled' },
+                      { value: 'Cancelled', title: 'Cancelled' },
                     ]"
                     :placeholder="$t('Select Status')"
                     :label="$t('Status')"
