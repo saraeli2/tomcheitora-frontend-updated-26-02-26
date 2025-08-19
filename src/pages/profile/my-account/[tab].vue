@@ -84,7 +84,7 @@ definePage({
 </script>
 
 <template>
-  <div class="checkout-page">
+  <div class="checkout-page product-page">
     <Navbar />
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>

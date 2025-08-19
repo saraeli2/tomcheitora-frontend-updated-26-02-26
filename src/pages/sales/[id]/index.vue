@@ -15,6 +15,7 @@ import laptopGirl from '@images/illustrations/laptop-girl.png'
 import { useAuthStore } from '@/stores'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
+import CategoryTree from './CategoryTree.vue'
 
 import { Swiper, SwiperSlide } from 'swiper/vue'
 import 'swiper/css'
@@ -48,43 +49,46 @@ const showLoader = ref(false)
 
 const search = ref('')
 const selectedCategories = ref([])
+const selectedCat = ref()
 
-// const {
-//   data: saleDetail, execute: fetchSales, error,
-// } = await useApi(createUrl(`/sales/${ route.params.id }`))
-const searchText = search.value || ''           // your product search input
 
-const query = new URLSearchParams({
-  search: searchText,
-  categoryIDs: selectedCategories.value.join(','), // convert array to comma-separated string
-}).toString()
+const category_ids = ref()
 
-const { data: saleDetail, execute: fetchSales, error } = await useApi(
-  createUrl(`/sales/${route.params.id}?${query}`)
+const {
+  data: saleDetail,
+  execute: fetchSales,
+  onFetchResponse,
+} = await useApi(
+  createUrl(`/sales/${route.params.id}`, {
+    query: {
+      categoryIDs: category_ids,
+    },
+  })
 )
+
+watch(selectedCategories, (newVal) => {
+
+  const ids = newVal.length ? newVal.join(",") : ""
+
+  category_ids.value = ids
+  showLoader.value = true
+  fetchSales()
+})
 
 const saleData = computed(() => saleDetail.value.saleObj)
 const saleGroups = computed(() => saleDetail.value.saleGroups)
 
+
 products.value = saleDetail.value.saleProducts
 totalProducts.value = saleDetail.value.totalProducts
 
-
-//
-const fetchProducts = async () => {
-  const params = {
-    search: search.value,
-    categoryIDs: selectedCategories.value
+watch(saleDetail, (newVal) => {
+  showLoader.value = false
+  if (newVal) {
+    products.value = newVal.saleProducts || []
+    totalProducts.value = newVal.totalProducts || 0
   }
-
-  searchText.value = search.value
-
-  await fetchSales(params)
-
-  products.value = saleDetail.value?.saleProducts || []
-  totalProducts.value = saleDetail.value?.totalProducts || 0
-}
-
+}, { immediate: true })
 
 //console.log(saleProducts)
 const validSale = ref(false)
@@ -117,7 +121,7 @@ async function loadProducts(newPage = 1) {
   try {
     const response = await useApi(createUrl('/sale-products', {
       query: {
-        search: searchQuery.value,
+        categoryIDs: category_ids,
         itemsPerPage: itemsPerPage.value,
         page: newPage,
         saleId: saleData.value?._id,
@@ -141,7 +145,6 @@ async function loadProducts(newPage = 1) {
 
 watch(
   [
-    searchQuery,
     itemsPerPage,
   ],
   () => {
@@ -304,12 +307,97 @@ const {
   data: categoryData, execute: fetchCategories, caterror,
 } = await useApi(createUrl(`/categories`))
 
-const categories = categoryData.value.data
+const categories = computed(() => categoryData.value.data)
 
+const tree = ref([])
+
+const checkedCategories = ref([])
+
+const getNodeId = node => node.realId || node._id
+
+const getAllDescendants = node => {
+  let ids = [getNodeId(node)]
+  if (node.children && node.children.length) {
+    for (const child of node.children) {
+      ids = ids.concat(getAllDescendants(child))
+    }
+  }
+  
+  return ids
+}
+
+const findNodeById = (tree, id) => {
+  for (const node of tree) {
+    if (getNodeId(node) === id) return node
+    if (node.children) {
+      const found = findNodeById(node.children, id)
+      if (found) return found
+    }
+  }
+  
+  return null
+}
+
+const buildTree = categories => {
+  const categoryMap = {}
+
+  // 1. Initialize all categories with empty children array
+  categories.forEach(cat => {
+    categoryMap[cat._id.toString()] = { ...cat, children: [] }
+  })
+
+  const roots = []
+
+  // 2. Build the tree by assigning children to their parents
+  categories.forEach(cat => {
+    if (cat.parentId) {
+      const parentId = cat.parentId.toString()
+      if (categoryMap[parentId]) {
+        categoryMap[parentId].children.push(categoryMap[cat._id.toString()])
+      } else {
+        // If parent not found, consider as root or handle error
+        roots.push(categoryMap[cat._id.toString()])
+      }
+    } else {
+      // No parentId means root node
+      roots.push(categoryMap[cat._id.toString()])
+    }
+  })
+
+  // 3. Optionally sort children by a property, e.g. 'sortOrder'
+  const sortChildren = nodes => {
+    nodes.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+    nodes.forEach(node => {
+      if (node.children?.length) {
+        sortChildren(node.children)
+      }
+    })
+  }
+
+  sortChildren(roots)
+
+  return roots
+}
+
+tree.value = buildTree(categories.value)
+
+const isIndeterminate = node => {
+  const descendants = getAllDescendants(node)
+  const selectedCount = descendants.filter(id => checkedCategories.value.includes(id)).length
+
+  return selectedCount > 0 && selectedCount < descendants.length
+}
+
+const updateSelectedCategory = catId => {
+  category_ids.value = catId
+  showLoader.value = true
+  selectedCat.value = catId
+  fetchSales()
+}
 </script>
 
 <template>
-  <div class="product-page">
+  <div class="product-page sale_page">
     <Navbar />
 
     <div
@@ -318,146 +406,141 @@ const categories = categoryData.value.data
     >
       <VContainer>
         <VRow>
-          <VCol>
-            <h3 class="page_title">{{ $t('What do you looking for ?') }}</h3>
+          <VCol md="3">
+            <div class="sidebar">
+              <div class="category_items">
+                <h3>{{ $t('Catgories') }}</h3>
+                
+                <CategoryTree
+                  v-model:selected="selectedCategories"
+                  :categories="tree"
+                />
+              </div>
+            </div>
           </VCol>
-        </VRow>
-        <VRow>
-          <VCol md="12">
-            <Swiper
-              :modules="[Navigation, Pagination, Autoplay]"
-              :slides-per-view="8"
-              :loop="false"
-              :autoplay="false"
-              navigation
-              :breakpoints="{
-                320: { slidesPerView: 2, spaceBetween: 10 },
-                768: { slidesPerView: 5, spaceBetween: 15 },
-                1024: { slidesPerView: 8, spaceBetween: 20 }
-              }"
-              class="rounded-lg shadow-lg"
+          <VCol md="9">
+            <VRow>
+              <VCol md="12">
+                <Swiper
+                  :modules="[Navigation, Pagination, Autoplay]"
+                  :slides-per-view="8"
+                  :loop="false"
+                  :autoplay="false"
+                  navigation
+                  :breakpoints="{
+                    320: { slidesPerView: 2, spaceBetween: 10 },
+                    768: { slidesPerView: 5, spaceBetween: 15 },
+                    1024: { slidesPerView: 8, spaceBetween: 20 }
+                  }"
+                  class="rounded-lg shadow-lg"
+                >
+                  <SwiperSlide v-for="category in categories" :key="category._id">
+                    <div class="cat_item" :class="selectedCat == category._id ? 'activeCat' : ''" @click="updateSelectedCategory(category._id)">
+                      <div class="cat_thumb">
+                        <img v-if="category.image" :src="category.image">
+                        <img v-else src="/images/no-img.jpg">
+                      </div>
+                      <h3 class="font-semibold">{{ category.name }}</h3>
+                    </div>
+                  </SwiperSlide>
+                </Swiper>
+              </VCol>
+            </VRow>
+
+            <div 
+              v-if="userValid && validSale"
+              class="product-wrapper"
             >
-              <SwiperSlide v-for="category in categories" :key="category._id">
-                <div class="cat_item">
-                  <div class="cat_thumb">
-                    <img v-if="category.image" :src="category.image">
-                    <img v-else src="/images/no-img.jpg">
-                  </div>
-                  <h3 class="font-semibold">{{ category.name }}</h3>
-                </div>
-              </SwiperSlide>
-            </Swiper>
-          </VCol>
-        </VRow>
-      </VContainer>
-    </div>
-
-    <div 
-      v-if="userValid && validSale"
-      class="product-wrapper"
-    >
-      <VContainer>
-        <VRow>
-          <VCol>
-            <h3 class="page_title">{{ $t('Our Products') }}</h3>
-          </VCol>
-        </VRow>
-        <VRow class="filter-area">
-          <VCol cols="12" md="4" sm="4" lg="4">
-            <div class="filter-btn">
-              <VBtn prepend-icon="tabler-filter" color="primary" @click="isFilterDialogOpen = true">{{ $t('Filter') }}</VBtn>
-            </div>
-          </VCol>
-          <VCol cols="12" md="8" sm="8" lg="4">
-            <div class="product-search">
-              <AppTextField
-                v-model="search"
-                :placeholder="$t('Search Product')"
-                @input="fetchProducts"
-                class="search-input-custom"
-              />
-              <div class="search-btn-th">
-                <VBtn prepend-icon="tabler-search" color="primary" ></VBtn>
-              </div>
-            </div>
-          </VCol>
-        </VRow>
-        <VRow class="product-area">
-          <VCol cols="12" md="4" sm="6" lg="3" v-for="product in products">
-            <div class="custom-single-product">
-              <div 
-                v-if="product.productID?.image"  
-                class="product-photo"
-              >
-                <RouterLink
-                  :to="{
-                    name: 'sales-id-products-pid',
-                    params: { id: saleData._id, pid: product._id },
-                  }"
-                >
-                  <VImg :src="product.productID?.image"/>
-                </RouterLink>
-              </div>
-              <div 
-                v-else
-                class="product-photo"
-              >
-                <RouterLink
-                  :to="{
-                    name: 'sales-id-products-pid',
-                    params: { id: saleData._id, pid: product._id },
-                  }"
-                >
-                  <VImg src="/images/no-img.jpg"/>
-                </RouterLink>
-              </div>
-              <div class="product-info-block">
-                <h5 class="text-h5">
-                  <RouterLink
-                    :to="{
-                      name: 'sales-id-products-pid',
-                      params: { id: saleData._id, pid: product._id },
-                    }"
-                  >
-                  {{ product.productID?.name }}
-                  </RouterLink>
-                </h5>
-                <div class="product-action-block">
-                  <h4>
-                    <span class="product-price text-body-1">{{ product.price }} <span style="text-transform: uppercase; padding:0;">{{ product.productID?.currency }}</span></span>
-                  </h4>
-
-                  <div class="action_block">
-                    <div v-if="getProductStatus(product.productID?._id)" class="flex items-center space-x-2">
-                      <button @click="decrementCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">-</button>
-                      <span>{{ orderItems.find(item => item.productID === product.productID?._id)?.quantity }}</span>
-                      <button @click="addToCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">+</button>
+              <VRow>
+                <VCol>
+                  <h3 class="page_title">{{ $t('Our Products') }}</h3>
+                </VCol>
+              </VRow>
+              <VRow class="product-area" v-if="products.length > 0">
+                <VCol cols="12" md="4" sm="6" lg="3" v-for="product in products">
+                  <div class="custom-single-product">
+                    <div 
+                      v-if="product.productID?.image"  
+                      class="product-photo"
+                    >
+                      <RouterLink
+                        :to="{
+                          name: 'sales-id-products-pid',
+                          params: { id: saleData._id, pid: product._id },
+                        }"
+                      >
+                        <VImg :src="product.productID?.image"/>
+                      </RouterLink>
                     </div>
+                    <div 
+                      v-else
+                      class="product-photo"
+                    >
+                      <RouterLink
+                        :to="{
+                          name: 'sales-id-products-pid',
+                          params: { id: saleData._id, pid: product._id },
+                        }"
+                      >
+                        <VImg src="/images/no-img.jpg"/>
+                      </RouterLink>
+                    </div>
+                    <div class="product-info-block">
+                      <h5 class="text-h5">
+                        <RouterLink
+                          :to="{
+                            name: 'sales-id-products-pid',
+                            params: { id: saleData._id, pid: product._id },
+                          }"
+                        >
+                        {{ product.productID?.name }}
+                        </RouterLink>
+                      </h5>
+                      <div class="product-action-block">
+                        <h4>
+                          <span class="product-price text-body-1">{{ product.price }} <span style="text-transform: uppercase; padding:0;">{{ product.productID?.currency }}</span></span>
+                        </h4>
 
-                    <div v-else>
-                      <button @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded"> + </button>
+                        <div class="action_block">
+                          <div v-if="getProductStatus(product.productID?._id)" class="flex items-center space-x-2">
+                            <button @click="decrementCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">-</button>
+                            <span>{{ orderItems.find(item => item.productID === product.productID?._id)?.quantity }}</span>
+                            <button @click="addToCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">+</button>
+                          </div>
+
+                          <div v-else>
+                            <button @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded"> + </button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
+                </VCol>
+              </VRow>
+
+              <VRow v-else>
+                <VCol>
+                  <h3>{{ $t('Products not found.') }}</h3>
+                </VCol>
+              </VRow>
+            </div>
+
+            <div 
+              v-else
+              class="product-wrapper"
+            >
+              <VRow class="filter-area">
+                <VCol md="12">
+                  <h3>{{ $t('You are not allowed to view this page.') }}</h3>
+                </VCol>
+              </VRow>
             </div>
           </VCol>
         </VRow>
       </VContainer>
     </div>
 
-    <div 
-      v-else
-      class="product-wrapper"
-    >
-      <VContainer>
-        <VRow class="filter-area">
-          <VCol md="12">
-            <h3>{{ $t('You are not allowed to view this page.') }}</h3>
-          </VCol>
-        </VRow>
-      </VContainer>
-    </div>
+    
 
     <VCard class="pricing-card">
       <div style="background-color: rgba(var(--v-theme-on-surface), var(--v-hover-opacity));">

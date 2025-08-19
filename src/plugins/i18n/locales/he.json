@@ -474,5 +474,8 @@
   "Order has been updated successfully.": "ההזמנה עודכנה בהצלחה.",
   "Order has been created successfully.": "ההזמנה נוצרה בהצלחה.",
   "Selling Price": "מחיר מכירה",
-  "Pocket": "כִּיס"
+  "Pocket": "כִּיס",
+  "Catgories": "קטגוריות",
+  "Our Products": "המוצרים שלנו",
+  "Products not found.": "מוצרים לא נמצאו."
 }

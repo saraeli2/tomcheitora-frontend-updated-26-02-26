@@ -478,5 +478,8 @@
   "Order has been updated successfully.": "Order has been updated successfully.",
   "Order has been created successfully.": "Order has been created successfully.",
   "Selling Price": "Selling Price",
-  "Pocket": "Pocket"
+  "Pocket": "Pocket",
+  "Catgories": "Catgories",
+  "Our Products": "Our Products",
+  "Products not found.": "Products not found."
 }

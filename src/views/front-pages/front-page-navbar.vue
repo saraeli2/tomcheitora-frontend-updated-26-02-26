@@ -126,10 +126,30 @@ const logout = async () => {
         <div class="d-flex flex-column gap-y-4 pa-4">
 
           <RouterLink
+            to="/sales"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('Sales') }}
+          </RouterLink>
+          <RouterLink
             to="/profile/checkout"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
             {{ $t('Checkout') }}
+          </RouterLink>
+
+          <RouterLink
+            to="/profile/orders"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('Orders') }}
+          </RouterLink>
+
+          <RouterLink
+            to="/profile/my-account/account"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('My Account') }}
           </RouterLink>
         </div>
       </div>
@@ -185,9 +205,34 @@ const logout = async () => {
         </VAppBarTitle>
 
         <!-- landing page sections -->
-        <div class="text-base align-center d-none d-md-flex">
+        <div class="text-base align-center d-none d-md-flex nav_pages">
 
-        
+          <RouterLink
+            to="/sales"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('Sales') }}
+          </RouterLink>
+          <RouterLink
+            to="/profile/checkout"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('Checkout') }}
+          </RouterLink>
+
+          <RouterLink
+            to="/profile/orders"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('Orders') }}
+          </RouterLink>
+
+          <RouterLink
+            to="/profile/my-account/account"
+            class="nav-link font-weight-medium py-2 px-2 px-lg-4"
+          >
+            {{ $t('My Account') }}
+          </RouterLink>
         
         </div>
       </div>
@@ -221,37 +266,6 @@ const logout = async () => {
         </VBtn>
       </div>
     </VAppBar>
-  </div>
-
-  <div class="nav_menu">
-    <div class="nav_container">
-      <RouterLink
-        to="/sales"
-        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-      >
-        {{ $t('Sales') }}
-      </RouterLink>
-      <RouterLink
-        to="/profile/checkout"
-        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-      >
-        {{ $t('Checkout') }}
-      </RouterLink>
-
-      <RouterLink
-        to="/profile/orders"
-        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-      >
-        {{ $t('Orders') }}
-      </RouterLink>
-
-      <RouterLink
-        to="/profile/my-account/account"
-        class="nav-link font-weight-medium py-2 px-2 px-lg-4"
-      >
-        {{ $t('My Account') }}
-      </RouterLink>
-    </div>
   </div>
 </template>
 

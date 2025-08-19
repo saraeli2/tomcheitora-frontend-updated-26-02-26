@@ -280,7 +280,7 @@ const onSubmitPayment = async() =>{
 </script>
 
 <template>
-  <div class="checkout-page">
+  <div class="checkout-page product-page">
     <Navbar />
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
@@ -408,7 +408,7 @@ const onSubmitPayment = async() =>{
                     <!-- 👉 Add more from wishlist -->
                     <div
                       class="d-flex align-center justify-space-between rounded py-2 px-5 text-base mt-4"
-                      style="border: 1px solid rgb(var(--v-theme-primary));"
+                      style="border: 1px solid #ddd;"
                     >
                       <a
                         :href="`/sales/${order.saleID?._id}`"

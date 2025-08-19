@@ -87,11 +87,6 @@ const defaultColumns = [
     visible: true,
   },
   {
-    title: t('Amount of boxes'),
-    key: 'amount_of_boxes',
-    visible: true,
-  },
-  {
     title: t('Amount in package'),
     key: 'amount_in_package',
     visible: true,
