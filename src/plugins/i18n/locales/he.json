@@ -478,5 +478,22 @@
   "Catgories": "קטגוריות",
   "Our Products": "המוצרים שלנו",
   "Products not found.": "מוצרים לא נמצאו.",
-  "Out of stock": "נגמר המלאי"
+  "Out of stock": "נגמר המלאי",
+  "Your profile has been saved. Please verify your new email/phone via OTP.": "הפרופיל שלך נשמר. אנא אשר את כתובת האימייל/טלפון החדשים שלך באמצעות OTP.",
+  "Verify Your Contact Info": "אימות פרטי הקשר שלך",
+  "Enter the OTP sent to your new phone": "הזן את ה-OTP שנשלח לטלפון החדש שלך",
+  "Enter the OTP sent to your new email": "הזן את ה-OTP שנשלח לכתובת האימייל החדשה שלך",
+  "Phone OTP": "סיסמה חד פעמית לטלפון",
+  "Verify": "לְאַמֵת",
+  "Email OTP": "OTP של אימייל",
+  "User has been updated successfully.": "המשתמש עודכן בהצלחה.",
+  "Email updated successfully": "האימייל עודכן בהצלחה",
+  "Invalid email OTP": "OTP לא חוקי של אימייל",
+  "Phone updated successfully": "הטלפון עודכן בהצלחה",
+  "ID number": "מספר תעודת זהות",
+  "Station has been updated successfully.": "התחנה עודכנה בהצלחה.",
+  "Successfully updated": "עודכן בהצלחה",
+  "Successfully saved": "נשמר בהצלחה"
+
+
 }

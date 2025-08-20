@@ -482,5 +482,20 @@
   "Catgories": "Catgories",
   "Our Products": "Our Products",
   "Products not found.": "Products not found.",
-  "Out of stock": "Out of stock"
+  "Out of stock": "Out of stock",
+  "Your profile has been saved. Please verify your new email/phone via OTP.": "Your profile has been saved. Please verify your new email/phone via OTP.",
+  "Verify Your Contact Info": "Verify Your Contact Info",
+  "Enter the OTP sent to your new phone": "Enter the OTP sent to your new phone",
+  "Enter the OTP sent to your new email": "Enter the OTP sent to your new email",
+  "Phone OTP": "Phone OTP",
+  "Verify": "Verify",
+  "Email OTP": "Email OTP",
+  "User has been updated successfully.": "User has been updated successfully.",
+  "Email updated successfully": "Email updated successfully",
+  "Invalid email OTP": "Invalid email OTP",
+  "Phone updated successfully": "Phone updated successfully",
+  "ID number": "ID number",
+  "Station has been updated successfully.": "Station has been updated successfully.",
+  "Successfully updated": "Successfully updated",
+  "Successfully saved": "Successfully saved"
 }

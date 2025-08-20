@@ -3,6 +3,8 @@ import avatar1 from '@images/avatars/avatar-1.png'
 import { useToast } from 'vue-toastification'
 import axios from 'axios'
 import { useAuthStore } from '@/stores'
+import { useI18n } from 'vue-i18n'
+
 
 const props = defineProps({
   cities: {
@@ -36,6 +38,7 @@ const props = defineProps({
   },
 })
 
+const { t } = useI18n()
 const authStore = useAuthStore()
 const isNewPasswordVisible = ref(false)
 const toast = useToast()
@@ -48,6 +51,13 @@ const imageUrl = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const adminData = ref(structuredClone(toRaw(props.user)))
 const cities = ref(structuredClone(toRaw(props.cities)))
+
+const showOtpDialog = ref(false)
+const needsEmailOtp = ref(false)
+const needsPhoneOtp = ref(false)
+const phoneOtp = ref()
+const emailOtp = ref()
+
 
 if(props.user._id) {
   if(props.user.cityID) {
@@ -64,24 +74,31 @@ const submit = async () => {
   const formData = new FormData()
 
   if(imageID.value) {
-    //formData.append('imageID', imageID.value)
-    const formDataImage = new FormData()
     
-    formDataImage.append('file', imageID.value)
-    formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+    // Cloudinar
+    const signatureRes = await $api('/signature')
+    const { signature, timestamp, apiKey, cloudName } = signatureRes;
 
-    try {
-      const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
-        method: 'POST',
-        body: formDataImage,
-      })
+    // Prepare form data for Cloudinary
+    const formData = new FormData()
 
-      const data = await response.json()
+    formData.append('file', imageID.value)
+    formData.append('api_key', apiKey)
+    formData.append('timestamp', timestamp)
+    formData.append('signature', signature)
 
-      imageUrl.value = data.secure_url
-    } catch (error) {
-      console.error('Cloudinary upload error:', error)
-    }
+    // Upload to Cloudinary
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+      method: 'POST',
+      body: formData,
+    })
+
+    const data = await uploadRes.json()
+
+    imageUrl.value = data.secure_url
+    adminData.value.imageID = data.secure_url
+
+
   }else if(adminData.value.imageID){
     formData.append('imageUrl', adminData.value.imageID)
   }
@@ -186,24 +203,46 @@ const submit = async () => {
 
         await nextTick(() => {
           refForm.value?.resetValidation()
-          toast.success("Successfully updated")
+
+          toast.success(t(response.data.message))
+          if(response.data.otpRequired == true){
+            showOtpDialog.value = true
+          }
+          if(response.data.needsEmailOtp == true){
+            needsEmailOtp.value = true
+          }
+          if(response.data.needsPhoneOtp == true){
+            needsPhoneOtp.value = true
+          }
         })
       }else{
         await nextTick(() => {
           refForm.value?.resetValidation()
-          toast.success("Successfully updated")
+          //console.log(response);
+          toast.success(t(response.data.message))
+          if(response.data.otpRequired == true){
+            showOtpDialog.value = true
+          }
+          if(response.data.needsEmailOtp == true){
+            needsEmailOtp.value = true
+          }
+
+          if(response.data.needsPhoneOtp == true){
+            needsPhoneOtp.value = true
+          }
         })
       }
 
     })
       .catch(e => {
-        errors.value = e.response.data.errors
+        //console.log(e.response)
+        //errors.value = e.response.data.errors
       })
   }
 }
 
 const updateImage = async (formData, modelId) => {
-  const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/users/${ modelId }`, formData, {
+  const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/${ modelId }`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
       'Authorization': `Bearer ${authStore.accessToken}`,
@@ -271,6 +310,56 @@ const changeAvatar = file => {
         accountDataLocal.value.avatarImg = fileReader.result
     }
   }
+}
+
+const refFormVerify = ref()
+
+const onSubmitVerify = () => {
+  refFormVerify.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      submitVerify()
+  })
+}
+
+const submitVerify = async() =>{
+  
+  const res = await $api(`/users/verify-otp/${ props.user._id }`, {
+    method: 'POST',
+    body: {
+      emailOtp: emailOtp.value,
+      phoneOtp: phoneOtp.value,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      
+
+      if(response.hasError){
+        adminData.value.email = response.data.email
+        adminData.value.phone = response.data.phone
+        toast.error(t(response.message))
+      }else{
+        showOtpDialog.value = false
+        adminData.value.email = response.data.email
+        adminData.value.phone = response.data.phone
+        toast.success(t(response.message))
+        emailOtp.value = ''
+        phoneOtp.value = ''
+        needsPhoneOtp.value = false
+        needsEmailOtp.value = false
+      }
+    })
+  })
+}
+
+const closeOtpModal = () => {
+  showOtpDialog.value = false
+  adminData.value.email = props.user.email
+  adminData.value.phone = props.user.phone
+  needsPhoneOtp.value = false
+  needsEmailOtp.value = false
 }
 </script>
 
@@ -483,4 +572,45 @@ const changeAvatar = file => {
       </VCard>
     </VCol>
   </VRow>
+
+  <VDialog class="verify_modal" v-model="showOtpDialog" max-width="500">
+    <VCard>
+      <VForm 
+        ref="refFormVerify"
+        @submit.prevent="onSubmitVerify"
+      >
+        <VCardTitle class="text-h6">
+          {{ $t('Verify Your Contact Info') }}
+        </VCardTitle>
+
+        <VCardText>
+          <p v-if="needsEmailOtp">{{ $t('Enter the OTP sent to your new email') }}</p>
+          <AppTextField
+            v-if="needsEmailOtp"
+            v-model="emailOtp"
+            :label="$t('Email OTP')"
+            :rules="[requiredValidator]"
+          />
+
+          <p v-if="needsPhoneOtp">{{ $t('Enter the OTP sent to your new phone') }}</p>
+          <AppTextField
+            v-if="needsPhoneOtp"
+            v-model="phoneOtp"
+            :label="$t('Phone OTP')"
+            :rules="[requiredValidator]"
+          />
+
+          <p v-if="!needsEmailOtp && !needsPhoneOtp">{{ $t('No OTP required') }}</p>
+        </VCardText>
+
+        <VCardActions>
+          <VSpacer />
+          <VBtn style="color: #333!important;" variant="text" @click="closeOtpModal">{{ $t('Cancel') }}</VBtn>
+          <VBtn type="submit">
+            {{ $t('Verify') }}
+          </VBtn>
+        </VCardActions>
+      </VForm>
+    </VCard>
+  </VDialog>
 </template>

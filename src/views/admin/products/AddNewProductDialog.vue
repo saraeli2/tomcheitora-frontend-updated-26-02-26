@@ -250,23 +250,43 @@ const cities = cityOptions.value.map(item => ({
 const submit = async () => {
   try {
     if(image.value) {
-      const formDataImage = new FormData()
+      // const formDataImage = new FormData()
       
+      // formDataImage.append('file', image.value)
+      // formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+
+      // try {
+      //   const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
+      //     method: 'POST',
+      //     body: formDataImage,
+      //   })
+
+      //   const data = await response.json()
+
+      //   imageUrl.value = data.secure_url
+
+      // Cloudinar
+      const formDataImage = new FormData()
+      const signatureRes = await $api('/signature')
+      const { signature, timestamp, apiKey, cloudName } = signatureRes;
+
+      // Prepare form data for Cloudinary
+
       formDataImage.append('file', image.value)
-      formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+      formDataImage.append('api_key', apiKey)
+      formDataImage.append('timestamp', timestamp)
+      formDataImage.append('signature', signature)
 
-      try {
-        const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
-          method: 'POST',
-          body: formDataImage,
-        })
+      // Upload to Cloudinary
+      const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+        method: 'POST',
+        body: formDataImage,
+      })
 
-        const data = await response.json()
+      const data = await uploadRes.json()
 
-        imageUrl.value = data.secure_url
-      } catch (error) {
-        console.error('Cloudinary upload error:', error)
-      }
+      imageUrl.value = data.secure_url
+      
     }else if(productData.value.image){
       imageUrl.value = productData.value.image
     }

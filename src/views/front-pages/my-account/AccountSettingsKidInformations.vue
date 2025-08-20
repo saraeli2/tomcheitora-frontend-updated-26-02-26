@@ -12,7 +12,7 @@ const props = defineProps({
   },
 })
 
-import AddNewKidDrawer from '@/views/admin/users/AddNewKidDrawer.vue'
+import AddNewKidDrawer from '@/views/users/AddNewKidDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 import Swal from 'sweetalert2'
@@ -81,34 +81,17 @@ const {
   data: customerData,
   execute: fetchCommunities,
   error,
-} = await useApi(createUrl('/admin/kids', {
+} = await useApi(createUrl('/kids', {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
-    communityID: selectedUserID,
+    userID: props.user._id,
     itemsPerPage,
     page,
     sortBy,
     orderBy,
   },
 }))
-
-if(error.value == 'Unauthorized') {
-// Remove "accessToken" from cookie
-  localStorage.removeItem('userData')
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('userAbilityRules')
-
-  // Reset ability to initial ability
-  ability.update([])
-
-  // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
-
-  // Redirect to login page
-  router.push({ name: 'admin-login' })
-
-  location.href = '/admin/login'
-}
 
 const kids = computed(() => customerData.value.kids)
 const totalKids = computed(() => customerData.value.total)
@@ -157,7 +140,7 @@ const deleteKid = async id => {
   })
     .then(async result => {
       if (result.value) {
-        await $api(`/admin/kids/${ id }`, { method: 'DELETE' })
+        await $api(`/kids/${ id }`, { method: 'DELETE' })
         fetchCommunities()
       }
     })  

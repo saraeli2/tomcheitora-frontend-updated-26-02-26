@@ -1,5 +1,6 @@
 <script setup>
 import { useToast } from 'vue-toastification'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
   stations: {
@@ -16,6 +17,8 @@ const props = defineProps({
     }),
   },
 })
+
+const { t } = useI18n()
 
 const errors = ref({
   stationID: undefined,
@@ -34,7 +37,7 @@ if(props.user._id && props.user.stationId) {
 
 const onSubmit = async () => {
   try {
-    const res = await $api(`/admin/users/${ props.user._id }/update-station`, {
+    const res = await $api(`/users/${ props.user._id }/update-station`, {
       method: 'PATCH',
       body: {
         stationId: adminData.value.stationID,
@@ -47,7 +50,7 @@ const onSubmit = async () => {
     await nextTick(() => {
       refForm.value?.resetValidation()
       
-      toast.success("התחנה עודכנה בהצלחה")
+      toast.success(t('Station has been updated successfully.'));
       
     })
   } catch (err) {
