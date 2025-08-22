@@ -3,6 +3,7 @@ import App from '@/App.vue'
 import { registerPlugins } from '@core/utils/plugins'
 import { createPinia } from 'pinia'
 import Toast from "vue-toastification"
+import Cookies from 'js-cookie'
 
 // Styles
 import '@core/scss/template/index.scss'
@@ -28,6 +29,15 @@ app.use(Toast, options)
 
 // Register plugins
 registerPlugins(app)
+
+
+const sessionCookie = Cookies.get('user_session_access_cookie')
+if (!sessionCookie) {
+  localStorage.removeItem('fuserData')
+  localStorage.removeItem('faccessToken')
+  localStorage.removeItem('fuserAbilityRules')
+  //window.location.href = '/login'
+}
 
 // Mount vue app
 app.mount('#app')

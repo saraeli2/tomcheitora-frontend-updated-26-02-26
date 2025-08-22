@@ -610,7 +610,8 @@ const buildTree = (categories, searchTerm = '') => {
 
 const tree = computed(() => buildTree(categories.value, searchTerm.value))
 
-const checkedCategories = ref(props.product.categoryIDs)
+//const checkedCategories = ref(props.product.categoryIDs)
+const checkedCategories = ref(Array.isArray(props.product.categoryIDs) ? [...props.product.categoryIDs] : [])
 const getNodeId = node => node.realId || node._id
 
 const getAllDescendants = node => {
@@ -636,25 +637,16 @@ const findNodeById = (tree, id) => {
   return null
 }
 
-const onToggleSelect = ({ id, checked }) => {
-  const node = findNodeById(tree.value, id)
-  if (!node) {
-    console.warn('Node not found for id:', id)
-    
-    return
-  }
 
-  const descendants = getAllDescendants(node)
+
+const onToggleSelect = ({ id, checked }) => {
+  const idStr = String(id)
+  const list = checkedCategories.value.map(String)
 
   if (checked) {
-    checkedCategories.value = Array.from(new Set([
-      ...checkedCategories.value,
-      ...descendants,
-    ]))
+    if (!list.includes(idStr)) checkedCategories.value.push(id)
   } else {
-    checkedCategories.value = checkedCategories.value.filter(
-      catId => !descendants.includes(catId),
-    )
+    checkedCategories.value = checkedCategories.value.filter(x => String(x) !== idStr)
   }
 }
 
@@ -707,6 +699,32 @@ const addCustomField = () => {
 const removeCustomField = index => {
   productData.value.customFields.splice(index, 1)
 }
+
+const removeCategory = id => {
+  checkedCategories.value = checkedCategories.value.filter(x => String(x) !== String(id))
+}
+
+const filteredTree = computed(() => {
+  if (!searchTerm.value) return tree.value
+  const term = searchTerm.value.toLowerCase()
+  const flatten = (nodes) => nodes.flatMap(node => [node, ...(node.children ? flatten(node.children) : [])])
+  return flatten(tree.value).filter(node => node.name.toLowerCase().includes(term))
+})
+
+// Flattened helper to get category name by id
+const findCategoryNameById = (id) => {
+  // const flattenCategories = (nodes) => {
+  //   return nodes.reduce((acc, node) => {
+  //     acc.push(node)
+  //     if (node.children?.length) acc.push(...flattenCategories(node.children))
+  //     return acc
+  //   }, [])
+  // }
+
+  // const flat = flattenCategories(tree.value)
+  const cat = categories.value.find(node => String(node._id || node.realId) === String(id))
+  return cat ? cat.name : id
+}
 </script>
 
 <template>
@@ -741,13 +759,34 @@ const removeCustomField = index => {
                 ref="dropdownWrapper"
                 class="relative w-full max-w-xl"
               >
-                <!-- Search input -->
-                <AppTextField
-                  v-model="searchTerm"
-                  :label="$t('Category')"
-                  :placeholder="$t('Search Category')"
-                  @focus="showList = true"
-                />
+                <div
+                  class="flex flex-wrap items-center gap-1 px-2 py-1 border border-gray-300 rounded"
+                  @click="showList = true"
+                >
+                  <!-- Selected categories as chips -->
+                  <span
+                    v-for="id in checkedCategories"
+                    :key="id"
+                    class="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full text-sm s_items"
+                  >
+                    {{ findCategoryNameById(id) }}
+                    <button
+                      type="button"
+                      @click.stop="removeCategory(id)"
+                      class="text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  </span>
+
+                  <!-- Search input -->
+                  <AppTextField
+                    v-model="searchTerm"
+                    type="text"
+                    class="flex-1 outline-none border-none"
+                    :placeholder="$t('Search Category')"
+                  />
+                </div>
 
                 <!-- Category dropdown -->
                 <div
@@ -756,25 +795,23 @@ const removeCustomField = index => {
                   @mousedown.prevent
                 >
                   <ul class="p-3">
-                    <CategoryTreeNode
+                    <!-- <CategoryTreeNode
                       v-for="node in tree"
                       :key="node.realId"
                       :node="node"
                       :selected="checkedCategories"
                       :indeterminate="isIndeterminate(node)"
                       @toggle-select="onToggleSelect"
+                    /> -->
+
+                    <CategoryTreeNode
+                      v-for="node in tree"
+                      :key="node.realId || node._id"
+                      :node="node"
+                      :selected="checkedCategories"
+                      @toggle-select="onToggleSelect"
                     />
                   </ul>
-                </div>
-
-                <div class="selected_cat" v-if="checkedCategories && checkedCategories.length > 0">
-                  <CategoryBuilderProductDetailNodeList
-                    v-for="node in tree"
-                    :key="node.realId || node._id"
-                    :node="node"
-                    :selected="checkedCategories"
-                    :indeterminate="isIndeterminate(node)"
-                  />
                 </div>
               </div>
             </VCol>

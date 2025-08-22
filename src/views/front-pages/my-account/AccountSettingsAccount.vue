@@ -1,5 +1,6 @@
 <script setup>
 import avatar1 from '@images/avatars/avatar-1.png'
+import { ref, nextTick, computed } from 'vue'
 import { useToast } from 'vue-toastification'
 import axios from 'axios'
 import { useAuthStore } from '@/stores'
@@ -37,6 +38,8 @@ const props = defineProps({
     }),
   },
 })
+
+const emit = defineEmits(['update:user'])
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -205,31 +208,23 @@ const submit = async () => {
           refForm.value?.resetValidation()
 
           toast.success(t(response.data.message))
-          if(response.data.otpRequired == true){
-            showOtpDialog.value = true
-          }
-          if(response.data.needsEmailOtp == true){
-            needsEmailOtp.value = true
-          }
-          if(response.data.needsPhoneOtp == true){
-            needsPhoneOtp.value = true
-          }
+          
         })
       }else{
         await nextTick(() => {
           refForm.value?.resetValidation()
           //console.log(response);
           toast.success(t(response.data.message))
-          if(response.data.otpRequired == true){
-            showOtpDialog.value = true
-          }
-          if(response.data.needsEmailOtp == true){
-            needsEmailOtp.value = true
-          }
+          // if(response.data.otpRequired == true){
+          //   showOtpDialog.value = true
+          // }
+          // if(response.data.needsEmailOtp == true){
+          //   needsEmailOtp.value = true
+          // }
 
-          if(response.data.needsPhoneOtp == true){
-            needsPhoneOtp.value = true
-          }
+          // if(response.data.needsPhoneOtp == true){
+          //   needsPhoneOtp.value = true
+          // }
         })
       }
 
@@ -341,14 +336,20 @@ const submitVerify = async() =>{
         adminData.value.phone = response.data.phone
         toast.error(t(response.message))
       }else{
+        isEmailEdit.value = false
+
         showOtpDialog.value = false
         adminData.value.email = response.data.email
         adminData.value.phone = response.data.phone
         toast.success(t(response.message))
         emailOtp.value = ''
         phoneOtp.value = ''
-        needsPhoneOtp.value = false
-        needsEmailOtp.value = false
+
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000) // 1000ms = 1 second
+        
+
       }
     })
   })
@@ -360,6 +361,97 @@ const closeOtpModal = () => {
   adminData.value.phone = props.user.phone
   needsPhoneOtp.value = false
   needsEmailOtp.value = false
+}
+
+const isEmailEdit = ref(false)
+
+const emailInput = ref(null) // template ref
+
+const editEmail = () => {
+  isEmailEdit.value = true
+  nextTick(() => {
+    // Access the internal input of AppTextField
+    const inputEl = emailInput.value?.$el?.querySelector('input')
+    inputEl?.focus()
+  })
+}
+
+const isPhoneEdit = ref(false)
+
+const phoneInput = ref(null) // template ref
+
+const editPhone = () => {
+  isPhoneEdit.value = true
+  nextTick(() => {
+    // Access the internal input of AppTextField
+    const inputPh = phoneInput.value?.$el?.querySelector('input')
+    inputPh?.focus()
+  })
+}
+
+const emailValidator = (value) => {
+  const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return regex.test(value) || 'Invalid email address'
+}
+
+const isEmailValid = computed(() => emailValidator(adminData.value.email) === true)
+
+const verifyEmailAddress = async() => {
+  const res = await $api(`/users/opt-send/${ props.user._id }`, {
+    method: 'POST',
+    body: {
+      email: adminData.value.email,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        adminData.value.email = response.data.email
+        toast.error(t(response.message))
+      }else{
+        // showOtpDialog.value = true
+        needsPhoneOtp.value = false
+        toast.success(t(response.message))
+        if(response.otpRequired == true){
+          showOtpDialog.value = true
+        }
+        if(response.needsEmailOtp == true){
+          needsEmailOtp.value = true
+        }
+      }
+    })
+  })
+}
+
+const verifyPhoneNo = async() => {
+  const res = await $api(`/users/opt-send/${ props.user._id }`, {
+    method: 'POST',
+    body: {
+      phone: adminData.value.phone,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        adminData.value.phone = response.data.phone
+        toast.error(t(response.message))
+      }else{
+        // showOtpDialog.value = true
+        needsEmailOtp.value = false
+        toast.success(t(response.message))
+        if(response.otpRequired == true){
+          showOtpDialog.value = true
+        }
+        if(response.needsPhoneOtp == true){
+          needsPhoneOtp.value = true
+        }
+      }
+    })
+  })
 }
 </script>
 
@@ -397,25 +489,59 @@ const closeOtpModal = () => {
 
               <!-- 👉 Email -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.email"
-                  :rules="[requiredValidator, emailValidator]"
-                  :label="$t('Email')"
-                  :placeholder="$t('Email')"
-                  :error-messages="errors.email"
-                />
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email') }} 
+                  <VIcon 
+                    style="margin-left:6px" 
+                    @click="editEmail" class="tabler-pencil" 
+                  />
+                </label>
+                <div class="field_block">
+                  <AppTextField
+                    ref="emailInput"
+                    v-model="adminData.email"
+                    :rules="[emailValidator]"
+                    :placeholder="$t('Email')"
+                    :error-messages="errors.email"
+                    :disabled="!isEmailEdit"
+                    :autofocus="isEmailEdit"
+                  />
+                
+                  <div class="action_block" v-if="isEmailEdit">
+                    <VBtn style="color: #333!important;" variant="text" @click="isEmailEdit=false, adminData.email = $props.user.email ">{{ $t('Cancel') }}</VBtn>
+                    <VBtn :disabled="!isEmailValid || props.user.email == adminData.email" variant="outlined" @click="verifyEmailAddress">
+                      {{ $t('Verify') }}
+                    </VBtn>
+                  </div>
+                </div>
               </VCol>
 
-              <!-- 👉 phone -->
               <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.phone"
-                  :label="$t('Phone')"
-                  :placeholder="$t('Phone')"
-                  :error-messages="errors.phone"
-                />
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone') }} 
+                  <VIcon 
+                    style="margin-left:6px" 
+                    @click="editPhone" class="tabler-pencil" 
+                  />
+                </label>
+                <div class="field_block">
+                  <AppTextField
+                    ref="phoneInput"
+                    v-model="adminData.phone"
+                    :placeholder="$t('Phone')"
+                    :error-messages="errors.phone"
+                    :disabled="!isPhoneEdit"
+                    :autofocus="isPhoneEdit"
+                  />
+                
+                  <div class="action_block" v-if="isPhoneEdit">
+                    <VBtn style="color: #333!important;" variant="text" @click="isPhoneEdit=false">{{ $t('Cancel') }}</VBtn>
+                    <VBtn :disabled="!adminData.phone || adminData.phone == props.user.phone " variant="outlined" @click="verifyPhoneNo">
+                      {{ $t('Verify') }}
+                    </VBtn>
+                  </div>
+                </div>
               </VCol>
 
+              
               <!-- 👉 City -->
               <VCol cols="12">
                 <AppAutocomplete

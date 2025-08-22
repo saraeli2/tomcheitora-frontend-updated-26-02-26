@@ -22,7 +22,7 @@ const { t } = useI18n()
 
 const configStore = useConfigStore()
 
-configStore.isAppRTL = true
+//configStore.isAppRTL = true
 
 const authThemeImg = useGenerateImageVariant(authV2LoginIllustrationLight, authV2LoginIllustrationDark, authV2LoginIllustrationBorderedLight, authV2LoginIllustrationBorderedDark, true)
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
@@ -69,7 +69,7 @@ const login = async () => {
       onResponseError({ response }) {
         //console.log(response);
         //errors.value = response._data.message
-        toast.success(response._data.message)
+        toast.error(t(response._data.message))
       },
     })
 
@@ -101,6 +101,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
   <VRow
     no-gutters
     class="auth-wrapper bg-surface"
+    style="justify-content: center;"
   >
     <VCol
       cols="12"
@@ -112,11 +113,8 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
         :max-width="500"
         class="mt-12 mt-sm-0 pa-4"
       >
-        <VCardText>
+        <VCardText style="text-align:center">
           <img style="width: 200px; height: auto;" src="/images/logo.png">
-          <p class="mb-0">
-            {{ $t('Please sign-in to your account and start the adventure') }}
-          </p>
         </VCardText>
         <VCardText>
           <VForm
@@ -174,31 +172,6 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
           </VForm>
         </VCardText>
       </VCard>
-    </VCol>
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
-    >
-      <div class="position-relative bg-background w-100 me-0">
-        <div
-          class="d-flex align-center justify-center w-100 h-100"
-          style="padding-inline: 6.25rem;"
-        >
-          <VImg
-            max-width="613"
-            :src="authThemeImg"
-            class="auth-illustration mt-16 mb-2"
-          />
-        </div>
-
-        <img
-          class="auth-footer-mask"
-          :src="authThemeMask"
-          alt="auth-footer-mask"
-          height="280"
-          width="100"
-        >
-      </div>
     </VCol>
   </VRow>
 </template>

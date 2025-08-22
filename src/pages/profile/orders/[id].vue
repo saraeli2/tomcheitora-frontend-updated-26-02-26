@@ -271,7 +271,7 @@ const removeItem = index => {
                     class="mt-4"
                     to="/profile/checkout"
                   >
-                    {{ $('Edit Order') }}
+                    {{ $t('Edit Order') }}
                   </VBtn>
                 </div>
               </VCol>

@@ -122,7 +122,7 @@ definePage({
       >
         <!-- Account -->
         <VWindowItem value="account">
-          <AccountSettingsAccount :user="adminData" :cities="cities"/>
+          <AccountSettingsAccount :user="adminData" :cities="cities" @update:user="user = $event"/>
         </VWindowItem>
 
         <!-- Security -->

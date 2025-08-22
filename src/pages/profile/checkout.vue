@@ -109,7 +109,18 @@ if(order.value){
 
 const showLoader = ref(false)
 
+let debounceTimer = null
+
 const onQtyChange = async () => {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    
+    submitQtyChange()
+    
+  }, 1000)
+}
+
+const submitQtyChange = async() => {
   showLoader.value = true
   try {
     const cleanedOrderItems = orderItems.value.map(item => ({
@@ -127,6 +138,8 @@ const onQtyChange = async () => {
         products: cleanedOrderItems,
       },
       onResponseError({ response }) {
+        console.log(response);
+        
         const firstError = Object.values(response._data.errors)[0].msg
         
         toast.error(firstError)

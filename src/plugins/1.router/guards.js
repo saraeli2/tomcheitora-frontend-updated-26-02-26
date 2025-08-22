@@ -9,12 +9,15 @@ export const setupGuards = router => {
   // 👉 router.beforeEach
   // Docs: https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
   router.beforeEach(to => {
+
+    //console.log(to.meta.public)
+
     /*
          * If it's a public route, continue navigation. This kind of pages are allowed to visited by login & non-login users. Basically, without any restrictions.
          * Examples of public routes are, 404, under maintenance, etc.
          */
-    if (to.meta.public)
-      return
+    // if (to.meta.public)
+    //   return
 
     const authStore = useAuthStore()
     let fuserData = ''
@@ -22,13 +25,13 @@ export const setupGuards = router => {
     let userData = ''
     let userToken = ''
     if(authStore) {
-      if(authStore.fuserToken) {
+      if(authStore.faccessToken) {
         fuserData = authStore.fuserData
-        fuserToken = authStore.fuserToken
+        fuserToken = authStore.faccessToken
       }
       if(authStore.userToken) {
         userData = authStore.userData
-        userToken = authStore.userToken
+        userToken = authStore.accessToken
       }
     }
 
@@ -46,6 +49,13 @@ export const setupGuards = router => {
     else allow visiting the page
     (WARN: Don't allow executing further by return statement because next code will check for permissions)
    */
+    
+   // console.log((to.path));
+   //console.log(isUserLoggedIn);
+
+    if ((to.path === '/' || to.path === '/login') && isUserLoggedIn) {
+      return { path: '/profile/my-account/account' }  // 👈 redirect to profile
+    }
 
     if(isAdmin()) {
       if (to.meta.unauthenticatedOnly) {
