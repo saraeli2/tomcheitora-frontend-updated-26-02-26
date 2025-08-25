@@ -279,6 +279,12 @@ onMounted( async () => {
 watch(productData, newVal => {
   checkedCategories.value = newVal?.categoryIDs || []
 })
+
+const isShowImageDialog = ref(false)
+const showImageDialog = () => {
+  isShowImageDialog.value = true
+}
+
 </script>
 
 <template>
@@ -795,6 +801,8 @@ watch(productData, newVal => {
                         alt="Product Image"
                         width="120"
                         height="120"
+                        @click="showImageDialog"
+                        style="cursor: pointer;"
                       />
                     </div>
                   </VCol>
@@ -833,6 +841,19 @@ watch(productData, newVal => {
       @user-data="modifyProduct"
     />
   </div>
+
+  <VDialog class="reorderDialog" v-model="isShowImageDialog">
+    <DialogCloseBtn @click="isShowImageDialog = false" />
+    <VCard>
+      <VCardText>
+        <div v-if="productData?.image">
+          <VImg
+            :src="productData.image"
+          />
+        </div>
+      </VCardText>
+    </VCard>
+  </VDialog>
 </template>
 
 <style lang="scss">
