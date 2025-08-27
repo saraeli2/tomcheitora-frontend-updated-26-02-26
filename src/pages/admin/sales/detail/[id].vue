@@ -12,6 +12,7 @@ import DistributionOrders from '@/pages/admin/orders/index.vue'
 import AddNewSaleDrawer from '@/views/admin/sales/AddNewSaleDrawer.vue'
 import DistributionGroups from '@/views/admin/sales/DistributionGroups.vue'
 import DistributionProducts from '@/views/admin/sales/DistributionProducts.vue'
+import ExcludeProducts from '@/views/admin/sales/ExcludeProducts.vue'
 import DistributionStations from '@/views/admin/sales/DistributionStations.vue'
 
 import { can } from '@layouts/plugins/casl'
@@ -224,6 +225,10 @@ const tabs = [
     tab: 'sale-products',
   },
   {
+    title: 'Exclude Products',
+    tab: 'exclude-products',
+  },
+  {
     title: 'Sale Communities',
     tab: 'sale-communities',
   },
@@ -434,6 +439,12 @@ const currentTab = ref('statistics')
       </VWindowItem>
       <VWindowItem value="sale-products">
         <DistributionProducts
+          :saleid="route.params.id" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+      <VWindowItem value="exclude-products">
+        <ExcludeProducts
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
