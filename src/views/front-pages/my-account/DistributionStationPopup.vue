@@ -3,6 +3,7 @@ import { useToast } from 'vue-toastification'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores'
 
+
 const props = defineProps({
   stations: {
     type: Object,
@@ -38,7 +39,7 @@ if(props.user._id && props.user.stationId) {
   adminData.value.stationID = props.user.stationID
 }
 
-const onSubmit = async () => {
+const onSubmitPopup = async () => {
   try {
     const res = await $api(`/users/${ props.user._id }/update-station`, {
       method: 'PATCH',
@@ -53,12 +54,12 @@ const onSubmit = async () => {
     await nextTick(() => {
       authStore.updateStation(adminData.value.stationID)
       refForm.value?.resetValidation()
-      
+      window.location.href = '/sales'
       toast.success(t('Station has been updated successfully.'));
 
     })
   } catch (err) {
-    console.log(err)
+    
   }
 }
 </script>
@@ -68,18 +69,21 @@ const onSubmit = async () => {
     <!-- SECTION: Change Password -->
     <VCol cols="12">
       <VCard>
+        <VCardTitle class="text-h6" style="margin-bottom: 15px">
+          {{ $t('Update your station') }}
+        </VCardTitle>
         <VCardText>
           <VForm 
               ref="refForm"
               v-model="isFormValid"
-              @submit.prevent="onSubmit"
+              @submit.prevent="onSubmitPopup"
             >
-            <VCardText class="pt-0">
+            
               <!-- 👉 Current Password -->
               <VRow>
                 <VCol
                   cols="12"
-                  md="6"
+                  md="12"
                 >
                   <!-- 👉 current password -->
                   <AppAutocomplete
@@ -92,12 +96,10 @@ const onSubmit = async () => {
                   />
                 </VCol>
               </VRow>
-            </VCardText>
 
             <!-- 👉 Action Buttons -->
-            <VCardText class="d-flex flex-wrap gap-4">
-              <VBtn type="submit">{{ $t('Save changes') }}</VBtn>
-            </VCardText>
+            
+              <VBtn style="margin-top: 15px" type="submit">{{ $t('Save changes') }}</VBtn>
           </VForm>
         </VCardText>
       </VCard>

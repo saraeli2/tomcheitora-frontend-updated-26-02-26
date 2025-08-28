@@ -503,5 +503,10 @@
   "Station has been updated successfully.": "Station has been updated successfully.",
   "Successfully updated": "Successfully updated",
   "Successfully saved": "Successfully saved",
-  "Incorrect password": "Incorrect password"
+  "Incorrect password": "Incorrect password",
+  "OTP": "OTP",
+  "Update Email/Phone": "Update Email/Phone",
+  "Skip Now": "Skip Now",
+  "Update your profile info": "Update your profile info",
+  "Update your station": "Update your station"
 }

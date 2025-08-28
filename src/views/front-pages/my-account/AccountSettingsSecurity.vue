@@ -44,7 +44,7 @@ const errors = ref({
 
 const onSubmit = async () => {
   try {
-    const res = await $api(`/admin/users/${ props.user._id }/update/password`, {
+    const res = await $api(`/users/${ props.user._id }/update/password`, {
       method: 'PATCH',
       body: {
         confirmPassword: confirmPassword.value,

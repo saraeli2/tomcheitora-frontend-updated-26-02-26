@@ -213,9 +213,18 @@ const submit = async () => {
       }else{
         await nextTick(() => {
           refForm.value?.resetValidation()
+          //console.log(response);
           toast.success(t(response.data.message))
-         
-          window.location.reload()
+          // if(response.data.otpRequired == true){
+          //   showOtpDialog.value = true
+          // }
+          // if(response.data.needsEmailOtp == true){
+          //   needsEmailOtp.value = true
+          // }
+
+          // if(response.data.needsPhoneOtp == true){
+          //   needsPhoneOtp.value = true
+          // }
         })
       }
 
@@ -444,6 +453,20 @@ const verifyPhoneNo = async() => {
     })
   })
 }
+
+const skipEmailPhoneUpdate = async() => {
+  const res = await $api(`/users/skip-phone-email-update/${ props.user._id }`, {
+    method: 'POST',
+   
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      window.location.reload()
+    })
+  })
+} 
 </script>
 
 <template>
@@ -451,34 +474,11 @@ const verifyPhoneNo = async() => {
     <VCol cols="12">
       <VCard>
         <VCardText>
-          <VForm 
-            ref="refForm"
-            v-model="isFormValid"
-            @submit.prevent="onSubmit"
-          >
+          <VCardTitle class="text-h6" style="padding:0!important">
+            {{ $t('Update Email/Phone') }}
+          </VCardTitle>
+          <VForm>
             <VRow>
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.firstName"
-                  :rules="[requiredValidator]"
-                  :label="$t('First Name')"
-                  :placeholder="$t('First Name')"
-                  :error-messages="errors.firstName"
-                />
-              </VCol>
-
-              <!-- 👉 Last name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.lastName"
-                  :rules="[requiredValidator]"
-                  :label="$t('Last Name')"
-                  :placeholder="$t('Last Name')"
-                  :error-messages="errors.lastName"
-                />
-              </VCol>
-
-              <!-- 👉 Email -->
               <VCol cols="12">
                 <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email') }} 
                   <VIcon 
@@ -531,156 +531,15 @@ const verifyPhoneNo = async() => {
                   </div>
                 </div>
               </VCol>
-
-              
-              <!-- 👉 City -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="adminData.cityID"
-                  :items="cities"
-                  :label="$t('City')"
-                  :placeholder="$t('Select City')"
-                  :error-messages="errors.cityID"
-                  clearable
-                />
-              </VCol>
-
-              <!-- 👉 Flat No. -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.street"
-                  :label="$t('Flat No.')"
-                  :placeholder="$t('Flat No.')"
-                  :error-messages="errors.street"
-                />
-              </VCol>
-
-              <!-- 👉 House Number -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.houseNumber"
-                  :label="$t('House Number')"
-                  :placeholder="$t('House Number')"
-                  :error-messages="errors.houseNumber"
-                />
-              </VCol>
-
-              <!-- 👉 Address -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.address"
-                  :label="$t('Address')"
-                  :placeholder="$t('Address')"
-                  :error-messages="errors.address"
-                />
-              </VCol>
-
-              <!-- 👉 Nationality -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.nationality"
-                  :label="$t('Nationality')"
-                  :placeholder="$t('Nationality')"
-                  :error-messages="errors.nationality"
-                />
-              </VCol>
-
-              <!-- 👉 Israeli ID Number -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.israeliIDNumber"
-                  :label="$t('Israeli ID Number')"
-                  :placeholder="$t('Israeli ID Number')"
-                  disabled
-                  :error-messages="errors.israeliIDNumber"
-                />
-              </VCol>
-
-              <!-- 👉 Passport Number -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.passportNumber"
-                  :label="$t('Passport Number')"
-                  :placeholder="$t('Passport Number')"
-                  :error-messages="errors.passportNumber"
-                />
-              </VCol>
-
-              <!-- 👉 No. Of Kids -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="adminData.noOfKids"
-                  :rules="[integerValidator]"
-                  :label="$t('No. Of Kids')"
-                  :placeholder="$t('No. Of Kids')"
-                  :error-messages="errors.noOfKids"
-                />
-              </VCol>
-
-              <!-- 👉 maritalStatus -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="adminData.maritalStatus"
-                  :items="[
-                    { value: 'Single', title: 'Single' },
-                    { value: 'Married', title: 'Married' },
-                    { value: 'Divorced', title: 'Divorced' },
-                    { value: 'Widowed', title: 'Widowed' },
-                    { value: 'Separated', title: 'Separated' },
-                    { value: 'In a civil partnership', title: 'In a civil partnership' },
-                    { value: 'Cohabiting', title: 'Cohabiting' },
-                  ]"
-                  :placeholder="$t('Select Marital Status')"
-                  :label="$t('Marital Status')"
-                  :error-messages="errors.maritalStatus"
-                  clearable
-                />
-              </VCol>
-
-              <!-- 👉 status -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="adminData.status"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Active', title: 'Active' },
-                    { value: 'Inactive', title: 'Inactive' },
-                  ]"
-                  :placeholder="$t('Select Status')"
-                  :label="$t('Status')"
-                  :error-messages="errors.status"
-                />
-              </VCol>
-
-              <!-- 👉 imageID -->
-              <VCol cols="12">
-                <div class="app-picker-field">
-                  <label class="v-label mb-1 text-body-2">{{ $t('Image of ID') }}</label>
-                </div>
-                <div v-if="adminData?.imageID">
-                  <VImg
-                    :src="adminData.imageID"
-                    alt="logo"
-                    width="120"
-                    height="120"
-                  />
-                </div>
-                <VFileInput
-                  :rules="rules"
-                  accept="image/png, image/jpeg, image/bmp"
-                  prepend-icon="tabler-camera"
-                  :error-messages="errors.imageID"
-                  @change="handleImageChange"
-                />
-              </VCol>
                 
               <!-- 👉 Submit and Cancel -->
               <VCol cols="12">
                 <VBtn
                   type="submit"
                   class="me-3"
+                  @click="skipEmailPhoneUpdate"
                 >
-                  {{ $t('Submit') }}
+                  {{ $t('Skip Now') }}
                 </VBtn>
               </VCol>
             </VRow>

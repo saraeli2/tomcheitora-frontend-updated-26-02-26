@@ -51,10 +51,6 @@ const headers = computed(() => [
     key: 'lastName',
   },
   {
-    title: t('DoB'),
-    key: 'dob',
-  },
-  {
     title: t('ID Number'),
     key: 'IDNumber',
   },
@@ -145,6 +141,20 @@ const deleteKid = async id => {
       }
     })  
 }
+
+const skipKidsInfo = async() => {
+  const res = await $api(`/users/skip-kids-update/${ props.user._id }`, {
+    method: 'POST',
+   
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      window.location.reload()
+    })
+  })
+} 
 </script>
 
 <template>
@@ -185,6 +195,8 @@ const deleteKid = async id => {
           >
             {{ $t('Create Kid Information') }}
           </VBtn>
+
+          <VBtn @click="skipKidsInfo">{{ $t('Skip Now') }}</VBtn>
         </div>
 
         <div class="d-flex align-center flex-wrap gap-4" />

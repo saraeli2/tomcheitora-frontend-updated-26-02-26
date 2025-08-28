@@ -71,6 +71,7 @@ const imageUrl = ref()
 const rules = [fileList => !fileList || !fileList.length || fileList[0].size < 2000000 || 'Avatar size should be less than 2 MB!']
 const manufacturerData = ref(structuredClone(toRaw(props.manufacturer)))
 
+
 if(props.manufacturer._id) {
   if(props.manufacturer.countryID) {
     manufacturerData.value.countryID = props.manufacturer.countryID._id
@@ -96,22 +97,25 @@ const submit = async () => {
   if(logo.value) {
     //formData.append('logo', logo.value)
     const formDataImage = new FormData()
-    
+    const signatureRes = await $api('/signature')
+    const { signature, timestamp, apiKey, cloudName } = signatureRes;
+
+    // Prepare form data for Cloudinary
+
     formDataImage.append('file', logo.value)
-    formDataImage.append('upload_preset', import.meta.env.VITE_IMAGE_PRESET)
+    formDataImage.append('api_key', apiKey)
+    formDataImage.append('timestamp', timestamp)
+    formDataImage.append('signature', signature)
 
-    try {
-      const response = await fetch(import.meta.env.VITE_CLOUDINARY_ENDPOINT, {
-        method: 'POST',
-        body: formDataImage,
-      })
+    // Upload to Cloudinary
+    const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+      method: 'POST',
+      body: formDataImage,
+    })
 
-      const data = await response.json()
+    const data = await uploadRes.json()
 
-      imageUrl.value = data.secure_url
-    } catch (error) {
-      console.error('Cloudinary upload error:', error)
-    }
+    imageUrl.value = data.secure_url
   }else if(manufacturerData.value.logo){
     formData.append('imageUrl', manufacturerData.value.logo)
   }
@@ -282,7 +286,6 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppAutocomplete
                 v-model="manufacturerData.countryID"
-                :rules="[requiredValidator]"
                 :items="props.countries"
                 :label="$t('Country')"
                 :placeholder="$t('Select Country')"
@@ -306,7 +309,6 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppTextField
                 v-model="manufacturerData.businessID"
-                :rules="[requiredValidator]"
                 :label="$t('Business ID')"
                 :placeholder="$t('Business ID')"
                 :error-messages="errors.businessID"
@@ -349,7 +351,6 @@ const handleLogoChange = file => {
             <VCol cols="12">
               <AppAutocomplete
                 v-model="manufacturerData.status"
-                :rules="[requiredValidator]"
                 :items="[
                   { value: 'Active', title: 'Active' },
                   { value: 'Inactive', title: 'Inactive' },

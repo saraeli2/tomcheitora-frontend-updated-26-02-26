@@ -72,7 +72,7 @@ if(props.user._id) {
   }
 }
 
-const submit = async () => {
+const submitGeneral = async () => {
 
   const formData = new FormData()
 
@@ -205,14 +205,14 @@ const submit = async () => {
         updateImage(formData, props.user._id)
 
         await nextTick(() => {
-          refForm.value?.resetValidation()
+          refFormGeneral.value?.resetValidation()
 
           toast.success(t(response.data.message))
           
         })
       }else{
         await nextTick(() => {
-          refForm.value?.resetValidation()
+          refFormGeneral.value?.resetValidation()
           toast.success(t(response.data.message))
          
           window.location.reload()
@@ -242,10 +242,15 @@ const updateImage = async (formData, modelId) => {
     })
 }
 
-const onSubmit = () => {
-  refForm.value?.validate().then(({ valid: isValid }) => {
-    if (isValid)
-      submit()
+const refFormGeneral = ref()
+const isFormValidGeneral = ref(false)
+
+const onSubmitGeneral = () => {
+  
+  refFormGeneral.value?.validate().then(({ valid: isFormValidGeneral }) => {
+    //console.log(isFormValidGeneral)
+    if (isFormValidGeneral)
+      submitGeneral()
   })
 }
 
@@ -450,11 +455,15 @@ const verifyPhoneNo = async() => {
   <VRow>
     <VCol cols="12">
       <VCard>
+        <VCardTitle class="text-h6" style="margin-bottom: 15px">
+          {{ $t('Update your profile info') }}
+        </VCardTitle>
+
         <VCardText>
           <VForm 
-            ref="refForm"
-            v-model="isFormValid"
-            @submit.prevent="onSubmit"
+            ref="refFormGeneral"
+            v-model="isFormValidGeneral"
+            @submit.prevent="onSubmitGeneral"
           >
             <VRow>
               <VCol cols="12">
@@ -487,10 +496,21 @@ const verifyPhoneNo = async() => {
                   />
                 </label>
                 <div class="field_block">
+
                   <AppTextField
+                    v-if="adminData.email"
                     ref="emailInput"
                     v-model="adminData.email"
                     :rules="[emailValidator]"
+                    :placeholder="$t('Email')"
+                    :error-messages="errors.email"
+                    :disabled="!isEmailEdit"
+                    :autofocus="isEmailEdit"
+                  />
+                  <AppTextField
+                    v-else
+                    ref="emailInput"
+                    v-model="adminData.email"
                     :placeholder="$t('Email')"
                     :error-messages="errors.email"
                     :disabled="!isEmailEdit"

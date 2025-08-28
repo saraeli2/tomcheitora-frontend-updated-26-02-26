@@ -73,8 +73,8 @@ const demoList = [
             >
               <div class="app-logo mb-6">
                 <div class="logo-block">
-                  <v-img
-                    src="/images/logo-theme.svg"
+                  <v-img style="width: 100px; height: auto"
+                    src="/images/logo.png"
                   ></v-img>
                 </div>
                 <h1 class="app-logo-title text-white">

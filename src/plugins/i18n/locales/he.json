@@ -499,7 +499,12 @@
   "Station has been updated successfully.": "התחנה עודכנה בהצלחה.",
   "Successfully updated": "עודכן בהצלחה",
   "Successfully saved": "נשמר בהצלחה",
-  "Incorrect password": "סיסמה שגויה"
+  "Incorrect password": "סיסמה שגויה",
+  "OTP": "OTP",
+  "Update Email/Phone": "עדכון דוא\"ל/טלפון",
+  "Skip Now": "דלג עכשיו",
+  "Update your profile info": "עדכן את פרטי הפרופיל שלך",
+  "Update your station": "עדכן את התחנה שלך"
 
 
 }

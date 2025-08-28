@@ -57,6 +57,8 @@ export const setupGuards = router => {
       return { path: '/profile/my-account/account' }  // 👈 redirect to profile
     }
 
+    
+
     if(isAdmin()) {
       if (to.meta.unauthenticatedOnly) {
         if (isAdminLoggedIn)
@@ -78,6 +80,12 @@ export const setupGuards = router => {
         }
       }
     } else {
+      const stationRedirect = '/profile/my-account/account'
+
+      if(isUserLoggedIn && !fuserData.stationID && to.path !== stationRedirect){
+        return { path: '/profile/my-account/account' }  // 👈 redirect to profile
+      }
+
       if (to.meta.unauthenticatedOnly) {
         if (isUserLoggedIn)
           return '/'

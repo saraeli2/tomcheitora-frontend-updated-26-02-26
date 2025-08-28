@@ -31,13 +31,13 @@ app.use(Toast, options)
 registerPlugins(app)
 
 
-const sessionCookie = Cookies.get('user_session_access_cookie')
-if (!sessionCookie) {
-  localStorage.removeItem('fuserData')
-  localStorage.removeItem('faccessToken')
-  localStorage.removeItem('fuserAbilityRules')
-  //window.location.href = '/login'
-}
+// const sessionCookie = Cookies.get('user_session_access_cookie')
+// if (!sessionCookie) {
+//   localStorage.removeItem('fuserData')
+//   localStorage.removeItem('faccessToken')
+//   localStorage.removeItem('fuserAbilityRules')
+//   //window.location.href = '/login'
+// }
 
 // Mount vue app
 app.mount('#app')

@@ -60,7 +60,7 @@ const submit = async () => {
         body: {
           firstName: kidData.value.firstName,
           lastName: kidData.value.lastName,
-          dob: kidData.value.dob,
+          // dob: kidData.value.dob,
           IDNumber: kidData.value.IDNumber,
           maritalStatus: kidData.value.maritalStatus,
           userID: props.userid,
@@ -75,7 +75,7 @@ const submit = async () => {
         body: {
           firstName: kidData.value.firstName,
           lastName: kidData.value.lastName,
-          dob: kidData.value.dob,
+          // dob: kidData.value.dob,
           IDNumber: kidData.value.IDNumber,
           maritalStatus: kidData.value.maritalStatus,
           userID: props.userid,
@@ -179,14 +179,14 @@ const errors = ref({
               </VCol>
 
               <!-- 👉 DoB -->
-              <VCol cols="12">
+              <!-- <VCol cols="12">
                 <AppDateTimePicker
                   v-model="kidData.dob"
                   :label="$t('DoB')"
                   :placeholder="$t('DoB')"
                   :error-messages="errors.dob"
                 />
-              </VCol>
+              </VCol> -->
 
               <!-- 👉 ID number -->
               <VCol cols="12">

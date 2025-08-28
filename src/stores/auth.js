@@ -21,6 +21,9 @@ export const useAuthStore = defineStore('auth', {
       this.accessToken = accessToken
       this.userAbilityRules = userAbilityRules
     },
+
+    
+
     logout() {
       this.userData = ''
       this.accessToken = ''
@@ -37,16 +40,31 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('fuserData')
       localStorage.removeItem('faccessToken')
       localStorage.removeItem('fuserAbilityRules')
+
+      localStorage.removeItem('verificationPopupShown')
+      localStorage.removeItem('updateEmailPhonePopupShown')
+      localStorage.removeItem('passwordResetPopupShown')
+      localStorage.removeItem('generalInfoPopupShown')
+      localStorage.removeItem('kidsInfoPopupShown')
+      localStorage.removeItem('stationPopupShown')
+
     },
 
     loginAsUser(faccessToken, fuserData, fuserAbilityRules) {
       localStorage.setItem('fuserAbilityRules', JSON.stringify(fuserAbilityRules))
       localStorage.setItem('fuserData', JSON.stringify(fuserData))
       localStorage.setItem('faccessToken', JSON.stringify(faccessToken))
-      //localStorage.removeItem('logoutEvent')
+
       this.fuserData = fuserData
       this.faccessToken = faccessToken
       this.fuserAbilityRules = fuserAbilityRules
+    },
+
+    updateStation(stationID) {
+      if (this.fuserData) {
+        this.fuserData.stationID = stationID
+        localStorage.setItem('fuserData', JSON.stringify(this.fuserData))
+      }
     },
   },
 })

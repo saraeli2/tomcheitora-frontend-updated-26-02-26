@@ -193,8 +193,8 @@ const logout = async () => {
           >
             <div class="app-logo">
               <div class="logo-block">
-                <v-img
-                      src="/images/logo.svg"
+                <v-img style="width: 100px; height: auto"
+                      src="/images/logo.png"
                     ></v-img>
               </div>
               <h1 class="app-logo-title">

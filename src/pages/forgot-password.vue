@@ -20,7 +20,8 @@ const configStore = useConfigStore()
 const route = useRoute()
 const router = useRouter()
 
-configStore.isAppRTL = true
+// configStore.isAppRTL = true
+// t.locale = 'he'
 
 const recoveryMethod = ref(null)
 const email = ref()
@@ -149,18 +150,10 @@ const onSubmitReset = async () => {
 </script>
 
 <template>
-  <RouterLink to="/">
-    <div class="auth-logo d-flex align-center gap-x-3">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
-
   <VRow
     class="auth-wrapper bg-surface"
     no-gutters
+    style="justify-content: center;"
   >
     <VCol
       v-if="!otpVerified"
@@ -174,19 +167,19 @@ const onSubmitReset = async () => {
         :max-width="500"
         class="mt-12 mt-sm-0 pa-4"
       >
+        <VCardText style="text-align:center">
+          <img style="width: 200px; height: auto;" src="/images/logo.png">
+        </VCardText>
+
         <VCardText>
-          <h4 class="text-h4 mb-1">
-            {{ $t('Forgot Password') }}? 🔒
+          <h4 class="text-h4 mb-1 text-center">
+            {{ $t('Forgot Password') }}?
           </h4>
-          <p class="mb-0">
-            {{ $t("Enter your email and we'll send you instructions to reset your password") }}
-          </p>
         </VCardText>
 
         <VCardText>
           <VForm
             ref="refForm"
-            v-model="isFormValid"
             @submit.prevent="onSubmit"
           >
             <VRow>
@@ -264,8 +257,11 @@ const onSubmitReset = async () => {
         :max-width="500"
         class="mt-12 mt-sm-0 pa-4"
       >
+        <VCardText style="text-align:center">
+          <img style="width: 200px; height: auto;" src="/images/logo.png">
+        </VCardText>
         <VCardText>
-          <h4 class="text-h4 mb-1">
+          <h4 class="text-h4 mb-1 text-center">
             {{ $t('Verify your OTP') }}
           </h4>
         </VCardText>
@@ -325,9 +321,12 @@ const onSubmitReset = async () => {
         :max-width="500"
         class="mt-12 mt-sm-0 pa-4"
       >
+        <VCardText style="text-align:center">
+          <img style="width: 200px; height: auto;" src="/images/logo.png">
+        </VCardText>
         <VCardText>
-          <h4 class="text-h4 mb-1">
-            {{ $t('Reset your password') }} 🔒
+          <h4 class="text-h4 mb-1 text-center">
+            {{ $t('Reset your password') }}
           </h4>
         </VCardText>
 
@@ -409,33 +408,6 @@ const onSubmitReset = async () => {
         </VCardText>
       </VCard>
     </VCol>
-
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
-    >
-      <div class="position-relative bg-background w-100 me-0">
-        <div
-          class="d-flex align-center justify-center w-100 h-100"
-          style="padding-inline: 150px;"
-        >
-          <VImg
-            max-width="468"
-            :src="authThemeImg"
-            class="auth-illustration mt-16 mb-2"
-          />
-        </div>
-
-        <img
-          class="auth-footer-mask"
-          :src="authThemeMask"
-          alt="auth-footer-mask"
-          height="280"
-          width="100"
-        >
-      </div>
-    </VCol>
-    
   </VRow>
 </template>
 

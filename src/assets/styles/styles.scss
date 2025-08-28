@@ -1430,3 +1430,37 @@ body .product-page header .v-btn--disabled).bg-primary:focus{
 }
 }
 
+.verified_tag{
+  background-color: rgb(50, 167, 68);
+  color: rgb(255, 255, 255);
+  border-radius: 3px;
+  font-size: 12px;
+  padding: 0 7px;
+  margin-left: 10px;
+  display: inline-block;
+  line-height: 20px;
+  font-weight: 600;
+}
+.verify_modal button[type=submit],
+.verify_modal button[type=submit]:hover {
+    background-color: #32A744 !important;
+    color: #fff !important;
+}
+.verify_modal .v-list-item.v-theme--light.v-list-item--density-compact.v-list-item--one-line.rounded-0.v-list-item--variant-text.text-medium-emphasis {
+    padding: 0 !important;
+}
+body .v-btn--variant-elevated:not(.v-btn--loading, .v-btn--disabled).bg-primary:hover{
+  background-color: #32A744 !important;
+}
+.verify_modal.v-dialog--scrollable > .v-overlay__content{
+  overflow-y: auto !important;
+    overflow: hidden;
+}
+
+.verify_modal .bg-primary,
+.v-form .bg-primary{
+  background-color: #32A744 !important;
+}
+.v-col .text-primary {
+    color: #333!important;
+}
