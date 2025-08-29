@@ -196,6 +196,12 @@ const removeItem = index => {
                           <h6 class="text-h6">
                             {{ item.productID?.name }}
                           </h6>
+                          <div v-if="item.variations">
+                            <p v-if="item.variations.size">Size: {{ item.variations.size }}</p>
+                            <p v-if="item.variations.color">Color: {{ item.variations.color }}</p>
+                            <p v-if="item.variations.sleeveLength">Sleeve: {{ item.variations.sleeveLength }}</p>
+                            <p v-if="item.variations.pocket">Pocket: {{ item.variations.pocket }}</p>
+                          </div>
                           <p>
                             Qty: {{ item.quantity }}
                           </p>

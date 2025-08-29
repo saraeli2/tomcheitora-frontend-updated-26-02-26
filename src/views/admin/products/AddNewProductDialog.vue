@@ -81,6 +81,7 @@ const props = defineProps({
       salePrice: null,
       maxStock: null,
       internalRemarks: '',
+      productNumber: '',
       remarks: '',
       description: '',
       status: 'Active',
@@ -330,6 +331,7 @@ const submit = async () => {
           unit_price_including_vat: productData.value.unit_price_including_vat,
           box_price: productData.value.box_price,
           model: productData.value.model,
+          productNumber: productData.value.productNumber,
           size: productData.value.size,
           color: productData.value.color,
           customFields: productData.value.customFields,
@@ -377,6 +379,8 @@ const submit = async () => {
           unit_price_including_vat: productData.value.unit_price_including_vat,
           box_price: productData.value.box_price,
           model: productData.value.model,
+          productNumber: productData.value.productNumber,
+          
           size: productData.value.size,
           color: productData.value.color,
           customFields: productData.value.customFields,
@@ -453,6 +457,7 @@ const updateProduct = async () => {
       unit_price_including_vat: productData.value.unit_price_including_vat,
       box_price: productData.value.box_price,
       model: productData.value.model,
+      productNumber: productData.value.productNumber,
       size: productData.value.size,
       color: productData.value.color,
       customFields: productData.value.customFields,
@@ -823,6 +828,13 @@ const findCategoryNameById = (id) => {
                 :label="$t('Name')"
                 :placeholder="$t('Name')"
                 :error-messages="errors.name"
+              />
+            </VCol>
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.productNumber"
+                :label="$t('Product number')"
+                :placeholder="$t('Product number')"
               />
             </VCol>
 
@@ -1197,13 +1209,9 @@ const findCategoryNameById = (id) => {
 
             
             <VCol cols="12">
-              <AppSelect
+              <AppTextField
                 v-model="productData.pocket"
-                :items="[
-                  { value: 'Yes', title: 'Yes' },
-                  { value: 'No', title: 'No' },
-                ]"
-                :placeholder="$t('Select Pocket')"
+                :placeholder="$t('Add Yes/No or both')"
                 :label="$t('Pocket')"
                 :error-messages="errors.pocket"
               />

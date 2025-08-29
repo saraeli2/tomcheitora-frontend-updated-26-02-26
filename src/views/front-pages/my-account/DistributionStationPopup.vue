@@ -20,6 +20,9 @@ const props = defineProps({
   },
 })
 
+
+const emit = defineEmits(['update:user', 'station-success'])
+
 const authStore = useAuthStore()
 
 const { t } = useI18n()
@@ -41,7 +44,7 @@ if(props.user._id && props.user.stationId) {
 
 const onSubmitPopup = async () => {
   try {
-    const res = await $api(`/users/${ props.user._id }/update-station`, {
+    const response = await $api(`/users/${ props.user._id }/update-station`, {
       method: 'PATCH',
       body: {
         stationId: adminData.value.stationID,
@@ -51,15 +54,17 @@ const onSubmitPopup = async () => {
       },
     })
 
-    await nextTick(() => {
-      authStore.updateStation(adminData.value.stationID)
-      refForm.value?.resetValidation()
-      window.location.href = '/sales'
-      toast.success(t('Station has been updated successfully.'));
+    // ✅ update store / reset form here
+    authStore.updateStationId(adminData.value.stationID)
 
-    })
+    // ✅ emit events to parent
+    emit('update:user', response)
+    emit('station-success', response)
+
+    toast.success(t('Station has been updated successfully.'))
+
   } catch (err) {
-    
+    console.error('Failed to update station:', err)
   }
 }
 </script>

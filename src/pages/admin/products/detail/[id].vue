@@ -383,6 +383,15 @@ const showImageDialog = () => {
 
                       <VListItem>
                         <h6 class="text-h6">
+                          {{ $t('Product number') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.productNumber }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
                           {{ $t('Model') }}:
                           <span class="text-body-1 d-inline-block">
                             {{ productData.model }}

@@ -88,45 +88,11 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
 </script>
 
 <template>
-  <RouterLink to="/">
-    <div class="auth-logo d-flex align-center gap-x-3">
-      <VNodeRenderer :nodes="themeConfig.app.logo" />
-      <h1 class="auth-title">
-        {{ themeConfig.app.title }}
-      </h1>
-    </div>
-  </RouterLink>
-
   <VRow
     no-gutters
     class="auth-wrapper bg-surface"
+    style="justify-content: center;"
   >
-    <VCol
-      md="8"
-      class="d-none d-md-flex"
-    >
-      <div class="position-relative bg-background w-100 me-0">
-        <div
-          class="d-flex align-center justify-center w-100 h-100"
-          style="padding-inline: 6.25rem;"
-        >
-          <VImg
-            max-width="613"
-            :src="authThemeImg"
-            class="auth-illustration mt-16 mb-2"
-          />
-        </div>
-
-        <img
-          class="auth-footer-mask"
-          :src="authThemeMask"
-          alt="auth-footer-mask"
-          height="280"
-          width="100"
-        >
-      </div>
-    </VCol>
-
     <VCol
       cols="12"
       md="4"
@@ -137,13 +103,8 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
         :max-width="500"
         class="mt-12 mt-sm-0 pa-4"
       >
-        <VCardText>
-          <h4 class="text-h4 mb-1">
-            {{ $t('Welcome to') }} <span class="text-capitalize"> {{ themeConfig.app.title }} </span>! 👋🏻
-          </h4>
-          <p class="mb-0">
-            {{ $t('Please sign-in to your account and start the adventure') }}
-          </p>
+        <VCardText style="text-align:center">
+          <img style="width: 200px; height: auto;" src="/images/logo.png">
         </VCardText>
         <VCardText>
           <VForm

@@ -12,6 +12,8 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits(['update:user', 'kids-success'])
+
 import AddNewKidDrawer from '@/views/users/AddNewKidDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
@@ -40,6 +42,8 @@ const updateOptions = options => {
   sortBy.value = options.sortBy[0]?.key
   orderBy.value = options.sortBy[0]?.order
 }
+
+
 
 const headers = computed(() => [
   {
@@ -142,19 +146,23 @@ const deleteKid = async id => {
     })  
 }
 
-const skipKidsInfo = async() => {
-  const res = await $api(`/users/skip-kids-update/${ props.user._id }`, {
-    method: 'POST',
-   
-    onResponseError({ response }) {
-      errors.value = response._data.errors
-    },
-  }).then(async response => {
-    await nextTick(() => {
-      window.location.reload()
+const skipKidsInfo = async () => {
+  try {
+    const response = await $api(`/users/skip-kids-update/${props.user._id}`, {
+      method: 'POST',
+      onResponseError({ response }) {
+        errors.value = response._data.errors
+      },
     })
-  })
-} 
+
+    // Emit to parent
+    emit('update:user', response)    // update admin data in parent
+    emit('kids-success', response)   // trigger popup check in parent
+    
+  } catch (err) {
+    console.error('Failed to skip kids info:', err)
+  }
+}
 </script>
 
 <template>

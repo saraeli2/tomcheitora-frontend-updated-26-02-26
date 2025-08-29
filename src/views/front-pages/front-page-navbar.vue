@@ -75,17 +75,10 @@ const logout = async () => {
 
     const { error, message } = res
 
-    // try {
-    //   await $api('/logout', {
-    //     method: 'POST',
-    //     credentials: 'include',
-    //   })
-
-    //   // Remove "userData" from cookie
-    //   userData.value = null
-    // } catch (err) {
-    //   console.error('Router push failed:', err)
-    // }
+    localStorage.removeItem('fuserData')
+    localStorage.removeItem('faccessToken')
+    localStorage.removeItem('fuserAbilityRules')
+    ability.update([])
 
     await authStore.logoutAsUser()
     await router.push('/login')

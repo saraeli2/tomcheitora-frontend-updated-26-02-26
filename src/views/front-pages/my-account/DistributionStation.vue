@@ -51,7 +51,7 @@ const onSubmit = async () => {
     })
 
     await nextTick(() => {
-      authStore.updateStation(adminData.value.stationID)
+      authStore.updateStationId(adminData.value.stationID)
       refForm.value?.resetValidation()
       
       toast.success(t('Station has been updated successfully.'));

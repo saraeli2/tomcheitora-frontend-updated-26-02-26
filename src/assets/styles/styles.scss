@@ -636,7 +636,7 @@ $grey-3:#aaaaaa;
           font-size: 20px;
           span{
             display:inline-block;
-            padding: 0px 4px 0px 4px;
+            padding: 0px 4px 0px px;
             &.product-price{
             }
             &.regular-price{
@@ -1463,4 +1463,49 @@ body .v-btn--variant-elevated:not(.v-btn--loading, .v-btn--disabled).bg-primary:
 }
 .v-col .text-primary {
     color: #333!important;
+}
+body .layout-wrapper.layout-nav-type-vertical.layout-navbar-sticky .layout-page-content {
+    margin-block-start: 1rem;
+    position: relative;
+    z-index: 9;
+}
+
+
+.product-details-content .v-selection-control-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+}
+.product-details-content .v-selection-control-group > div {
+    display: flex;
+    justify-content: space-around;
+    display: flex;
+    width: auto !important;
+    flex: unset;
+    align-items: center;
+    vertical-align: middle;
+}
+.product-details-content .v-selection-control__wrapper {
+    display: none;
+}
+
+.product-details-content label.v-label.v-label--clickable {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 2px solid rgba(135, 135, 136, 0.9019607843);
+    line-height: 18px;
+    color: #333;
+}
+.product-details-content .v-list-item__content h6.text-h6 {
+    margin: 0 0 4px;
+}
+.product-details-content .v-selection-control__wrapper.text-primary + label.v-label.v-label--clickable{
+  border-color: #32A744;
+}
+.action_block input.w-16.text-center.border.rounded.px-2.py-1 {
+    height: 34px;
+    margin: 0 5px;
+}
+.checkout-card .bg-primary{
+  background-color: #32A744 !important;
 }

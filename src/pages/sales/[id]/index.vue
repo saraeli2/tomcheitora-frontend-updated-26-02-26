@@ -95,10 +95,14 @@ const validSale = ref(false)
 const userValid = ref(false)
 
 const exists = saleGroups.value.some(group =>
+  group.groupID?.communities?.includes(authStore.fuserData.communityID._id)
+)
+
+const existsDefault = saleGroups.value.some(group =>
   group.groupID?.communities?.includes(authStore.fuserData.communityID)
 )
 
-if (exists) {
+if (exists || existsDefault) {
   userValid.value = true
 }
 

@@ -27,6 +27,13 @@ const columnRadio = ref('radio-1')
 const columnRadio2 = ref('radio-1')
 const quantity = ref(1)
 
+const selectedVariations = ref({
+  size: null,
+  color: null,
+  sleeveLength: null,
+  pocket: null,
+})
+
 const store = useConfigStore()
 const orderItems = ref([])
 
@@ -67,10 +74,20 @@ if(productData.value){
   if(preQuantity.value){
     quantity.value = preQuantity.value
   }
+
 }
 
+const sizeOptions = computed(() => productDetails.value?.size?.split(',').map(s => s.trim()) || [])
+const colorOptions = computed(() => productDetails.value?.color?.split(',').map(c => c.trim()) || [])
+const sleeveOptions = computed(() => productDetails.value?.sleeveLength?.split(',').map(s => s.trim()) || [])
+const pocketOptions = computed(() => productDetails.value?.pocket?.split(',').map(p => p.trim()) || [])
 
-
+onMounted(() => {
+  if (sizeOptions.value.length) selectedVariations.value.size = sizeOptions.value[0]
+  if (colorOptions.value.length) selectedVariations.value.color = colorOptions.value[0]
+  if (sleeveOptions.value.length) selectedVariations.value.sleeveLength = sleeveOptions.value[0]
+  if (pocketOptions.value.length) selectedVariations.value.pocket = pocketOptions.value[0]
+})
 
 const goBack = () => {
   window.history.back()
@@ -91,26 +108,61 @@ if(order.value){
 
 
 
+// const productAddToCart = (productID, quantity) => {
+//   const index = orderItems.value.findIndex(item => item.productID === productID)
+
+//   if (index !== -1) {
+//     orderItems.value[index].quantity = parseInt(quantity)
+//   } else {
+//     orderItems.value.push({
+//       productID,
+//       quantity,
+//     })
+//   }
+
+//   if(order.value && order.value?._id){
+//     //console.log(orderItems.value)
+//     updateOrder()
+//   }else{
+//     createOrder()
+//   }
+  
+// }
+
 const productAddToCart = (productID, quantity) => {
-  const index = orderItems.value.findIndex(item => item.productID === productID)
+  console.log('Selected variations:', selectedVariations.value);
+
+  const index = orderItems.value.findIndex(
+    item => item.productID.toString() === productID.toString()
+  );
+
+  // Prepare the payload with variations
+  const itemPayload = {
+    productID,
+    quantity,
+    variations: { ...selectedVariations.value }, // spread to create a new object
+  };
 
   if (index !== -1) {
-    orderItems.value[index].quantity = parseInt(quantity)
+    // Merge quantity & variations explicitly
+    orderItems.value[index] = {
+      ...orderItems.value[index],
+      quantity: quantity,
+      variations: { ...selectedVariations.value },
+    };
   } else {
-    orderItems.value.push({
-      productID,
-      quantity,
-    })
+    // Push a fresh reactive object
+    orderItems.value.push(JSON.parse(JSON.stringify(itemPayload)));
   }
 
-  if(order.value && order.value?._id){
-    //console.log(orderItems.value)
-    updateOrder()
-  }else{
-    createOrder()
+  console.log('Order items after add:', orderItems.value);
+
+  if (order.value && order.value?._id) {
+    updateOrder();
+  } else {
+    createOrder();
   }
-  
-}
+};
 
 const createOrder = async () => {
   try {
@@ -186,6 +238,14 @@ const fetchOrderAndSyncOrderItems = async () => {
   await fetchOrder()
   orderItems.value = order.value?.orderItems || []
 }
+
+const increaseQuantity = () => {
+  quantity.value++
+}
+
+const decreaseQuantity = () => {
+  if (quantity.value > 1) quantity.value--
+}
 </script>
 
 <template>
@@ -225,6 +285,54 @@ const fetchOrderAndSyncOrderItems = async () => {
               <div class="product-description" v-if="productDetails.description">
                 <p class="text-body-1">{{ productDetails.description }}</p>
               </div>
+
+              <VListItem v-if="sizeOptions.length">
+                <h6 class="text-h6">{{ $t('Size') }}:</h6>
+                <VRadioGroup v-model="selectedVariations.size">
+                  <VRadio
+                    v-for="size in sizeOptions"
+                    :key="size"
+                    :label="size"
+                    :value="size"
+                  />
+                </VRadioGroup>
+              </VListItem>
+
+              <VListItem v-if="colorOptions.length">
+                <h6 class="text-h6">{{ $t('Color') }}:</h6>
+                <VRadioGroup v-model="selectedVariations.color">
+                  <VRadio
+                    v-for="color in colorOptions"
+                    :key="color"
+                    :label="color"
+                    :value="color"
+                  />
+                </VRadioGroup>
+              </VListItem>
+
+              <VListItem v-if="sleeveOptions.length">
+                <h6 class="text-h6">{{ $t('Sleeve Length') }}:</h6>
+                <VRadioGroup v-model="selectedVariations.sleeveLength">
+                  <VRadio
+                    v-for="sleeve in sleeveOptions"
+                    :key="sleeve"
+                    :label="sleeve"
+                    :value="sleeve"
+                  />
+                </VRadioGroup>
+              </VListItem>
+
+              <VListItem v-if="pocketOptions.length">
+                <h6 class="text-h6">{{ $t('Pocket') }}:</h6>
+                <VRadioGroup v-model="selectedVariations.pocket">
+                  <VRadio
+                    v-for="pocket in pocketOptions"
+                    :key="pocket"
+                    :label="pocket"
+                    :value="pocket"
+                  />
+                </VRadioGroup>
+              </VListItem>
 
               <VListItem v-if="productDetails.model">
                 <h6 class="text-h6">
@@ -361,42 +469,6 @@ const fetchOrderAndSyncOrderItems = async () => {
                 </h6>
               </VListItem>
 
-              <VListItem v-if="productDetails.size">
-                <h6 class="text-h6">
-                  {{ $t('Size') }}:
-                  <span class="text-body-1 d-inline-block">
-                    <div v-html="productDetails.size" />
-                  </span>
-                </h6>
-              </VListItem>
-
-              <VListItem v-if="productDetails.color">
-                <h6 class="text-h6">
-                  {{ $t('Color') }}:
-                  <span class="text-body-1 d-inline-block">
-                    <div v-html="productDetails.color" />
-                  </span>
-                </h6>
-              </VListItem>
-
-              <VListItem v-if="productDetails.sleeveLength">
-                <h6 class="text-h6">
-                  {{ $t('Sleeve length') }}:
-                  <span class="text-body-1 d-inline-block">
-                    <div v-html="productDetails.sleeveLength" />
-                  </span>
-                </h6>
-              </VListItem>
-
-              <VListItem v-if="productDetails.pocket">
-                <h6 class="text-h6">
-                  {{ $t('Pocket') }}:
-                  <span class="text-body-1 d-inline-block">
-                    <div v-html="productDetails.pocket" />
-                  </span>
-                </h6>
-              </VListItem>
-
               <VListItem v-if="productDetails.fit">
                 <h6 class="text-h6">
                   {{ $t('Fit') }}:
@@ -440,11 +512,28 @@ const fetchOrderAndSyncOrderItems = async () => {
                   <h3>{{ $t('Quantity') }}:</h3>
                 </div>
                 <div class="quantity-block">
-                  <AppTextField
-                    v-model="quantity"
-                    type="number"
-                    placeholder="1"
-                  />
+                  <div class="action_block">
+                    <div class="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        @click="decreaseQuantity"
+                        class="px-2 py-1 bg-primary text-white rounded"
+                      >-</button>
+
+                      <input
+                        v-model.number="quantity"
+                        type="number"
+                        min="1"
+                        class="w-16 text-center border rounded px-2 py-1"
+                      />
+
+                      <button
+                        type="button"
+                        @click="increaseQuantity"
+                        class="px-2 py-1 bg-primary text-white rounded"
+                      >+</button>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div class="product-btn-group-dt">

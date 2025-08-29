@@ -194,13 +194,13 @@ const cities = cityOptions.value.map(item => ({
 }))
 
 const cityID = ref(null)
-const street = ref()
+const flatNo = ref()
 const houseNumber = ref()
 const address = ref()
 
 if(user.value) {
   cityID.value = user.value.cityID
-  street.value = user.value.street
+  flatNo.value = user.value.flatNo
   houseNumber.value = user.value.houseNumber
   address.value = user.value.address
 }
@@ -221,8 +221,8 @@ const submit = async () => {
     formData.append('cityID', cityID.value)
   }
 
-  if(street.value) {
-    formData.append('street', street.value)
+  if(flatNo.value) {
+    formData.append('flatNo', flatNo.value)
   }
 
   if(houseNumber.value) {
@@ -384,6 +384,13 @@ const onSubmitPayment = async() =>{
                               <h6 class="text-h6">
                                 {{ item.productID?.name }}
                               </h6>
+
+                              <div v-if="item.variations">
+                                <p v-if="item.variations.size">Size: {{ item.variations.size }}</p>
+                                <p v-if="item.variations.color">Color: {{ item.variations.color }}</p>
+                                <p v-if="item.variations.sleeveLength">Sleeve: {{ item.variations.sleeveLength }}</p>
+                                <p v-if="item.variations.pocket">Pocket: {{ item.variations.pocket }}</p>
+                              </div>
                               
 
                               <AppTextField
@@ -531,10 +538,10 @@ const onSubmitPayment = async() =>{
                           lg="6"
                         >
                           <AppTextField
-                            v-model="street"
+                            v-model="flatNo"
                             :label="$t('Flat No.')"
                             :placeholder="$t('Flat No.')"
-                            :error-messages="errors.street"
+                            :error-messages="errors.flatNo"
                             :rules="[requiredValidator]"
                           />
                         </VCol>
@@ -746,7 +753,7 @@ const onSubmitPayment = async() =>{
                       {{ user.firstName }} {{ user.lastName }}
                     </p>
                     <p class="mb-4">
-                      {{ address }}, {{ houseNumber }}, {{ street }}
+                      {{ address }}, {{ houseNumber }}, {{ flatNo }}
                     </p>
 
                     <div class="text-base" v-if="user.phone">
@@ -774,7 +781,7 @@ const onSubmitPayment = async() =>{
                       {{ user.firstName }} {{ user.lastName }}
                     </p>
                     <p class="mb-4">
-                      {{ address }}, {{ houseNumber }}, {{ street }}
+                      {{ address }}, {{ houseNumber }}, {{ flatNo }}
                     </p>
 
                     <div class="text-base" v-if="user.phone">
@@ -830,6 +837,14 @@ const onSubmitPayment = async() =>{
                               <h6 class="text-h6">
                                 {{ item.productID?.name }}
                               </h6>
+
+                              <div v-if="item.variations">
+                                <p v-if="item.variations.size">Size: {{ item.variations.size }}</p>
+                                <p v-if="item.variations.color">Color: {{ item.variations.color }}</p>
+                                <p v-if="item.variations.sleeveLength">Sleeve: {{ item.variations.sleeveLength }}</p>
+                                <p v-if="item.variations.pocket">Pocket: {{ item.variations.pocket }}</p>
+                              </div>
+
                               <p>
                                 Qty: {{ item.quantity }}
                               </p>

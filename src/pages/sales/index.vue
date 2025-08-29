@@ -42,6 +42,13 @@ const {
 
 const sales = saleData.value.data
 
+if (sales.length > 0) {
+  // 👇 assuming sales are sorted newest → oldest
+  const latestSale = sales[0]  
+  const latestSaleId = latestSale._id
+  router.push(`/sales/${latestSaleId}`)
+}
+
 </script>
 
 <template>

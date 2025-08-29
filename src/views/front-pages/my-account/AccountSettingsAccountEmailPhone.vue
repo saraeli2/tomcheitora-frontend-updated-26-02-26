@@ -294,6 +294,7 @@ const handleImageChange = file => {
 }
 
 
+const showVerificationPopup = ref(false)
 
 const changeAvatar = file => {
   const fileReader = new FileReader()
@@ -467,6 +468,66 @@ const skipEmailPhoneUpdate = async() => {
     })
   })
 } 
+
+
+const verifyEmailAddressInitial = async() => {
+  const res = await $api(`/users/verify-otp-send/${ adminData.value._id }`, {
+    method: 'POST',
+    body: {
+      email: adminData.value.email,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        adminData.value.email = response.data.email
+        toast.error(t(response.message))
+      }else{
+        showVerificationPopup.value = false
+        needsPhoneOtp.value = false
+        toast.success(t(response.message))
+        
+        if(response.otpRequired){
+          showVerifyOtpDialog.value = true
+        }
+        if(response.needsEmailOtp){
+          needsEmailOtp.value = true
+        }
+      }
+    })
+  })
+}
+
+const verifyPhoneNoInitial = async() => {
+  const res = await $api(`/users/verify-otp-send/${ adminData.value._id }`, {
+    method: 'POST',
+    body: {
+      phone: adminData.value.phone,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        adminData.value.phone = response.data.phone
+        toast.error(t(response.message))
+      }else{
+        showVerificationPopup.value = false
+        needsEmailOtp.value = false
+        toast.success(t(response.message))
+        if(response.otpRequired){
+          showVerifyOtpDialog.value = true
+        }
+        if(response.needsPhoneOtp){
+          needsPhoneOtp.value = true
+        }
+      }
+    })
+  })
+}
 </script>
 
 <template>
@@ -474,7 +535,7 @@ const skipEmailPhoneUpdate = async() => {
     <VCol cols="12">
       <VCard>
         <VCardText>
-          <VCardTitle class="text-h6" style="padding:0!important">
+          <VCardTitle class="text-h6" style="padding:0 0 15px!important">
             {{ $t('Update Email/Phone') }}
           </VCardTitle>
           <VForm>
@@ -493,11 +554,17 @@ const skipEmailPhoneUpdate = async() => {
                     :rules="[emailValidator]"
                     :placeholder="$t('Email')"
                     :error-messages="errors.email"
-                    :disabled="!isEmailEdit"
+                    :disabled="!isEmailEdit && props.user.email"
                     :autofocus="isEmailEdit"
                   />
+
+                  <div class="action_block" v-if="!isEmailEdit && !adminData.emailVerified && adminData.email">
+                    <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyEmailAddressInitial">
+                      {{ $t('Verify') }}
+                    </VBtn>
+                  </div>
                 
-                  <div class="action_block" v-if="isEmailEdit">
+                  <div class="action_block" v-if="isEmailEdit || !adminData.email">
                     <VBtn style="color: #333!important;" variant="text" @click="isEmailEdit=false, adminData.email = $props.user.email ">{{ $t('Cancel') }}</VBtn>
                     <VBtn :disabled="!isEmailValid || props.user.email == adminData.email" variant="outlined" @click="verifyEmailAddress">
                       {{ $t('Verify') }}
@@ -519,28 +586,23 @@ const skipEmailPhoneUpdate = async() => {
                     v-model="adminData.phone"
                     :placeholder="$t('Phone')"
                     :error-messages="errors.phone"
-                    :disabled="!isPhoneEdit"
+                    :disabled="!isPhoneEdit && props.user.phone"
                     :autofocus="isPhoneEdit"
                   />
+
+                  <div class="action_block" v-if="!isPhoneEdit && !adminData.phoneVerified && adminData.phone">
+                    <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyPhoneNoInitial">
+                      {{ $t('Verify') }}
+                    </VBtn>
+                  </div>
                 
-                  <div class="action_block" v-if="isPhoneEdit">
+                  <div class="action_block" v-if="isPhoneEdit || !props.user.phone">
                     <VBtn style="color: #333!important;" variant="text" @click="isPhoneEdit=false">{{ $t('Cancel') }}</VBtn>
                     <VBtn :disabled="!adminData.phone || adminData.phone == props.user.phone " variant="outlined" @click="verifyPhoneNo">
                       {{ $t('Verify') }}
                     </VBtn>
                   </div>
                 </div>
-              </VCol>
-                
-              <!-- 👉 Submit and Cancel -->
-              <VCol cols="12">
-                <VBtn
-                  type="submit"
-                  class="me-3"
-                  @click="skipEmailPhoneUpdate"
-                >
-                  {{ $t('Skip Now') }}
-                </VBtn>
               </VCol>
             </VRow>
           </VForm>

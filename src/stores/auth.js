@@ -60,7 +60,14 @@ export const useAuthStore = defineStore('auth', {
       this.fuserAbilityRules = fuserAbilityRules
     },
 
-    updateStation(stationID) {
+    updateStation(userData) {
+      if (this.fuserData) {
+        this.fuserData = userData
+        localStorage.setItem('fuserData', JSON.stringify(this.fuserData))
+      }
+    },
+
+    updateStationId(stationID) {
       if (this.fuserData) {
         this.fuserData.stationID = stationID
         localStorage.setItem('fuserData', JSON.stringify(this.fuserData))

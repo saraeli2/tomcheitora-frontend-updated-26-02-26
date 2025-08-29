@@ -12,6 +12,8 @@ import AccountSettingsSecurity from '@/views/front-pages/my-account/AccountSetti
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
 
+const router = useRouter()
+
 const { t } = useI18n()
 const toast = useToast()
 
@@ -26,6 +28,14 @@ const {
 
 const adminData = computed(() => adminDetail.value)
 const adminFromData = computed(() => adminDetail.value)
+
+authStore.updateStation(adminData.value)
+
+const userEmail = ref();
+userEmail.value = adminData.value.email
+
+const userPhone = ref();
+userPhone.value = adminData.value.phone
 
 const commonsyncCities = await $api('/commonsync/extra-options').catch(err => console.log(err))
 const cityOptions = computed(() => commonsyncCities.cityOptions)
@@ -117,16 +127,18 @@ const generalInfoPopupShown = localStorage.getItem('generalInfoPopupShown')
 const kidsInfoPopupShown = localStorage.getItem('kidsInfoPopupShown')
 const stationPopupShown = localStorage.getItem('stationPopupShown')
 
+const {
+  data: saleData, execute: fetchSales,
+} = await useApi(createUrl(`/sales`))
+
+const sales = saleData.value.data
+
 onMounted(() => {
-  if ((!adminData.value.emailVerified || !adminData.value.phoneVerified) && !popupShown) {
+  //showStationPopupShown.value = true
+  if ((!adminData.value.emailVerified && !adminData.value.phoneVerified)) {
     showVerificationPopup.value = true
-    localStorage.setItem('verificationPopupShown', 'true')
-  }else if(!adminData.value.emailUpdated && !adminData.value.phoneUpdated && !adminData.value.phoneEmailUpdateSkip  && !updateEPPopupShown){
-    showUpdateEmailPhonePopupShown.value = true
-    localStorage.setItem('updateEmailPhonePopupShown', 'true')
   }else if(!adminData.value.passwordReset){
     showPasswordResetPopup.value = true
-    localStorage.setItem('passwordResetPopupShown', 'true')
   }else if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
     showGeneralInfoPopupShown.value = true
     localStorage.setItem('generalInfoPopupShown', 'true')
@@ -135,7 +147,6 @@ onMounted(() => {
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }else if(!adminData.value.stationID){
     showStationPopupShown.value = true
-    localStorage.setItem('kidsInfoPopupShown', 'true')
   }
 })
 
@@ -171,6 +182,29 @@ const onSubmitVerifyEmailPass = async() => {
         toast.success(t(response.message))
         emailOtp.value = ''
         phoneOtp.value = ''
+
+
+        if(!adminData.value.passwordReset){
+          showPasswordResetPopup.value = true
+        }else if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+          showGeneralInfoPopupShown.value = true
+          localStorage.setItem('generalInfoPopupShown', 'true')
+        }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+          showKidsInfoPopupShown.value = true
+          localStorage.setItem('kidsInfoPopupShown', 'true')
+        }else if(!adminData.value.stationID){
+          showStationPopupShown.value = true
+        }else{
+          //router.push({ name: 'sales' })
+          if (sales.length > 0) {
+            // 👇 assuming sales are sorted newest → oldest
+            const latestSale = sales[0]  
+            const latestSaleId = latestSale._id
+            router.push(`/sales/${latestSaleId}`)
+          }else{
+            router.push(`/sales`)
+          }
+        }
       }
     })
   })
@@ -183,11 +217,11 @@ const emailValidator = (value) => {
 
 const isEmailValid = computed(() => emailValidator(adminData.value.email) === true)
 
-const verifyEmailAddress = async() => {
+const verifyEmailAddressInitial = async() => {
   const res = await $api(`/users/verify-otp-send/${ adminData.value._id }`, {
     method: 'POST',
     body: {
-      email: adminData.value.email,
+      email: userEmail.value,
     },
     onResponseError({ response }) {
       errors.value = response._data.errors
@@ -213,11 +247,11 @@ const verifyEmailAddress = async() => {
   })
 }
 
-const verifyPhoneNo = async() => {
+const verifyPhoneNoInitial = async() => {
   const res = await $api(`/users/verify-otp-send/${ adminData.value._id }`, {
     method: 'POST',
     body: {
-      phone: adminData.value.phone,
+      phone: userPhone.value,
     },
     onResponseError({ response }) {
       errors.value = response._data.errors
@@ -269,7 +303,6 @@ const onSubmitPassword = async () => {
       
       toast.success("Successfully reset password")
 
-
       if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
         showGeneralInfoPopupShown.value = true
         localStorage.setItem('generalInfoPopupShown', 'true')
@@ -278,9 +311,16 @@ const onSubmitPassword = async () => {
         localStorage.setItem('kidsInfoPopupShown', 'true')
       }else if(!adminData.value.stationID){
         showStationPopupShown.value = true
-        localStorage.setItem('kidsInfoPopupShown', 'true')
       }else{
-        window.location.href = '/profile/sales'
+        //router.push({ name: 'sales' })
+        if (sales.length > 0) {
+          // 👇 assuming sales are sorted newest → oldest
+          const latestSale = sales[0]  
+          const latestSaleId = latestSale._id
+          router.push(`/sales/${latestSaleId}`)
+        }else{
+          router.push(`/sales`)
+        }
       }
       
     })
@@ -291,10 +331,7 @@ const onSubmitPassword = async () => {
 
 const closeVerificationPopup = () =>{
   showVerificationPopup.value = false
-  if(!adminData.value.emailUpdated && !adminData.value.phoneUpdated && !adminData.value.phoneEmailUpdateSkip  && !updateEPPopupShown){
-    showUpdateEmailPhonePopupShown.value = true
-    localStorage.setItem('updateEmailPhonePopupShown', 'true')
-  }else if(!adminData.value.passwordReset){
+  if(!adminData.value.passwordReset){
     showPasswordResetPopup.value = true
     localStorage.setItem('passwordResetPopupShown', 'true')
   }else if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
@@ -307,6 +344,225 @@ const closeVerificationPopup = () =>{
     showStationPopupShown.value = true
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }
+}
+
+
+const isEmailEdit = ref(false)
+
+const emailInput = ref(null) // template ref
+
+const editEmail = () => {
+  isEmailEdit.value = true
+  nextTick(() => {
+    // Access the internal input of AppTextField
+    const inputEl = emailInput.value?.$el?.querySelector('input')
+    inputEl?.focus()
+  })
+}
+
+const isPhoneEdit = ref(false)
+
+const phoneInput = ref(null) // template ref
+
+const editPhone = () => {
+  isPhoneEdit.value = true
+  nextTick(() => {
+    // Access the internal input of AppTextField
+    const inputPh = phoneInput.value?.$el?.querySelector('input')
+    inputPh?.focus()
+  })
+}
+
+const showOtpDialog = ref(false)
+
+const verifyEmailAddress = async() => {
+  const res = await $api(`/users/opt-send/${ adminData.value._id }`, {
+    method: 'POST',
+    body: {
+      email: userEmail.value,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        adminData.value.email = response.data.email
+        toast.error(t(response.message))
+      }else{
+        // showOtpDialog.value = true
+        showVerificationPopup.value = false
+        needsPhoneOtp.value = false
+        toast.success(t(response.message))
+        if(response.otpRequired){
+          showOtpDialog.value = true
+        }
+        if(response.needsEmailOtp){
+          needsEmailOtp.value = true
+        }
+      }
+    })
+  })
+}
+
+const verifyPhoneNo = async() => {
+  const res = await $api(`/users/opt-send/${ adminData.value._id }`, {
+    method: 'POST',
+    body: {
+      phone: userPhone.value,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        adminData.value.phone = response.data.phone
+        toast.error(t(response.message))
+      }else{
+        // showOtpDialog.value = true
+        showVerificationPopup.value = false
+        needsEmailOtp.value = false
+        toast.success(t(response.message))
+        if(response.otpRequired == true){
+          showOtpDialog.value = true
+        }
+        if(response.needsPhoneOtp == true){
+          needsPhoneOtp.value = true
+        }
+      }
+    })
+  })
+}
+
+const refFormVerify = ref()
+
+const onSubmitVerify = () => {
+  refFormVerify.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      submitVerify()
+  })
+}
+
+const submitVerify = async() =>{
+  
+  const res = await $api(`/users/verify-otp/${ adminData.value._id }`, {
+    method: 'POST',
+    body: {
+      emailOtp: emailOtp.value,
+      phoneOtp: phoneOtp.value,
+    },
+    onResponseError({ response }) {
+      errors.value = response._data.errors
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      
+
+      if(response.hasError){
+        adminData.value.email = response.data.email
+        adminData.value.phone = response.data.phone
+        toast.error(t(response.message))
+      }else{
+        isEmailEdit.value = false
+
+        showOtpDialog.value = false
+        adminData.value.email = response.data.email
+        adminData.value.phone = response.data.phone
+        toast.success(t(response.message))
+        emailOtp.value = ''
+        phoneOtp.value = ''
+
+        
+        if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+          showGeneralInfoPopupShown.value = true
+          localStorage.setItem('generalInfoPopupShown', 'true')
+        }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+          showKidsInfoPopupShown.value = true
+          localStorage.setItem('kidsInfoPopupShown', 'true')
+        }else if(!adminData.value.stationID){
+          showStationPopupShown.value = true
+          localStorage.setItem('kidsInfoPopupShown', 'true')
+        }else{
+          //window.location.href = '/profile/sales'
+          if (sales.length > 0) {
+            // 👇 assuming sales are sorted newest → oldest
+            const latestSale = sales[0]  
+            const latestSaleId = latestSale._id
+            router.push(`/sales/${latestSaleId}`)
+          }else{
+            router.push(`/sales`)
+          }
+        }
+        
+
+      }
+    })
+  })
+}
+
+const handleInfoSuccess = async => {
+  //console.log('dfdffd')
+  fetchUsers()
+  
+  showGeneralInfoPopupShown.value = false
+
+  if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+    showKidsInfoPopupShown.value = true
+    localStorage.setItem('kidsInfoPopupShown', 'true')
+  }else if(!adminData.value.stationID){
+    showStationPopupShown.value = true
+    localStorage.setItem('kidsInfoPopupShown', 'true')
+  }else{
+    //window.location.href = '/profile/sales'
+    if (sales.length > 0) {
+      // 👇 assuming sales are sorted newest → oldest
+      const latestSale = sales[0]  
+      const latestSaleId = latestSale._id
+      router.push(`/sales/${latestSaleId}`)
+    }else{
+      router.push(`/sales`)
+    }
+  }
+}
+
+const handleKidsSuccess = async () =>{
+  //console.log('dfdf');
+  fetchUsers()
+
+  showKidsInfoPopupShown.value = false
+  if(!adminData.value.stationID){
+    showStationPopupShown.value = true
+    localStorage.setItem('kidsInfoPopupShown', 'true')
+  }else{
+    //window.location.href = '/profile/sales'
+    if (sales.length > 0) {
+      // 👇 assuming sales are sorted newest → oldest
+      const latestSale = sales[0]  
+      const latestSaleId = latestSale._id
+      router.push(`/sales/${latestSaleId}`)
+    }else{
+      router.push(`/sales`)
+    }
+  }
+}
+
+
+
+
+
+const handleStationSuccess = async () => {
+  showStationPopupShown.value = false
+
+  if (sales.length > 0) {
+    
+    const latestSale = sales[0]  
+    const latestSaleId = latestSale._id
+    router.push(`/sales/${latestSaleId}`)
+  }else{
+    router.push(`/sales`)
+  }
+
 }
 </script>
 
@@ -379,44 +635,70 @@ const closeVerificationPopup = () =>{
       <VCard>
         <VForm>
           <VCardTitle class="text-h6" style="margin-bottom: 15px">
-            {{ $t('Verify Your Contact Info') }}
+            {{ $t('Verify/Update Your Contact Info') }}
           </VCardTitle>
 
           <VCardText>
             <VRow>
-              <VCol cols="12" v-if="adminData.email">
-                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email') }} </label><span class="verified_tag" v-if="adminData.emailVerified">{{ $t('Verified') }}</span>
+              <VCol cols="12">
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email') }} 
+                  <VIcon 
+                    style="margin-left:6px" 
+                    @click="editEmail" class="tabler-pencil" 
+                  />
+                </label>
                 <div class="field_block">
                   <AppTextField
                     ref="emailInput"
-                    v-model="adminData.email"
+                    v-model="userEmail"
                     :rules="[emailValidator]"
                     :placeholder="$t('Email')"
                     :error-messages="errors.email"
-                    readonly
+                    :disabled="!isEmailEdit && adminData.email"
+                    :autofocus="isEmailEdit"
                   />
+
+                  <div class="action_block" v-if="!isEmailEdit && !adminData.emailVerified && adminData.email">
+                    <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyEmailAddressInitial">
+                      {{ $t('Verify') }}
+                    </VBtn>
+                  </div>
                 
-                  <div class="action_block">
-                    <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyEmailAddress">
+                  <div class="action_block" v-if="isEmailEdit || !adminData.email">
+                    <VBtn style="color: #333!important;" variant="text" @click="isEmailEdit=false, userEmail = adminData.email">{{ $t('Cancel') }}</VBtn>
+                    <VBtn :disabled="userEmail && userEmail == adminData.email" variant="outlined" @click="verifyEmailAddress">
                       {{ $t('Verify') }}
                     </VBtn>
                   </div>
                 </div>
               </VCol>
 
-              <VCol cols="12" v-if="adminData.phone">
-                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone') }}</label>
+              <VCol cols="12">
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone') }} 
+                  <VIcon 
+                    style="margin-left:6px" 
+                    @click="editPhone" class="tabler-pencil" 
+                  />
+                </label>
                 <div class="field_block">
                   <AppTextField
                     ref="phoneInput"
-                    v-model="adminData.phone"
+                    v-model="userPhone"
                     :placeholder="$t('Phone')"
                     :error-messages="errors.phone"
-                    readonly
+                    :disabled="!isPhoneEdit && adminData.phone"
+                    :autofocus="isPhoneEdit"
                   />
+
+                  <div class="action_block" v-if="!isPhoneEdit && !adminData.phoneVerified && adminData.phone">
+                    <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyPhoneNoInitial">
+                      {{ $t('Verify') }}
+                    </VBtn>
+                  </div>
                 
-                  <div class="action_block">
-                    <VBtn style="color: #333!important; border-color:#333" variant="outlined" @click="verifyPhoneNo">
+                  <div class="action_block" v-if="isPhoneEdit || !adminData.phone">
+                    <VBtn style="color: #333!important;" variant="text" @click="isPhoneEdit=false, userPhone = adminData.phone">{{ $t('Cancel') }}</VBtn>
+                    <VBtn :disabled="userPhone && userPhone == adminData.phone " variant="outlined" @click="verifyPhoneNo">
                       {{ $t('Verify') }}
                     </VBtn>
                   </div>
@@ -424,11 +706,6 @@ const closeVerificationPopup = () =>{
               </VCol>
             </VRow>
           </VCardText>
-
-          <VCardActions>
-            <VSpacer />
-            <VBtn style="color: #333!important;" @click="closeVerificationPopup">{{ $t('Skip Now') }}</VBtn>
-          </VCardActions>
         </VForm>
       </VCard>
     </VDialog>
@@ -465,7 +742,7 @@ const closeVerificationPopup = () =>{
 
           <VCardActions>
             <VSpacer />
-            <VBtn style="color: #333!important;" variant="text" @click="clsoeShowVerifyOtpDialog">{{ $t('Cancel') }}</VBtn>
+            <VBtn style="color: #333!important;" variant="text" @click="showVerifyOtpDialog=false, showVerificationPopup=true">{{ $t('Cancel') }}</VBtn>
             <VBtn type="submit">
               {{ $t('Verify') }}
             </VBtn>
@@ -555,23 +832,64 @@ const closeVerificationPopup = () =>{
       </VCard>
     </VDialog>
 
-    <VDialog persistent class="verify_modal" v-model="showUpdateEmailPhonePopupShown" max-width="500">
-      <AccountSettingsAccountEmailPhone :user="adminData" @update:user="user = $event"/>
+    <VDialog persistent scrollable class="verify_modal" v-model="showGeneralInfoPopupShown" max-width="1200">
+      <AccountSettingsAccountGeneral :user="adminData" :cities="cities" @update:user="adminData = $event" @update-success="handleInfoSuccess"/>
     </VDialog>
 
-    <VDialog persistent scrollable class="verify_modal" v-model="showGeneralInfoPopupShown" max-width="800">
-      <AccountSettingsAccountGeneral :user="adminData" :cities="cities" @update:user="user = $event"/>
-    </VDialog>
-
-    <VDialog persistent scrollable class="verify_modal" v-model="showKidsInfoPopupShown" max-width="1200">
-      <AccountSettingsKidInformations :user="adminData"/>
+    <VDialog persistent scrollable class="verify_modal" v-model="showKidsInfoPopupShown" max-width="1200" >
+      <AccountSettingsKidInformations :user="adminData" @update:user="adminData = $event"
+    @kids-success="handleKidsSuccess"/>
     </VDialog>
 
     <VDialog persistent class="verify_modal" v-model="showStationPopupShown" max-width="500">
-      <DistributionStationPopup :user="adminData" :stations="stations"/>
+      <DistributionStationPopup
+        :user="adminData"
+        :stations="stations"
+        @update:user="adminData = $event"
+        @station-success="handleStationSuccess"
+      />
     </VDialog>
 
-    
+    <VDialog class="verify_modal" v-model="showOtpDialog" max-width="500">
+    <VCard>
+      <VForm 
+        ref="refFormVerify"
+        @submit.prevent="onSubmitVerify"
+      >
+        <VCardTitle class="text-h6">
+          {{ $t('Verify Your Contact Info') }}
+        </VCardTitle>
+
+        <VCardText>
+          <p v-if="needsEmailOtp">{{ $t('Enter the OTP sent to your new email') }}</p>
+          <AppTextField
+            v-if="needsEmailOtp"
+            v-model="emailOtp"
+            :label="$t('Email OTP')"
+            :rules="[requiredValidator]"
+          />
+
+          <p v-if="needsPhoneOtp">{{ $t('Enter the OTP sent to your new phone') }}</p>
+          <AppTextField
+            v-if="needsPhoneOtp"
+            v-model="phoneOtp"
+            :label="$t('Phone OTP')"
+            :rules="[requiredValidator]"
+          />
+
+          <p v-if="!needsEmailOtp && !needsPhoneOtp">{{ $t('No OTP required') }}</p>
+        </VCardText>
+
+        <VCardActions>
+          <VSpacer />
+          <VBtn style="color: #333!important;" variant="text" @click="showVerificationPopup=true">{{ $t('Cancel') }}</VBtn>
+          <VBtn type="submit">
+            {{ $t('Verify') }}
+          </VBtn>
+        </VCardActions>
+      </VForm>
+    </VCard>
+  </VDialog>
     
 
     <Footer />

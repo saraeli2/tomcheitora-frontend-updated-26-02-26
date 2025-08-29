@@ -57,6 +57,11 @@ const defaultColumns = [
     visible: true,
   },
   {
+    title: t('Product number'),
+    key: 'productNumber',
+    visible: true,
+  },
+  {
     title: t('Model'),
     key: 'model',
     visible: true,

@@ -457,7 +457,7 @@ const verifyPhoneNo = async() => {
             @submit.prevent="onSubmit"
           >
             <VRow>
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.firstName"
                   :rules="[requiredValidator]"
@@ -468,7 +468,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Last name -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.lastName"
                   :rules="[requiredValidator]"
@@ -479,7 +479,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Email -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email') }} 
                   <VIcon 
                     style="margin-left:6px" 
@@ -506,7 +506,7 @@ const verifyPhoneNo = async() => {
                 </div>
               </VCol>
 
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone') }} 
                   <VIcon 
                     style="margin-left:6px" 
@@ -534,7 +534,7 @@ const verifyPhoneNo = async() => {
 
               
               <!-- 👉 City -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppAutocomplete
                   v-model="adminData.cityID"
                   :items="cities"
@@ -546,7 +546,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Flat No. -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.street"
                   :label="$t('Flat No.')"
@@ -556,7 +556,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 House Number -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.houseNumber"
                   :label="$t('House Number')"
@@ -566,7 +566,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Address -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.address"
                   :label="$t('Address')"
@@ -576,7 +576,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Nationality -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.nationality"
                   :label="$t('Nationality')"
@@ -586,7 +586,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Israeli ID Number -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.israeliIDNumber"
                   :label="$t('Israeli ID Number')"
@@ -597,7 +597,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 Passport Number -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.passportNumber"
                   :label="$t('Passport Number')"
@@ -607,7 +607,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 No. Of Kids -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppTextField
                   v-model="adminData.noOfKids"
                   :rules="[integerValidator]"
@@ -618,7 +618,7 @@ const verifyPhoneNo = async() => {
               </VCol>
 
               <!-- 👉 maritalStatus -->
-              <VCol cols="12">
+              <VCol cols="12" md="6">
                 <AppAutocomplete
                   v-model="adminData.maritalStatus"
                   :items="[
@@ -634,21 +634,6 @@ const verifyPhoneNo = async() => {
                   :label="$t('Marital Status')"
                   :error-messages="errors.maritalStatus"
                   clearable
-                />
-              </VCol>
-
-              <!-- 👉 status -->
-              <VCol cols="12">
-                <AppAutocomplete
-                  v-model="adminData.status"
-                  :rules="[requiredValidator]"
-                  :items="[
-                    { value: 'Active', title: 'Active' },
-                    { value: 'Inactive', title: 'Inactive' },
-                  ]"
-                  :placeholder="$t('Select Status')"
-                  :label="$t('Status')"
-                  :error-messages="errors.status"
                 />
               </VCol>
 
