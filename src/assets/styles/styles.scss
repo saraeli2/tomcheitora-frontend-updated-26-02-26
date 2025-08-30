@@ -1495,12 +1495,17 @@ body .layout-wrapper.layout-nav-type-vertical.layout-navbar-sticky .layout-page-
     border: 2px solid rgba(135, 135, 136, 0.9019607843);
     line-height: 18px;
     color: #333;
+    min-width: 50px;
+    text-align: center;
 }
 .product-details-content .v-list-item__content h6.text-h6 {
     margin: 0 0 4px;
 }
+
 .product-details-content .v-selection-control__wrapper.text-primary + label.v-label.v-label--clickable{
   border-color: #32A744;
+  background-color: #32A744;
+  color: #fff;
 }
 .action_block input.w-16.text-center.border.rounded.px-2.py-1 {
     height: 34px;
@@ -1508,4 +1513,14 @@ body .layout-wrapper.layout-nav-type-vertical.layout-navbar-sticky .layout-page-
 }
 .checkout-card .bg-primary{
   background-color: #32A744 !important;
+}
+
+span.required {
+    color: red;
+}
+.checkout-card.no_stationId {
+    opacity: 0;
+}
+iframe#NedarimFrame {
+    height: 325px!important;
 }

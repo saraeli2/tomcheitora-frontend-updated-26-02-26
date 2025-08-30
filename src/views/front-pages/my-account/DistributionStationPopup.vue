@@ -98,13 +98,14 @@ const onSubmitPopup = async () => {
                     :placeholder="$t('Select Station')"
                     :error-messages="errors.stationID"
                     clearable
+                    :rules="[requiredValidator]"
                   />
                 </VCol>
               </VRow>
 
             <!-- 👉 Action Buttons -->
             
-              <VBtn style="margin-top: 15px" type="submit">{{ $t('Save changes') }}</VBtn>
+              <VBtn :disabled="!adminData.stationID" style="margin-top: 15px" type="submit">{{ $t('Save changes') }}</VBtn>
           </VForm>
         </VCardText>
       </VCard>

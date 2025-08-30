@@ -486,6 +486,12 @@ const verifyPhoneNo = async() => {
                     @click="editEmail" class="tabler-pencil" 
                   />
                 </label>
+                <span v-if="adminData.emailVerified" style="font-size: 12px; color:#32A744">
+                  <VIcon
+                      class="tabler-check" 
+                  /> Verified
+                </span>
+
                 <div class="field_block">
                   <AppTextField
                     ref="emailInput"
@@ -513,6 +519,12 @@ const verifyPhoneNo = async() => {
                     @click="editPhone" class="tabler-pencil" 
                   />
                 </label>
+
+                <span v-if="adminData.phoneVerified" style="font-size: 12px; color:#32A744">
+                  <VIcon
+                      class="tabler-check" 
+                  /> Verified
+                </span>
                 <div class="field_block">
                   <AppTextField
                     ref="phoneInput"

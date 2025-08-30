@@ -7,6 +7,7 @@ definePage({
     title: 'Checkout'
   },
 })
+import { ref, onMounted } from 'vue'
 import useHelper from "@/mixins/helper";
 import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
@@ -41,6 +42,11 @@ const products = ref([])
 const route = useRoute('profile-checkout')
 const router = useRouter()
 
+
+// for payment
+const nedarimIframeUrl = ref('')  // store iframe URL
+const showPaymentIframe = ref(false)
+const showLoader = ref(false)
 
 const checkoutSteps = [
   {
@@ -107,7 +113,6 @@ if(order.value){
   }
 }
 
-const showLoader = ref(false)
 
 let debounceTimer = null
 
@@ -197,12 +202,14 @@ const cityID = ref(null)
 const flatNo = ref()
 const houseNumber = ref()
 const address = ref()
+const street = ref()
 
 if(user.value) {
   cityID.value = user.value.cityID
   flatNo.value = user.value.flatNo
   houseNumber.value = user.value.houseNumber
   address.value = user.value.address
+  street.value = user.value.street
 }
 
 
@@ -233,25 +240,63 @@ const submit = async () => {
     formData.append('address', address.value)
   }
 
+  if(street.value) {
+    formData.append('street', street.value)
+  }
+
+  
+
   if(user.value.communityID) {
     formData.append('communityID', user.value.communityID)
   }
 
   if(user.value._id) {
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/${ user.value._id }`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${authStore.faccessToken}`,
-      },
-    }).then(async response => {
-      await nextTick(() => {
-        currentStep.value = currentStep.value + 1
+    try {
+      const response = await $api(`/users/order-address/${ user.value._id }`, {
+        method: 'PATCH',
+        body: {
+          cityID: cityID.value,
+          flatNo: flatNo.value,
+          houseNumber: houseNumber.value,
+          address: address.value,
+          street: street.value,
+        },
+        onResponseError({ response }) {
+          errors.value = response._data.errors
+        },
       })
 
-    })
-      .catch(e => {
-        errors.value = e.response.data.errors
-      })
+      currentStep.value = currentStep.value + 1
+
+      //console.log('dfdf')
+
+    } catch (err) {
+      console.error('Failed to update station:', err)
+    }
+
+
+    // const response = await $api(`/users/order-address/${ user.value._id }`, {
+    //   method: 'PATCH',
+    //   formData,
+    //   onResponseError({ response }) {
+    //     errors.value = response._data.errors
+    //   },
+    // })
+
+    // const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/users/order-address/${ user.value._id }`, formData, {
+    //   headers: {
+    //     'Content-Type': 'multipart/form-data',
+    //     'Authorization': `Bearer ${authStore.faccessToken}`,
+    //   },
+    // }).then(async response => {
+    //   await nextTick(() => {
+    //     currentStep.value = currentStep.value + 1
+    //   })
+
+    // })
+    //   .catch(e => {
+    //     errors.value = e.response.data.errors
+    //   })
   }
 }
 
@@ -266,6 +311,10 @@ if(order.value){
   user.value = order.value.userID
 }
 
+
+
+const transactionStatus = ref('') // success, error, or ''
+const errorMessage = ref('')
 
 const onSubmitPayment = async() =>{
   try {
@@ -289,6 +338,83 @@ const onSubmitPayment = async() =>{
     })
   } catch (err) {
   }
+}
+
+onMounted(async () => {
+  if (order.value) {
+    await loadNedarimIframe()
+  }
+})
+
+const nedarimIframeHtml = ref('')
+
+const handleIframeMessage = (event) => {
+  const data = event.data
+  console.log('Message from iframe:', data)
+
+  if (data.Name === 'Height') {
+    document.getElementById('NedarimFrame').style.height =
+      parseInt(data.Value) + 15 + 'px'
+  }
+
+  if (data.Name === 'TransactionResponse') {
+    if (data.Value.Status === 'Error') {
+      transactionStatus.value = 'error'
+      errorMessage.value = data.Value.Message
+    } else {
+      transactionStatus.value = 'success'
+    }
+  }
+}
+
+const loadNedarimIframe = async () => {
+  try {
+    showLoader.value = true
+
+    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/payment/iframe`, {
+      firstName: user.value.firstName,
+      lastName: user.value.lastName,
+      email: user.value.email,
+      city: cityID.value,
+      street: street.value,
+      uniqueKey: order.value?._id
+    })
+
+    nedarimIframeHtml.value = res.data.iframeHtml
+  } catch (err) {
+    console.error('Failed to load payment iframe:', err)
+    toast.error('Payment page could not be loaded.')
+  } finally {
+    showLoader.value = false
+  }
+
+  window.addEventListener('message', handleIframeMessage, false)
+}
+
+const pay = () => {
+  // Post data to iframe to finish transaction
+  const iframeWindow = document.getElementById('NedarimFrame').contentWindow
+  iframeWindow.postMessage(
+    {
+      Name: 'FinishTransaction2',
+      Value: {
+        Mosad: import.meta.env.VITE_NEDARIM_TERMINAL,
+        ApiValid: import.meta.env.VITE_NEDARIM_API_PASS,
+        PaymentType: 'Ragil', // or HK, CreateToken
+        Currency: '1',
+        Zeout: order.value?._id,
+        FirstName: user.value.firstName,
+        LastName: user.value.lastName,
+        Street: street.value,
+        City: cityID.value,
+        Phone: user.value.phone,
+        Mail: user.value.email,
+        Amount: order.value.total,
+        Tashlumim: '1',
+      },
+    },
+    '*'
+  )
 }
 </script>
 
@@ -538,6 +664,21 @@ const onSubmitPayment = async() =>{
                           lg="6"
                         >
                           <AppTextField
+                            v-model="street"
+                            :label="$t('Street')"
+                            :placeholder="$t('Street')"
+                            :error-messages="errors.street"
+                            :rules="[requiredValidator]"
+                          />
+                        </VCol>
+
+
+                        <!-- 👉 Flat No. -->
+                        <VCol 
+                          cols="12" 
+                          lg="6"
+                        >
+                          <AppTextField
                             v-model="flatNo"
                             :label="$t('Flat No.')"
                             :placeholder="$t('Flat No.')"
@@ -633,7 +774,7 @@ const onSubmitPayment = async() =>{
                 <VForm 
                   ref="refForm"
                   v-model="isFormValid"
-                  @submit.prevent="onSubmitPayment"
+                  @submit.prevent="pay"
                 >
                   <VRow>
                     <VCol cols="12">
@@ -643,28 +784,13 @@ const onSubmitPayment = async() =>{
                     </VCol>
                   </VRow>
                   <VRow v-if="orderItems">
-                    <VCol
-                      cols="12"
-                      lg="8"
-                    >
-                      <VRow>
-                        <VCol>
-                          <VRadio
-                            v-model="paymentMethod"
-                            :label="$t('Cash on Delivery')"
-                            value="Cash on Delivery"
-                          />
-                          <p>{{ $t('Cash on Delivery is a type of payment method where the recipient make payment for the order at the time of delivery rather than in advance.') }}</p>
-                        </VCol>
-                      </VRow>
-                      <div>
-                        <VBtn
-                          class="mt-4"
-                          type="submit"
-                        >
-                          {{ $t('Place Order') }}
-                        </VBtn>
-                      </div>
+                    <VCol cols="12" lg="8">
+                      <div v-if="showLoader">Loading payment page...</div>
+
+                      <!-- Iframe container -->
+                      <div v-else v-html="nedarimIframeHtml"></div>
+
+                      <VBtn type="submit" class="TextBox">Make Payment</VBtn>
                     </VCol>
 
                     <VCol

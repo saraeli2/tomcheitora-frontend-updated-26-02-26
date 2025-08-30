@@ -509,6 +509,12 @@
   "Product number": "מספר מוצר",
   "Verify/Update Your Contact Info": "אימות/עדכון פרטי הקשר שלך",
   "Flat no": "דירה מספר",
-  "Add Yes/No or both": "הוסף כן/לא או את שניהם"
+  "Add Yes/No or both": "הוסף כן/לא או את שניהם",
+  "Cash on Delivery": "מזומן במשלוח",
+  "Shipping": "מִשׁלוֹחַ",
+  "Billing Address": "כתובת לחיוב",
+  "Our Sales": "המכירות שלנו",
+  "Enter the OTP sent to your email": "הזן את ה-OTP שנשלח לכתובת הדוא\"ל שלך",
+  "Flat no.": "דירה מספר"
 
 }

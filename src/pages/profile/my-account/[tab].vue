@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
 import AccountSettingsAccount from '@/views/front-pages/my-account/AccountSettingsAccount.vue'
@@ -540,9 +541,13 @@ const handleKidsSuccess = async () =>{
       // 👇 assuming sales are sorted newest → oldest
       const latestSale = sales[0]  
       const latestSaleId = latestSale._id
-      router.push(`/sales/${latestSaleId}`)
+      //router.push(`/sales/${latestSaleId}`)
+
+      window.location.href = `/sales/${latestSaleId}`
+
     }else{
-      router.push(`/sales`)
+      //router.push(`/sales`)
+      window.location.href = `/sales`
     }
   }
 }
@@ -553,14 +558,18 @@ const handleKidsSuccess = async () =>{
 
 const handleStationSuccess = async () => {
   showStationPopupShown.value = false
-
+  
   if (sales.length > 0) {
     
     const latestSale = sales[0]  
     const latestSaleId = latestSale._id
-    router.push(`/sales/${latestSaleId}`)
+
+    setTimeout(() => {
+      router.replace(`/sales/${latestSaleId}`)
+    }, 1000) // delay in ms
   }else{
-    router.push(`/sales`)
+    //router.push(`/sales`)
+    router.replace(`/sales`)
   }
 
 }
@@ -578,7 +587,7 @@ const handleStationSuccess = async () => {
     </div>
 
     <VContainer>
-      <div class="checkout-card">
+      <div class="checkout-card" :class="adminData.stationID ? '' : 'no_stationId'">
         <VTabs
           v-model="activeTab"
           class="v-tabs-pill"
@@ -832,7 +841,7 @@ const handleStationSuccess = async () => {
       </VCard>
     </VDialog>
 
-    <VDialog persistent scrollable class="verify_modal" v-model="showGeneralInfoPopupShown" max-width="1200">
+    <VDialog persistent class="verify_modal" v-model="showGeneralInfoPopupShown" max-width="1200">
       <AccountSettingsAccountGeneral :user="adminData" :cities="cities" @update:user="adminData = $event" @update-success="handleInfoSuccess"/>
     </VDialog>
 

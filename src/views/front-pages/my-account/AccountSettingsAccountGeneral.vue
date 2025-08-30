@@ -476,10 +476,10 @@ const verifyPhoneNo = async() => {
           >
             <VRow>
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('First Name') }} <span class='required'>*</span></label>
                 <AppTextField
                   v-model="adminData.firstName"
                   :rules="[requiredValidator]"
-                  :label="$t('First Name')"
                   :placeholder="$t('First Name')"
                   :error-messages="errors.firstName"
                 />
@@ -487,10 +487,10 @@ const verifyPhoneNo = async() => {
 
               <!-- 👉 Last name -->
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('Last Name') }} <span class='required'>*</span></label>
                 <AppTextField
                   v-model="adminData.lastName"
                   :rules="[requiredValidator]"
-                  :label="$t('Last Name')"
                   :placeholder="$t('Last Name')"
                   :error-messages="errors.lastName"
                 />
@@ -500,10 +500,10 @@ const verifyPhoneNo = async() => {
               
               <!-- 👉 City -->
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('City') }} <span class='required'>*</span></label>
                 <AppAutocomplete
                   v-model="adminData.cityID"
                   :items="cities"
-                  :label="$t('City')"
                   :placeholder="$t('Select City')"
                   :error-messages="errors.cityID"
                   clearable
@@ -513,9 +513,9 @@ const verifyPhoneNo = async() => {
 
               <!-- 👉 Flat No. -->
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('Street') }} <span class='required'>*</span></label>
                 <AppTextField
                   v-model="adminData.street"
-                  :label="$t('Street')"
                   :placeholder="$t('Street')"
                   :error-messages="errors.street"
                   :rules="[requiredValidator]"
@@ -524,9 +524,9 @@ const verifyPhoneNo = async() => {
 
               <!-- 👉 House Number -->
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('House Number') }} <span class='required'>*</span></label>
                 <AppTextField
                   v-model="adminData.houseNumber"
-                  :label="$t('House Number')"
                   :placeholder="$t('House Number')"
                   :error-messages="errors.houseNumber"
                   :rules="[requiredValidator]"
@@ -535,9 +535,9 @@ const verifyPhoneNo = async() => {
 
               <!-- 👉 House Number -->
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('Flat no.') }} <span class='required'>*</span></label>
                 <AppTextField
                   v-model="adminData.flatNo"
-                  :label="$t('Flat no.')"
                   :placeholder="$t('Flat no')"
                   :error-messages="errors.flatNo"
                   :rules="[requiredValidator]"
@@ -546,9 +546,9 @@ const verifyPhoneNo = async() => {
 
               <!-- 👉 House Number -->
               <VCol cols="12" md="6">
+                <label class="v-label mb-1 text-body-2">{{ $t('Phone 1') }} <span class='required'>*</span></label>
                 <AppTextField
                   v-model="adminData.phone"
-                  :label="$t('Phone 1')"
                   :placeholder="$t('Phone 1')"
                   :error-messages="errors.phone1"
                   :rules="[requiredValidator]"
