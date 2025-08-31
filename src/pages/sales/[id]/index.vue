@@ -62,6 +62,7 @@ const {
   createUrl(`/sales/${route.params.id}`, {
     query: {
       categoryIDs: category_ids,
+      communityID: authStore.fuserData.communityID
     },
   })
 )
@@ -94,13 +95,21 @@ watch(saleDetail, (newVal) => {
 const validSale = ref(false)
 const userValid = ref(false)
 
-const exists = saleGroups.value.some(group =>
+let exists = '';
+let existsDefault = '';
+
+if(authStore.fuserData.communityID && authStore.fuserData.communityID._id){
+  exists = saleGroups.value.some(group =>
   group.groupID?.communities?.includes(authStore.fuserData.communityID._id)
 )
+}
 
-const existsDefault = saleGroups.value.some(group =>
-  group.groupID?.communities?.includes(authStore.fuserData.communityID)
-)
+if(authStore.fuserData.communityID){
+  existsDefault = saleGroups.value.some(group =>
+    group.groupID?.communities?.includes(authStore.fuserData.communityID)
+  )
+}
+
 
 if (exists || existsDefault) {
   userValid.value = true
@@ -129,6 +138,7 @@ async function loadProducts(newPage = 1) {
         itemsPerPage: itemsPerPage.value,
         page: newPage,
         saleId: saleData.value?._id,
+        communityID: authStore.fuserData.communityID
       },
     }))
 
@@ -463,7 +473,7 @@ const updateSelectedCategory = catId => {
               <VRow class="product-area" v-if="products.length > 0">
                 <VCol cols="12" md="4" sm="6" lg="3" v-for="product in products">
                   <div class="custom-single-product">
-                    <div class="stock_out" v-if="!getProductStatus(product.productID?._id) && product.maxUnit == product.reservedQty">
+                    <div class="stock_out" v-if="!product.remainingUnits">
                       {{ $t('Out of stock') }}
                     </div>
                     <div 

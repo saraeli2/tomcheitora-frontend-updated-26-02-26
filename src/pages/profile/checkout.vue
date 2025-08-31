@@ -394,6 +394,7 @@ const loadNedarimIframe = async () => {
 const pay = () => {
   // Post data to iframe to finish transaction
   const iframeWindow = document.getElementById('NedarimFrame').contentWindow
+
   iframeWindow.postMessage(
     {
       Name: 'FinishTransaction2',
@@ -415,6 +416,36 @@ const pay = () => {
     },
     '*'
   )
+}
+
+
+// const handleAddAddress = async () => {
+//   const isValid = await validateStock(orderItems)
+//   if (isValid) {
+//     nextStep() // move to next page/step only if stock is valid
+//   }
+// }
+
+const validating = ref(false)
+
+const handleAddAddress = async () => {
+  validating.value = true
+  try {
+    const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/orders/validate-before-payment`, {
+      orderID: order.value._id,
+      userID: order.value.userID._id,
+    })
+
+    if (data.success) {
+      nextStep() // proceed to payment step
+    } else {
+      toast.error(data.message)
+    }
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Validation failed')
+  } finally {
+    validating.value = false
+  }
 }
 </script>
 
@@ -616,7 +647,7 @@ const pay = () => {
                         v-if="order.status == 'Pending'"
                         block
                         class="mt-4"
-                        @click="nextStep"
+                        @click="handleAddAddress"
                       >
                         {{ $t('Add Address') }}
                       </VBtn>
