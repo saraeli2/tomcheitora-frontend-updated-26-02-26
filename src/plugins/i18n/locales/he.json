@@ -519,6 +519,11 @@
   "Birth Date": "תאריך לידה",
   "Land Phone": "טל' בית",
   "Married kids": "מתוכם נשואים",
-  "School name": "מקום לימודים"
+  "School name": "מקום לימודים",
+  "Payment Status": "סטטוס תשלום",
+  "Pending": "תָלוּי וְעוֹמֵד",
+  "Paid": "בתשלום",
+  "Failed": "נִכשָׁל",
+  "Not Paid": "לא שולם"
 
 }

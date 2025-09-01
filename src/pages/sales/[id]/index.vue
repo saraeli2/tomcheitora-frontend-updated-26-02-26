@@ -420,19 +420,7 @@ const updateSelectedCategory = catId => {
     >
       <VContainer>
         <VRow>
-          <VCol md="3">
-            <div class="sidebar">
-              <div class="category_items">
-                <h3>{{ $t('Catgories') }}</h3>
-                
-                <CategoryTree
-                  v-model:selected="selectedCategories"
-                  :categories="tree"
-                />
-              </div>
-            </div>
-          </VCol>
-          <VCol md="9">
+          <VCol md="12">
             <VRow>
               <VCol md="12">
                 <Swiper
@@ -515,7 +503,7 @@ const updateSelectedCategory = catId => {
                       </h5>
                       <div class="product-action-block">
                         <h4>
-                          <span class="product-price text-body-1">{{ product.price }} <span style="text-transform: uppercase; padding:0;">{{ product.productID?.currency }}</span></span>
+                          <span class="product-price text-body-1">{{ product.price }} <span style="text-transform: uppercase; padding:0;">₪</span></span>
                         </h4>
 
                         <div class="action_block">
@@ -526,7 +514,7 @@ const updateSelectedCategory = catId => {
                           </div>
 
                           <div v-else>
-                            <button :class="product.maxUnit == product.reservedQty ? 'addToCart_disable' : ''" @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded"> + </button>
+                            <button :class="product.maxUnit == product.reservedQty ? 'addToCart_disable' : ''" @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded initial_plus"> + </button>
                           </div>
                         </div>
                       </div>

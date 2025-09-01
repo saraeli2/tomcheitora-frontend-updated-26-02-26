@@ -73,6 +73,15 @@ const {
 
 const order = computed(() => orderData.value)
 
+const latestTransaction = computed(() => {
+  if (!orderData.value?.transactions?.length) return null;
+
+  // Sort by createdAt descending to get the newest transaction
+  return orderData.value.transactions
+    .slice()
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+});
+
 formData.value = orderData.value
 orderItems.value = orderData.value.orderItems
 
@@ -153,7 +162,20 @@ const removeItem = index => {
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
         <VCardText class="text-center subpage-tittle">
-          <h2>Order Details</h2>
+          <h2>{{ $t('Order Details') }}</h2>
+
+          <h6 class="text-h6">
+            {{ $t('Payment Status') }}: 
+            <span 
+              :class="{
+                'text-success': latestTransaction?.paymentStatus === 'Paid',
+                'text-warning': latestTransaction?.paymentStatus === 'Pending',
+                'text-error': latestTransaction?.paymentStatus === 'Failed'
+              }"
+            >
+              {{ latestTransaction ? $t(latestTransaction.paymentStatus) : $t('Not Paid') }}
+            </span>
+          </h6>
         </VCardText>
       </VContainer>
     </div>
@@ -215,7 +237,7 @@ const removeItem = index => {
                         >
                           <div class="d-flex text-base align-self-md-end">
                             <div class="text-primary">
-                              <span style="text-transform: uppercase;">{{ item.productID?.currency }}</span> {{ item.price }}
+                              <span style="text-transform: uppercase;">₪</span> {{ item.price }}
                             </div>
                           </div>
                         </div>

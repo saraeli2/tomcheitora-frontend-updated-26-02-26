@@ -523,5 +523,10 @@
   "Birth Date": "Birth Date",
   "Land Phone": "Land Phone",
   "Married kids": "Married kids",
-  "School name": "School name"
+  "School name": "School name",
+  "Payment Status": "Payment Status",
+  "Pending": "Pending",
+  "Paid": "Paid",
+  "Failed": "Failed",
+  "Not Paid": "Not Paid"
 }

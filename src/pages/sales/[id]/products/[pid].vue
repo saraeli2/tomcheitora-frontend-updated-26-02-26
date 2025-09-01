@@ -279,7 +279,7 @@ const decreaseQuantity = () => {
               </div>
               <div class="product-price-label">
                 <h4>
-                  <span class="product-price text-h5">{{ saleProduct.price }} <span style="text-transform: uppercase; padding:0;">{{ productDetails.currency }}</span></span>
+                  <span class="product-price text-h5">{{ saleProduct.price }} <span style="text-transform: uppercase; padding:0;">₪</span></span>
                 </h4>
               </div>
               <div class="product-description" v-if="productDetails.description">

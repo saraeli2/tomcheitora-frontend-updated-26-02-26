@@ -7,6 +7,7 @@ definePage({
     title: 'Checkout'
   },
 })
+import { useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
 import useHelper from "@/mixins/helper";
 import Footer from '@/views/front-pages/front-page-footer.vue'
@@ -32,6 +33,7 @@ const { numberFormat } = useHelper()
 const authStore = useAuthStore()
 const toast = useToast()
 
+
 const { t } = useI18n()
 
 const formData = ref()
@@ -41,6 +43,7 @@ const refForm = ref()
 const products = ref([])
 const route = useRoute('profile-checkout')
 const router = useRouter()
+const isClickPayment = ref(false)
 
 
 // for payment
@@ -350,7 +353,6 @@ const nedarimIframeHtml = ref('')
 
 const handleIframeMessage = (event) => {
   const data = event.data
-  console.log('Message from iframe:', data)
 
   if (data.Name === 'Height') {
     document.getElementById('NedarimFrame').style.height =
@@ -358,14 +360,52 @@ const handleIframeMessage = (event) => {
   }
 
   if (data.Name === 'TransactionResponse') {
+    isClickPayment.value = false
+
     if (data.Value.Status === 'Error') {
       transactionStatus.value = 'error'
       errorMessage.value = data.Value.Message
+      showLoader.value = false
     } else {
-      transactionStatus.value = 'success'
+      errorMessage.value = ''
+
+      const payload = {
+        userId: user.value._id,      
+        orderId: order.value?._id,
+        paymentStatus: 'Pending',  
+        Value: data.Value         
+      }
+
+      createTransaction(payload)
     }
   }
 }
+
+const createTransaction = async payload => {
+  try {
+    const response = await $api.post('/transactions', payload) // ensure POST
+
+    console.log('Transaction saved:', response.data)
+
+    transactionStatus.value = 'success' // set status after saving
+
+    showLoader.value = false
+
+    //salesUrl.value = `/orders/${order.value?._id}`
+    router.replace(`/orders/${order.value?._id}`)
+
+
+  } catch (err) {
+
+    console.error('Failed to save transaction:', err)
+    transactionStatus.value = 'error'
+    errorMessage.value = 'Failed to save transaction'
+
+    showLoader.value = false
+
+  }
+}
+
 
 const loadNedarimIframe = async () => {
   try {
@@ -392,7 +432,9 @@ const loadNedarimIframe = async () => {
 }
 
 const pay = () => {
-  // Post data to iframe to finish transaction
+  
+  isClickPayment.value = true;
+
   const iframeWindow = document.getElementById('NedarimFrame').contentWindow
 
   iframeWindow.postMessage(
@@ -412,6 +454,10 @@ const pay = () => {
         Mail: user.value.email,
         Amount: order.value.total,
         Tashlumim: '1',
+        Param1: user.value._id,
+        Param2: order.value._id,
+        CallBack: `${import.meta.env.VITE_API_BASE_URL}/payment/callback`,
+        CallBackMailError: import.meta.env.VITE_PAYMENTCHECKEMAIL
       },
     },
     '*'
@@ -570,7 +616,7 @@ const handleAddAddress = async () => {
                             >
                               <div class="d-flex text-base align-self-md-end">
                                 <div class="text-primary">
-                                  <span style="text-transform: uppercase;">{{ item.productID?.currency }}</span> {{ item.price }}
+                                  <span style="text-transform: uppercase;">₪</span> {{ item.price }}
                                 </div>
                               </div>
                             </div>
@@ -823,7 +869,9 @@ const handleAddAddress = async () => {
                       <!-- Iframe container -->
                       <div v-else v-html="nedarimIframeHtml"></div>
 
-                      <VBtn type="submit" class="TextBox">Make Payment</VBtn>
+                      <VBtn type="submit" :disabled="isClickPayment" class="TextBox">Make Payment</VBtn>
+
+                      <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
                     </VCol>
 
                     <VCol
@@ -1017,7 +1065,7 @@ const handleAddAddress = async () => {
                             >
                               <div class="d-flex text-base align-self-md-end">
                                 <div class="text-primary">
-                                  <span style="text-transform: uppercase;">{{ item.productID?.currency }}</span> {{ item.price }}
+                                  <span style="text-transform: uppercase;">₪</span> {{ item.price }}
                                 </div>
                               </div>
                             </div>

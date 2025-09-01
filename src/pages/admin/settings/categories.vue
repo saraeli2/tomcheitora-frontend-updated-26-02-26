@@ -149,22 +149,36 @@ const onDrag = async evt => {
   if (!evt?.moved) return
   console.log(evt.moved)
 
-  const parentNode = evt.moved.element.parentId // adjust based on your data structure
-  const newChildren = tree.value.find(node => node._id === parentNode)?.children || []
+  // Determine which array to update
+  let nodesToUpdate = []
 
-  const payload = newChildren.map((child, index) => ({
-    id: child._id,            // ID of the relation (CategoryBuilder ID)
-    sortOrder: index,             // New order
+  if (evt.moved.element.parentId) {
+    // Child node
+    const parentNode = tree.value.find(node => node._id === evt.moved.element.parentId)
+    nodesToUpdate = parentNode?.children || []
+  } else {
+    // Top-level parent
+    nodesToUpdate = tree.value
+  }
+
+  // Prepare payload
+  const payload = nodesToUpdate.map((node, index) => ({
+    id: node._id,
+    sortOrder: index
   }))
 
-  await $api('/admin/settings/categories/update/sort-order', {
-    method: 'POST',
-    body: payload,
-  })
-
-  // You can handle drag result here (persist changes)
-  toast.success('Drag completed')
+  try {
+    await $api('/admin/settings/categories/update/sort-order', {
+      method: 'POST',
+      body: payload,
+    })
+    toast.success('Drag completed')
+  } catch (err) {
+    console.error(err)
+    toast.error('Failed to update sort order')
+  }
 }
+
 
 const checkMove = ({ draggedContext, relatedContext }) => {
   const fromParent = draggedContext.componentInstance?.node || null

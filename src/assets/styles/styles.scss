@@ -1524,3 +1524,35 @@ span.required {
 iframe#NedarimFrame {
     height: 325px!important;
 }
+
+button.px-4.py-2.bg-primary.text-white.rounded.initial_plus {
+    background: #F66004 !important;
+    color: #fff !important;
+    padding-top: 2px !important;
+    border-color: #F66004 !important;
+}
+button.px-4.py-2.bg-primary.text-white.rounded.initial_plus:hover{
+  background: #FF914D!important;
+  color: #fff !important;
+  border-color: #FF914D!important;
+  padding-top: 0px !important;
+}
+.product-action-block .action_block {
+    height: 32px;
+}
+.custom-single-product .product-action-block {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    padding: 0 10px;
+}
+.product-page .product-wrapper .product-area .custom-single-product{
+  padding-bottom: 55px;
+}
+.custom-single-product .product-action-block {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    padding: 0 10px;
+    bottom: 15px;
+}
