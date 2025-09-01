@@ -377,7 +377,7 @@ const loadNedarimIframe = async () => {
       email: user.value.email,
       city: cityID.value,
       street: street.value,
-      uniqueKey: order.value?._id
+      uniqueKey: order.value?.orderNumber
     })
 
     nedarimIframeHtml.value = res.data.iframeHtml
@@ -403,7 +403,7 @@ const pay = () => {
         ApiValid: import.meta.env.VITE_NEDARIM_API_PASS,
         PaymentType: 'Ragil', // or HK, CreateToken
         Currency: '1',
-        Zeout: order.value?._id,
+        Zeout: order.value?.orderNumber,
         FirstName: user.value.firstName,
         LastName: user.value.lastName,
         Street: street.value,
@@ -447,6 +447,8 @@ const handleAddAddress = async () => {
     validating.value = false
   }
 }
+
+
 </script>
 
 <template>
