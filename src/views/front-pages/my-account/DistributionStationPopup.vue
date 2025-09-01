@@ -55,11 +55,15 @@ const onSubmitPopup = async () => {
     })
 
     // ✅ update store / reset form here
-    authStore.updateStationId(adminData.value.stationID)
+    await authStore.updateStationId(adminData.value.stationID)
+
+    setTimeout(() => {
+      emit('update:user', response)
+      emit('station-success', response)
+    }, 1000)
 
     // ✅ emit events to parent
-    emit('update:user', response)
-    emit('station-success', response)
+    
 
     toast.success(t('Station has been updated successfully.'))
 

@@ -127,12 +127,26 @@ const updateEPPopupShown = localStorage.getItem('updateEmailPhonePopupShown')
 const generalInfoPopupShown = localStorage.getItem('generalInfoPopupShown')
 const kidsInfoPopupShown = localStorage.getItem('kidsInfoPopupShown')
 const stationPopupShown = localStorage.getItem('stationPopupShown')
+const salesUrl = ref()
 
 const {
   data: saleData, execute: fetchSales,
 } = await useApi(createUrl(`/sales`))
 
 const sales = saleData.value.data
+
+if (sales.length > 0) {
+  // 👇 assuming sales are sorted newest → oldest
+  const latestSale = sales[0]  
+  const latestSaleId = latestSale._id
+  salesUrl.value = `/sales/${latestSaleId}`
+}else{
+  //router.push(`/sales`)
+  salesUrl.value = `/sales`
+}
+
+//console.log(salesUrl);
+
 
 onMounted(() => {
   //showStationPopupShown.value = true
@@ -197,14 +211,7 @@ const onSubmitVerifyEmailPass = async() => {
           showStationPopupShown.value = true
         }else{
           //router.push({ name: 'sales' })
-          if (sales.length > 0) {
-            // 👇 assuming sales are sorted newest → oldest
-            const latestSale = sales[0]  
-            const latestSaleId = latestSale._id
-            router.push(`/sales/${latestSaleId}`)
-          }else{
-            router.push(`/sales`)
-          }
+          router.push(salesUrl.value)
         }
       }
     })
@@ -314,14 +321,7 @@ const onSubmitPassword = async () => {
         showStationPopupShown.value = true
       }else{
         //router.push({ name: 'sales' })
-        if (sales.length > 0) {
-          // 👇 assuming sales are sorted newest → oldest
-          const latestSale = sales[0]  
-          const latestSaleId = latestSale._id
-          router.push(`/sales/${latestSaleId}`)
-        }else{
-          router.push(`/sales`)
-        }
+        router.push(salesUrl.value)
       }
       
     })
@@ -486,14 +486,7 @@ const submitVerify = async() =>{
           localStorage.setItem('kidsInfoPopupShown', 'true')
         }else{
           //window.location.href = '/profile/sales'
-          if (sales.length > 0) {
-            // 👇 assuming sales are sorted newest → oldest
-            const latestSale = sales[0]  
-            const latestSaleId = latestSale._id
-            router.push(`/sales/${latestSaleId}`)
-          }else{
-            router.push(`/sales`)
-          }
+          router.push(salesUrl.value)
         }
         
 
@@ -516,14 +509,7 @@ const handleInfoSuccess = async => {
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }else{
     //window.location.href = '/profile/sales'
-    if (sales.length > 0) {
-      // 👇 assuming sales are sorted newest → oldest
-      const latestSale = sales[0]  
-      const latestSaleId = latestSale._id
-      router.push(`/sales/${latestSaleId}`)
-    }else{
-      router.push(`/sales`)
-    }
+    router.push(salesUrl.value)
   }
 }
 
@@ -537,18 +523,7 @@ const handleKidsSuccess = async () =>{
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }else{
     //window.location.href = '/profile/sales'
-    if (sales.length > 0) {
-      // 👇 assuming sales are sorted newest → oldest
-      const latestSale = sales[0]  
-      const latestSaleId = latestSale._id
-      //router.push(`/sales/${latestSaleId}`)
-
-      window.location.href = `/sales/${latestSaleId}`
-
-    }else{
-      //router.push(`/sales`)
-      window.location.href = `/sales`
-    }
+    router.push(salesUrl.value)
   }
 }
 
@@ -558,19 +533,8 @@ const handleKidsSuccess = async () =>{
 
 const handleStationSuccess = async () => {
   showStationPopupShown.value = false
-  
-  if (sales.length > 0) {
-    
-    const latestSale = sales[0]  
-    const latestSaleId = latestSale._id
-
-    setTimeout(() => {
-      router.replace(`/sales/${latestSaleId}`)
-    }, 1000) // delay in ms
-  }else{
-    //router.push(`/sales`)
-    router.replace(`/sales`)
-  }
+  console.log(salesUrl.value)
+  router.replace(salesUrl.value)
 
 }
 </script>

@@ -83,12 +83,7 @@ export const setupGuards = router => {
       const stationRedirect = '/profile/my-account/account'
 
       if (
-        isUserLoggedIn &&
-        (
-          !fuserData.stationID || 
-          (!fuserData.emailVerified && !fuserData.phoneVerified)
-        ) &&
-        to.path !== '/profile/my-account/account'
+        isUserLoggedIn && !fuserData.stationID && to.path !== '/profile/my-account/account'
       ) {
         return { path: '/profile/my-account/account' }
       }

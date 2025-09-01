@@ -548,14 +548,7 @@ const showImageDialog = () => {
                         </h6>
                       </VListItem>
 
-                      <VListItem>
-                        <h6 class="text-h6">
-                          {{ $t('Certification') }}:
-                          <span class="text-body-1 d-inline-block">
-                            {{ productData.certificationID ? productData.certificationID.name : '' }}
-                          </span>
-                        </h6>
-                      </VListItem>
+                      
 
                       <VListItem>
                         <h6 class="text-h6">
@@ -740,6 +733,15 @@ const showImageDialog = () => {
                           {{ $t('Fit') }}:
                           <span class="text-body-1 d-inline-block">
                             <div v-html="productData?.fit" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Certification') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.certificationID ? productData.certificationID.name : '' }}
                           </span>
                         </h6>
                       </VListItem>

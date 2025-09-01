@@ -1030,18 +1030,7 @@ const findCategoryNameById = (id) => {
               />
             </VCol>
 
-            <!-- 👉 Certification -->
-            <VCol cols="12">
-              <AppAutocomplete
-                v-model="productData.certificationID"
-                :items="certificationsUpdated"
-                :label="$t('Certification')"
-                :placeholder="$t('Select Certification')"
-                :error-messages="errors.certificationID"
-                clearable
-                @update:model-value="onCertificationChange"
-              />
-            </VCol>
+            
 
             <!-- 👉 Package Type -->
             <VCol cols="12">
@@ -1223,6 +1212,19 @@ const findCategoryNameById = (id) => {
                 :label="$t('Fit')"
                 :placeholder="$t('Fit')"
                 :error-messages="errors.fit"
+              />
+            </VCol>
+
+            <!-- 👉 Certification -->
+            <VCol cols="12">
+              <AppAutocomplete
+                v-model="productData.certificationID"
+                :items="certificationsUpdated"
+                :label="$t('Certification')"
+                :placeholder="$t('Select Certification')"
+                :error-messages="errors.certificationID"
+                clearable
+                @update:model-value="onCertificationChange"
               />
             </VCol>
 

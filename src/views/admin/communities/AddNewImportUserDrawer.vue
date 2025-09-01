@@ -98,17 +98,33 @@ const handleFileChange = async file => {
         excelJson.value = XLSX.utils.sheet_to_json(worksheet, { header: 1 })
 
         // Convert rows into user objects (assuming index-based fields)
-        excelJson.value = excelJson.value.slice(1).map(row => ({
-          firstName: row[0] ? row[0] : '',
+        excelJson.value = excelJson.value.slice(2).map(row => ({
+          // firstName: row[0] ? row[0] : '',
+          // lastName: row[1] ? row[1] : '',
+          // israeliIDNumber: row[2] ? row[2] : '',
+          // address: row[3] ? row[3] : '',
+          // houseNumber: row[4] ? row[4] : '',
+          // street: row[5] ? row[5] : '',
+          // city: row[6] ? row[6] : '',
+          // phone: row[7] ? row[7] : '',
+          // noOfKids: row[8] ? row[8] : 0,
+          // email: row[9] ? row[9] : 0,
+
+          israeliIDNumber: row[0] ? row[0] : '',
           lastName: row[1] ? row[1] : '',
-          israeliIDNumber: row[2] ? row[2] : '',
-          address: row[3] ? row[3] : '',
-          houseNumber: row[4] ? row[4] : '',
-          street: row[5] ? row[5] : '',
-          city: row[6] ? row[6] : '',
-          phone: row[7] ? row[7] : '',
-          noOfKids: row[8] ? row[8] : 0,
-          email: row[9] ? row[9] : 0,
+          firstName: row[2] ? row[2] : '',
+          birthDate: row[3] ? row[3] : '',
+          phone: row[4] ? row[4] : '',
+          phone2: row[5] ? row[5] : '',
+          landPhone: row[6] ? row[6] : '',
+          email: row[7] ? row[7] : '',
+          city: row[9] ? row[9] : 0,
+          neighbourhood: row[10] ? row[10] : 0,
+          street: row[11] ? row[11] : 0,
+          houseNumber: row[12] ? row[12] : 0,
+          noOfKids: row[13] ? row[13] : 0,
+          marriedKids: row[14] ? row[14] : 0,
+          schoolName: row[15] ? row[15] : 0,
         }))
         console.log('Excel JSON:', excelJson.value)
       }

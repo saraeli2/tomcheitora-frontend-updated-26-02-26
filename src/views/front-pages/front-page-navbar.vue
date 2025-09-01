@@ -21,6 +21,23 @@ const router = useRouter()
 const sidebar = ref(false)
 const ability = useAbility()
 
+const {
+  data: saleData, execute: fetchSales,
+} = await useApi(createUrl(`/sales`))
+
+const sales = saleData.value.data
+const salesUrl = ref()
+
+if (sales.length > 0) {
+  // 👇 assuming sales are sorted newest → oldest
+  const latestSale = sales[0]  
+  const latestSaleId = latestSale._id
+  salesUrl.value = `/sales/${latestSaleId}`
+}else{
+  //router.push(`/sales`)
+  salesUrl.value = `/sales`
+}
+
 watch(() => display, () => {
   return display.mdAndUp ? sidebar.value = false : sidebar.value
 }, { deep: true })
@@ -83,22 +100,6 @@ const logout = async () => {
     await authStore.logoutAsUser()
     await router.push('/login')
   }
-
-  // Remove "accessToken" from cookie
-  // localStorage.removeItem('userData')
-  // localStorage.removeItem('accessToken')
-  // localStorage.removeItem('userAbilityRules')
-  // localStorage.setItem('logoutEvent', Date.now())
-
-  // // Reset ability to initial ability
-  // ability.update([])
-
-  // // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
-
-  // // Redirect to login page
-  // router.push({ name: 'login' })
-  
-  // location.href = '/login'
 }
 </script>
 
@@ -119,7 +120,7 @@ const logout = async () => {
         <div class="d-flex flex-column gap-y-4 pa-4">
 
           <RouterLink
-            to="/sales"
+            :to="salesUrl"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
             {{ $t('Sales') }}
@@ -201,7 +202,7 @@ const logout = async () => {
         <div class="text-base align-center d-none d-md-flex nav_pages">
 
           <RouterLink
-            to="/sales"
+            :to="salesUrl"
             class="nav-link font-weight-medium py-2 px-2 px-lg-4"
           >
             {{ $t('Sales') }}

@@ -51,6 +51,11 @@ const defaultColumns = [
     visible: true,
   },
   {
+    title: t('Israeli ID Number'),
+    key: 'israeliIDNumber',
+    visible: true,
+  },
+  {
     title: t('First Name'),
     key: 'firstName',
     visible: true,
@@ -61,8 +66,8 @@ const defaultColumns = [
     visible: true,
   },
   {
-    title: t('Email'),
-    key: 'email',
+    title: t('Birth Date'),
+    key: 'birthDate',
     visible: true,
   },
   {
@@ -71,8 +76,53 @@ const defaultColumns = [
     visible: true,
   },
   {
+    title: t('Phone 2'),
+    key: 'phone2',
+    visible: true,
+  },
+  {
+    title: t('Land Phone'),
+    key: 'landPhone',
+    visible: true,
+  },
+  {
+    title: t('Email'),
+    key: 'email',
+    visible: true,
+  },
+  {
     title: t('City'),
     key: 'cityID',
+    visible: true,
+  },
+  {
+    title: t('Neighbourhood'),
+    key: 'neighbourhood',
+    visible: true,
+  },
+  {
+    title: t('Street'),
+    key: 'street',
+    visible: true,
+  },
+  {
+    title: t('House Number'),
+    key: 'houseNumber',
+    visible: true,
+  },
+  {
+    title: t('No. Of Kids'),
+    key: 'noOfKids',
+    visible: true,
+  },
+  {
+    title: t('Married kids'),
+    key: 'marriedKids',
+    visible: true,
+  },
+  {
+    title: t('School name'),
+    key: 'schoolName',
     visible: true,
   },
   {
@@ -85,21 +135,13 @@ const defaultColumns = [
     key: 'nationality',
     visible: true,
   },
-  {
-    title: t('Israeli ID Number'),
-    key: 'israeliIDNumber',
-    visible: true,
-  },
+  
   {
     title: t('Passport Number'),
     key: 'passportNumber',
     visible: true,
   },
-  {
-    title: t('No. Of Kids'),
-    key: 'noOfKids',
-    visible: true,
-  },
+  
   {
     title: t('Active'),
     key: 'status',
