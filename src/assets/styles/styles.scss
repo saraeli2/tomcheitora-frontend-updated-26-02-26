@@ -301,15 +301,25 @@ $grey-3:#aaaaaa;
   }
 }
 
+.v-card-text.text-center.subpage-tittle .text-h6 {
+    font-size: 21px!important;
+    span{
+      font-size: 26px;
+    }
+    span.text-success{
+      
+      color: #32a744 !important;
+    }
+}
 
 .subpage-banner{
   // padding: 120px 0px 50px 0px;
   // background: #f2d3d3;
   // background: linear-gradient(90deg,rgba(242, 211, 211, 1) 0%, rgba(242, 230, 230, 1) 50%, rgba(226, 220, 242, 1) 100%);
-  background:  linear-gradient(138.18deg, #eae8fd, #fce5e6 94.44%);
+  background: #f6f6f6;
   background-size: cover;
   border-radius: 0 0 50px 50px;
-  padding-block: 5.75rem 3rem;
+  padding-block: 30px 0;
 
   .v-card-text{
     padding: 0;

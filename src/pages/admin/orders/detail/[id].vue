@@ -70,7 +70,8 @@ if(error.value == 'Unauthorized') {
   location.href = '/admin/login'
 }
 
-const orderData = computed(() => orderDetail.value)
+const orderData = computed(() => orderDetail.value.order)
+const transactions = computed(() => orderDetail.value.transactions)
 
 const reloadTab = ref(true)
 
@@ -181,7 +182,7 @@ const headers = computed(() => [
     <!-- 👉 Order Details  -->
     <VRow
       v-if="reloadTab"
-      class="match-height"
+      class=""
     >
       <VCol
         cols="12"
@@ -352,6 +353,52 @@ const headers = computed(() => [
               </table>
             </div>
           </VCardText>
+        </VCard>
+
+        <VCard class="mb-6" v-if="transactions.length">
+          <VCardItem>
+            <template #title>
+              <h5 class="text-h5">
+                {{ $t('Transactions') }}
+              </h5>
+            </template>
+          </VCardItem>
+
+          <VDivider />
+
+          <VDataTable
+            :headers="[
+              { title: t('Transaction ID'), key: 'transactionId' },
+              { title: t('Amount'), key: 'amount' },
+              { title: t('Status'), key: 'paymentStatus' },
+              { title: t('Date'), key: 'transactionTime' }
+            ]"
+            :items="transactions"
+            item-value="transactionId"
+            class="text-no-wrap"
+          >
+            <template #[`item.amount`]="{ item }">
+              {{ item.amount }}
+            </template>
+
+            <template #[`item.currency`]="{ item }">
+              {{ item.currency }}
+            </template>
+
+            <template #[`item.paymentStatus`]="{ item }">
+              <VChip
+                label
+                :color="item.paymentStatus === 'Paid' ? 'success' : item.paymentStatus === 'Failed' ? 'error' : 'warning'"
+                size="small"
+              >
+                {{ item.paymentStatus }}
+              </VChip>
+            </template>
+
+            <template #[`item.transactionTime`]="{ item }">
+              {{ new Date(item.transactionTime).toLocaleString() }}
+            </template>
+          </VDataTable>
         </VCard>
       </VCol>
     </VRow>

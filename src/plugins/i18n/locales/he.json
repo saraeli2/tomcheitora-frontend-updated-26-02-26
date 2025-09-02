@@ -524,6 +524,8 @@
   "Pending": "תָלוּי וְעוֹמֵד",
   "Paid": "בתשלום",
   "Failed": "נִכשָׁל",
-  "Not Paid": "לא שולם"
+  "Not Paid": "לא שולם",
+  "Transactions": "עסקאות",
+  "Transaction ID": "מזהה עסקה"
 
 }

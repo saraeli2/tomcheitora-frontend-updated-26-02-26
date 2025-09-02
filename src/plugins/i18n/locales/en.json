@@ -528,5 +528,7 @@
   "Pending": "Pending",
   "Paid": "Paid",
   "Failed": "Failed",
-  "Not Paid": "Not Paid"
+  "Not Paid": "Not Paid",
+  "Transactions": "Transactions",
+  "Transaction ID": "Transaction ID"
 }

@@ -303,7 +303,7 @@ const submit = async () => {
   }
 }
 
-const paymentMethod = ref('Cash on Delivery')
+const paymentMethod = ref('Credit/debit card')
 
 if(order.value){
   const {
@@ -354,6 +354,8 @@ const nedarimIframeHtml = ref('')
 const handleIframeMessage = (event) => {
   const data = event.data
 
+  console.log(data);
+
   if (data.Name === 'Height') {
     document.getElementById('NedarimFrame').style.height =
       parseInt(data.Value) + 15 + 'px'
@@ -382,27 +384,27 @@ const handleIframeMessage = (event) => {
 }
 
 const createTransaction = async payload => {
+  showLoader.value = false
   try {
-    const response = await $api.post('/transactions', payload) // ensure POST
-
-    console.log('Transaction saved:', response.data)
-
-    transactionStatus.value = 'success' // set status after saving
-
-    showLoader.value = false
-
-    //salesUrl.value = `/orders/${order.value?._id}`
+    const response = await $api('/transactions', {
+      method: 'POST',
+      body: payload,
+      credentials: 'include',
+      onResponseError({ response }) {
+        //toast.error(response?._data?.message || 'Failed to save transaction')
+        showLoader.value = false
+      }
+    })
+    currentStep.value = currentStep.value + 1
+    // Navigate to order details page
     router.replace(`/orders/${order.value?._id}`)
-
+    console.log('Transaction created');
 
   } catch (err) {
-
     console.error('Failed to save transaction:', err)
-    transactionStatus.value = 'error'
-    errorMessage.value = 'Failed to save transaction'
-
+    //toast.error('Failed to save transaction. Please try again.')
     showLoader.value = false
-
+    transactionStatus.value = 'error'
   }
 }
 

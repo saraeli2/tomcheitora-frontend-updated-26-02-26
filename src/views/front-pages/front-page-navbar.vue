@@ -192,7 +192,7 @@ const logout = async () => {
                     ></v-img>
               </div>
               <h1 class="app-logo-title">
-                {{ themeConfig.app.title }}
+                תומכי תורה
               </h1>
             </div>
           </RouterLink>

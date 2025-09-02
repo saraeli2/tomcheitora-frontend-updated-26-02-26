@@ -71,19 +71,21 @@ const {
 
 //const order = computed(() => orderData.value)
 
-const order = computed(() => orderData.value)
+const order = computed(() => orderData.value.order)
+
+//console.log(order.value)
 
 const latestTransaction = computed(() => {
-  if (!orderData.value?.transactions?.length) return null;
+  if (!orderData.value?.transactions?.length) return null
 
   // Sort by createdAt descending to get the newest transaction
   return orderData.value.transactions
     .slice()
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0]
 });
 
-formData.value = orderData.value
-orderItems.value = orderData.value.orderItems
+formData.value = order.value
+orderItems.value = order.value.orderItems
 
 const errors = ref({
   status: undefined,
@@ -157,7 +159,7 @@ const removeItem = index => {
 </script>
 
 <template>
-  <div class="checkout-page">
+  <div class="checkout-page product-page">
     <Navbar />
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>

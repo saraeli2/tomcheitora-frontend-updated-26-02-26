@@ -78,7 +78,7 @@ const demoList = [
                   ></v-img>
                 </div>
                 <h1 class="app-logo-title text-white">
-                  {{ themeConfig.app.title }}
+                  תומכי תורה
                 </h1>
               </div>
 
@@ -186,7 +186,7 @@ const demoList = [
               target="_blank"
               rel="noopener noreferrer"
               class="font-weight-bold ms-1 text-white"
-            >Tomcheitora</a>,
+            >תומכי תורה</a>,
             Made With ❤️ for a better web.
           </div>
 
