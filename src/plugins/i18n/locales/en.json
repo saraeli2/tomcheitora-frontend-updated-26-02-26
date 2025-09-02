@@ -530,5 +530,7 @@
   "Failed": "Failed",
   "Not Paid": "Not Paid",
   "Transactions": "Transactions",
-  "Transaction ID": "Transaction ID"
+  "Transaction ID": "Transaction ID",
+  "Collecting Order": "Collecting Order",
+  "Printing Order": "Printing Order"
 }

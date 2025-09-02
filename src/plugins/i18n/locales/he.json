@@ -526,6 +526,8 @@
   "Failed": "נִכשָׁל",
   "Not Paid": "לא שולם",
   "Transactions": "עסקאות",
-  "Transaction ID": "מזהה עסקה"
+  "Transaction ID": "מזהה עסקה",
+  "Collecting Order": "הזמנת איסוף",
+  "Printing Order": "הזמנת הדפסה"
 
 }

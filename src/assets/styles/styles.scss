@@ -1566,3 +1566,8 @@ button.px-4.py-2.bg-primary.text-white.rounded.initial_plus:hover{
     padding: 0 10px;
     bottom: 15px;
 }
+body .layout-wrapper.layout-nav-type-vertical.layout-navbar-sticky .layout-page-content {
+    margin-block-start: 1rem;
+    position: relative;
+    z-index: 99;
+}

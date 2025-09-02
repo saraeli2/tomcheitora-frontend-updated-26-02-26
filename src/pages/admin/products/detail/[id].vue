@@ -775,6 +775,24 @@ const showImageDialog = () => {
 
                       <VListItem>
                         <h6 class="text-h6">
+                          {{ $t('Collecting Order') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.collectingOrder" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Printing Order') }}:
+                          <span class="text-body-1 d-inline-block">
+                            <div v-html="productData?.printingOrder" />
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
                           {{ $t('Created By') }}:
                           <span class="text-body-1 d-inline-block">
                             <RouterLink

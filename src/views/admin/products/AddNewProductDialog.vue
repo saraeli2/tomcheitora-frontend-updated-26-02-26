@@ -93,6 +93,8 @@ const props = defineProps({
       sleeveLength: '',
       pocket: '',
       fit: '',
+      collectingOrder: '',
+      printingOrder: '',
       customFields: []
     }),
   },
@@ -338,6 +340,8 @@ const submit = async () => {
           sleeveLength: productData.value.sleeveLength,
           pocket: productData.value.pocket,
           fit: productData.value.fit,
+          collectingOrder: productData.value.collectingOrder,
+          printingOrder: productData.value.printingOrder,
           imageUrl: imageUrl.value,
         },
         onResponseError({ response }) {
@@ -387,6 +391,8 @@ const submit = async () => {
           sleeveLength: productData.value.sleeveLength,
           pocket: productData.value.pocket,
           fit: productData.value.fit,
+          collectingOrder: productData.value.collectingOrder,
+          printingOrder: productData.value.printingOrder,
           imageUrl: imageUrl.value,
         },
         onResponseError({ response }) {
@@ -464,6 +470,8 @@ const updateProduct = async () => {
       sleeveLength: productData.value.sleeveLength,
       pocket: productData.value.pocket,
       fit: productData.value.fit,
+      collectingOrder: productData.value.collectingOrder,
+      printingOrder: productData.value.printingOrder,
       imageUrl: imageUrl.value,
     },
     onResponseError({ response }) {
@@ -1225,6 +1233,24 @@ const findCategoryNameById = (id) => {
                 :error-messages="errors.certificationID"
                 clearable
                 @update:model-value="onCertificationChange"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.collectingOrder"
+                :label="$t('Collecting Order')"
+                :placeholder="$t('Collecting Order')"
+                :error-messages="errors.collectingOrder"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.printingOrder"
+                :label="$t('Printing Order')"
+                :placeholder="$t('Printing Order')"
+                :error-messages="errors.printingOrder"
               />
             </VCol>
 

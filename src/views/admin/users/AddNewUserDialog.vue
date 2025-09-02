@@ -31,6 +31,7 @@ const props = defineProps({
       communityID: '',
       cityID: '',
       street: '',
+      address: '',
       houseNumber: '',
       nationality: '',
       israeliIDNumber: '',
@@ -114,6 +115,11 @@ const submit = async () => {
   if(adminData.value.password) {
     formData.append('password', adminData.value.password)
   }
+
+  if(adminData.value.address) {
+    formData.append('address', adminData.value.address)
+  }
+
 
 
   if(adminData.value.firstName) {

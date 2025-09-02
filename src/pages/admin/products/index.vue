@@ -1,7 +1,9 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import AddNewImportProductDrawer from '@/views/admin/products/AddNewImportProductDrawer.vue'
 import { useI18n } from 'vue-i18n'
 import Draggable from 'vuedraggable'
+import { utils, writeFile } from 'xlsx'
 
 definePage({
   meta: {
@@ -44,6 +46,8 @@ const updateOptions = options => {
   sortBy.value = options.sortBy[0]?.key
   orderBy.value = options.sortBy[0]?.order
 }
+
+const isImportProductDrawerVisible = ref(false)
 
 const defaultColumns = [
   {
@@ -433,6 +437,151 @@ watch(
   },
   { deep: true }
 )
+
+const downloadProductsXLSX = async () => {
+  try {
+    const response = await $api(`/admin/products/export/xlsx`, {
+      responseType: 'json', // get JSON array of products
+    })
+
+    const productsData = response.products
+
+    if (!productsData || !productsData.length) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No Products',
+        text: 'There are no products to export.',
+      })
+      return
+    }
+
+    const worksheet = utils.aoa_to_sheet([
+      [
+        'Name',
+        'Slug',
+        'InternalSKU',
+        'ProductNumber',
+        'ExternalSKU',
+        'BoxSKU',
+        'Model',
+        'Quantity',
+        'AmountInPackage',
+        'PackagesInBox',
+        'AmountOfBoxes',
+        'Currency',
+        'UnitPrice',
+        'UnitPriceIncludingVAT',
+        'BoxPrice',
+        'PurchasePrice',
+        'SalePrice',
+        'MaxStock',
+        'RemainingStock',
+
+        'Manufacturer',
+        'Supplier',
+        'Certification',
+        'PackageType',
+        'QuantityType',
+
+        'Categories',
+        'Tags',
+        'Groups',
+
+        'Size',
+        'Color',
+        'SleeveLength',
+        'Pocket',
+        'Fit',
+        'PickupOrder',
+        'OrderNumber',
+
+        'InternalRemarks',
+        'CollectingOrder',
+        'PrintingOrder',
+        'Remarks',
+        'Description',
+        'Image',
+
+        'Status'
+      ]
+    ]);
+
+    const data = []
+
+    productsData.forEach((p) => {
+      data.push({
+        Name: p.name,
+        Slug: p.slug,
+        InternalSKU: p.internalSKU || '',
+        ProductNumber: p.productNumber || '',
+        ExternalSKU: p.externalSKU || '',
+        BoxSKU: p.boxSKU || '',
+        Model: p.model || '',
+        Quantity: p.quantity || 0,
+        AmountInPackage: p.amount_in_package || 0,
+        PackagesInBox: p.packages_in_box || 0,
+        AmountOfBoxes: p.amount_of_boxes || 0,
+        Currency: p.currency || '',
+        UnitPrice: p.unit_price || 0,
+        UnitPriceIncludingVAT: p.unit_price_including_vat || 0,
+        BoxPrice: p.box_price || 0,
+        PurchasePrice: p.purchasePrice || 0,
+        SalePrice: p.salePrice || 0,
+        MaxStock: p.maxStock || 0,
+        RemainingStock: p.remainingStock || 0,
+
+        Manufacturer: p.manufacturerID?.name || '',
+        Supplier: p.supplierID?.name || '',
+        Certification: p.certificationID?.name || '',
+        PackageType: p.packagetypeID?.name || '',
+        QuantityType: p.quantitytypeID?.name || '',
+
+        Categories: p.categoryIDs?.map(c => c.name).join(', ') || '',
+        Tags: p.tags?.map(t => t.title).join(', ') || '',
+        Groups: p.groups?.map(g => g.title).join(', ') || '',
+
+        Size: p.size || '',
+        Color: p.color || '',
+        SleeveLength: p.sleeveLength || '',
+        Pocket: p.pocket || '',
+        Fit: p.fit || '',
+        PickupOrder: p.pickupOrder || '',
+        OrderNumber: p.orderNumber || '',
+
+        InternalRemarks: p.internalRemarks || '',
+        CollectingOrder: p.collectingOrder || '',
+        PrintingOrder: p.printingOrder || '',
+        Remarks: p.remarks || '',
+        Description: p.description || '',
+        Image: p.image || '',
+
+        Status: p.status || 'Active'
+      })
+    })
+
+    // 2️⃣ Append JSON data
+    utils.sheet_add_json(worksheet, data, { skipHeader: true, origin: -1 })
+
+    // 3️⃣ Set column widths (adjust as needed)
+    worksheet['!cols'] = new Array(32).fill({ wch: 20 }) // all columns width 20
+
+    // 4️⃣ Create workbook and append sheet
+    const workbook = utils.book_new()
+    utils.book_append_sheet(workbook, worksheet, 'Products')
+
+    // 5️⃣ Save file
+    writeFile(workbook, 'Products.xlsx', { compression: true })
+  } catch (err) {
+    console.error('Failed to download XLSX:', err)
+    Swal.fire({
+      icon: 'error',
+      title: 'Export Failed',
+      text: 'Could not download products XLSX.',
+    })
+  }
+}
+
+
 </script>
 
 <template>
@@ -473,6 +622,22 @@ watch(
             @click="isAddNewProductDialogVisible = true"
           >
             {{ $t('Create Product') }}
+          </VBtn>
+
+          <VBtn
+            v-if="can('admin-view-products', 'View Products')"
+            prepend-icon="tabler-download"
+            color="primary"
+            @click="downloadProductsXLSX"
+          >
+            {{ $t('Download XLSX') }}
+          </VBtn>
+
+          <VBtn
+            prepend-icon="tabler-upload"
+            @click="isImportProductDrawerVisible = true"
+          >
+            {{ $t('Import Products') }}
           </VBtn>
         </div>
         <VIcon style="margin-left: auto" @click="showColumnDialog = true" class="tabler-settings" />
@@ -842,6 +1007,11 @@ watch(
       </VCardActions>
     </VCard>
   </VDialog>
+
+  <AddNewImportProductDrawer
+    v-model="isImportProductDrawerVisible"
+    @update-data="fetchProducts"
+  />
 </template>
 
 <style lang="scss">
