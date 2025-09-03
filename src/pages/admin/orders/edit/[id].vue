@@ -89,7 +89,7 @@ if(error.value == 'Unauthorized') {
   location.href = '/admin/login'
 }
 
-const orderData = computed(() => shopDetail.value)
+const orderData = computed(() => shopDetail.value.order)
 
 formData.value = orderData.value
 orderItems.value = orderData.value.orderItems

@@ -581,6 +581,9 @@ const downloadProductsXLSX = async () => {
   }
 }
 
+const fetchProducts = () => {
+  loadProducts(1)
+}
 
 </script>
 
@@ -1010,6 +1013,7 @@ const downloadProductsXLSX = async () => {
 
   <AddNewImportProductDrawer
     v-model="isImportProductDrawerVisible"
+    v-model:is-drawer-open="isImportProductDrawerVisible"
     @update-data="fetchProducts"
   />
 </template>

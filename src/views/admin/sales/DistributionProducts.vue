@@ -24,6 +24,7 @@ definePage({
 })
 
 import AddNewSaleProductDrawer from '@/views/admin/sales/AddNewSaleProductDrawer.vue'
+import AddNewImportProductDrawer from '@/views/admin/sales/AddNewImportProductDrawer.vue'
 import { can } from '@layouts/plugins/casl'
 
 const { t } = useI18n()
@@ -35,6 +36,8 @@ const isSaleProductDialogVisible = ref(false)
 const isAddNewSaleProductDrawerVisible = ref(false)
 const saleProductDetail = ref()
 const selectedSale = ref(props.saleid)
+
+const isImportProductDrawerVisible = ref(false)
 
 // Data table options
 const itemsPerPage = ref(5)
@@ -217,15 +220,6 @@ const downloadProductsXLSX = async (selectedSale) => {
 
 const addAllProducts = async() => {
   showLoader.value = true
-  // const response = await $api(`/admin/sale-all-products-add`, {
-  //   params: {
-  //     sale: props.saleid, // pass selected sale ID
-  //   },
-  // })
-
-  // fetchSaleProducts()
-  // emit('tabData')
-
   const res = await $api(`/admin/sale-all-products-add`, {
     method: 'POST',
     body: {
@@ -296,6 +290,13 @@ const addAllProducts = async() => {
             @click="downloadProductsXLSX"
           >
             {{ $t('Download XLSX') }}
+          </VBtn>
+
+          <VBtn
+            prepend-icon="tabler-upload"
+            @click="isImportProductDrawerVisible = true"
+          >
+            {{ $t('Import Products') }}
           </VBtn>
 
           <VBtn
@@ -436,6 +437,13 @@ const addAllProducts = async() => {
       v-model:products="products"
       v-model:saleid="selectedSale"
       @user-data="modifySaleProduct"
+    />
+
+    <AddNewImportProductDrawer
+      v-model="isImportProductDrawerVisible"
+      v-model:saleid="selectedSale"
+      v-model:is-drawer-open="isImportProductDrawerVisible"
+      @update-data="modifySaleProduct"
     />
 
     <VDialog

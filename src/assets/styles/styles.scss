@@ -1571,3 +1571,6 @@ body .layout-wrapper.layout-nav-type-vertical.layout-navbar-sticky .layout-page-
     position: relative;
     z-index: 99;
 }
+html[lang='en'] .v-navigation-drawer__content .ml-3 {
+    margin: 0 10px 0 0 !important;
+}

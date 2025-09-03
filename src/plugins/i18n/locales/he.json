@@ -528,6 +528,10 @@
   "Transactions": "עסקאות",
   "Transaction ID": "מזהה עסקה",
   "Collecting Order": "הזמנת איסוף",
-  "Printing Order": "הזמנת הדפסה"
+  "Printing Order": "הזמנת הדפסה",
+  "Import Products": "מוצרי ייבוא",
+  "Download XLSX": "הורד XLSX",
+  "Add all products": "הוסף את כל המוצרים",
+  "Sale Communities": "קהילות מכירה"
 
 }
