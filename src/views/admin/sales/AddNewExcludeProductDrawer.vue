@@ -54,10 +54,13 @@ if(props.excludeProduct._id) {
   communityItems.value = props.excludeProduct.communityItems
 }
 
+
+
+
 const handleProductPrices = async (val, key) => {
+
   if(val) {
     const data = await $api(`/admin/sale-products/${ val }`).catch(err => console.log(err))
-
     selectedProduct.value = data
   } else {
     selectedProduct.value = ''
@@ -68,6 +71,8 @@ const handleProductPrices = async (val, key) => {
 const addItem = () => {
   const selectedIds = communityItems.value.map(item => item.communityID)
   const available = props.communities.filter(p => !selectedIds.includes(p.value))
+
+  console.log(props.communities);
 
   if (available.length === 0) {
     toast.warning("All available communities have already been added.")

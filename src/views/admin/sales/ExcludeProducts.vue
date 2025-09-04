@@ -141,6 +141,8 @@ const commonsyncGroups = await $api('/admin/communities/respond-with/extra-optio
 
 const communityOptions = computed(() => commonsyncGroups.communityOptions)
 
+console.log(communityOptions);
+
 const communities = communityOptions.value.map(item => ({
   value: item._id,
   title: item.name,

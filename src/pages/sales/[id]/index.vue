@@ -62,7 +62,7 @@ const {
   createUrl(`/sales/${route.params.id}`, {
     query: {
       categoryIDs: category_ids,
-      communityID: authStore.fuserData.communityID
+      communityID: authStore.fuserData.communityID?._id || authStore.fuserData.communityID
     },
   })
 )
@@ -141,7 +141,7 @@ async function loadProducts(newPage = 1) {
         itemsPerPage: itemsPerPage.value,
         page: newPage,
         saleId: saleData.value?._id,
-        communityID: authStore.fuserData.communityID
+        communityID: authStore.fuserData.communityID?._id || authStore.fuserData.communityID
       },
     }))
 
@@ -419,12 +419,11 @@ const updateSelectedCategory = catId => {
 
     <div
       class="sales-wrapper category_slider"
-      v-if="categories && categories.length > 0"
     >
       <VContainer>
         <VRow>
           <VCol md="12">
-            <VRow>
+            <VRow v-if="userValid && validSale && categories && categories.length > 0">
               <VCol md="12">
                 <Swiper
                   :modules="[Navigation, Pagination, Autoplay]"
@@ -539,7 +538,7 @@ const updateSelectedCategory = catId => {
             >
               <VRow class="filter-area">
                 <VCol md="12">
-                  <h3>{{ $t('You are not allowed to view this page.') }}</h3>
+                  <h3 class="text-center">{{ $t('You are not allowed to view this page.') }}</h3>
                 </VCol>
               </VRow>
             </div>

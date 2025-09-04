@@ -325,6 +325,7 @@ const handleProductPrices = async (val, key) => {
                     :label="$t('Discount')"
                     :placeholder="$t('Discount')"
                     :error-messages="errors.discount"
+                    disabled
                   />
                 </VCol>
 
@@ -339,6 +340,7 @@ const handleProductPrices = async (val, key) => {
                     :label="$t('Discount Type')"
                     :error-messages="errors.discountType"
                     clearable
+                    disabled
                   />
                 </VCol>
 
@@ -362,6 +364,7 @@ const handleProductPrices = async (val, key) => {
                     :label="$t('Vat Type')"
                     :error-messages="errors.vatType"
                     clearable
+                    disabled
                   />
                 </VCol>
               </VRow>
@@ -397,6 +400,7 @@ const handleProductPrices = async (val, key) => {
                       :label="$t('Product')"
                       :error-messages="errors.products?.[key]?.productID || ''"
                       @update:model-value="(val) => handleProductPrices(val, key)"
+                      disabled
                     />
                   </VCol>
                   <VCol
@@ -411,46 +415,11 @@ const handleProductPrices = async (val, key) => {
                       :label="$t('Quantity')"
                       :max="orderItem.limitPerCustomer || ''"
                       :error-messages="errors.products?.[key]?.quantity || ''"
+                      disabled
                     />
-                  </VCol>
-                  <VCol
-                    v-if="orderItems.length > 1"
-                    cols="12"
-                    md="2"
-                    class="d-flex align-self-end"
-                  >
-                    <VBtn
-                      color="warning"
-                      class="removeBtn"
-                      variant="text"
-                      @click="deleteOrderItem(key)"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="12"
-                        height="13"
-                        viewBox="0 0 12 13"
-                        fill="none"
-                      >
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M11.0833 2.33333H8.75V1.75C8.75 0.758333 7.99167 0 7 0H4.66667C3.675 0 2.91667 0.758333 2.91667 1.75V2.33333H0.583333C0.233333 2.33333 0 2.56667 0 2.91667C0 3.26667 0.233333 3.5 0.583333 3.5H1.16667V11.0833C1.16667 12.075 1.925 12.8333 2.91667 12.8333H8.75C9.74167 12.8333 10.5 12.075 10.5 11.0833V3.5H11.0833C11.4333 3.5 11.6667 3.26667 11.6667 2.91667C11.6667 2.56667 11.4333 2.33333 11.0833 2.33333ZM4.0835 1.74935C4.0835 1.39935 4.31683 1.16602 4.66683 1.16602H7.00016C7.35016 1.16602 7.5835 1.39935 7.5835 1.74935V2.33268H4.0835V1.74935ZM8.75 11.6667C9.1 11.6667 9.33333 11.4333 9.33333 11.0833V3.5H2.33333V11.0833C2.33333 11.4333 2.56667 11.6667 2.91667 11.6667H8.75Z"
-                          fill="#E02127"
-                        />
-                      </svg>
-                    </VBtn>
                   </VCol>
                 </VRow>
               </template>
-
-              <VBtn
-                class="mt-6"
-                prepend-icon="tabler-plus"
-                @click="addItem"
-              >
-                {{ $t('Add another item') }}
-              </VBtn>
             </VCardText>
           </VCard>
         </VCol>

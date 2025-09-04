@@ -41,6 +41,7 @@ const props = defineProps({
       noOfKids: '',
       status: 'Active',
       maritalStatus: '',
+      birthDate: '',
     }),
   },
 })
@@ -146,6 +147,12 @@ const submit = async () => {
     formData.append('cityID', adminData.value.cityID)
   } else {
     formData.append('cityID', '')
+  }
+
+  if(adminData.value.birthDate) {
+    formData.append('birthDate', adminData.value.birthDate)
+  } else {
+    formData.append('birthDate', '')
   }
 
   if(adminData.value.street) {
@@ -441,6 +448,17 @@ watch(() => props.communities,
                 :placeholder="$t('Email')"
                 :error-messages="errors.email"
               />
+            </VCol>
+
+            <VCol cols="12">
+              <AppDateTimePicker
+                  v-model="adminData.birthDate"
+                  :rules="[requiredValidator]"
+                  :label="$t('Birth Date')"
+                  :placeholder="$t('Birth Date')"
+                  :config="{ enableTime: false, dateFormat: 'd.m.Y' }"
+                  :error-messages="errors.birthDate"
+                />
             </VCol>
 
             <VCol cols="12" v-if="!props.user?._id">

@@ -51,6 +51,18 @@ const headers = computed(() => [
     key: 'endDate',
   },
   {
+    title: t('Delivery Charge'),
+    key: 'deliveryCharge',
+  },
+  {
+    title: t('First Reminder'),
+    key: 'firstReminder',
+  },
+  {
+    title: t('Second Reminder'),
+    key: 'secondReminder',
+  },
+  {
     title: t('Status'),
     key: 'status',
   },
@@ -290,6 +302,16 @@ const deleteSale = async id => {
         <!-- endDate -->
         <template #[`item.endDate`]="{ item }">
           {{ formatDateWithTime(item.endDate) }}
+        </template>
+
+        <!-- endDate -->
+        <template #[`item.firstReminder`]="{ item }">
+          {{ formatDateWithTime(item.firstReminder) }}
+        </template>
+
+        <!-- endDate -->
+        <template #[`item.secondReminder`]="{ item }">
+          {{ formatDateWithTime(item.secondReminder) }}
         </template>
 
         <!-- status -->

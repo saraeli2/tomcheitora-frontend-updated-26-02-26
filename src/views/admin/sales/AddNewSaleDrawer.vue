@@ -17,6 +17,9 @@ const props = defineProps({
       startDate: '',
       endDate: '',
       status: 'Pending',
+      deliveryCharge: '',
+      firstReminder: '',
+      secondReminder: '',
     }),
   },
 })
@@ -52,6 +55,9 @@ const submit = async () => {
           startDate: saleData.value.startDate,
           endDate: saleData.value.endDate,
           status: saleData.value.status,
+          deliveryCharge: saleData.value.deliveryCharge,
+          firstReminder: saleData.value.firstReminder,
+          secondReminder: saleData.value.secondReminder,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -65,6 +71,9 @@ const submit = async () => {
           startDate: saleData.value.startDate,
           endDate: saleData.value.endDate,
           status: saleData.value.status,
+          deliveryCharge: saleData.value.deliveryCharge,
+          firstReminder: saleData.value.firstReminder,
+          secondReminder: saleData.value.secondReminder,
         },
         onResponseError({ response }) {
           errors.value = response._data.errors
@@ -173,6 +182,38 @@ const errors = ref({
                   :placeholder="$t('End Date')"
                   :config="{ enableTime: true, dateFormat: 'Y-m-d H:i' }"
                   :error-messages="errors.endDate"
+                />
+              </VCol>
+
+              <!-- 👉 End Date -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="saleData.deliveryCharge"
+                  :label="$t('Delivery Charge')"
+                  :placeholder="$t('Delivery Charge')"
+                  :error-messages="errors.deliveryCharge"
+                />
+              </VCol>
+
+              <!-- 👉 End Date -->
+              <VCol cols="12">
+                <AppDateTimePicker
+                  v-model="saleData.firstReminder"
+                  :label="$t('First Reminder')"
+                  :placeholder="$t('First Reminder')"
+                  :config="{ enableTime: true, dateFormat: 'Y-m-d H:i' }"
+                  :error-messages="errors.firstReminder"
+                />
+              </VCol>
+
+              <!-- 👉 End Date -->
+              <VCol cols="12">
+                <AppDateTimePicker
+                  v-model="saleData.secondReminder"
+                  :label="$t('Second Reminder')"
+                  :placeholder="$t('Second Reminder')"
+                  :config="{ enableTime: true, dateFormat: 'Y-m-d H:i' }"
+                  :error-messages="errors.firstReminder"
                 />
               </VCol>
 

@@ -50,7 +50,7 @@ const cities = cityOptions.value.map(item => ({
 
 const stations = stationOptions.value.map(item => ({
   value: item._id,
-  title: `${item.name}`,
+  title: `${item.cityID?.nameHe} - ${item.name}`,
 }))
 
 const activeTab = computed({

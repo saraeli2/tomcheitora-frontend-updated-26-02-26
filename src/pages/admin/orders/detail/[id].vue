@@ -1,4 +1,8 @@
 <script setup>
+import useHelper from "@/mixins/helper";
+
+const { numberFormat } = useHelper()
+
 definePage({
   meta: {
     action: ['admin-view-orders'],
@@ -308,7 +312,7 @@ const headers = computed(() => [
 
             <template #[`item.total`]="{ item }">
               <div class="text-body-1">
-                {{ item.price * item.quantity }}
+                {{ numberFormat(item.price * item.quantity) }}
               </div>
             </template>
 
@@ -326,7 +330,7 @@ const headers = computed(() => [
                       {{ $t('SubTotal') }}:
                     </td>
                     <td class="font-weight-medium">
-                      {{ orderData.subTotal }}
+                      {{ numberFormat(orderData.subTotal) }}
                     </td>
                   </tr>
                   <tr>
@@ -338,7 +342,14 @@ const headers = computed(() => [
                   <tr>
                     <td>{{ $t('Discount') }}: </td>
                     <td class="font-weight-medium">
-                      -{{ orderData.totalDiscount }}
+                      -{{ numberFormat(orderData.totalDiscount) }}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td>{{ $t('Delivery Charge') }}: </td>
+                    <td class="font-weight-medium">
+                      {{ numberFormat(orderData.deliveryCharge) }}
                     </td>
                   </tr>
                   <tr>
@@ -346,7 +357,7 @@ const headers = computed(() => [
                       {{ $t('Total') }}:
                     </td>
                     <td class="font-weight-medium">
-                      {{ orderData.subTotal + orderData.totalVat - orderData.totalDiscount }}
+                      {{ numberFormat(orderData.total) }}
                     </td>
                   </tr>
                 </tbody>

@@ -1,5 +1,7 @@
 <script setup>
+import useHelper from "@/mixins/helper";
 import { useI18n } from 'vue-i18n'
+const { numberFormat } = useHelper()
 
 const props = defineProps({
   saleid: {
@@ -61,6 +63,10 @@ const headers = computed(() => [
   {
     title: t('Discount'),
     key: 'totalDiscount',
+  },
+  {
+    title: t('Delivery Charge'),
+    key: 'deliveryCharge',
   },
   {
     title: t('Total Amount'),
@@ -314,9 +320,13 @@ const deleteOrder = async id => {
           {{ item.orderItems.length }}
         </template>
 
+        <template #[`item.subTotal`]="{ item }">
+          {{ numberFormat(item.subTotal)}}
+        </template>
+
         <!-- Total -->
         <template #[`item.total`]="{ item }">
-          {{ item.subTotal + item.totalVat - item.totalDiscount }}
+          {{ numberFormat(item.total)}}
         </template>
 
         <!-- status -->

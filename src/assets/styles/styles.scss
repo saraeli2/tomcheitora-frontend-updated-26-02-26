@@ -1574,3 +1574,21 @@ body .layout-wrapper.layout-nav-type-vertical.layout-navbar-sticky .layout-page-
 html[lang='en'] .v-navigation-drawer__content .ml-3 {
     margin: 0 10px 0 0 !important;
 }
+.footer .app-logo {
+    display: flex;
+    align-items: center;
+    column-gap: 0.75rem;
+    justify-content: center;
+    margin: 0 !important;
+    gap: 30px;
+}
+
+.footer .logo_items {
+    display: flex;
+    align-items: center;
+}
+.footer .phone_Item {
+    color: #333 !important;
+    font-size: 17px;
+    font-weight: 600;
+}

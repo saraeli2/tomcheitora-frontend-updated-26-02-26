@@ -60,18 +60,10 @@ const demoList = [
       :style="{ 'background-image': `url(${footerBg})` }"
     >
       <VContainer>
-        <VRow>
-          <!-- 👉 Footer  -->
-          <VCol
-            cols="12"
-            md="5"
-            class="custom-ftr-col"
-          >
-            <div
-              class="mb-4"
-              :class="$vuetify.display.smAndDown ? 'w-100' : 'w-75'"
-            >
-              <div class="app-logo mb-6">
+        <VRow class="justify-center">
+          <VCol cols="12" md="6">
+            <div class="app-logo mb-6">
+              <div class="logo_items">
                 <div class="logo-block">
                   <v-img style="width: 100px; height: auto"
                     src="/images/logo.png"
@@ -81,141 +73,15 @@ const demoList = [
                   תומכי תורה
                 </h1>
               </div>
-
-              <div
-                class="mb-6"
-                :class="$vuetify.theme.current.dark ? 'text-body-1' : 'text-white-variant'"
-              >
-                Most Powerful & Comprehensive 🤩 Vuejs Admin Template with Elegant Material Design & Unique Layouts.
+              <div class="phone_Item">
+                073-888-1871<br>*8591
               </div>
-              <VForm class="subscribe-form d-flex align-center">
-                <AppTextField
-                  label="Subscribe to newsletter"
-                  placeholder="john@email.com"
-                />
-                <VBtn class="align-self-end rounded-s-0">
-                  Subscribe
-                </VBtn>
-              </VForm>
-            </div>
+              </div>
           </VCol>
-
-          <!-- 👉 Demos -->
-          <VCol
-            md="4"
-            sm="4"
-            xs="6"
-          >
-            <div class="footer-links">
-              <h6 class="footer-title text-h6 mb-6">
-                Links
-              </h6>
-              <ul style="list-style: none;">
-                <li
-                  v-for="(item, index) in demoList"
-                  :key="index"
-                  class="mb-4"
-                >
-                  <a
-                    :href="item.to"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    :class="$vuetify.theme.current.dark ? 'text-body-1' : 'text-white-variant'"
-                  >
-                    {{ item.title }}
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </VCol>
-
-          <!-- 👉 Pages  -->
-          <VCol
-            md="3"
-            sm="4"
-            xs="6"
-          >
-            <div class="footer-links">
-              <h6 class="footer-title text-h6 mb-6">
-                Category
-              </h6>
-              <ul style="list-style: none;">
-                <li
-                  v-for="(item, index) in pagesList"
-                  :key="index"
-                  class="mb-4"
-                >
-                  <RouterLink
-                    :class="$vuetify.theme.current.dark ? 'text-body-1' : 'text-white-variant'"
-                    class="me-2"
-                    :to="item.to"
-                  >
-                    {{ item.name }}
-                  </RouterLink>
-                  <template v-if="item.isNew">
-                    <VChip
-                      color="primary"
-                      variant="elevated"
-                      label
-                      size="small"
-                    >
-                      New
-                    </VChip>
-                  </template>
-                </li>
-              </ul>
-            </div>
-          </VCol>
-
-          <!-- 👉 Download App -->
-          
         </VRow>
       </VContainer>
     </div>
 
-    <!-- 👉 Footer Line -->
-    <div class="footer-line w-100">
-      <VContainer>
-        <div class="d-flex justify-space-between flex-wrap gap-y-5 align-center">
-          <div class="text-body-1 text-white-variant text-wrap me-4">
-            &copy;
-
-            {{ new Date().getFullYear() }}
-            <a
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="font-weight-bold ms-1 text-white"
-            >תומכי תורה</a>,
-            Made With ❤️ for a better web.
-          </div>
-
-          <div class="d-flex gap-x-6">
-            <template
-              v-for="(item, index) in [
-                { title: 'github', icon: 'tabler-brand-github-filled', href: '#' },
-                { title: 'facebook', icon: 'tabler-brand-facebook-filled', href: '#' },
-                { title: 'twitter', icon: 'tabler-brand-twitter-filled', href: '#' },
-                { title: 'google', icon: 'tabler-brand-youtube-filled', href: '#' },
-              ]"
-              :key="index"
-            >
-              <a
-                :href="item.href"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <VIcon
-                  :icon="item.icon"
-                  size="16"
-                  color="white"
-                />
-              </a>
-            </template>
-          </div>
-        </div>
-      </VContainer>
-    </div>
   </div>
 </template>
 

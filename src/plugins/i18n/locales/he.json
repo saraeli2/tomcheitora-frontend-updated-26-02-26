@@ -454,7 +454,7 @@
   "Value": "עֵרֶך",
   "Add To CART": "הוסף לעגלה",
   "Previous page": "עמוד קודם",
-  "You are not allowed to view this page.": "אינך מורשה לצפות בדף זה.",
+  "You are not allowed to view this page.": "אין מכירות פעילות בזמן זה",
   "Payment": "תַשְׁלוּם",
   "Confirmation": "אִשׁוּר",
   "My Shopping Bag": "שקית הקניות שלי",
@@ -533,6 +533,8 @@
   "Download XLSX": "הורד XLSX",
   "Add all products": "הוסף את כל המוצרים",
   "Sale Communities": "קהילות מכירה",
-  "Add Sale Community": "הוסף קהילת מכירות"
+  "Add Sale Community": "הוסף קהילת מכירות",
+  "Order processing": "טיפול בהזמנה",
+  "Delivery Charge": "דמי משלוח"
 
 }

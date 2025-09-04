@@ -88,6 +88,7 @@ const onSubmit = async () => {
                     :label="$t('Distribution Station')"
                     :placeholder="$t('Select Station')"
                     :error-messages="errors.stationID"
+                    :rules="[requiredValidator]"
                     clearable
                   />
                 </VCol>
