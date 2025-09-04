@@ -77,7 +77,7 @@ watch(selectedCategories, (newVal) => {
 })
 
 const saleData = computed(() => saleDetail.value.saleObj)
-const saleGroups = computed(() => saleDetail.value.saleGroups)
+const saleCommunities = computed(() => saleDetail.value.saleCommunities)
 
 
 products.value = saleDetail.value.saleProducts
@@ -99,16 +99,19 @@ let exists = '';
 let existsDefault = '';
 
 if(authStore.fuserData.communityID && authStore.fuserData.communityID._id){
-  exists = saleGroups.value.some(group =>
-  group.groupID?.communities?.includes(authStore.fuserData.communityID._id)
-)
-}
+  //exists = saleCommunities.value.includes(authStore.fuserData.communityID._id)
 
-if(authStore.fuserData.communityID){
-  existsDefault = saleGroups.value.some(group =>
-    group.groupID?.communities?.includes(authStore.fuserData.communityID)
+  exists = saleCommunities.value.some(
+    c => c.communityID?._id === authStore.fuserData.communityID._id
   )
 }
+
+if (authStore.fuserData.communityID) {
+  existsDefault = saleCommunities.value.some(
+    c => c.communityID?._id === authStore.fuserData.communityID
+  )
+}
+
 
 
 if (exists || existsDefault) {

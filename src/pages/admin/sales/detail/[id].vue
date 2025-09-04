@@ -10,7 +10,8 @@ definePage({
 
 import DistributionOrders from '@/pages/admin/orders/index.vue'
 import AddNewSaleDrawer from '@/views/admin/sales/AddNewSaleDrawer.vue'
-import DistributionGroups from '@/views/admin/sales/DistributionGroups.vue'
+//import DistributionGroups from '@/views/admin/sales/DistributionGroups.vue'
+import DistributionCommunity from '@/views/admin/sales/DistributionCommunity.vue'
 import DistributionProducts from '@/views/admin/sales/DistributionProducts.vue'
 import ExcludeProducts from '@/views/admin/sales/ExcludeProducts.vue'
 import DistributionStations from '@/views/admin/sales/DistributionStations.vue'
@@ -450,7 +451,11 @@ const currentTab = ref('statistics')
         />
       </VWindowItem>
       <VWindowItem value="sale-communities">
-        <DistributionGroups
+        <!-- <DistributionGroups
+          :saleid="route.params.id" 
+          @tab-data="refreshTab"
+        /> -->
+        <DistributionCommunity
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
