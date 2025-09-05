@@ -411,6 +411,13 @@ const updateSelectedCategory = catId => {
   selectedCat.value = catId
   fetchSales()
 }
+
+const showAllProducts = () => {
+  category_ids.value = ''
+  showLoader.value = true
+  selectedCat.value = ''
+  fetchSales()
+}
 </script>
 
 <template>
@@ -457,7 +464,7 @@ const updateSelectedCategory = catId => {
             >
               <VRow>
                 <VCol>
-                  <h3 class="page_title">{{ $t('Our Products') }}</h3>
+                  <h3 class="page_title">{{ $t('Our Products') }} <VBtn v-if="selectedCat" @click="showAllProducts">{{ $t('All Products') }}</VBtn></h3>
                 </VCol>
               </VRow>
               <VRow class="product-area" v-if="products.length > 0">

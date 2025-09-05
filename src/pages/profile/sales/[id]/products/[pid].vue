@@ -262,7 +262,7 @@ const decreaseQuantity = () => {
     <div class="product-details-wrapper">
       <VContainer>
         <VRow class="product-info-detail-wrapper">
-          <VCol cols="12" md="6" sm="6" lg="7">
+          <VCol cols="12" md="6" sm="6" lg="6">
             <div class="product-details-slider">
               <div class="product-large-photo" v-if="productDetails.image">
                 <VImg :src="productDetails.image"/>
@@ -272,7 +272,7 @@ const decreaseQuantity = () => {
               </div>
             </div>
           </VCol>
-          <VCol cols="12" md="6" sm="6" lg="5">
+          <VCol cols="12" md="6" sm="6" lg="6">
             <div class="product-details-content">
               <div class="product-dt-tittle">
                 <h5 class="text-h5">{{ productDetails.name }}</h5>

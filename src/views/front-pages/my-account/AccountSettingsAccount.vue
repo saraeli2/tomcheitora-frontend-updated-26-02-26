@@ -634,13 +634,10 @@ const verifyPhoneNo = async() => {
                 <AppAutocomplete
                   v-model="adminData.maritalStatus"
                   :items="[
-                    { value: 'Single', title: 'Single' },
-                    { value: 'Married', title: 'Married' },
-                    { value: 'Divorced', title: 'Divorced' },
-                    { value: 'Widowed', title: 'Widowed' },
-                    { value: 'Separated', title: 'Separated' },
-                    { value: 'In a civil partnership', title: 'In a civil partnership' },
-                    { value: 'Cohabiting', title: 'Cohabiting' },
+                    { value: 'רווק', title: 'רווק' },
+                    { value: 'נשוי', title: 'נשוי' },
+                    { value: 'גרוש', title: 'גרוש' },
+                    { value: 'אלמן', title: 'אלמן' },
                   ]"
                   :placeholder="$t('Select Marital Status')"
                   :label="$t('Marital Status')"

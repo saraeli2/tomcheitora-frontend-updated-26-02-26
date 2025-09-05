@@ -22,6 +22,8 @@ const props = defineProps({
   },
 })
 
+const showLoader = ref(false)
+
 const emit = defineEmits([
   'update:isDrawerOpen',
   'updateData',
@@ -49,7 +51,7 @@ const closeNavigationDrawer = () => {
 }
 
 const submit = async () => {
-
+  showLoader.value = true
   const formData = new FormData()
 
   formData.append('users', JSON.stringify(excelJson.value))
@@ -60,7 +62,7 @@ const submit = async () => {
       'Authorization': `Bearer ${authStore.accessToken}`,
     },
   }).then(async response => {
-
+    showLoader.value = false
     await nextTick(() => {
       emit('updateData')
       emit('update:isDrawerOpen', false)
@@ -71,6 +73,7 @@ const submit = async () => {
   })
     .catch(e => {
       errors.value = e.response.data.errors
+      showLoader.value = false
     })
 }
 
@@ -208,4 +211,14 @@ const onSubmit = () => {
       </VCard>
     </PerfectScrollbar>
   </VNavigationDrawer>
+
+  <VDialog
+    v-model="showLoader"
+  >
+    <VProgressCircular
+        :size="40"
+        color="white"
+        indeterminate
+      />
+  </VDialog>
 </template>
