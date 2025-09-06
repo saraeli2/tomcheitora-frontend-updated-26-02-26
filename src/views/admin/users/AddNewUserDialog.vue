@@ -42,6 +42,8 @@ const props = defineProps({
       status: 'Active',
       maritalStatus: '',
       birthDate: '',
+      landPhone: '',
+      phone2: '',
     }),
   },
 })
@@ -171,6 +173,18 @@ const submit = async () => {
     formData.append('phone', adminData.value.phone)
   } else {
     formData.append('phone', '')
+  }
+
+  if(adminData.value.phone2) {
+    formData.append('phone2', adminData.value.phone2)
+  } else {
+    formData.append('phone2', '')
+  }
+
+  if(adminData.value.landPhone) {
+    formData.append('landPhone', adminData.value.landPhone)
+  } else {
+    formData.append('landPhone', '')
   }
 
   if(adminData.value.nationality) {
@@ -481,6 +495,24 @@ watch(() => props.communities,
                 :label="$t('Phone')"
                 :placeholder="$t('Phone')"
                 :error-messages="errors.phone"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="adminData.phone2"
+                :label="$t('Phone 2')"
+                :placeholder="$t('Phone 2')"
+                :error-messages="errors.phone2"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="adminData.landPhone"
+                :label="$t('Land Phone')"
+                :placeholder="$t('Land Phone')"
+                :error-messages="errors.landPhone"
               />
             </VCol>
 

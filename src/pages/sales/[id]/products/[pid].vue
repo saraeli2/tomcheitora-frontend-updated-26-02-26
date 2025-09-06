@@ -7,11 +7,12 @@ definePage({
     title: 'Product Details',
   },
 })
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
 import { useConfigStore } from '@core/stores/config'
-import laptopGirl from '@images/illustrations/laptop-girl.png'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores'
 import { useToast } from 'vue-toastification'
@@ -20,11 +21,7 @@ const authStore = useAuthStore()
 const toast = useToast()
 
 const showLoader = ref(false)
-
 const { t } = useI18n()
-
-const columnRadio = ref('radio-1')
-const columnRadio2 = ref('radio-1')
 const quantity = ref(1)
 
 const selectedVariations = ref({
@@ -34,67 +31,117 @@ const selectedVariations = ref({
   pocket: null,
 })
 
-const store = useConfigStore()
-const orderItems = ref([])
-
-const errors = ref({
-  status: undefined,
-  comment: undefined,
-  userID: undefined,
-  vat: undefined,
-  vatType: undefined,
-  discountType: undefined,
-  discount: undefined,
-
-  // NEW: For per-item errors
-  products: [],
+const availableOptions = ref({
+  size: [],
+  color: [],
+  sleeveLength: [],
+  pocket: [],
 })
 
+const store = useConfigStore()
+const orderItems = ref([])
 const router = useRouter()
-
 const route = useRoute('sales-id-products-pid')
+
 const productId = ref(route.params.pid || '')
 const saleId = ref(route.params.id || '')
 
 store.skin = 'default'
 
+// ----------------------
+// Fetch Product
+// ----------------------
+const productData = ref(null)
+const error = ref(null)
 
-
-const {
-  data: productData, execute: fetctProduct, error,
-} = await useApi(createUrl(`/sales/${ route.params.id }/products/${ route.params.pid }?userID=${authStore.fuserData._id}&saleID=${saleId.value}`))
-
-
-
-const productDetails = computed(() => productData.value.productObj)
-const saleProduct = computed(() => productData.value.saleProductObj)
-if(productData.value){
-  const preQuantity = computed(() => productData.value.quantity)
-
-  if(preQuantity.value){
-    quantity.value = preQuantity.value
+const fetchProduct = async () => {
+  try {
+    showLoader.value = true
+    const res = await $api(`/sales/${route.params.id}/products/${route.params.pid}?userID=${authStore.fuserData._id}&saleID=${saleId.value}`)
+    productData.value = res
+    if (res?.quantity) quantity.value = res.quantity
+  } catch (err) {
+    error.value = err
+  } finally {
+    showLoader.value = false
   }
+}
+await fetchProduct()
 
+const productDetails = computed(() => productData.value?.productObj)
+const saleProduct = computed(() => productData.value?.saleProduct)
+
+const sizeOptions = computed(() => productData.value?.attributes?.size || [])
+const colorOptions = computed(() => productData.value?.attributes?.color || [])
+const sleeveOptions = computed(() => productData.value?.attributes?.sleeveLength || [])
+const pocketOptions = computed(() => productData.value?.attributes?.pocket || [])
+
+// ----------------------
+// Variant handling
+// ----------------------
+const matchedVariant = computed(() => {
+  if (!productData.value?.variants?.length) return null
+  return productData.value.variants.find(v =>
+    (!selectedVariations.value.size || v.productID.size === selectedVariations.value.size) &&
+    (!selectedVariations.value.color || v.productID.color === selectedVariations.value.color) &&
+    (!selectedVariations.value.sleeveLength || v.productID.sleeveLength === selectedVariations.value.sleeveLength) &&
+    (!selectedVariations.value.pocket || v.productID.pocket === selectedVariations.value.pocket)
+  ) || null
+})
+
+// Update available options like WooCommerce
+const updateAvailableOptions = () => {
+  if (!productData.value?.variants) return
+  const selected = selectedVariations.value
+  let filteredVariants = productData.value.variants
+
+  Object.keys(selected).forEach(attr => {
+    if (selected[attr]) {
+      filteredVariants = filteredVariants.filter(v => v.productID[attr] === selected[attr])
+    }
+  })
+
+  const newAvailable = { size: [], color: [], sleeveLength: [], pocket: [] }
+  filteredVariants.forEach(v => {
+    Object.keys(newAvailable).forEach(attr => {
+      if (v.productID[attr] && !newAvailable[attr].includes(v.productID[attr])) {
+        newAvailable[attr].push(v.productID[attr])
+      }
+    })
+  })
+
+  Object.keys(newAvailable).forEach(attr => newAvailable[attr].sort())
+  availableOptions.value = newAvailable
+
+  // Auto-correct invalid selections
+  Object.keys(selected).forEach(attr => {
+    if (selected[attr] && !newAvailable[attr].includes(selected[attr])) {
+      selectedVariations.value[attr] = newAvailable[attr][0] || null
+    }
+  })
+
+  // Update saleProduct price and stock
+  if(matchedVariant.value){
+    saleProduct.value.price = matchedVariant.value.price
+    saleProduct.value.remainingUnits = matchedVariant.value.remainingUnits
+    saleProduct.value.limitPerCustomer = matchedVariant.value.limitPerCustomer
+    saleProduct.value._id = matchedVariant.value._id // Show variant ID
+  }
 }
 
-const sizeOptions = computed(() => productDetails.value?.size?.split(',').map(s => s.trim()) || [])
-const colorOptions = computed(() => productDetails.value?.color?.split(',').map(c => c.trim()) || [])
-const sleeveOptions = computed(() => productDetails.value?.sleeveLength?.split(',').map(s => s.trim()) || [])
-const pocketOptions = computed(() => productDetails.value?.pocket?.split(',').map(p => p.trim()) || [])
-
+// Init defaults on mount
 onMounted(() => {
   if (sizeOptions.value.length) selectedVariations.value.size = sizeOptions.value[0]
   if (colorOptions.value.length) selectedVariations.value.color = colorOptions.value[0]
   if (sleeveOptions.value.length) selectedVariations.value.sleeveLength = sleeveOptions.value[0]
   if (pocketOptions.value.length) selectedVariations.value.pocket = pocketOptions.value[0]
+
+  updateAvailableOptions()
 })
 
-const goBack = () => {
-  window.history.back()
-}
+watch(selectedVariations, () => updateAvailableOptions(), { deep: true })
 
-onMounted(() => fetchOrder())
-
+// ----------------------
 const {
   data: orderData, execute: fetchOrder,
 } = await useApi(createUrl(`/sales/${ route.params.id }/orders?userId=${authStore.fuserData._id}`))
@@ -105,70 +152,29 @@ if(order.value){
   orderItems.value = order.value.orderItems
 }
 
+//console.log(order.value)
 
 
-
-// const productAddToCart = (productID, quantity) => {
-//   const index = orderItems.value.findIndex(item => item.productID === productID)
-
-//   if (index !== -1) {
-//     orderItems.value[index].quantity = parseInt(quantity)
-//   } else {
-//     orderItems.value.push({
-//       productID,
-//       quantity,
-//     })
-//   }
-
-//   if(order.value && order.value?._id){
-//     //console.log(orderItems.value)
-//     updateOrder()
-//   }else{
-//     createOrder()
-//   }
-  
-// }
-
-const productAddToCart = (productID, quantity) => {
-  console.log('Selected variations:', selectedVariations.value);
-
-  const index = orderItems.value.findIndex(
-    item => item.productID.toString() === productID.toString()
-  );
-
-  // Prepare the payload with variations
-  const itemPayload = {
-    productID,
-    quantity,
-    variations: { ...selectedVariations.value }, // spread to create a new object
-  };
+const productAddToCart = (cartproductID, qty) => {
+  const index = orderItems.value.findIndex(item => item.productID.toString() === cartproductID.toString())
+  const itemPayload = { productID: cartproductID, quantity: qty, variations: { ...selectedVariations.value } }
 
   if (index !== -1) {
-    // Merge quantity & variations explicitly
-    orderItems.value[index] = {
-      ...orderItems.value[index],
-      quantity: quantity,
-      variations: { ...selectedVariations.value },
-    };
+    orderItems.value[index] = { ...orderItems.value[index], ...itemPayload }
   } else {
-    // Push a fresh reactive object
-    orderItems.value.push(JSON.parse(JSON.stringify(itemPayload)));
+    orderItems.value.push(JSON.parse(JSON.stringify(itemPayload)))
   }
 
-  console.log('Order items after add:', orderItems.value);
+  console.log(orderItems.value);
 
-  if (order.value && order.value?._id) {
-    updateOrder();
-  } else {
-    createOrder();
-  }
-};
+  if (order.value && order.value?._id) updateOrder()
+  else createOrder()
+}
 
 const createOrder = async () => {
   try {
     showLoader.value = true
-
-    const res = await $api(`/sales/${ route.params.id }/orders`, {
+    const res = await $api(`/sales/${route.params.id}/orders`, {
       method: 'POST',
       body: {
         saleID: saleId.value,
@@ -178,29 +184,30 @@ const createOrder = async () => {
       },
       onResponseError({ response }) {
         showLoader.value = false
-
-        const firstError = Object.values(response._data.errors)[0].msg
-
-        toast.error(firstError)
-        setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+        if(response._data.message){
+          toast.error(t(response._data.message))
+        }else{
+          const firstError = Object.values(response._data.errors)[0].msg
+        
+          toast.error(firstError)
+          setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+        }
+        
       },
     })
-
-    await nextTick(async () => {
-      showLoader.value = false
-      toast.success(res.message)
-      await fetchOrderAndSyncOrderItems()
-    })
+    toast.success(res.message)
+    await fetchOrderAndSyncOrderItems()
   } catch (err) {
-    console.log(err)
+    console.error(err)
+  } finally {
+    showLoader.value = false
   }
 }
 
 const updateOrder = async () => {
   try {
     showLoader.value = true
-
-    const res = await $api(`/orders/${ order.value?._id }`, {
+    const res = await $api(`/orders/${order.value?._id}`, {
       method: 'PATCH',
       body: {
         saleID: saleId.value,
@@ -222,30 +229,47 @@ const updateOrder = async () => {
         
       },
     })
-
-    await nextTick(async () => {
-      showLoader.value = false
-      toast.success(t(res.message))
-      await fetchOrderAndSyncOrderItems()
-    })
+    toast.success(t(res.message))
+    await fetchOrderAndSyncOrderItems()
   } catch (err) {
-    console.log(err)
+    console.error(err)
+  } finally {
+    showLoader.value = false
   }
 }
 
-// Helper to fetch fresh order and sync orderItems local state
 const fetchOrderAndSyncOrderItems = async () => {
-  await fetchOrder()
-  orderItems.value = order.value?.orderItems || []
+  const freshOrder = await $api(`/sales/${route.params.id}/orders?userId=${authStore.fuserData._id}`)
+  orderItems.value = freshOrder?.orderItems || []
 }
 
-const increaseQuantity = () => {
-  quantity.value++
-}
+// ----------------------
+// Quantity & Navigation
+// ----------------------
+const increaseQuantity = () => { quantity.value++ }
+const decreaseQuantity = () => { if (quantity.value > 1) quantity.value-- }
+const goBack = () => window.history.back()
 
-const decreaseQuantity = () => {
-  if (quantity.value > 1) quantity.value--
-}
+
+
+
+const {
+  data: categoryData, execute: fetchCategories, caterror,
+} = await useApi(createUrl(`/categories`))
+
+const categoriesAll = computed(() => categoryData.value.categoriesAll)
+
+const productDefaultImage = ref()
+
+const childParentCategory = computed(() => {
+  //console.log(productDetails.value?.categoryIDs[0])
+  const targetId = productDetails.value?.categoryIDs[0]
+  if (!targetId || !categoriesAll.value.length) return null
+
+  return categoriesAll.value.find(cat => cat._id === targetId || cat.id === targetId)
+})
+
+productDefaultImage.value = childParentCategory.value?.image
 </script>
 
 <template>
@@ -264,7 +288,10 @@ const decreaseQuantity = () => {
         <VRow class="product-info-detail-wrapper">
           <VCol cols="12" md="6" sm="6" lg="6">
             <div class="product-details-slider">
-              <div class="product-large-photo" v-if="productDetails.image">
+              <div class="product-large-photo" v-if="matchedVariant && productDefaultImage && (sizeOptions.length > 0 || colorOptions.length > 0 || sleeveOptions.length > 0 || pocketOptions.length > 0)">
+                <VImg :src="productDefaultImage"/>
+              </div>
+              <div class="product-large-photo" v-else-if="productDetails.image">
                 <VImg :src="productDetails.image"/>
               </div>
               <div class="product-large-photo" v-else>
@@ -277,11 +304,28 @@ const decreaseQuantity = () => {
               <div class="product-dt-tittle">
                 <h5 class="text-h5">{{ productDetails.name }}</h5>
               </div>
+
+              <!-- ✅ Show Selected Variant Product ID -->
+            <div style="display:none" class="variant-selected mb-4" v-if="matchedVariant && (sizeOptions.length > 0 || colorOptions.length > 0 || sleeveOptions.length > 0 || pocketOptions.length > 0) ">
+              <small class="text-sm text-gray-500">
+                Selected Variant Product ID:
+                <span class="font-mono font-bold text-indigo-600">
+                  {{ matchedVariant.productID?._id || matchedVariant._id }}
+                </span>
+              </small>
+            </div>
+
+
+              <!-- ✅ Price dynamically updates with selectedVariant -->
               <div class="product-price-label">
                 <h4>
-                  <span class="product-price text-h5">{{ saleProduct.price }} <span style="text-transform: uppercase; padding:0;">₪</span></span>
+                  <span class="product-price text-h5">
+                    {{ matchedVariant?.price || saleProduct.price }}
+                    <span style="text-transform: uppercase; padding:0;">₪</span>
+                  </span>
                 </h4>
               </div>
+
               <div class="product-description" v-if="productDetails.description">
                 <p class="text-body-1">{{ productDetails.description }}</p>
               </div>
@@ -294,10 +338,13 @@ const decreaseQuantity = () => {
                     :key="size"
                     :label="size"
                     :value="size"
+                    :class="{ 'opacity-50': !availableOptions.size.includes(size) }"
+                    @click="selectedVariations.size = size"
                   />
                 </VRadioGroup>
               </VListItem>
 
+              <!-- ✅ Color -->
               <VListItem v-if="colorOptions.length">
                 <h6 class="text-h6">{{ $t('Color') }}:</h6>
                 <VRadioGroup v-model="selectedVariations.color">
@@ -306,10 +353,13 @@ const decreaseQuantity = () => {
                     :key="color"
                     :label="color"
                     :value="color"
+                    :class="{ 'opacity-50': !availableOptions.color.includes(color) }"
+                    @click="selectedVariations.color = color"
                   />
                 </VRadioGroup>
               </VListItem>
 
+              <!-- ✅ Sleeve -->
               <VListItem v-if="sleeveOptions.length">
                 <h6 class="text-h6">{{ $t('Sleeve Length') }}:</h6>
                 <VRadioGroup v-model="selectedVariations.sleeveLength">
@@ -318,10 +368,13 @@ const decreaseQuantity = () => {
                     :key="sleeve"
                     :label="sleeve"
                     :value="sleeve"
+                    :class="{ 'opacity-50': !availableOptions.sleeveLength.includes(sleeve) }"
+                    @click="selectedVariations.sleeveLength = sleeve"
                   />
                 </VRadioGroup>
               </VListItem>
 
+              <!-- ✅ Pocket -->
               <VListItem v-if="pocketOptions.length">
                 <h6 class="text-h6">{{ $t('Pocket') }}:</h6>
                 <VRadioGroup v-model="selectedVariations.pocket">
@@ -330,10 +383,12 @@ const decreaseQuantity = () => {
                     :key="pocket"
                     :label="pocket"
                     :value="pocket"
+                    :class="{ 'opacity-50': !availableOptions.pocket.includes(pocket) }"
+                    @click="selectedVariations.pocket = pocket"
                   />
                 </VRadioGroup>
               </VListItem>
-
+              <!-- ✅ Rest of product details (unchanged) -->
               <VListItem v-if="productDetails.model">
                 <h6 class="text-h6">
                   {{ $t('Model') }}:
@@ -392,7 +447,7 @@ const decreaseQuantity = () => {
                 <h6 class="text-h6">
                   {{ $t('Manufacturer') }}:
                   <span class="text-body-1 d-inline-block">
-                    <span>{{ productDetails.manufacturerID ? productDetails.manufacturerID.name : '' }}</span>
+                    <span>{{ productDetails.manufacturerID?.name }}</span>
                   </span>
                 </h6>
               </VListItem>
@@ -401,7 +456,7 @@ const decreaseQuantity = () => {
                 <h6 class="text-h6">
                   {{ $t('Supplier') }}:
                   <span class="text-body-1 d-inline-block">
-                    <span>{{ productDetails.supplierID ? productDetails.supplierID.name : '' }}</span>
+                    <span>{{ productDetails.supplierID?.name }}</span>
                   </span>
                 </h6>
               </VListItem>
@@ -410,7 +465,7 @@ const decreaseQuantity = () => {
                 <h6 class="text-h6">
                   {{ $t('Certification') }}:
                   <span class="text-body-1 d-inline-block">
-                    {{ productDetails.certificationID ? productDetails.certificationID.name : '' }}
+                    {{ productDetails.certificationID?.name }}
                   </span>
                 </h6>
               </VListItem>
@@ -419,7 +474,7 @@ const decreaseQuantity = () => {
                 <h6 class="text-h6">
                   {{ $t('Package Type') }}:
                   <span class="text-body-1 d-inline-block">
-                    {{ productDetails.packagetypeID ? productDetails.packagetypeID.name : '' }}
+                    {{ productDetails.packagetypeID?.name }}
                   </span>
                 </h6>
               </VListItem>
@@ -428,12 +483,12 @@ const decreaseQuantity = () => {
                 <h6 class="text-h6">
                   {{ $t('Quantity Type') }}:
                   <span class="text-body-1 d-inline-block">
-                    {{ productDetails.quantitytypeID ? productDetails.quantitytypeID.name : '' }}
+                    {{ productDetails.quantitytypeID?.name }}
                   </span>
                 </h6>
               </VListItem>
 
-              <VListItem v-if="productDetails.tags && productDetails.tags.length > 0">
+              <VListItem v-if="productDetails.tags?.length">
                 <h6 class="text-h6">
                   {{ $t('Tags') }}:
                   <span class="text-body-1 d-inline-block">
@@ -451,7 +506,7 @@ const decreaseQuantity = () => {
                 </h6>
               </VListItem>
 
-              <VListItem v-if="productDetails.groups && productDetails.groups.length > 0">
+              <VListItem v-if="productDetails.groups?.length">
                 <h6 class="text-h6">
                   {{ $t('Groups') }}:
                   <span class="text-body-1 d-inline-block">
@@ -478,13 +533,15 @@ const decreaseQuantity = () => {
                 </h6>
               </VListItem>
 
-              <VListItem v-if="productDetails.customFields && productDetails.customFields.length > 0">
-                <h4 class="">
-                  {{ $t('Custom Fields') }}
-                </h4>
-                  <h6 style="padding-top: 20px" class="text-h6" v-for="(field, index) in productDetails.customFields" :key="index">
-                    {{ field.title }}: {{ field.value }}
-                  </h6>
+              <VListItem v-if="productDetails.customFields?.length">
+                <h4>{{ $t('Custom Fields') }}</h4>
+                <h6
+                  v-for="(field, index) in productDetails.customFields"
+                  :key="index"
+                  class="text-h6 pt-4"
+                >
+                  {{ field.title }}: {{ field.value }}
+                </h6>
               </VListItem>
 
               <VListItem v-if="productDetails.internalRemarks">
@@ -505,8 +562,7 @@ const decreaseQuantity = () => {
                 </h6>
               </VListItem>
 
-
-              
+              <!-- ✅ Quantity -->
               <div class="product-quantity">
                 <div class="dt-block-tittle">
                   <h3>{{ $t('Quantity') }}:</h3>
@@ -536,24 +592,50 @@ const decreaseQuantity = () => {
                   </div>
                 </div>
               </div>
+
+              <!-- ✅ Buttons -->
               <div class="product-btn-group-dt">
-                <div class="product-cart-btn">
-                  <VBtn 
+               
+                <div class="product-cart-btn" v-if="sizeOptions.length > 0 || colorOptions.length > 0 || sleeveOptions.length > 0 || pocketOptions.length > 0">
+                  <VBtn
                     prepend-icon="tabler-shopping-cart" 
                     class="cart-btn-dt"
-                    @click="productAddToCart(productDetails._id, quantity)"
+                    @click="productAddToCart(matchedVariant.productID?._id || matchedVariant._id, quantity)"
                   >
                     {{ $t('Add To CART') }}
                   </VBtn>
-                  <VBtn 
-                    class="cart-btn-dt"
-                    @click="goBack" 
-                  >
+
+                  <VBtn class="cart-btn-dt" @click="goBack">
+                    {{ $t('Previous page') }}
+                  </VBtn>
+                </div>
+
+                <div v-else>
+                  <span v-if="saleProduct.limitPerCustomer > 0">
+                    <VBtn
+                      prepend-icon="tabler-shopping-cart" 
+                      class="cart-btn-dt"
+                      @click="productAddToCart(matchedVariant.productID, quantity)"
+                    >
+                      {{ $t('Add To CART') }}
+                    </VBtn>
+                  </span>
+                  <span v-else>
+                    <span class="stock_out" style="position: relative;
+    right: auto;
+    top: auto;
+    margin-right: 0px;
+    left: auto;
+    margin: 0 10px 0; ">{{ $t('Out of stock') }}</span>
+                  </span>
+                  <VBtn class="cart-btn-dt" @click="goBack">
                     {{ $t('Previous page') }}
                   </VBtn>
                 </div>
               </div>
             </div>
+
+
           </VCol>
         </VRow>
       </VContainer>

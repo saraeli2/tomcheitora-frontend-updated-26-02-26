@@ -97,13 +97,10 @@ export const setupGuards = router => {
       //console.log(to);
 
       if (!canNavigate(to) && to.matched.length) {
-        if(isUserLoggedIn) {
-            return { name: 'not-authorized' }
-        } else {
-            return {
-                name: 'login',
-                query: { to: to.fullPath }
-            }
+        if (isUserLoggedIn && to.name !== 'not-authorized') {
+          return { name: 'not-authorized' };
+        } else if (!isUserLoggedIn && to.name !== 'login') {
+          return { name: 'login', query: { to: to.fullPath } };
         }
       }
     }

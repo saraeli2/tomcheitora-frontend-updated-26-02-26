@@ -43,7 +43,7 @@ const products = ref([])
 const totalProducts = ref(0)
 const loadingMore = ref(false)
 const searchQuery = ref()
-const itemsPerPage = ref(20)
+const itemsPerPage = ref(60)
 const page = ref(1)
 const showLoader = ref(false)
 
@@ -160,21 +160,21 @@ async function loadProducts(newPage = 1) {
   }
 }
 
-watch(
-  [
-    itemsPerPage,
-  ],
-  () => {
-    loadProducts(1)
-  }
-)
+// watch(
+//   [
+//     itemsPerPage,
+//   ],
+//   () => {
+//     loadProducts(1)
+//   }
+// )
 
 
 
 function handleWindowScroll() {
   if (loadingMore.value) return
 
-  if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500)) {
+  if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500) && products.value.length > 0) {
     if (products.value.length < totalProducts.value) {
       loadProducts(page.value + 1);
     }
@@ -324,7 +324,8 @@ const {
   data: categoryData, execute: fetchCategories, caterror,
 } = await useApi(createUrl(`/categories`))
 
-const categories = computed(() => categoryData.value.data)
+const categories = computed(() => categoryData.value.categories)
+const categoriesAll = computed(() => categoryData.value.categoriesAll)
 
 const tree = ref([])
 
@@ -405,17 +406,70 @@ const isIndeterminate = node => {
   return selectedCount > 0 && selectedCount < descendants.length
 }
 
+const isShowChildCat = ref(false)
+const childCategories = ref([]);
+const childCategoryIds = import.meta.env.VITE_CHILD_CATEGORIES.split(",");
+const selectedChildCat = ref(false)
+
+const productDefaultImage = ref()
+
+
+
+
+//console.log(productDefaultImage.value);
+
+
 const updateSelectedCategory = catId => {
-  category_ids.value = catId
-  showLoader.value = true
-  selectedCat.value = catId
-  fetchSales()
+  if (catId === import.meta.env.VITE_PARENT_CATEGORY) {
+    // Parent category clicked
+    isShowChildCat.value = true
+    selectedCat.value = catId
+    
+    // Filter child categories
+    childCategories.value = categoriesAll.value.filter(c =>
+      childCategoryIds.includes(c._id)
+    );
+
+    products.value = []
+  } else {
+    // Check if catId is one of the child categories
+    const isChild = childCategories.value.some(c => c._id === catId);
+
+    if (isChild) {
+      isShowChildCat.value = true
+      selectedChildCat.value = catId
+
+      category_ids.value = catId
+      showLoader.value = true
+
+      const childParentCategory = computed(() => {
+        const targetId = selectedChildCat.value
+        if (!targetId || !categoriesAll.value.length) return null
+
+        return categoriesAll.value.find(cat => cat._id === targetId || cat.id === targetId)
+      })
+
+      productDefaultImage.value = childParentCategory.value?.image
+
+      //console.log('test 1')
+      fetchSales()
+    } else {
+     
+      isShowChildCat.value = false
+      selectedCat.value = catId
+      category_ids.value = catId
+      showLoader.value = true
+      fetchSales()
+    }
+  }
 }
+
 
 const showAllProducts = () => {
   category_ids.value = ''
   showLoader.value = true
   selectedCat.value = ''
+  isShowChildCat.value = false
   fetchSales()
 }
 </script>
@@ -463,18 +517,70 @@ const showAllProducts = () => {
               class="product-wrapper"
             >
               <VRow>
-                <VCol>
-                  <h3 class="page_title">{{ $t('Our Products') }} <VBtn v-if="selectedCat" @click="showAllProducts">{{ $t('All Products') }}</VBtn></h3>
+                <VCol v-if="isShowChildCat">
+                  <h3 class="page_title">{{ $t('Product Categories') }} <VBtn v-if="selectedCat" @click="showAllProducts">{{ $t('All Products') }}</VBtn></h3>
                 </VCol>
               </VRow>
+
+              <VRow class="product-area cat_items" v-if="isShowChildCat">
+                <VCol
+                  v-for="child in childCategories"
+                  :key="child._id"
+                  cols="12" md="4" sm="6" lg="3"
+                >
+                  <div class="custom-single-product" :class="selectedChildCat == child._id ? 'activeCat' : ''" style="padding-bottom:10px;" @click="updateSelectedCategory(child._id)">
+                    <div class="product-photo">
+                      <VImg
+                        v-if="child.image"
+                        :src="child.image"
+                        alt="child.name"
+                        class="w-full h-48 object-cover rounded"
+                      />
+                      <VImg
+                        v-else
+                        src="/images/no-img.jpg"
+                        alt="No image"
+                        class="w-full h-48 object-cover rounded"
+                      />
+                    </div>
+                    <h3 class="font-semibold text-lg text-center">{{ child.name }}</h3>
+                    <!-- optional: add description, price, or button -->
+                  </div>
+                </VCol>
+              </VRow>
+
+              <VRow>
+                <VCol v-if="products.length > 0">
+                  <h3 class="page_title">{{ $t('Our Products') }} <VBtn v-if="selectedCat && !isShowChildCat" @click="showAllProducts">{{ $t('All Products') }}</VBtn></h3>
+                </VCol>
+              </VRow>
+
               <VRow class="product-area" v-if="products.length > 0">
                 <VCol cols="12" md="4" sm="6" lg="3" v-for="product in products">
                   <div class="custom-single-product">
-                    <div class="stock_out" v-if="!product.remainingUnits">
+                    <div class="stock_out" v-if="product.variants?.length > 1" style="display:none;">
+                      
+                    </div>
+                    <div class="stock_out" v-else-if="!product.remainingUnits">
                       {{ $t('Out of stock') }}
                     </div>
+
                     <div 
-                      v-if="product.productID?.image"  
+                      v-if="isShowChildCat && product.variants?.length"  
+                      class="product-photo"
+                    >
+                      <RouterLink
+                        :to="{
+                          name: 'sales-id-products-pid',
+                          params: { id: saleData._id, pid: product._id },
+                        }"
+                      >
+                        <VImg v-if="productDefaultImage" :src="productDefaultImage"/>
+                        <VImg v-else src="/images/no-img.jpg" />
+                      </RouterLink>
+                    </div>
+                    <div 
+                      v-else-if="product.productID?.image"  
                       class="product-photo"
                     >
                       <RouterLink
@@ -515,7 +621,7 @@ const showAllProducts = () => {
                           <span class="product-price text-body-1">{{ product.price }} <span style="text-transform: uppercase; padding:0;">₪</span></span>
                         </h4>
 
-                        <div class="action_block">
+                        <div class="action_block" v-if="!isShowChildCat">
                           <div v-if="getProductStatus(product.productID?._id)" class="flex items-center space-x-2">
                             <button @click="decrementCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">-</button>
                             <span>{{ orderItems.find(item => item.productID === product.productID?._id)?.quantity }}</span>
@@ -532,7 +638,9 @@ const showAllProducts = () => {
                 </VCol>
               </VRow>
 
-              <VRow v-else>
+              
+
+              <VRow v-else-if="!isShowChildCat">
                 <VCol>
                   <h3>{{ $t('Products not found.') }}</h3>
                 </VCol>
