@@ -629,8 +629,9 @@ const showAllProducts = () => {
                           </div>
 
                           <div v-else>
-                            <button :class="product.maxUnit == product.reservedQty ? 'addToCart_disable' : ''" @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded initial_plus"> + </button>
+                            <button :disabled="!product.limitPerCustomer" :class="product.maxUnit == product.reservedQty ? 'addToCart_disable' : ''" @click="addToCart(product.productID?._id)" class="px-4 py-2 bg-primary text-white rounded initial_plus"> + </button>
                           </div>
+
                         </div>
                       </div>
                     </div>
