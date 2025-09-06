@@ -126,6 +126,18 @@ const updateAvailableOptions = () => {
     saleProduct.value.remainingUnits = matchedVariant.value.remainingUnits
     saleProduct.value.limitPerCustomer = matchedVariant.value.limitPerCustomer
     saleProduct.value._id = matchedVariant.value._id // Show variant ID
+    if(matchedVariant.value.productID) {
+      productDetails.value.description = matchedVariant.value.productID.description
+      productDetails.value.model = matchedVariant.value.productID.model
+      productDetails.value.internalSKU = matchedVariant.value.productID.internalSKU
+      productDetails.value.externalSKU = matchedVariant.value.productID.externalSKU
+      productDetails.value.boxSKU = matchedVariant.value.productID.boxSKU
+      productDetails.value.fit = matchedVariant.value.productID.fit
+      productDetails.value.internalRemarks = matchedVariant.value.productID.internalRemarks
+      productDetails.value.remarks = matchedVariant.value.productID.remarks
+      productDetails.value.packages_in_box = matchedVariant.value.productID.packages_in_box
+      productDetails.value.amount_in_package = matchedVariant.value.productID.amount_in_package
+    }
   }
 }
 
