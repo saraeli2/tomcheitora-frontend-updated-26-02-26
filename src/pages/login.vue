@@ -126,8 +126,8 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <VCol cols="12">
                 <AppTextField
                   v-model="credentials.username"
-                  :label="$t('Username')"
-                  :placeholder="$t('Username')"
+                  :label="$t('Login Username')"
+                  :placeholder="$t('Login Username')"
                   autofocus
                   :rules="[requiredValidator]"
                   :error-messages="errors.username"
@@ -138,7 +138,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <VCol cols="12">
                 <AppTextField
                   v-model="credentials.password"
-                  :label="$t('Password')"
+                  :label="$t('Login Password')"
                   placeholder="············"
                   :rules="[requiredValidator]"
                   :type="isPasswordVisible ? 'text' : 'password'"
@@ -149,10 +149,6 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
                 />
 
                 <div class="d-flex align-center flex-wrap justify-space-between my-6">
-                  <VCheckbox
-                    v-model="rememberMe"
-                    :label="$t('Remember me')"
-                  />
                   <RouterLink
                     class="text-primary ms-2 mb-1"
                     :to="{ name: 'forgot-password' }"

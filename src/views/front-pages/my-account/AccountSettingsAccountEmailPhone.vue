@@ -643,9 +643,9 @@ const verifyPhoneNoInitial = async() => {
 
         <VCardActions>
           <VSpacer />
-          <VBtn style="color: #333!important;" variant="text" @click="closeOtpModal">{{ $t('Cancel') }}</VBtn>
+          <VBtn style="color: #333!important;" variant="text" @click="closeOtpModal">{{ $t('Cancel OTP') }}</VBtn>
           <VBtn type="submit">
-            {{ $t('Verify') }}
+            {{ $t('Verify OTP') }}
           </VBtn>
         </VCardActions>
       </VForm>

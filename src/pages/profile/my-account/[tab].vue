@@ -614,7 +614,7 @@ const handleStationSuccess = async () => {
           <VCardText>
             <VRow>
               <VCol cols="12">
-                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email') }} 
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email Verify') }} 
                   <VIcon 
                     style="margin-left:6px" 
                     @click="editEmail" class="tabler-pencil" 
@@ -625,29 +625,29 @@ const handleStationSuccess = async () => {
                     ref="emailInput"
                     v-model="userEmail"
                     :rules="[emailValidator]"
-                    :placeholder="$t('Email')"
+                    :placeholder="$t('Email Verify')"
                     :error-messages="errors.email"
                     :disabled="!isEmailEdit && adminData.email"
                     :autofocus="isEmailEdit"
                   />
 
                   <div class="action_block" v-if="!isEmailEdit && !adminData.emailVerified && adminData.email">
-                    <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyEmailAddressInitial">
-                      {{ $t('Verify') }}
+                    <VBtn variant="outlined" style="color: white!important; border-color:#333" @click="verifyEmailAddressInitial">
+                      {{ $t('Verify Email') }}
                     </VBtn>
                   </div>
                 
                   <div class="action_block" v-if="isEmailEdit || !adminData.email">
                     <VBtn style="color: #333!important;" variant="text" @click="isEmailEdit=false, userEmail = adminData.email">{{ $t('Cancel') }}</VBtn>
                     <VBtn :disabled="userEmail && userEmail == adminData.email" variant="outlined" @click="verifyEmailAddress">
-                      {{ $t('Verify') }}
+                      {{ $t('Verify Email') }}
                     </VBtn>
                   </div>
                 </div>
               </VCol>
 
               <VCol cols="12">
-                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone') }} 
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone Verify') }} 
                   <VIcon 
                     style="margin-left:6px" 
                     @click="editPhone" class="tabler-pencil" 
@@ -657,7 +657,7 @@ const handleStationSuccess = async () => {
                   <AppTextField
                     ref="phoneInput"
                     v-model="userPhone"
-                    :placeholder="$t('Phone')"
+                    :placeholder="$t('Phone Verify')"
                     :error-messages="errors.phone"
                     :disabled="!isPhoneEdit && adminData.phone"
                     :autofocus="isPhoneEdit"
@@ -665,14 +665,14 @@ const handleStationSuccess = async () => {
 
                   <div class="action_block" v-if="!isPhoneEdit && !adminData.phoneVerified && adminData.phone">
                     <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyPhoneNoInitial">
-                      {{ $t('Verify') }}
+                      {{ $t('Verify Phone') }}
                     </VBtn>
                   </div>
                 
                   <div class="action_block" v-if="isPhoneEdit || !adminData.phone">
                     <VBtn style="color: #333!important;" variant="text" @click="isPhoneEdit=false, userPhone = adminData.phone">{{ $t('Cancel') }}</VBtn>
                     <VBtn :disabled="userPhone && userPhone == adminData.phone " variant="outlined" @click="verifyPhoneNo">
-                      {{ $t('Verify') }}
+                      {{ $t('Verify Phone') }}
                     </VBtn>
                   </div>
                 </div>
@@ -715,9 +715,9 @@ const handleStationSuccess = async () => {
 
           <VCardActions>
             <VSpacer />
-            <VBtn style="color: #333!important;" variant="text" @click="showVerifyOtpDialog=false, showVerificationPopup=true">{{ $t('Cancel') }}</VBtn>
+            <VBtn style="color: #333!important;" variant="text" @click="showVerifyOtpDialog=false, showVerificationPopup=true">{{ $t('Cancel OTP') }}</VBtn>
             <VBtn type="submit">
-              {{ $t('Verify') }}
+              {{ $t('Verify OTP') }}
             </VBtn>
           </VCardActions>
         </VForm>
