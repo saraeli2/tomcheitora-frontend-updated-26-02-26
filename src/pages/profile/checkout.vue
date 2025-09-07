@@ -849,6 +849,12 @@ const handleAddAddress = async () => {
                               <span>{{ $t('Discount') }}</span>
                               <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
                             </div>
+
+                            <div class="d-flex justify-space-between mb-2">
+                              <span>{{ $t('Delivery Charge') }}</span>
+                              <span class="text-medium-emphasis" v-if="order.deliveryCharge">{{ numberFormat(order.deliveryCharge) }}</span>
+                              <span class="text-medium-emphasis" v-else>{{ $t('Order processing') }}</span>
+                            </div>
                           </div>
                         </VCardText>
 
@@ -916,6 +922,12 @@ const handleAddAddress = async () => {
                             <div class="d-flex justify-space-between mb-2" v-if="order.totalDiscount">
                               <span>{{ $t('Discount') }}</span>
                               <span class="text-medium-emphasis">- {{ numberFormat(order.totalDiscount) }}</span>
+                            </div>
+
+                            <div class="d-flex justify-space-between mb-2">
+                              <span>{{ $t('Delivery Charge') }}</span>
+                              <span class="text-medium-emphasis" v-if="order.deliveryCharge">{{ numberFormat(order.deliveryCharge) }}</span>
+                              <span class="text-medium-emphasis" v-else>{{ $t('Order processing') }}</span>
                             </div>
                           </div>
                         </VCardText>
