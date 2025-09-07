@@ -1636,3 +1636,6 @@ html[lang='en'] .v-navigation-drawer__content .ml-3 {
 button.px-4.py-2.bg-primary.text-white.rounded[disabled] {
     opacity: 0.7;
 }
+.flatpickr-current-month .flatpickr-monthDropdown-months span, .flatpickr-current-month .numInputWrapper span {
+    display: inline-block!important;
+}

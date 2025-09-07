@@ -470,7 +470,16 @@ watch(() => props.communities,
                   :rules="[requiredValidator]"
                   :label="$t('Birth Date')"
                   :placeholder="$t('Birth Date')"
-                  :config="{ enableTime: false, dateFormat: 'd.m.Y' }"
+                  :config="{
+                    enableTime: true,
+                    dateFormat: 'd.m.Y',
+                    allowInput: true,
+                    altInput: true,
+                    altFormat: 'd.m.Y',
+                    // For Flatpickr v4.6+, you can set:
+                    monthSelectorType: 'dropdown',
+                    yearSelectorType: 'dropdown'
+                  }"
                   :error-messages="errors.birthDate"
                 />
             </VCol>

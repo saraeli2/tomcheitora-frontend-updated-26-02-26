@@ -73,7 +73,7 @@ watch(selectedCategories, (newVal) => {
 
   category_ids.value = ids
   showLoader.value = true
-  fetchSales()
+  safeFetchSales()
 })
 
 const saleData = computed(() => saleDetail.value.saleObj)
@@ -129,10 +129,12 @@ if (isValidTime) {
 }
 
 
+let isLoadingProducts = false;
+
 async function loadProducts(newPage = 1) {
-  
-  if (loadingMore.value) return
-  loadingMore.value = true
+  if (isLoadingProducts) return; // prevent multiple calls
+  isLoadingProducts = true;
+  loadingMore.value = true;
 
   try {
     const response = await useApi(createUrl('/sale-products', {
@@ -143,20 +145,21 @@ async function loadProducts(newPage = 1) {
         saleId: saleData.value?._id,
         communityID: authStore.fuserData.communityID?._id || authStore.fuserData.communityID
       },
-    }))
+    }));
 
     if (newPage === 1) {
-      products.value = response.data._value.saleProducts
+      products.value = response.data._value.saleProducts;
     } else {
-      products.value.push(...response.data._value.saleProducts)
+      products.value.push(...response.data._value.saleProducts);
     }
-    totalProducts.value = response.data._value.totalProducts
-    page.value = newPage
 
+    totalProducts.value = response.data._value.totalProducts;
+    page.value = newPage;
   } catch (err) {
-    console.error('Failed to load products:', err)
+    console.error('Failed to load products:', err);
   } finally {
-    loadingMore.value = false
+    loadingMore.value = false;
+    isLoadingProducts = false; // release lock
   }
 }
 
@@ -172,12 +175,8 @@ async function loadProducts(newPage = 1) {
 
 
 function handleWindowScroll() {
-  if (loadingMore.value) return
-
-  if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500) && products.value.length > 0) {
-    if (products.value.length < totalProducts.value) {
-      loadProducts(page.value + 1);
-    }
+  if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - 500) && products.value.length < totalProducts.value) {
+    loadProducts(page.value + 1);
   }
 }
 
@@ -420,6 +419,7 @@ const productDefaultImage = ref()
 
 
 const updateSelectedCategory = catId => {
+  page.value = 1
   if (catId === import.meta.env.VITE_PARENT_CATEGORY) {
     // Parent category clicked
     isShowChildCat.value = true
@@ -452,14 +452,14 @@ const updateSelectedCategory = catId => {
       productDefaultImage.value = childParentCategory.value?.image
 
       //console.log('test 1')
-      fetchSales()
+      safeFetchSales()
     } else {
      
       isShowChildCat.value = false
       selectedCat.value = catId
       category_ids.value = catId
       showLoader.value = true
-      fetchSales()
+      safeFetchSales()
     }
   }
 }
@@ -470,7 +470,24 @@ const showAllProducts = () => {
   showLoader.value = true
   selectedCat.value = ''
   isShowChildCat.value = false
-  fetchSales()
+  safeFetchSales()
+}
+
+let isFetchingSales = false;
+
+async function safeFetchSales() {
+  if (isFetchingSales) return; // prevent multiple simultaneous calls
+  isFetchingSales = true;
+  showLoader.value = true;
+
+  try {
+    await fetchSales(); // your existing API call
+  } catch (err) {
+    console.error(err);
+  } finally {
+    showLoader.value = false;
+    isFetchingSales = false;
+  }
 }
 </script>
 

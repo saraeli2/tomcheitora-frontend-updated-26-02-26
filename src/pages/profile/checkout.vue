@@ -201,19 +201,26 @@ const cities = cityOptions.value.map(item => ({
   title: `${item.nameHe}`,
 }))
 
+const stations = stationOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.cityID?.nameHe} - ${item.name}`,
+}))
+
 const cityID = ref(null)
 const flatNo = ref()
 const houseNumber = ref()
-const address = ref()
+const stationID = ref()
 const street = ref()
 
 if(user.value) {
   cityID.value = user.value.cityID
   flatNo.value = user.value.flatNo
   houseNumber.value = user.value.houseNumber
-  address.value = user.value.address
   street.value = user.value.street
+  stationID.value = user.value.stationID
 }
+
+
 
 
 const onSubmit = () => {
@@ -239,8 +246,8 @@ const submit = async () => {
     formData.append('houseNumber', houseNumber.value)
   }
 
-  if(address.value) {
-    formData.append('address', address.value)
+  if(stationID.value) {
+    formData.append('stationID', stationID.value)
   }
 
   if(street.value) {
@@ -261,7 +268,8 @@ const submit = async () => {
           cityID: cityID.value,
           flatNo: flatNo.value,
           houseNumber: houseNumber.value,
-          address: address.value,
+          stationID: stationID.value,
+          orderID: order.value?._id,
           street: street.value,
         },
         onResponseError({ response }) {
@@ -792,12 +800,14 @@ const handleAddAddress = async () => {
                           cols="12" 
                           lg="6"
                         >
-                          <AppTextField
-                            v-model="address"
-                            :label="$t('Address')"
-                            :placeholder="$t('Address')"
-                            :error-messages="errors.address"
+                          <AppAutocomplete
+                            v-model="stationID"
+                            :items="stations"
+                            :label="$t('בחר תחנת חלוקה')"
+                            :placeholder="$t('בחר תחנת חלוקה')"
+                            :error-messages="errors.stationID"
                             :rules="[requiredValidator]"
+                            clearable
                           />
                         </VCol>
                       </VRow>

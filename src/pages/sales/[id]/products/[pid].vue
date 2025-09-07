@@ -331,8 +331,9 @@ productDefaultImage.value = childParentCategory.value?.image
               <!-- ✅ Price dynamically updates with selectedVariant -->
               <div class="product-price-label">
                 <h4>
+                  מחיר
                   <span class="product-price text-h5">
-                    {{ matchedVariant?.price || saleProduct.price }}
+                   {{ matchedVariant?.price || saleProduct.price }}
                     <span style="text-transform: uppercase; padding:0;">₪</span>
                   </span>
                 </h4>
@@ -343,7 +344,7 @@ productDefaultImage.value = childParentCategory.value?.image
               </div>
 
               <VListItem v-if="sizeOptions.length">
-                <h6 class="text-h6">{{ $t('Size') }}:</h6>
+                <h6 class="text-h6">מידה:</h6>
                 <VRadioGroup v-model="selectedVariations.size">
                   <VRadio
                     v-for="size in sizeOptions"
@@ -373,7 +374,7 @@ productDefaultImage.value = childParentCategory.value?.image
 
               <!-- ✅ Sleeve -->
               <VListItem v-if="sleeveOptions.length">
-                <h6 class="text-h6">{{ $t('Sleeve Length') }}:</h6>
+                <h6 class="text-h6">אורך שרוול:</h6>
                 <VRadioGroup v-model="selectedVariations.sleeveLength">
                   <VRadio
                     v-for="sleeve in sleeveOptions"
@@ -424,33 +425,6 @@ productDefaultImage.value = childParentCategory.value?.image
                   {{ $t('Packages in box') }}:
                   <span class="text-body-1 d-inline-block">
                     {{ productDetails.packages_in_box }}
-                  </span>
-                </h6>
-              </VListItem>
-
-              <VListItem v-if="productDetails.internalSKU">
-                <h6 class="text-h6">
-                  {{ $t('Internal SKU') }}:
-                  <span class="text-body-1 d-inline-block">
-                    {{ productDetails.internalSKU }}
-                  </span>
-                </h6>
-              </VListItem>
-
-              <VListItem v-if="productDetails.externalSKU">
-                <h6 class="text-h6">
-                  {{ $t('External SKU') }}:
-                  <span class="text-body-1 d-inline-block">
-                    {{ productDetails.externalSKU }}
-                  </span>
-                </h6>
-              </VListItem>
-
-              <VListItem v-if="productDetails.boxSKU">
-                <h6 class="text-h6">
-                  {{ $t('Box SKU') }}:
-                  <span class="text-body-1 d-inline-block">
-                    {{ productDetails.boxSKU }}
                   </span>
                 </h6>
               </VListItem>
