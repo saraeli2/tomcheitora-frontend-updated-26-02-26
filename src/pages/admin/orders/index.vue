@@ -45,6 +45,10 @@ const updateOptions = options => {
 
 const headers = computed(() => [
   {
+    title: t('Order Number'),
+    key: 'orderNumber',
+  },
+  {
     title: t('User'),
     key: 'userID',
   },
@@ -305,6 +309,18 @@ const deleteOrder = async id => {
         @update:options="updateOptions"
       >
         <!-- userID -->
+
+        <template #[`item.orderNumber`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-orders', 'View Orders') && item.userID"
+            :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }"
+          >
+            {{ item.orderNumber }}
+          </RouterLink>
+          <span v-else>{{ item.orderNumber }}</span>
+        </template>
+
+
         <template #[`item.userID`]="{ item }">
           <RouterLink
             v-if="can('admin-view-users', 'View Users') && item.userID"

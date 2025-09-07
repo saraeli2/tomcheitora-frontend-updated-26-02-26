@@ -40,11 +40,13 @@ const selectedSale = ref(props.saleid)
 const isImportProductDrawerVisible = ref(false)
 
 // Data table options
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(10)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const selectedProduct = ref()
+const searchQuery = ref('')
+const searchSku = ref('')
 
 const updateOptions = options => {
   sortBy.value = options.sortBy[0]?.key
@@ -71,6 +73,14 @@ const headers = computed(() => [
     key: 'maxUnit',
   },
   {
+    title: t('Internal SKU'),
+    key: 'internalSKU',
+  },
+  {
+    title: t('Product number'),
+    key: 'productNumber',
+  },
+  {
     title: t('Created At'),
     key: 'createdAt',
   },
@@ -91,7 +101,8 @@ const {
 } = await useApi(createUrl('/admin/sale-products', {
   query: {
     sale: selectedSale,
-    product: selectedProduct,
+    search: searchQuery,
+    sku: searchSku,
     itemsPerPage,
     page,
     sortBy,
@@ -239,7 +250,14 @@ const addAllProducts = async() => {
   
 }
 
-
+const panel = ref()
+watch(
+  [searchQuery, searchSku, selectedSale, page, itemsPerPage, sortBy, orderBy],
+  () => {
+    fetchSaleProducts();
+  },
+  { immediate: true } // fetch initially on component mount
+);
 
 </script>
 
@@ -307,21 +325,41 @@ const addAllProducts = async() => {
             {{ $t('Add all products') }}
           </VBtn>
         </div>
-
-        <div class="d-flex align-center flex-wrap gap-4">
-          <!-- 👉 Select status -->
-          <div class="invoice-list-filter">
-            <AppSelect
-              v-model="selectedProduct"
-              :placeholder="$t('Select Product')"
-              clearable
-              clear-icon="tabler-x"
-              single-line
-              :items="products"
-            />
-          </div>
-        </div>
       </VCardText>
+
+      <VExpansionPanels
+        v-model="panel"
+      >
+        <VExpansionPanel>
+          <VExpansionPanelTitle>{{ $t('Search') }}</VExpansionPanelTitle>
+
+          <VExpansionPanelText>
+            <VCardText>
+              <VRow>
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppTextField
+                    v-model="searchQuery"
+                    :placeholder="$t('Search Product')"
+                  />
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppTextField
+                    v-model="searchSku"
+                    :placeholder="$t('Search SKU/Product Number')"
+                  />
+                </VCol>
+              </VRow>
+            </VCardText>
+          </VExpansionPanelText>
+        </VExpansionPanel>
+      </VExpansionPanels>
 
       <VDivider />
 
@@ -354,6 +392,15 @@ const addAllProducts = async() => {
         <!-- price -->
         <template #[`item.price`]="{ item }">
           {{ item.price }}
+        </template>
+
+        <!-- price -->
+        <template #[`item.productNumber`]="{ item }">
+          {{ item.productID?.productNumber }}
+        </template>
+
+        <template #[`item.internalSKU`]="{ item }">
+          {{ item.productID?.internalSKU }}
         </template>
 
         <!-- limitPerCustomer -->
