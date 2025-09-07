@@ -154,10 +154,10 @@ onMounted(() => {
     showVerificationPopup.value = true
   }else if(!adminData.value.passwordReset){
     showPasswordResetPopup.value = true
-  }else if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+  }else if(!adminData.value.generalInfoUpdate){
     showGeneralInfoPopupShown.value = true
     localStorage.setItem('generalInfoPopupShown', 'true')
-  }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+  }else if(!adminData.value.kidsInfoUpdate){
     showKidsInfoPopupShown.value = true
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }else if(!adminData.value.stationID){
@@ -201,10 +201,10 @@ const onSubmitVerifyEmailPass = async() => {
 
         if(!adminData.value.passwordReset){
           showPasswordResetPopup.value = true
-        }else if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+        }else if(!adminData.value.generalInfoUpdate){
           showGeneralInfoPopupShown.value = true
           localStorage.setItem('generalInfoPopupShown', 'true')
-        }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+        }else if(!adminData.value.kidsInfoUpdate){
           showKidsInfoPopupShown.value = true
           localStorage.setItem('kidsInfoPopupShown', 'true')
         }else if(!adminData.value.stationID){
@@ -311,10 +311,10 @@ const onSubmitPassword = async () => {
       
       toast.success("Successfully reset password")
 
-      if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+      if(!adminData.value.generalInfoUpdate){
         showGeneralInfoPopupShown.value = true
         localStorage.setItem('generalInfoPopupShown', 'true')
-      }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+      }else if(!adminData.value.kidsInfoUpdate){
         showKidsInfoPopupShown.value = true
         localStorage.setItem('kidsInfoPopupShown', 'true')
       }else if(!adminData.value.stationID){
@@ -335,10 +335,10 @@ const closeVerificationPopup = () =>{
   if(!adminData.value.passwordReset){
     showPasswordResetPopup.value = true
     localStorage.setItem('passwordResetPopupShown', 'true')
-  }else if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+  }else if(!adminData.value.generalInfoUpdate){
     showGeneralInfoPopupShown.value = true
     localStorage.setItem('generalInfoPopupShown', 'true')
-  }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+  }else if(!adminData.value.kidsInfoUpdate){
     showKidsInfoPopupShown.value = true
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }else if(!adminData.value.stationID){
@@ -475,10 +475,10 @@ const submitVerify = async() =>{
         phoneOtp.value = ''
 
         
-        if(!adminData.value.generalInfoUpdate && !generalInfoPopupShown){
+        if(!adminData.value.generalInfoUpdate){
           showGeneralInfoPopupShown.value = true
           localStorage.setItem('generalInfoPopupShown', 'true')
-        }else if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+        }else if(!adminData.value.kidsInfoUpdate){
           showKidsInfoPopupShown.value = true
           localStorage.setItem('kidsInfoPopupShown', 'true')
         }else if(!adminData.value.stationID){
@@ -501,7 +501,7 @@ const handleInfoSuccess = async => {
   
   showGeneralInfoPopupShown.value = false
 
-  if(!adminData.value.kidsInfoUpdate && !kidsInfoPopupShown){
+  if(!adminData.value.kidsInfoUpdate){
     showKidsInfoPopupShown.value = true
     localStorage.setItem('kidsInfoPopupShown', 'true')
   }else if(!adminData.value.stationID){
@@ -608,13 +608,13 @@ const handleStationSuccess = async () => {
       <VCard>
         <VForm>
           <VCardTitle class="text-h6" style="margin-bottom: 15px">
-            {{ $t('Verify/Update Your Contact Info') }}
+            {{ $t('אימות ועדכון פרטי התקשרות') }}
           </VCardTitle>
 
           <VCardText>
             <VRow>
               <VCol cols="12">
-                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Email Verify') }} 
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('מייל') }} 
                   <VIcon 
                     style="margin-left:6px" 
                     @click="editEmail" class="tabler-pencil" 
@@ -632,22 +632,22 @@ const handleStationSuccess = async () => {
                   />
 
                   <div class="action_block" v-if="!isEmailEdit && !adminData.emailVerified && adminData.email">
-                    <VBtn variant="outlined" style="color: white!important; border-color:#333" @click="verifyEmailAddressInitial">
-                      {{ $t('Verify Email') }}
+                    <VBtn variant="outlined" style="border-color:#333" @click="verifyEmailAddressInitial">
+                      {{ $t('שלח') }}
                     </VBtn>
                   </div>
                 
                   <div class="action_block" v-if="isEmailEdit || !adminData.email">
-                    <VBtn style="color: #333!important;" variant="text" @click="isEmailEdit=false, userEmail = adminData.email">{{ $t('Cancel') }}</VBtn>
-                    <VBtn :disabled="userEmail && userEmail == adminData.email" variant="outlined" @click="verifyEmailAddress">
-                      {{ $t('Verify Email') }}
+                    <VBtn style="color: #333!important;" variant="text" @click="isEmailEdit=false, userEmail = adminData.email">ביטול</VBtn>
+                    <VBtn :disabled="userEmail && userEmail == adminData.email" variant="outlined" @click="verifyEmailAddress" style="background-color:#32A744!important; color: #fff!important">
+                      {{ $t('עדכן') }}
                     </VBtn>
                   </div>
                 </div>
               </VCol>
 
               <VCol cols="12">
-                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('Phone Verify') }} 
+                <label class="v-label mb-1 text-body-2 text-wrap">{{ $t('טלפון') }} 
                   <VIcon 
                     style="margin-left:6px" 
                     @click="editPhone" class="tabler-pencil" 
@@ -665,14 +665,14 @@ const handleStationSuccess = async () => {
 
                   <div class="action_block" v-if="!isPhoneEdit && !adminData.phoneVerified && adminData.phone">
                     <VBtn variant="outlined" style="color: #333!important; border-color:#333" @click="verifyPhoneNoInitial">
-                      {{ $t('Verify Phone') }}
+                      {{ $t('חייג') }}
                     </VBtn>
                   </div>
                 
                   <div class="action_block" v-if="isPhoneEdit || !adminData.phone">
-                    <VBtn style="color: #333!important;" variant="text" @click="isPhoneEdit=false, userPhone = adminData.phone">{{ $t('Cancel') }}</VBtn>
-                    <VBtn :disabled="userPhone && userPhone == adminData.phone " variant="outlined" @click="verifyPhoneNo">
-                      {{ $t('Verify Phone') }}
+                    <VBtn style="color: #333!important;" variant="text" @click="isPhoneEdit=false, userPhone = adminData.phone">ביטול</VBtn>
+                    <VBtn :disabled="userPhone && userPhone == adminData.phone " variant="outlined" @click="verifyPhoneNo" style="background-color:#32A744!important; color: #fff!important">
+                      {{ $t('עדכן') }}
                     </VBtn>
                   </div>
                 </div>
@@ -690,15 +690,15 @@ const handleStationSuccess = async () => {
           @submit.prevent="onSubmitVerifyEmailPass"
         >
           <VCardTitle class="text-h6">
-            {{ $t('Verify Your Contact Info') }}
+            אימות מייל
           </VCardTitle>
 
           <VCardText>
-            <p v-if="needsEmailOtp">{{ $t('Enter the OTP sent to your email') }}</p>
+            <p v-if="needsEmailOtp">{{ $t('נא להזיא את הקוד החד פעמי שנשלח לכתובת מייל שציינתם') }}</p>
             <AppTextField
               v-if="needsEmailOtp"
               v-model="emailOtp"
-              :label="$t('Email OTP')"
+              :label="$t('קוד חד פעמי')"
               :rules="[requiredValidator]"
             />
 
@@ -715,7 +715,7 @@ const handleStationSuccess = async () => {
 
           <VCardActions>
             <VSpacer />
-            <VBtn style="color: #333!important;" variant="text" @click="showVerifyOtpDialog=false, showVerificationPopup=true">{{ $t('Cancel OTP') }}</VBtn>
+            <VBtn style="color: #333!important;" variant="text" @click="showVerifyOtpDialog=false, showVerificationPopup=true">ביטול</VBtn>
             <VBtn type="submit">
               {{ $t('Verify OTP') }}
             </VBtn>
@@ -830,15 +830,15 @@ const handleStationSuccess = async () => {
         @submit.prevent="onSubmitVerify"
       >
         <VCardTitle class="text-h6">
-          {{ $t('Verify Your Contact Info') }}
+          אימות מייל
         </VCardTitle>
 
         <VCardText>
-          <p v-if="needsEmailOtp">{{ $t('Enter the OTP sent to your new email') }}</p>
+          <p v-if="needsEmailOtp">נא להזיא את הקוד החד פעמי שנשלח לכתובת מייל שציינתם</p>
           <AppTextField
             v-if="needsEmailOtp"
             v-model="emailOtp"
-            :label="$t('Email OTP')"
+            :label="$t('קוד חד פעמי')"
             :rules="[requiredValidator]"
           />
 
@@ -855,9 +855,9 @@ const handleStationSuccess = async () => {
 
         <VCardActions>
           <VSpacer />
-          <VBtn style="color: #333!important;" variant="text" @click="showVerificationPopup=true">{{ $t('Cancel') }}</VBtn>
+          <VBtn style="color: #333!important;" variant="text" @click="showVerificationPopup=true">ביטול</VBtn>
           <VBtn type="submit">
-            {{ $t('Verify') }}
+            בדוק
           </VBtn>
         </VCardActions>
       </VForm>

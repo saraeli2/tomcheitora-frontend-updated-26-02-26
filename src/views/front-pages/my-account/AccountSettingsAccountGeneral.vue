@@ -598,15 +598,15 @@ const verifyPhoneNo = async() => {
         @submit.prevent="onSubmitVerify"
       >
         <VCardTitle class="text-h6">
-          {{ $t('Verify Your Contact Info') }}
+          {{ $t('אימות מייל') }}
         </VCardTitle>
 
         <VCardText>
-          <p v-if="needsEmailOtp">{{ $t('Enter the OTP sent to your new email') }}</p>
+          <p v-if="needsEmailOtp">{{ $t('נא להזיא את הקוד החד פעמי שנשלח לכתובת מייל שציינתם') }}</p>
           <AppTextField
             v-if="needsEmailOtp"
             v-model="emailOtp"
-            :label="$t('Email OTP')"
+            :label="$t('קוד חד פעמי')"
             :rules="[requiredValidator]"
           />
 
@@ -623,9 +623,9 @@ const verifyPhoneNo = async() => {
 
         <VCardActions>
           <VSpacer />
-          <VBtn style="color: #333!important;" variant="text" @click="closeOtpModal">{{ $t('Cancel OTP') }}</VBtn>
+          <VBtn style="color: #333!important;" variant="text" @click="closeOtpModal">{{ $t('ביטול') }}</VBtn>
           <VBtn type="submit">
-            {{ $t('Verify OTP') }}
+            {{ $t('בדוק') }}
           </VBtn>
         </VCardActions>
       </VForm>

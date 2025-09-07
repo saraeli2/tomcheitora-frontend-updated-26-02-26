@@ -19,11 +19,10 @@ const props = defineProps({
       // eslint-disable-next-line camelcase
       _id: '',
       firstName: '',
-      lastName: '',
       phone1: '',
       phone2: '',
       maritalStatus: '',
-      email: '',
+      IDNumber: '',
     }),
   },
 })
@@ -59,7 +58,6 @@ const submit = async () => {
         method: 'PATCH',
         body: {
           firstName: kidData.value.firstName,
-          lastName: kidData.value.lastName,
           // dob: kidData.value.dob,
           IDNumber: kidData.value.IDNumber,
           maritalStatus: kidData.value.maritalStatus,
@@ -161,22 +159,13 @@ const errors = ref({
                 <AppTextField
                   v-model="kidData.firstName"
                   :rules="[requiredValidator]"
-                  :label="$t('First Name')"
-                  :placeholder="$t('First Name')"
+                  :label="$t('שם פרטי')"
+                  :placeholder="$t('שם פרטי')"
                   :error-messages="errors.firstName"
                 />
               </VCol>
               
-              <!-- 👉 Last Name -->
-              <VCol cols="12">
-                <AppTextField
-                  v-model="kidData.lastName"
-                  :rules="[requiredValidator]"
-                  :label="$t('Last Name')"
-                  :placeholder="$t('Last Name')"
-                  :error-messages="errors.lastName"
-                />
-              </VCol>
+              
 
               <!-- 👉 DoB -->
               <!-- <VCol cols="12">
@@ -192,8 +181,8 @@ const errors = ref({
               <VCol cols="12">
                 <AppTextField
                   v-model="kidData.IDNumber"
-                  :label="$t('ID number')"
-                  :placeholder="$t('ID number')"
+                  :label="$t('ת.ז')"
+                  :placeholder="$t('ת.ז')"
                   :error-messages="errors.IDNumber"
                 />
               </VCol>
@@ -203,13 +192,10 @@ const errors = ref({
                 <AppAutocomplete
                   v-model="kidData.maritalStatus"
                   :items="[
-                    { value: 'Single', title: 'Single' },
-                    { value: 'Married', title: 'Married' },
-                    { value: 'Divorced', title: 'Divorced' },
-                    { value: 'Widowed', title: 'Widowed' },
-                    { value: 'Separated', title: 'Separated' },
-                    { value: 'In a civil partnership', title: 'In a civil partnership' },
-                    { value: 'Cohabiting', title: 'Cohabiting' },
+                    { value: 'רווק', title: 'רווק' },
+                    { value: 'נשוי', title: 'נשוי' },
+                    { value: 'גרוש', title: 'גרוש' },
+                    { value: 'אלמן', title: 'אלמן' },
                   ]"
                   :placeholder="$t('Select Marital Status')"
                   :label="$t('Marital Status')"

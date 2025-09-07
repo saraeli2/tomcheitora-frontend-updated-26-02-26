@@ -126,8 +126,8 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <VCol cols="12">
                 <AppTextField
                   v-model="credentials.username"
-                  :label="$t('Login Username')"
-                  :placeholder="$t('Login Username')"
+                  :label="$t('שם משתמש')"
+                  :placeholder="$t('שם משתמש')"
                   autofocus
                   :rules="[requiredValidator]"
                   :error-messages="errors.username"
@@ -138,7 +138,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               <VCol cols="12">
                 <AppTextField
                   v-model="credentials.password"
-                  :label="$t('Login Password')"
+                  :label="$t('סיסמא')"
                   placeholder="············"
                   :rules="[requiredValidator]"
                   :type="isPasswordVisible ? 'text' : 'password'"
@@ -153,7 +153,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
                     class="text-primary ms-2 mb-1"
                     :to="{ name: 'forgot-password' }"
                   >
-                    {{ $t('Forgot Password?') }}
+                    {{ $t('שכחתי סיסמא') }}
                   </RouterLink>
                 </div>
 
@@ -161,7 +161,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
                   block
                   type="submit"
                 >
-                  {{ $t('Login') }}
+                  {{ $t('כניסה') }}
                 </VBtn>
               </VCol>
             </VRow>

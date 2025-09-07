@@ -557,15 +557,17 @@ const verifyPhoneNo = async() => {
                 />
               </VCol>
 
-              <!-- 👉 Flat No. -->
+              <!-- 👉 Address -->
               <VCol cols="12" md="6">
                 <AppTextField
-                  v-model="adminData.street"
-                  :label="$t('Flat No.')"
-                  :placeholder="$t('Flat No.')"
-                  :error-messages="errors.street"
+                  v-model="adminData.address"
+                  :label="$t('Address')"
+                  :placeholder="$t('Address')"
+                  :error-messages="errors.address"
                 />
               </VCol>
+
+              
 
               <!-- 👉 House Number -->
               <VCol cols="12" md="6">
@@ -577,26 +579,15 @@ const verifyPhoneNo = async() => {
                 />
               </VCol>
 
-              <!-- 👉 Address -->
+              <!-- 👉 Flat No. -->
               <VCol cols="12" md="6">
                 <AppTextField
-                  v-model="adminData.address"
-                  :label="$t('Address')"
-                  :placeholder="$t('Address')"
-                  :error-messages="errors.address"
+                  v-model="adminData.street"
+                  :label="$t('Flat No.')"
+                  :placeholder="$t('Flat No.')"
+                  :error-messages="errors.street"
                 />
               </VCol>
-
-              <!-- 👉 Nationality -->
-              <VCol cols="12" md="6">
-                <AppTextField
-                  v-model="adminData.nationality"
-                  :label="$t('Nationality')"
-                  :placeholder="$t('Nationality')"
-                  :error-messages="errors.nationality"
-                />
-              </VCol>
-
               <!-- 👉 Israeli ID Number -->
               <VCol cols="12" md="6">
                 <AppTextField
@@ -608,15 +599,7 @@ const verifyPhoneNo = async() => {
                 />
               </VCol>
 
-              <!-- 👉 Passport Number -->
-              <VCol cols="12" md="6">
-                <AppTextField
-                  v-model="adminData.passportNumber"
-                  :label="$t('Passport Number')"
-                  :placeholder="$t('Passport Number')"
-                  :error-messages="errors.passportNumber"
-                />
-              </VCol>
+              
 
               <!-- 👉 No. Of Kids -->
               <VCol cols="12" md="6">
@@ -643,28 +626,6 @@ const verifyPhoneNo = async() => {
                   :label="$t('Marital Status')"
                   :error-messages="errors.maritalStatus"
                   clearable
-                />
-              </VCol>
-
-              <!-- 👉 imageID -->
-              <VCol cols="12">
-                <div class="app-picker-field">
-                  <label class="v-label mb-1 text-body-2">{{ $t('Image of ID') }}</label>
-                </div>
-                <div v-if="adminData?.imageID">
-                  <VImg
-                    :src="adminData.imageID"
-                    alt="logo"
-                    width="120"
-                    height="120"
-                  />
-                </div>
-                <VFileInput
-                  :rules="rules"
-                  accept="image/png, image/jpeg, image/bmp"
-                  prepend-icon="tabler-camera"
-                  :error-messages="errors.imageID"
-                  @change="handleImageChange"
                 />
               </VCol>
                 

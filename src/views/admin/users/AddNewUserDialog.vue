@@ -471,7 +471,7 @@ watch(() => props.communities,
                   :label="$t('Birth Date')"
                   :placeholder="$t('Birth Date')"
                   :config="{
-                    enableTime: true,
+                    enableTime: false,
                     dateFormat: 'd.m.Y',
                     allowInput: true,
                     altInput: true,

@@ -607,12 +607,13 @@ productDefaultImage.value = childParentCategory.value?.image
                     </VBtn>
                   </span>
                   <span v-else>
-                    <span class="stock_out" style="position: relative;
-    right: auto;
-    top: auto;
-    margin-right: 0px;
-    left: auto;
-    margin: 0 10px 0; ">{{ $t('Out of stock') }}</span>
+                    <VBtn
+                      prepend-icon="tabler-shopping-cart" 
+                      class="cart-btn-dt"
+                      disabled
+                    >
+                      {{ $t('Add To CART') }}
+                    </VBtn>
                   </span>
                   <VBtn class="cart-btn-dt" @click="goBack">
                     {{ $t('Previous page') }}

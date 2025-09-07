@@ -47,15 +47,11 @@ const updateOptions = options => {
 
 const headers = computed(() => [
   {
-    title: t('First Name'),
+    title: t('שם פרטי'),
     key: 'firstName',
   },
   {
-    title: t('Last Name'),
-    key: 'lastName',
-  },
-  {
-    title: t('ID Number'),
+    title: t(' ת.ז'),
     key: 'IDNumber',
   },
   {
@@ -172,7 +168,7 @@ const skipKidsInfo = async () => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Kid Informations') }}
+              מספר ילדים
             </h5>
           </VCol>
         </VRow>
@@ -201,7 +197,7 @@ const skipKidsInfo = async () => {
             prepend-icon="tabler-plus"
             @click="isAddNewKidDrawerVisible = true"
           >
-            {{ $t('Create Kid Information') }}
+            הוסף
           </VBtn>
 
           <VBtn @click="skipKidsInfo">{{ $t('Skip Now') }}</VBtn>
