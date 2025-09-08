@@ -94,6 +94,10 @@ const orderData = computed(() => shopDetail.value.order)
 formData.value = orderData.value
 orderItems.value = orderData.value.orderItems
 
+if(orderData.value.stationID){
+  formData.value.stationID = orderData.value.stationID?._id
+}
+
 handleUsers(orderData.value.saleID._id)
 handleProducts(orderData.value.saleID._id)
 
@@ -146,7 +150,7 @@ const submit = async () => {
       method: 'PATCH',
       body: {
         status: formData.value.status,
-        status: formData.value.status,
+        stationID: formData.value.stationID,
         vat: formData.value.vat,
         vatType: formData.value.vatType,
         discount: formData.value.discount,
@@ -214,6 +218,15 @@ const handleProductPrices = async (val, key) => {
   }
   
 }
+
+const commonsync = await $api('/admin/stations/respond-with/extra-options').catch(err => console.log(err))
+
+const stationOptions = computed(() => commonsync.stationOptions)
+
+const stations = stationOptions.value.map(item => ({
+  value: item._id,
+  title: `${item.cityID?.nameHe} - ${item.name}`,
+}))
 </script>
 
 <template>
@@ -271,14 +284,14 @@ const handleProductPrices = async (val, key) => {
               <VRow>
                 <VCol cols="12">
                   <AppAutocomplete
-                    v-model="formData.userID"
-                    :items="users"
-                    :placeholder="$t('Select User')"
-                    :label="$t('User')"
-                    :error-messages="errors.userID"
-                    clearable
+                    v-model="formData.stationID"
+                    :items="stations"
+                    :placeholder="$t('Select Station')"
+                    :label="$t('Station')"
+                    :error-messages="errors.status"
                   />
                 </VCol>
+
                 <VCol cols="12">
                   <AppAutocomplete
                     v-model="formData.status"

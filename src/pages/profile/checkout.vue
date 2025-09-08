@@ -176,6 +176,12 @@ const removeItem = index => {
   onQtyChange()
 }
 
+const removeAllItems = () => {
+  showLoader.value = true
+  orderItems.value = [];
+  onQtyChange()
+}
+
 
 // Address tab
 const nextStep = () => {
@@ -219,8 +225,6 @@ if(user.value) {
   street.value = user.value.street
   stationID.value = user.value.stationID
 }
-
-
 
 
 const onSubmit = () => {
@@ -362,7 +366,7 @@ const nedarimIframeHtml = ref('')
 const handleIframeMessage = (event) => {
   const data = event.data
 
-  console.log(data);
+  //onsole.log(data);
 
   if (data.Name === 'Height') {
     document.getElementById('NedarimFrame').style.height =
@@ -542,11 +546,11 @@ const handleAddAddress = async () => {
                 <VRow>
                   <VCol md="12">
                     <h5 class="text-h5 my-4">
-                      {{ $t('My Shopping Bag') }} ({{ orderItems.length }})
+                      {{ $t('My Shopping Bag') }} ({{ orderItems.length }}) <VBtn @click="removeAllItems" style="height: 32px;padding: 3px 12px !important;line-height: 15px;min-height: unset;font-size: 13px;" v-if="orderItems.length">{{ $t('Clear cart') }}</VBtn>
                     </h5>
                   </VCol>
                 </VRow>
-                <VRow v-if="orderItems">
+                <VRow v-if="orderItems.length">
                   <VCol
                     cols="12"
                     lg="8"
@@ -601,10 +605,10 @@ const handleAddAddress = async () => {
                               </h6>
 
                               <div v-if="item.variations">
-                                <p v-if="item.variations.size">Size: {{ item.variations.size }}</p>
-                                <p v-if="item.variations.color">Color: {{ item.variations.color }}</p>
-                                <p v-if="item.variations.sleeveLength">Sleeve: {{ item.variations.sleeveLength }}</p>
-                                <p v-if="item.variations.pocket">Pocket: {{ item.variations.pocket }}</p>
+                                <p v-if="item.variations.size">{{ $t('Size') }}: {{ item.variations.size }}</p>
+                                <p v-if="item.variations.color">{{ $t('Color') }}: {{ item.variations.color }}</p>
+                                <p v-if="item.variations.sleeveLength">{{ $t('Sleeve Length') }}: {{ item.variations.sleeveLength }}</p>
+                                <p v-if="item.variations.pocket">{{ $t('Pocket') }}: {{ item.variations.pocket }}</p>
                               </div>
                               
 
@@ -635,11 +639,7 @@ const handleAddAddress = async () => {
                       </template>
                     </div>
 
-                    <!-- 👉 Empty Cart -->
-                    <div v-else>
-                      <VImg :src="emptyCartImg" />
-                    </div>
-
+                    
                     <!-- 👉 Add more from wishlist -->
                     <div
                       class="d-flex align-center justify-space-between rounded py-2 px-5 text-base mt-4"
@@ -716,6 +716,11 @@ const handleAddAddress = async () => {
                         {{ $t('Add Address') }}
                       </VBtn>
                     </div>
+                  </VCol>
+                </VRow>
+                <VRow v-else>
+                  <VCol>
+                    <h3>{{ $t('Your shopping cart is empty') }}</h3>
                   </VCol>
                 </VRow>
               </VWindowItem>

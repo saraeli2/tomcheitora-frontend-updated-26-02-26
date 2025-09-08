@@ -1,6 +1,8 @@
 <script setup>
 import useHelper from "@/mixins/helper";
 import { useI18n } from 'vue-i18n'
+import debounce from "lodash/debounce";
+
 const { numberFormat } = useHelper()
 
 const props = defineProps({
@@ -26,13 +28,14 @@ const { t } = useI18n()
 const ability = useAbility()
 const router = useRouter()
 
-const selectedUser = ref('')
+const searchQuery = ref('')
 const selectedStatus = ref()
 const selectedRows = ref([])
 const selectedSale = ref(props.saleid)
+const searchText = ref('')
 
 // Data table options
-const itemsPerPage = ref(5)
+const itemsPerPage = ref(25)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
@@ -103,7 +106,7 @@ const {
 } = await useApi(createUrl('/admin/orders', {
   query: {
     sale: selectedSale,
-    user: selectedUser,
+    search: searchQuery,
     status: selectedStatus,
     itemsPerPage,
     page,
@@ -111,6 +114,17 @@ const {
     orderBy,
   },
 }))
+
+// debounce API call by 400ms
+const debouncedFetch = debounce(() => {
+  searchQuery.value = searchText.value
+  fetchOrders()
+}, 400)
+
+// watch input and trigger debounced API
+watch(searchText, () => {
+  debouncedFetch()
+})
 
 if(error.value == 'Unauthorized') {
 // Remove "accessToken" from cookie
@@ -132,14 +146,14 @@ if(error.value == 'Unauthorized') {
 const orders = computed(() => customerData.value.orders)
 const totalOrders = computed(() => customerData.value.total)
 
-const commonsync = await $api('/admin/users/respond-with/extra-options').catch(err => console.log(err))
+// const commonsync = await $api('/admin/users/respond-with/extra-options').catch(err => console.log(err))
 
-const userOptions = computed(() => commonsync.userOptions)
+// const userOptions = computed(() => commonsync.userOptions)
 
-const users = userOptions.value.map(item => ({
-  value: item._id,
-  title: `${ item.firstName } ${ item.lastName }`,
-}))
+// const users = userOptions.value.map(item => ({
+//   value: item._id,
+//   title: `${ item.firstName } ${ item.lastName }`,
+// }))
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Processing') {
@@ -263,11 +277,9 @@ const deleteOrder = async id => {
                   cols="12"
                   sm="4"
                 >
-                  <AppAutocomplete
-                    v-model="selectedUser"
-                    :items="users"
-                    :placeholder="$t('User')"
-                    clearable
+                  <AppTextField
+                    v-model="searchText"
+                    :placeholder="$t('Search Order')"
                   />
                 </VCol>
                 <VCol
@@ -315,9 +327,9 @@ const deleteOrder = async id => {
             v-if="can('admin-view-orders', 'View Orders') && item.userID"
             :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }"
           >
-            {{ item.orderNumber }}
+            {{ item._id }}
           </RouterLink>
-          <span v-else>{{ item.orderNumber }}</span>
+          <span v-else>{{ item._id }}</span>
         </template>
 
 
