@@ -98,9 +98,15 @@ export const setupGuards = router => {
 
       if (!canNavigate(to) && to.matched.length) {
         if (isUserLoggedIn && to.name !== 'not-authorized') {
-          return { name: 'not-authorized' };
+          if(to.fullPath != '/logout') {
+            return { name: 'not-authorized' };
+          }
         } else if (!isUserLoggedIn && to.name !== 'login') {
-          return { name: 'login', query: { to: to.fullPath } };
+          if(to.fullPath == '/logout') {
+            return { name: 'login' };
+          } else {
+            return { name: 'login', query: { to: to.fullPath } };
+          }
         }
       }
     }

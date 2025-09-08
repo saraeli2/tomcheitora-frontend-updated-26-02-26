@@ -1,42 +1,32 @@
 <script setup>
-import { useAuthStore } from '@/stores'
-import { useAbility } from '@casl/vue'
 
 definePage({
   meta: {
-    layout: 'default',
-    public: true,
+    layout: 'blank',
+    public: true
   },
 })
 
 const route = useRoute()
 const router = useRouter()
-const ability = useAbility()
-const authStore = useAuthStore()
 
 // TODO: Get type from backend
 const logout = async () => {
-  if(userData) {
-    try {
-      await $api('/logout', {
-        method: 'POST',
-        credentials: 'include',
-      })
-
-      // Remove "userData" from cookie
-      userData.value = null
-    } catch (err) {
-      console.error('Router push failed:', err)
-    }
-  }
-
   // Remove "accessToken" from cookie
+  localStorage.removeItem('fuserData')
+  localStorage.removeItem('faccessToken')
+  localStorage.removeItem('fuserAbilityRules')
+  localStorage.removeItem('verificationPopupShown')
+  localStorage.removeItem('updateEmailPhonePopupShown')
+  localStorage.removeItem('passwordResetPopupShown')
+  localStorage.removeItem('generalInfoPopupShown')
+  localStorage.removeItem('kidsInfoPopupShown')
+  localStorage.removeItem('stationPopupShown')
+
   localStorage.removeItem('userData')
   localStorage.removeItem('accessToken')
   localStorage.removeItem('userAbilityRules')
   localStorage.setItem('logoutEvent', Date.now())
-
-  // Reset ability to initial ability
 
   // ℹ️ We had to remove abilities in then block because if we don't nav menu items mutation is visible while redirecting user to login page
 
@@ -45,6 +35,11 @@ const logout = async () => {
   
   location.href = '/login'
 }
+logout() // Immediately trigger logout
 </script>
 
+<template>
+  <!-- Empty template for logout page -->
+  <div>Logging out...</div>
+</template>
 
