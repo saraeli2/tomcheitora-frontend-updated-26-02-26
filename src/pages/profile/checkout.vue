@@ -419,7 +419,7 @@ const createTransaction = async payload => {
     })
     currentStep.value = currentStep.value + 1
     // Navigate to order details page
-    router.replace(`/orders/${order.value?._id}`)
+    router.replace(`/profile/orders/${order.value?._id}`)
     console.log('Transaction created');
 
   } catch (err) {
