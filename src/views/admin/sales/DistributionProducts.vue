@@ -72,6 +72,12 @@ const headers = computed(() => [
     title: t('Max Unit'),
     key: 'maxUnit',
   },
+
+  {
+    title: t('Remaining Qty'),
+    key: 'remainingQty',
+  },
+
   {
     title: t('Internal SKU'),
     key: 'internalSKU',

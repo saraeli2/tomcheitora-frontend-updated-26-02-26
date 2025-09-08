@@ -226,6 +226,9 @@ if(user.value) {
   stationID.value = user.value.stationID
 }
 
+const isAgreeModalShow = ref(false);
+const agree = ref()
+
 
 const onSubmit = () => {
   refForm.value?.validate().then(({ valid: isValid }) => {
@@ -281,7 +284,9 @@ const submit = async () => {
         },
       })
 
-      currentStep.value = currentStep.value + 1
+      isAgreeModalShow.value = true;
+
+      //currentStep.value = currentStep.value + 1
 
       //console.log('dfdf')
 
@@ -313,6 +318,11 @@ const submit = async () => {
     //     errors.value = e.response.data.errors
     //   })
   }
+}
+
+const gotoNextStep = () => {
+  isAgreeModalShow.value = false
+  currentStep.value = currentStep.value + 1
 }
 
 const paymentMethod = ref('Credit/debit card')
@@ -812,7 +822,6 @@ const handleAddAddress = async () => {
                             :placeholder="$t('בחר תחנת חלוקה')"
                             :error-messages="errors.stationID"
                             :rules="[requiredValidator]"
-                            clearable
                           />
                         </VCol>
                       </VRow>
@@ -996,6 +1005,32 @@ const handleAddAddress = async () => {
         indeterminate
       />
   </VDialog>
+
+  <VDialog persistent class="verify_modal" v-model="isAgreeModalShow" max-width="500">
+      <VCard>
+        <VForm>
+          
+          <VCardText>
+            <h2 style="margin-bottom: 10px">שים לב!</h2>
+            <p style="font-size: 14px;">עם סיום ההזמנה וביצוע התשלום הנך מאשר כי ההזמנה אינה ניתנת יותר לשינוי 
+
+או לביטול וכי ההזמנה סופית</p>
+
+            <VCheckbox
+              v-model="agree"
+              label="אני מאשר ומסכים"
+              :rules="[requiredValidator]"
+              style="margin-left:-8px"
+            />
+          </VCardText>
+
+          <!-- 👉 Action Buttons -->
+          <VCardText class="d-flex flex-wrap gap-4">
+            <VBtn :disabled="!agree" @click="gotoNextStep" type="button">לְהַסכִּים</VBtn>
+          </VCardText>
+        </VForm>
+      </VCard>
+    </VDialog>
 </template>
 
 <style lang="scss">
