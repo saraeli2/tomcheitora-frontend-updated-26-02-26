@@ -1639,3 +1639,20 @@ button.px-4.py-2.bg-primary.text-white.rounded[disabled] {
 .flatpickr-current-month .flatpickr-monthDropdown-months span, .flatpickr-current-month .numInputWrapper span {
     display: inline-block!important;
 }
+
+
+.front-page-navbar .v-toolbar .v-toolbar__content .hdr-top-right a.v-btn.payment_button {
+    width: auto !important;
+    background-color: #32A744 !important;
+    max-width: unset !important;
+    border-radius: 3px;
+    padding: 0 15px;
+    font-size: 18px;
+    color: #fff !important;
+    border: none !important;
+    font-weight: 700;
+}
+.front-page-navbar .v-toolbar .v-toolbar__content .hdr-top-right a.v-btn.payment_button:hover{
+   background-color: #32A744 !important;
+   color: #fff !important;
+}

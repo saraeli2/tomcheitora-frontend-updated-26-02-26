@@ -241,8 +241,9 @@ const logout = async () => {
           href="/profile/checkout"
           icon
           rel="noopener noreferrer"
+          class="payment_button"
         >
-          <VIcon icon="tabler-shopping-cart" />
+          {{ $t('Payment') }}
         </VBtn>
         
         <NavBarI18n
