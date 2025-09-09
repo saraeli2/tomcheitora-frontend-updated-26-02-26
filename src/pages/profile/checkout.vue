@@ -28,7 +28,7 @@ import { useAuthStore } from '@/stores'
 import { useToast } from 'vue-toastification'
 import axios from 'axios'
 
-const { numberFormat } = useHelper()
+const { numberFormat,numberFormatForPay } = useHelper()
 
 const authStore = useAuthStore()
 const toast = useToast()
@@ -476,7 +476,7 @@ const pay = () => {
         City: cityID.value,
         Phone: user.value.phone,
         Mail: user.value.email,
-        Amount: order.value.total,
+        Amount: numberFormatForPay(order.value.total),
         Tashlumim: '1',
         Param1: user.value._id,
         Param2: order.value._id,

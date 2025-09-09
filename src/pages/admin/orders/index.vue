@@ -352,6 +352,10 @@ const deleteOrder = async id => {
           {{ numberFormat(item.subTotal)}}
         </template>
 
+        <template #[`item.totalDiscount`]="{ item }">
+          {{ numberFormat(item.totalDiscount)}}
+        </template>
+
         <!-- Total -->
         <template #[`item.total`]="{ item }">
           {{ numberFormat(item.total)}}

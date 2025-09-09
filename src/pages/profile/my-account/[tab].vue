@@ -7,6 +7,7 @@ import AccountSettingsAccount from '@/views/front-pages/my-account/AccountSettin
 import AccountSettingsAccountGeneral from '@/views/front-pages/my-account/AccountSettingsAccountGeneral.vue'
 import AccountSettingsAccountEmailPhone from '@/views/front-pages/my-account/AccountSettingsAccountEmailPhone.vue'
 import AccountSettingsKidInformations from '@/views/front-pages/my-account/AccountSettingsKidInformations.vue'
+import AccountSettingsKidInformationsFLogin from '@/views/front-pages/my-account/AccountSettingsKidInformationsFLogin.vue'
 import DistributionStation from '@/views/front-pages/my-account/DistributionStation.vue'
 import DistributionStationPopup from '@/views/front-pages/my-account/DistributionStationPopup.vue'
 import AccountSettingsSecurity from '@/views/front-pages/my-account/AccountSettingsSecurity.vue'
