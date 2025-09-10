@@ -173,7 +173,46 @@ const fetchOrderAndSyncOrderItems = async () => {
 
 const removeItem = index => {
   orderItems.value.splice(index, 1)
-  onQtyChange()
+  //onQtyChange()
+  removeItemFromCart()
+}
+
+const removeItemFromCart = async() => {
+  showLoader.value = true
+  try {
+    const cleanedOrderItems = orderItems.value.map(item => ({
+      ...item,
+      productID: item.productID?._id || item.productID
+    }))
+
+    const res = await $api(`/orders/item-remove/${ order.value?._id }`, {
+      method: 'POST',
+      body: {
+        saleID: order.value?.saleID._id,
+        orderID: order.value?._id,
+        status: order.value.status,
+        userID: authStore.fuserData._id,
+        products: cleanedOrderItems,
+      },
+      onResponseError({ response }) {
+        console.log(response);
+        
+        const firstError = Object.values(response._data.errors)[0].msg
+        
+        toast.error(firstError)
+        setTimeout(() => fetchOrderAndSyncOrderItems(), 1500)
+        showLoader.value = false
+      },
+    })
+
+    await nextTick(async () => {
+      toast.success(res.message)
+      await fetchOrderAndSyncOrderItems()
+      showLoader.value = false
+    })
+  } catch (err) {
+    //console.log(err)
+  }
 }
 
 const removeAllItems = () => {
