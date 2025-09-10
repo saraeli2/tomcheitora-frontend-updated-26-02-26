@@ -17,9 +17,6 @@ export default function useHelper() {
       const truncated = Math.floor(number * 10) / 10
       const parts = truncated.toString().split('.')
 
-      // add commas
-      parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-
       // ensure one decimal digit
       if (!parts[1]) parts[1] = '0'
 

@@ -375,6 +375,7 @@ const nedarimIframeHtml = ref('')
 
 const handleIframeMessage = (event) => {
   const data = event.data
+  showLoader.value = false
 
   //onsole.log(data);
 
@@ -419,8 +420,8 @@ const createTransaction = async payload => {
     })
     currentStep.value = currentStep.value + 1
     // Navigate to order details page
-    router.replace(`/profile/orders/${order.value?._id}`)
-    console.log('Transaction created');
+    //router.replace(`/profile/orders/${order.value?._id}`)
+    //console.log('Transaction created');
 
   } catch (err) {
     console.error('Failed to save transaction:', err)
@@ -458,6 +459,7 @@ const loadNedarimIframe = async () => {
 const pay = () => {
   
   isClickPayment.value = true;
+  //showLoader.value = true
 
   const iframeWindow = document.getElementById('NedarimFrame').contentWindow
 
@@ -499,6 +501,7 @@ const pay = () => {
 const validating = ref(false)
 
 const handleAddAddress = async () => {
+  showLoader.value = true
   validating.value = true
   try {
     const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/orders/validate-before-payment`, {
@@ -507,14 +510,18 @@ const handleAddAddress = async () => {
     })
 
     if (data.success) {
+      showLoader.value = false
       nextStep() // proceed to payment step
     } else {
       toast.error(data.message)
+      showLoader.value = false
     }
   } catch (err) {
     toast.error(err.response?.data?.message || 'Validation failed')
+    showLoader.value = false
   } finally {
     validating.value = false
+    showLoader.value = false
   }
 }
 
@@ -1005,6 +1012,18 @@ const handleAddAddress = async () => {
         indeterminate
       />
   </VDialog>
+
+  <VDialog
+    v-model="isClickPayment"
+  >
+    <VProgressCircular
+        :size="40"
+        color="white"
+        indeterminate
+      />
+  </VDialog>
+
+  
 
   <VDialog persistent class="verify_modal" v-model="isAgreeModalShow" max-width="500">
       <VCard>
