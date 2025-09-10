@@ -364,6 +364,7 @@
     "formatDateWithTime": true,
     "numericValidator": true,
     "formatTime": true,
-    "usePaginationMeta": true
+    "usePaginationMeta": true,
+    "israelPhoneValidator": true
   }
 }

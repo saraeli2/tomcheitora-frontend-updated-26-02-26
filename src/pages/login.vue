@@ -15,6 +15,7 @@ import { themeConfig } from '@themeConfig'
 import { useConfigStore } from '@core/stores/config'
 import { useI18n } from 'vue-i18n'
 import { useToast } from 'vue-toastification'
+import { israelPhoneValidator } from '@/utils/customValidation'
 
 const toast = useToast()
 
@@ -43,6 +44,7 @@ const authStore = useAuthStore()
 const errors = ref({
   username: undefined,
   password: undefined,
+  phone: undefined,
 })
 
 const refVForm = ref()
@@ -95,6 +97,86 @@ const onSubmit = () => {
 }
 
 document.title = themeConfig.app.title + ' Panel | ' + 'Login'
+
+
+
+const isShowLoginWithPhone = ref(false)
+const refVFormWithPhone = ref()
+const phone = ref();
+const isShowOTPModal = ref()
+const phoneOtp = ref()
+
+const onSubmitWithPhone = () =>{
+  refVFormWithPhone.value?.validate().then(({ valid: isValid }) => {
+    
+    if (isValid) {
+      submitLoginWithPhone()
+    } else {
+      const items = document.getElementsByClassName('v-input--error')
+      if (items && items.length) {
+        window.scrollTo({
+          top: items[0].offsetTop,
+          behavior: 'smooth',
+        })
+      }
+    }
+  })
+}
+
+const submitLoginWithPhone = async() =>{
+  const res = await $api(`/login-with-phone`, {
+    method: 'POST',
+    body: {
+      phone: phone.value,
+    },
+    onResponseError({ response }) {
+      toast.error(response._data.message)
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        toast.error(t(response.message))
+      }else{
+        toast.success(t(response.message))
+        isShowLoginWithPhone.value = false
+        isShowOTPModal.value = true
+      }
+    })
+  })
+}
+
+const onSubmitVerifyLoginOTP = async() => {
+  const res = await $api(`/verify-login-otp`, {
+    method: 'POST',
+    body: {
+      phone: phone.value,
+      phoneOtp: phoneOtp.value,
+    },
+    onResponseError({ response }) {
+      toast.error('קוד שגוי')
+    },
+  }).then(async response => {
+    await nextTick(() => {
+      if(response.hasError){
+        toast.error('קוד שגוי')
+      }else{
+        isShowOTPModal.value = false
+      }
+    })
+
+    //console.log(response);
+
+    const { fuserData, faccessToken, fuserAbilityRules } = response
+    
+    ability.update(fuserAbilityRules)
+    await authStore.loginAsUser(faccessToken, fuserData, fuserAbilityRules)
+    await nextTick(() => {
+      router.replace(route.query.to ? String(route.query.to) : fuserData.userRedirectURL)
+    })
+  })
+
+  
+}
 </script>
 
 <template>
@@ -116,7 +198,7 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
         <VCardText style="text-align:center">
           <img style="width: 200px; height: auto;" src="/images/logo.png">
         </VCardText>
-        <VCardText>
+        <VCardText style="width: 300px;">
           <VForm
             ref="refVForm"
             @submit.prevent="onSubmit"
@@ -166,10 +248,84 @@ document.title = themeConfig.app.title + ' Panel | ' + 'Login'
               </VCol>
             </VRow>
           </VForm>
+          <VBtn @click="isShowLoginWithPhone = true" style="margin-top: 15px; color: #32A744!important; border: 1px solid #32A744 !important" block type="button" variant="outline">כניסה באמצעות טלפון</VBtn>
         </VCardText>
       </VCard>
     </VCol>
   </VRow>
+
+  <VDialog  
+    v-model="isShowLoginWithPhone" 
+    class="verify_modal" 
+    max-width="500"
+  >
+    <VCard>
+      <VForm
+        ref="refVFormWithPhone"
+        @submit.prevent="onSubmitWithPhone"
+      >
+        <VCardTitle class="text-h6" style="margin-bottom: 15px">
+          כניסה באמצעות טלפון
+        </VCardTitle>
+
+        <VCardText>
+          <VRow>
+            <VCol cols="12">
+              <label class="v-label mb-1 text-body-2 text-wrap"> הכנס מספר טלפון</label>
+              <AppTextField
+                v-model="phone"
+                placeholder="הכנס מספר טלפון"
+                :rules="[israelPhoneValidator]"
+                :error-messages="errors.phone"
+              />
+
+              <!-- <AppTextField
+                v-model="phone"
+                placeholder="הכנס מספר טלפון"
+                :error-messages="errors.phone"
+              /> -->
+            </VCol>
+
+            <VCol cols="12">
+              <div class="action_block">
+                <VBtn type="submit" variant="outlined" style="color: #fff!important; background-color: #32A744!important; border-color:#32A744">
+                   חייג אלי
+                </VBtn>
+              </div>
+            </VCol>
+          </VRow>
+        </VCardText>
+      </VForm>
+    </VCard>
+  </VDialog>
+
+  <VDialog class="verify_modal" v-model="isShowOTPModal" max-width="500">
+    <VCard>
+      <VForm 
+        ref="refFormVerifyPass"
+        @submit.prevent="onSubmitVerifyLoginOTP"
+      >
+        <VCardTitle class="text-h6">
+          בקרוב תקבל הודעה עם קוד חד-פעמי
+        </VCardTitle>
+
+        <VCardText>
+          <AppTextField
+            v-model="phoneOtp"
+            label="הזן את הקוד"
+            :rules="[requiredValidator]"
+          />
+        </VCardText>
+
+        <VCardActions>
+          <VSpacer />
+          <VBtn :disabled="!phoneOtp" type="submit">
+            אמת קוד
+          </VBtn>
+        </VCardActions>
+      </VForm>
+    </VCard>
+  </VDialog>
 </template>
 
 <style lang="scss">
