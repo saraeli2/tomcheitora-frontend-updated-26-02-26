@@ -57,6 +57,8 @@ declare module 'vue-router/auto-routes' {
     'admin-users': RouteRecordInfo<'admin-users', '/admin/users', Record<never, never>, Record<never, never>>,
     'admin-users-detail-id': RouteRecordInfo<'admin-users-detail-id', '/admin/users/detail/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     'admin-users-kids': RouteRecordInfo<'admin-users-kids', '/admin/users/kids', Record<never, never>, Record<never, never>>,
+    'admin-variations': RouteRecordInfo<'admin-variations', '/admin/variations', Record<never, never>, Record<never, never>>,
+    'admin-variations-add-new-variation-drawer': RouteRecordInfo<'admin-variations-add-new-variation-drawer', '/admin/variations/AddNewVariationDrawer', Record<never, never>, Record<never, never>>,
     'apps-ecommerce-order-details-id': RouteRecordInfo<'apps-ecommerce-order-details-id', '/apps/ecommerce/order/details/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     'apps-ecommerce-order-list': RouteRecordInfo<'apps-ecommerce-order-list', '/apps/ecommerce/order/list', Record<never, never>, Record<never, never>>,
     'apps-email': RouteRecordInfo<'apps-email', '/apps/email', Record<never, never>, Record<never, never>>,
