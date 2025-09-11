@@ -1,8 +1,10 @@
 import { useAuthStore } from '@/stores';
 import { createFetch } from '@vueuse/core'
 import { destr } from 'destr'
+import useHelper from '@/mixins/helper'
 
 const authStore = useAuthStore()
+const { isAdmin } = useHelper()
 
 export const useApi = createFetch({
   baseUrl: import.meta.env.VITE_API_BASE_URL || '/api',
@@ -14,11 +16,21 @@ export const useApi = createFetch({
   options: {
     refetch: true,
     async beforeFetch({ options }) {
-      const accessToken = authStore.accessToken
-      if (accessToken) {
-        options.headers = {
-          ...options.headers,
-          Authorization: `Bearer ${accessToken}`,
+      if(isAdmin()) {
+        const accessToken = authStore.accessToken
+        if (accessToken) {
+          options.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${accessToken}`,
+          }
+        }
+      }else{
+        const faccessToken = authStore.faccessToken
+        if (faccessToken) {
+          options.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${faccessToken}`,
+          }
         }
       }
       

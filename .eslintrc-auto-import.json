@@ -365,6 +365,8 @@
     "numericValidator": true,
     "formatTime": true,
     "usePaginationMeta": true,
-    "israelPhoneValidator": true
+    "israelPhoneValidator": true,
+    "$adminApi": true,
+    "$frontApi": true
   }
 }

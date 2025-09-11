@@ -15,6 +15,8 @@ import DistributionCommunity from '@/views/admin/sales/DistributionCommunity.vue
 import DistributionProducts from '@/views/admin/sales/DistributionProducts.vue'
 import ExcludeProducts from '@/views/admin/sales/ExcludeProducts.vue'
 import DistributionStations from '@/views/admin/sales/DistributionStations.vue'
+import DistributionReports from '@/views/admin/sales/DistributionReports.vue'
+
 
 import { can } from '@layouts/plugins/casl'
 
@@ -236,6 +238,10 @@ const tabs = [
   {
     title: 'Sale Stations',
     tab: 'sale-stations',
+  },
+  {
+    title: 'Reports',
+    tab: 'sale-reports',
   },
 ]
 
@@ -462,6 +468,13 @@ const currentTab = ref('statistics')
       </VWindowItem>
       <VWindowItem value="sale-stations">
         <DistributionStations
+          :saleid="route.params.id" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+
+      <VWindowItem value="sale-reports">
+        <DistributionReports
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />

@@ -475,14 +475,22 @@ const loadNedarimIframe = async () => {
   try {
     showLoader.value = true
 
-    const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/payment/iframe`, {
-      firstName: user.value.firstName,
-      lastName: user.value.lastName,
-      email: user.value.email,
-      city: cityID.value,
-      street: street.value,
-      uniqueKey: order.value?.orderNumber
-    })
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/payment/iframe`,
+      {
+        firstName: user.value.firstName,
+        lastName: user.value.lastName,
+        email: user.value.email,
+        city: cityID.value,
+        street: street.value,
+        uniqueKey: order.value?.orderNumber,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.faccessToken}`,  // 👈 frontend token
+        },
+      }
+    )
 
     nedarimIframeHtml.value = res.data.iframeHtml
   } catch (err) {
@@ -543,10 +551,18 @@ const handleAddAddress = async () => {
   showLoader.value = true
   validating.value = true
   try {
-    const { data } = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/orders/validate-before-payment`, {
-      orderID: order.value._id,
-      userID: order.value.userID._id,
-    })
+    const { data } = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/orders/validate-before-payment`,
+      {
+        orderID: order.value._id,
+        userID: order.value.userID._id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.faccessToken}`,  // 👈 frontend token
+        },
+      }
+    )
 
     if (data.success) {
       showLoader.value = false

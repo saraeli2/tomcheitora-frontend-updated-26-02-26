@@ -808,15 +808,6 @@ const findCategoryNameById = (id) => {
                   @mousedown.prevent
                 >
                   <ul class="p-3">
-                    <!-- <CategoryTreeNode
-                      v-for="node in tree"
-                      :key="node.realId"
-                      :node="node"
-                      :selected="checkedCategories"
-                      :indeterminate="isIndeterminate(node)"
-                      @toggle-select="onToggleSelect"
-                    /> -->
-
                     <CategoryTreeNode
                       v-for="node in tree"
                       :key="node.realId || node._id"

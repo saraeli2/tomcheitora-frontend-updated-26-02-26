@@ -22,6 +22,7 @@ const toast = useToast()
 const { t } = useI18n()
 
 const configStore = useConfigStore()
+const showLoader = ref()
 
 //configStore.isAppRTL = true
 
@@ -124,6 +125,8 @@ const onSubmitWithPhone = () =>{
 }
 
 const submitLoginWithPhone = async() =>{
+  showLoader.value = true
+
   const res = await $api(`/login-with-phone`, {
     method: 'POST',
     body: {
@@ -134,6 +137,8 @@ const submitLoginWithPhone = async() =>{
     },
   }).then(async response => {
     await nextTick(() => {
+      showLoader.value = false
+      
       if(response.hasError){
         toast.error(t(response.message))
       }else{
@@ -325,6 +330,16 @@ const onSubmitVerifyLoginOTP = async() => {
         </VCardActions>
       </VForm>
     </VCard>
+  </VDialog>
+
+  <VDialog
+    v-model="showLoader"
+  >
+    <VProgressCircular
+        :size="40"
+        color="white"
+        indeterminate
+      />
   </VDialog>
 </template>
 

@@ -286,6 +286,17 @@ const headers = computed(() => [
               <div class="d-flex gap-x-3 align-center">
                 <div class="d-flex flex-column align-start">
                   <h6 class="text-h6">
+                    <IconBtn
+                      class="checkout-item-remove-btn"
+                    >
+                      <VIcon
+
+                        size="18"
+                        icon="tabler-x"
+                        class="text-disabled"
+                      />
+                    </IconBtn>
+
                     <RouterLink
                       v-if="can('admin-view-products', 'View Products') && item.productID"
                       :to="{ name: 'admin-products-detail-id', params: { id: item.productID._id } }"
