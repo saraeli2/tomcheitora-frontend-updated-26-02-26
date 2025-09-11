@@ -81,6 +81,16 @@ const headers = computed(() => [
     sortable: false,
   },
   {
+    title: t('Original Total Amount'),
+    key: 'originalOrderedAmount',
+    sortable: false,
+  },
+  {
+    title: t('Difference'),
+    key: 'amountDifference',
+    sortable: false,
+  },
+  {
     title: t('Status'),
     key: 'status',
   },
@@ -359,6 +369,16 @@ const deleteOrder = async id => {
         <!-- Total -->
         <template #[`item.total`]="{ item }">
           {{ numberFormat(item.total)}}
+        </template>
+
+        <!-- originalOrderedAmount -->
+        <template #[`item.originalOrderedAmount`]="{ item }">
+          {{ numberFormat(item.originalOrderedAmount)}}
+        </template>
+
+        <!-- amountDifference -->
+        <template #[`item.amountDifference`]="{ item }">
+          {{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}
         </template>
 
         <!-- status -->

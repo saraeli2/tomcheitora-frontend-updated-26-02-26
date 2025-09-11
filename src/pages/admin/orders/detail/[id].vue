@@ -77,6 +77,9 @@ if(error.value == 'Unauthorized') {
 const orderData = computed(() => orderDetail.value.order)
 const transactions = computed(() => orderDetail.value.transactions)
 
+const orderItems = ref(orderDetail.value.order.orderItems)
+const changedItems = ref([])
+
 const reloadTab = ref(true)
 
 const modifyOrder = async userData => {
@@ -140,6 +143,73 @@ const headers = computed(() => [
     sortable: false,
   },
 ])
+
+// Increase quantity
+const increaseQuantity = (item) => {
+  const oldQuantity = item.quantity
+  item.quantity += 1
+  orderItems.value = [...orderItems.value]
+  addToChangedItems(item, oldQuantity, 'Increased')
+  updateOrder()
+}
+
+// Decrease quantity
+const decreaseQuantity = (item) => {
+  if (item.quantity > 1) {
+    const oldQuantity = item.quantity
+    item.quantity -= 1
+    orderItems.value = [...orderItems.value]
+    addToChangedItems(item, oldQuantity, 'Decreased')
+    updateOrder()
+  }
+}
+
+// Remove Item
+const removeProduct = (item) => {
+  // Remove the product from the array
+  const oldQuantity = item.quantity
+  item.quantity = 0
+  addToChangedItems(item, oldQuantity, 'Removed')
+  orderItems.value = orderItems.value.filter(i => i.productID._id !== item.productID._id)
+  updateOrder()
+}
+
+// Helper to track changes
+const addToChangedItems = (item, oldQuantity, action) => {
+  const existing = changedItems.value.find(i => i.productID._id === item.productID._id)
+  if (existing) {
+    // Update existing entry
+    existing.newQuantity = item.quantity
+    existing.action = action
+  } else {
+    changedItems.value.push({
+      productID: item.productID._id,
+      oldQuantity,
+      newQuantity: item.quantity,
+      price: item.price,
+      action,
+    })
+  }
+}
+
+const updateOrder = async () => {
+  try {
+    const res = await $api(`/admin/orders/update-quantity/${route.params.id}`, {
+      method: 'PATCH',
+      body: {
+        products: orderItems.value,
+        changedItems: changedItems.value,
+      },
+      onResponseError({ response }) {
+        errors.value = response._data.errors
+      },
+    })
+
+    fetchOrders()
+  } catch (err) {
+    console.log(err)
+  }
+}
 </script>
 
 <template>
@@ -278,7 +348,7 @@ const headers = computed(() => [
 
           <VDataTable
             :headers="headers"
-            :items="orderData.orderItems"
+            :items="orderItems"
             item-value="productID"
             class="text-no-wrap"
           >
@@ -294,6 +364,7 @@ const headers = computed(() => [
                         size="18"
                         icon="tabler-x"
                         class="text-disabled"
+                        @click="removeProduct(item)"
                       />
                     </IconBtn>
 
@@ -311,7 +382,23 @@ const headers = computed(() => [
 
             <template #[`item.quantity`]="{ item }">
               <div class="text-body-1">
-                {{ item.quantity }}
+                <button
+                        type="button"
+                        @click="decreaseQuantity(item)"
+                        class="px-2 py-1 bg-primary text-white rounded"
+                      >-</button>
+
+                      <input
+                        v-model.number="item.quantity"
+                        min="1"
+                        class="w-16 text-center border rounded px-2 py-1"
+                      />
+
+                      <button
+                        type="button"
+                        @click="increaseQuantity(item)"
+                        class="px-2 py-1 bg-primary text-white rounded"
+                      >+</button>
               </div>
             </template>
 
@@ -369,6 +456,22 @@ const headers = computed(() => [
                     </td>
                     <td class="font-weight-medium">
                       {{ numberFormat(orderData.total) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-high-emphasis font-weight-medium">
+                      {{ $t('Original Total Amount') }}:
+                    </td>
+                    <td class="font-weight-medium">
+                      {{ numberFormat(orderData.originalOrderedAmount) }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-high-emphasis font-weight-medium">
+                      {{ $t('Difference') }}:
+                    </td>
+                    <td class="font-weight-medium">
+                      {{ numberFormat(orderData.amountDifference) }}
                     </td>
                   </tr>
                 </tbody>
