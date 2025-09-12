@@ -10,6 +10,7 @@ definePage({
 
 import DistributionOrders from '@/pages/admin/orders/index.vue'
 import AddNewSaleDrawer from '@/views/admin/sales/AddNewSaleDrawer.vue'
+
 //import DistributionGroups from '@/views/admin/sales/DistributionGroups.vue'
 import DistributionCommunity from '@/views/admin/sales/DistributionCommunity.vue'
 import DistributionProducts from '@/views/admin/sales/DistributionProducts.vue'
@@ -299,15 +300,20 @@ const currentTab = ref('statistics')
           {{ $t('Created At') }}: {{ formatDateWithTime(saleData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(saleData.updatedAt) }}
         </div>
       </div>
-      
     </div>
     <!-- 👉 Sale Details  -->
     <VTabs
       v-model="currentTab"
       class="v-tabs-pill"
     >
-      <template v-for="item in tabs" :key="item.tab">
-        <VTab v-if="can(item.action, item.subject)" :value="item.tab">
+      <template
+        v-for="item in tabs"
+        :key="item.tab"
+      >
+        <VTab
+          v-if="can(item.action, item.subject)"
+          :value="item.tab"
+        >
           {{ $t(item.title) }}
         </VTab>
       </template>
@@ -441,42 +447,62 @@ const currentTab = ref('statistics')
         </VCard>
       </VWindowItem>
 
-      <VWindowItem value="orders" v-if="can('admin-view-orders', 'Order')">
+      <VWindowItem
+        v-if="can('admin-view-orders', 'Order')"
+        value="orders"
+      >
         <DistributionOrders
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="sale-products" v-if="can('admin-view-sale-products', 'Sale Products')">
+      <VWindowItem
+        v-if="can('admin-view-sale-products', 'Sale Products')"
+        value="sale-products"
+      >
         <DistributionProducts
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="exclude-products" v-if="can('admin-view-exclude-products', 'Exclude Products')">
+      <VWindowItem
+        v-if="can('admin-view-exclude-products', 'Exclude Products')"
+        value="exclude-products"
+      >
         <ExcludeProducts
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="sale-communities" v-if="can('admin-view-sale-communities', 'Sale Community')">
-        <!-- <DistributionGroups
+      <VWindowItem
+        v-if="can('admin-view-sale-communities', 'Sale Community')"
+        value="sale-communities"
+      >
+        <!--
+          <DistributionGroups
           :saleid="route.params.id" 
           @tab-data="refreshTab"
-        /> -->
+          /> 
+        -->
         <DistributionCommunity
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="sale-stations" v-if="can('admin-view-sale-communities', 'Sale Community')">
+      <VWindowItem
+        v-if="can('admin-view-sale-communities', 'Sale Community')"
+        value="sale-stations"
+      >
         <DistributionStations
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
 
-      <VWindowItem value="sale-reports" v-if="can('admin-view-orders', 'Order')">
+      <VWindowItem
+        v-if="can('admin-view-orders', 'Order')"
+        value="sale-reports"
+      >
         <DistributionReports
           :saleid="route.params.id" 
           @tab-data="refreshTab"
@@ -484,8 +510,6 @@ const currentTab = ref('statistics')
       </VWindowItem>
     </VWindow>
     
-    
-
     <AddNewSaleDrawer
       v-if="isSaleDialogVisible"
       v-model:is-drawer-open="isSaleDialogVisible"

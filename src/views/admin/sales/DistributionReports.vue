@@ -4,6 +4,7 @@ import useHelper from "@/mixins/helper";
 import DiscountOrderReport from '@/views/admin/sales/DiscountOrderReport.vue'
 import SalesReport from '@/views/admin/sales/SalesReport.vue'
 import OrderReport from '@/views/admin/sales/OrderReport.vue'
+import ProductReports from '@/views/admin/sales/ProductReports.vue'
 
 const props = defineProps({
   saleid: {
@@ -63,6 +64,10 @@ const tabs = [
   {
     title: t('Order Report'),
     tab: 'order_report',
+  },
+  {
+    title: t('Product Report'),
+    tab: 'product_report',
   },
   
 ]
@@ -126,6 +131,13 @@ const refreshTab = async tabData => {
 
       <VWindowItem value="order_report">
         <OrderReport
+          :saleid="props.saleid" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+
+      <VWindowItem value="product_report">
+        <ProductReports
           :saleid="props.saleid" 
           @tab-data="refreshTab"
         />

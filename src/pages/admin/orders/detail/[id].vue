@@ -1,5 +1,5 @@
 <script setup>
-import useHelper from "@/mixins/helper";
+import useHelper from "@/mixins/helper"
 
 const { numberFormat } = useHelper()
 
@@ -81,6 +81,7 @@ const transactions = computed(() => orderDetail.value.transactions)
 
 const orderItems = ref(orderDetail.value.order.orderItems)
 const changedItems = ref([])
+const orderDialogShown =  ref(false)
 
 const reloadTab = ref(true)
 
@@ -126,6 +127,29 @@ const refreshTab = async tabData => {
   reloadTab.value = true
 }
 
+const orderHeaders = computed(() => [
+  {
+    title: t('Product'),
+    key: 'productID',
+    sortable: false,
+  },
+  {
+    title: t('Old Quantity'),
+    key: 'oldQuantity',
+    sortable: false,
+  },
+  {
+    title: t('New Quantity'),
+    key: 'newQuantity',
+    sortable: false,
+  },
+  {
+    title: t('Action'),
+    key: 'action',
+    sortable: false,
+  },
+])
+
 const headers = computed(() => [
   {
     title: t('Product'),
@@ -147,37 +171,36 @@ const headers = computed(() => [
 ])
 
 // Increase quantity
-const increaseQuantity = (item) => {
-  showLoader.value = true
+const increaseQuantity = item => {
   const oldQuantity = item.quantity
+
   item.quantity += 1
   orderItems.value = [...orderItems.value]
   addToChangedItems(item, oldQuantity, 'Increased')
-  updateOrder()
-
-  //showLoader.value = false
+  recalculateTotal()
 }
 
 // Decrease quantity
-const decreaseQuantity = (item) => {
-  showLoader.value = true
+const decreaseQuantity = item => {
   if (item.quantity > 1) {
     const oldQuantity = item.quantity
+
     item.quantity -= 1
     orderItems.value = [...orderItems.value]
     addToChangedItems(item, oldQuantity, 'Decreased')
-    updateOrder()
+    recalculateTotal()
   }
 }
 
 // Remove Item
-const removeProduct = (item) => {
+const removeProduct = item => {
   // Remove the product from the array
   const oldQuantity = item.quantity
+
   item.quantity = 0
   addToChangedItems(item, oldQuantity, 'Removed')
   orderItems.value = orderItems.value.filter(i => i.productID._id !== item.productID._id)
-  updateOrder()
+  recalculateTotal()
 }
 
 // Helper to track changes
@@ -189,7 +212,7 @@ const addToChangedItems = (item, oldQuantity, action) => {
     existing.action = action
   } else {
     changedItems.value.push({
-      productID: item.productID._id,
+      productID: item.productID,
       oldQuantity,
       newQuantity: item.quantity,
       price: item.price,
@@ -211,13 +234,25 @@ const updateOrder = async () => {
       },
     })
 
+    orderDialogShown.value = false
     changedItems.value = []
 
     fetchOrders()
-    showLoader.value = false
   } catch (err) {
     console.log(err)
   }
+}
+
+const onReset = () => {
+  orderDialogShown.value = false
+}
+
+const recalculateTotal = () => {
+  const subTotal = orderItems.value.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+
+  orderData.value.subTotal = subTotal
+  orderData.value.total = subTotal - orderData.value.totalDiscount + orderData.value.totalVat + orderData.value.deliveryCharge
+  orderData.value.amountDifference = orderData.value.total - orderData.value.originalOrderedAmount
 }
 </script>
 
@@ -356,9 +391,9 @@ const updateOrder = async () => {
           <VDivider />
 
           <VDataTable
+            v-model:items-per-page="itemsPerPage"
             :headers="headers"
             :items="orderItems"
-            v-model:items-per-page="itemsPerPage"
             item-value="productID"
             class="text-no-wrap"
           >
@@ -367,6 +402,7 @@ const updateOrder = async () => {
                 <div class="d-flex flex-column align-start">
                   <h6 class="text-h6">
                     <IconBtn
+                      v-if="can('admin-update-orders', 'Update Orders')"
                       class="checkout-item-remove-btn"
                     >
                       <VIcon
@@ -393,23 +429,29 @@ const updateOrder = async () => {
             <template #[`item.quantity`]="{ item }">
               <div class="text-body-1">
                 <button
-                        type="button"
-                        @click="decreaseQuantity(item)"
-                        class="px-2 py-1 bg-primary text-white rounded"
-                      >-</button>
+                  v-if="can('admin-update-orders', 'Update Orders')"
+                  type="button"
+                  class="px-2 py-1 bg-primary text-white rounded"
+                  @click="decreaseQuantity(item)"
+                >
+                  -
+                </button>
 
-                      <input
-                        v-model.number="item.quantity"
-                        min="1"
-                        class="w-16 text-center border rounded px-2 py-1"
-                        readonly
-                      />
+                <input
+                  v-model.number="item.quantity"
+                  min="1"
+                  class="w-16 text-center border rounded px-2 py-1"
+                  readonly
+                >
 
-                      <button
-                        type="button"
-                        @click="increaseQuantity(item)"
-                        class="px-2 py-1 bg-primary text-white rounded"
-                      >+</button>
+                <button
+                  v-if="can('admin-update-orders', 'Update Orders')"
+                  type="button"
+                  class="px-2 py-1 bg-primary text-white rounded"
+                  @click="increaseQuantity(item)"
+                >
+                  +
+                </button>
               </div>
             </template>
 
@@ -431,6 +473,19 @@ const updateOrder = async () => {
           <VDivider />
 
           <VCardText>
+            <div
+              v-if="changedItems.length"
+              class="d-flex gap-4 align-center flex-wrap"
+            >
+              <!-- 👉 Create Product -->
+              <VBtn
+                v-if="can('admin-update-orders', 'Update Orders')"
+                prepend-icon="tabler-check"
+                @click="orderDialogShown = true"
+              >
+                {{ $t('Confirm Order') }}
+              </VBtn>
+            </div>
             <div class="d-flex align-end flex-column">
               <table class="text-high-emphasis">
                 <tbody>
@@ -479,7 +534,10 @@ const updateOrder = async () => {
                   </tr>
                   <tr>
                     <td class="text-high-emphasis font-weight-medium">
-                      <span v-if="orderData.amountDifference" style="color: #f00;">{{ $t('Difference') }}:</span>
+                      <span
+                        v-if="orderData.amountDifference"
+                        style="color: #f00;"
+                      >{{ $t('Difference') }}:</span>
                       <span v-else>{{ $t('Difference') }}:</span>
                     </td>
                     <td class="font-weight-medium">
@@ -492,7 +550,10 @@ const updateOrder = async () => {
           </VCardText>
         </VCard>
 
-        <VCard class="mb-6" v-if="transactions.length">
+        <VCard
+          v-if="transactions.length"
+          class="mb-6"
+        >
           <VCardItem>
             <template #title>
               <h5 class="text-h5">
@@ -547,15 +608,70 @@ const updateOrder = async () => {
         {{ route.params.id }} {{ $t('Not Found!') }}
       </VAlert>
     </div>
-  </div>
 
-  <VDialog persistent
-    v-model="showLoader"
-  >
-    <VProgressCircular
+    <VDialog
+      v-model="orderDialogShown"
+      :width="$vuetify.display.smAndDown ? 'auto' : 900"
+      @update:model-value="onReset"
+    >
+      <!-- 👉 Dialog close btn -->
+      <DialogCloseBtn @click="onReset" />
+      <VCard class="pa-sm-10 pa-2">
+        <VCardText>
+          <!-- 👉 Title -->
+          <h4 class="text-h4 text-center mb-2">
+            {{ $t('Confirm Order') }}
+          </h4>
+          <VDivider />
+          <VDataTable
+            :headers="orderHeaders"
+            :items="changedItems"
+            item-value="productID"
+            class="text-no-wrap"
+          >
+            <template #[`item.productID`]="{ item }">
+              <div class="d-flex gap-x-3 align-center">
+                <div class="d-flex flex-column align-start">
+                  <h6 class="text-h6">
+                    <RouterLink
+                      v-if="can('admin-view-products', 'View Products') && item.productID"
+                      :to="{ name: 'admin-products-detail-id', params: { id: item.productID._id } }"
+                    >
+                      {{ item.productID.name }}
+                    </RouterLink>
+                    <span v-else>{{ item.productID ? item.productID.name : '' }}</span>
+                  </h6>
+                </div>
+              </div>
+            </template>
+
+            <template #bottom />
+          </VDataTable>
+          <VDivider />
+        </VCardText>
+        <VCardText>
+          <div class="d-flex align-end flex-column">
+            <!-- 👉 Create Product -->
+            <VBtn
+              prepend-icon="tabler-pencil"
+              @click="updateOrder"
+            >
+              {{ $t('Update Order') }}
+            </VBtn>
+          </div>
+        </VCardText>
+      </VCard>
+    </VDialog>
+
+    <VDialog
+      v-model="showLoader"
+      persistent
+    >
+      <VProgressCircular
         :size="40"
         color="white"
         indeterminate
       />
-  </VDialog>
+    </VDialog>
+  </div>
 </template>
