@@ -4,7 +4,7 @@ import { useToast } from 'vue-toastification'
 definePage({
   meta: {
     action: ['admin-update-orders'],
-    subject: ['Update Orders'],
+    subject: ['Order'],
     navActiveLink: 'admin-sales',
     title: 'Update Order',
   },

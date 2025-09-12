@@ -15,7 +15,7 @@ const props = defineProps({
 definePage({
   meta: {
     action: ['admin-view-orders', 'admin-create-orders'],
-    subject: ['View Orders', 'Create Orders'],
+    subject: ['Order'],
     title: 'Orders',
   },
 })
@@ -262,7 +262,7 @@ const deleteOrder = async id => {
           </div>
           <!-- 👉 Create Order -->
           <VBtn
-            v-if="can('admin-create-orders', 'Create Orders')"
+            v-if="can('admin-create-orders', 'Order')"
             prepend-icon="tabler-plus"
             :to="{ name: 'admin-orders-create', query: { saleid: selectedSale } }"
           >
@@ -276,7 +276,7 @@ const deleteOrder = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-orders', 'View Orders')"
+        v-if="can('admin-view-orders', 'Order')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -322,7 +322,7 @@ const deleteOrder = async id => {
                       { value: 'Dues', title: 'Dues' },
                       { value: 'Refund', title: 'Refund' },
                     ]"
-                    :placeholder="$t('Payment Status')"
+                    :placeholder="$t('Differences')"
                     clearable
                   />
                 </VCol>
@@ -332,11 +332,11 @@ const deleteOrder = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-orders', 'View Orders')" />
+      <VDivider v-if="can('admin-view-orders', 'Order')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-orders', 'View Orders')"
+        v-if="can('admin-view-orders', 'Order')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
@@ -351,7 +351,7 @@ const deleteOrder = async id => {
 
         <template #[`item.orderNumber`]="{ item }">
           <RouterLink
-            v-if="can('admin-view-orders', 'View Orders') && item.userID"
+            v-if="can('admin-view-orders', 'Order') && item.userID"
             :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }"
           >
             {{ item._id }}
@@ -362,7 +362,7 @@ const deleteOrder = async id => {
 
         <template #[`item.userID`]="{ item }">
           <RouterLink
-            v-if="can('admin-view-users', 'View Users') && item.userID"
+            v-if="can('admin-view-users', 'User') && item.userID"
             :to="{ name: 'admin-users-detail-id', params: { id: item.userID._id } }"
           >
             {{ item.userID.firstName + ' ' + item.userID.lastName }}
@@ -438,7 +438,7 @@ const deleteOrder = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-orders', 'Update Orders')"
+                  v-if="can('admin-update-orders', 'Order')"
                   :to="{ name: 'admin-orders-edit-id', params: { id: item._id } }"
                 >
                   <template #prepend>
@@ -448,7 +448,7 @@ const deleteOrder = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-orders', 'Delete Orders')"
+                  v-if="can('admin-delete-orders', 'Order')"
                   @click="deleteOrder(item._id)"
                 >
                   <template #prepend>

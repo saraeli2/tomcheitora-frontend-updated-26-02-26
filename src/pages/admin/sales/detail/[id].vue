@@ -2,7 +2,7 @@
 definePage({
   meta: {
     action: ['admin-view-sales'],
-    subject: ['View Sales'],
+    subject: ['Sales'],
     navActiveLink: 'admin-sales',
     title: 'Sale Details',
   },
@@ -218,30 +218,44 @@ const tabs = [
   {
     title: 'Statistics',
     tab: 'statistics',
+    subject: 'Statistics',
+    action: 'admin-view-statistics',
   },
   {
     title: 'Orders',
     tab: 'orders',
+    subject: 'Order',
+    action: 'admin-view-orders',
   },
   {
     title: 'Sale Products',
     tab: 'sale-products',
+    subject: 'Sale Products',
+    action: 'admin-view-sale-products',
   },
   {
     title: 'Exclude Products',
     tab: 'exclude-products',
+    subject: 'Exclude Products',
+    action: 'admin-view-exclude-products',
   },
   {
     title: 'Sale Communities',
     tab: 'sale-communities',
+    subject: 'Sale Community',
+    action: 'admin-view-sale-communities',
   },
   {
     title: 'Sale Stations',
     tab: 'sale-stations',
+    subject: 'Sale Stations',
+    action: 'admin-view-sale-stations',
   },
   {
     title: 'Reports',
     tab: 'sale-reports',
+    subject: 'Order',
+    action: 'admin-view-orders',
   },
 ]
 
@@ -275,7 +289,7 @@ const currentTab = ref('statistics')
           {{ $t('Sale ID') }} #{{ route.params.id }} 
 
           <VIcon 
-            v-if="can('admin-update-sales', 'Update Sales')"
+            v-if="can('admin-update-sales', 'Sales')"
             style="margin-left:6px" 
             class="tabler-pencil" 
             @click="isSaleDialogVisible = !isSaleDialogVisible"
@@ -292,13 +306,11 @@ const currentTab = ref('statistics')
       v-model="currentTab"
       class="v-tabs-pill"
     >
-      <VTab
-        v-for="item in tabs"
-        :key="item.tab"
-        :value="item.tab"
-      >
-        {{ $t(item.title) }}
-      </VTab>
+      <template v-for="item in tabs" :key="item.tab">
+        <VTab v-if="can(item.action, item.subject)" :value="item.tab">
+          {{ $t(item.title) }}
+        </VTab>
+      </template>
     </VTabs>
 
     <VWindow
@@ -429,25 +441,25 @@ const currentTab = ref('statistics')
         </VCard>
       </VWindowItem>
 
-      <VWindowItem value="orders">
+      <VWindowItem value="orders" v-if="can('admin-view-orders', 'Order')">
         <DistributionOrders
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="sale-products">
+      <VWindowItem value="sale-products" v-if="can('admin-view-sale-products', 'Sale Products')">
         <DistributionProducts
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="exclude-products">
+      <VWindowItem value="exclude-products" v-if="can('admin-view-exclude-products', 'Exclude Products')">
         <ExcludeProducts
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="sale-communities">
+      <VWindowItem value="sale-communities" v-if="can('admin-view-sale-communities', 'Sale Community')">
         <!-- <DistributionGroups
           :saleid="route.params.id" 
           @tab-data="refreshTab"
@@ -457,14 +469,14 @@ const currentTab = ref('statistics')
           @tab-data="refreshTab"
         />
       </VWindowItem>
-      <VWindowItem value="sale-stations">
+      <VWindowItem value="sale-stations" v-if="can('admin-view-sale-communities', 'Sale Community')">
         <DistributionStations
           :saleid="route.params.id" 
           @tab-data="refreshTab"
         />
       </VWindowItem>
 
-      <VWindowItem value="sale-reports">
+      <VWindowItem value="sale-reports" v-if="can('admin-view-orders', 'Order')">
         <DistributionReports
           :saleid="route.params.id" 
           @tab-data="refreshTab"

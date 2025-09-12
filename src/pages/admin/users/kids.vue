@@ -11,7 +11,7 @@ const props = defineProps({
 definePage({
   meta: {
     action: ['admin-view-users', 'admin-create-users'],
-    subject: ['View Users', 'Create Users'],
+    subject: ['User'],
     title: 'Kid Informations',
   },
 })
@@ -201,7 +201,7 @@ const deleteKid = async id => {
           </div>
           <!-- 👉 Create Kid -->
           <VBtn
-            v-if="can('admin-create-users', 'Create Users')"
+            v-if="can('admin-create-users', 'User')"
             prepend-icon="tabler-plus"
             @click="isAddNewKidDrawerVisible = true"
           >
@@ -215,7 +215,7 @@ const deleteKid = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-users', 'View Users')"
+        v-if="can('admin-view-users', 'User')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -243,7 +243,7 @@ const deleteKid = async id => {
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-users', 'View Users')"
+        v-if="can('admin-view-users', 'User')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"

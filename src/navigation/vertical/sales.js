@@ -4,6 +4,6 @@ export default [
     icon: { icon: 'tabler-bulb' },
     to: 'admin-sales',
     action: 'admin-view-sales',
-    subject: 'View Sales',
+    subject: 'Sales',
   },
 ]

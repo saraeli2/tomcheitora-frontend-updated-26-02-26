@@ -6,7 +6,7 @@ const { numberFormat } = useHelper()
 definePage({
   meta: {
     action: ['admin-view-orders'],
-    subject: ['View Orders'],
+    subject: ['Order'],
     navActiveLink: 'admin-sales',
     title: 'Order Details',
   },
@@ -20,6 +20,8 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const ability = useAbility()
+const showLoader = ref(false)
+const itemsPerPage = ref(1000)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Processing') {
@@ -146,15 +148,19 @@ const headers = computed(() => [
 
 // Increase quantity
 const increaseQuantity = (item) => {
+  showLoader.value = true
   const oldQuantity = item.quantity
   item.quantity += 1
   orderItems.value = [...orderItems.value]
   addToChangedItems(item, oldQuantity, 'Increased')
   updateOrder()
+
+  //showLoader.value = false
 }
 
 // Decrease quantity
 const decreaseQuantity = (item) => {
+  showLoader.value = true
   if (item.quantity > 1) {
     const oldQuantity = item.quantity
     item.quantity -= 1
@@ -208,6 +214,7 @@ const updateOrder = async () => {
     changedItems.value = []
 
     fetchOrders()
+    showLoader.value = false
   } catch (err) {
     console.log(err)
   }
@@ -246,7 +253,7 @@ const updateOrder = async () => {
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-orders', 'Delete Orders') && orderData.status != 'Canceled'"
+          v-if="can('admin-delete-orders', 'Order') && orderData.status != 'Canceled'"
           variant="tonal"
           color="error"
           @click="cancelOrder"
@@ -281,7 +288,7 @@ const updateOrder = async () => {
                       {{ $t('User') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-users', 'View Users') && orderData.userID"
+                          v-if="can('admin-view-users', 'User') && orderData.userID"
                           :to="{ name: 'admin-users-detail-id', params: { id: orderData.userID._id } }"
                         >
                           {{ orderData.userID.firstName + ' ' + orderData.userID.lastName }}
@@ -318,7 +325,7 @@ const updateOrder = async () => {
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-orders', 'Update Orders')"
+                v-if="can('admin-update-orders', 'Order')"
                 class="text-center"
               >
                 <VBtn
@@ -351,6 +358,7 @@ const updateOrder = async () => {
           <VDataTable
             :headers="headers"
             :items="orderItems"
+            v-model:items-per-page="itemsPerPage"
             item-value="productID"
             class="text-no-wrap"
           >
@@ -540,4 +548,14 @@ const updateOrder = async () => {
       </VAlert>
     </div>
   </div>
+
+  <VDialog persistent
+    v-model="showLoader"
+  >
+    <VProgressCircular
+        :size="40"
+        color="white"
+        indeterminate
+      />
+  </VDialog>
 </template>
