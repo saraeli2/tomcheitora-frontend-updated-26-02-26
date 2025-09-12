@@ -142,7 +142,7 @@ const getOrderReportData = async() => {
   orders.value = res.report
   totalOrders.value = res.total
 
-  console.log(orders.value);
+  //console.log(orders.value);
 }
 
 const resolveStatusVariantAndIcon = status => {
@@ -174,30 +174,8 @@ const resolveStatusVariantAndIcon = status => {
   }
 }
 
-const downloadPDF = async (order) => {
-  try {
-    // Set current order for the PDF template
-    const container = orderPdf.value
-    Object.assign(container, { order }) // assuming orderPdf template reads `order`
-
-    await nextTick() // wait for DOM update
-
-    const canvas = await html2canvas(container, { scale: 2 })
-    const imgData = canvas.toDataURL('image/png')
-
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const imgProps = pdf.getImageProperties(imgData)
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-    pdf.save(`order_${order._id}.pdf`)
-  } catch (err) {
-    console.error(err)
-    toast.error('Failed to generate PDF')
-  }
-}
-
+const orderPdf = ref(null)
+const currentOrder = ref(null)
 </script>
 
 <template>
@@ -231,7 +209,7 @@ const downloadPDF = async (order) => {
           />
         </VCol>
         <VCol cols="12" md="12">
-          <VBtn :disabled="!phone || !israeliIDNumber" @click="getOrderReportData">{{ $t('Submit') }}</VBtn>
+          <VBtn :disabled="!phone && !israeliIDNumber" @click="getOrderReportData">{{ $t('Submit') }}</VBtn>
         </VCol>
       </VRow>
     </VCardText>
@@ -359,25 +337,18 @@ const downloadPDF = async (order) => {
                 <VListItemTitle>{{ $t('View') }}</VListItemTitle>
               </VListItem>
 
-              <VListItem
-                v-if="can('admin-download-orders', 'Order')"
-                @click="downloadOrderPDF(item._id)"
-              >
+              <VListItem @click="downloadOrderPDF(item)">
                 <template #prepend>
                   <VIcon icon="tabler-download" />
                 </template>
-                <VListItemTitle>{{ $t('Download PDF') }}</VListItemTitle>
+                <VListItemTitle>Download PDF</VListItemTitle>
               </VListItem>
 
-              <!-- Send PDF -->
-              <VListItem
-                v-if="can('admin-send-orders', 'Order')"
-                @click="sendOrderPDF(item._id)"
-              >
+              <VListItem @click="sendOrderPDF(item)">
                 <template #prepend>
                   <VIcon icon="tabler-send" />
                 </template>
-                <VListItemTitle>{{ $t('Send PDF') }}</VListItemTitle>
+                <VListItemTitle>Send PDF</VListItemTitle>
               </VListItem>
             </VList>
           </VMenu>
@@ -405,3 +376,143 @@ const downloadPDF = async (order) => {
       />
   </VDialog>
 </template>
+
+<style lang="scss">
+
+  .orderDetailsPdf{
+  width: 100%;
+  padding: 30px 30px 30px 30px;
+  .cl-tittle-1{
+    text-align: center;
+    margin: 0px 0px 0px 0px;
+    font-size: 18px;
+    line-height:normal;
+    color: rgb(115, 103, 240);
+    font-weight: 700;
+    padding: 0px 0px 10px 0px;
+  }
+  .cl-tittle-2{
+    text-align: left;
+    margin: 0px 0px 0px 0px;
+    font-size: 16px;
+    line-height:normal;
+    color: rgb(47, 43, 61, 0.7);
+    font-weight: 400;
+    padding: 0px 0px 10px 0px;
+  }
+  .cl-gap-20{
+    height: 20px;
+  }
+  .orderTablein{
+    width: 100%;
+    padding: 0px 0px 0px 0px;
+    text-align: left;
+    thead{
+      tr{
+        th{
+          text-align: left;
+          margin: 0px 0px 0px 0px;
+          font-size: 13px;
+          line-height:normal;
+          color: rgb(47, 43, 61, 0.9) !important;
+          font-weight: 500;
+          padding: 10px 10px 10px 10px;
+          text-transform: none;
+          border-bottom: 1px solid rgb(165, 165, 165, 0.12);
+          border-top: 1px solid rgb(165, 165, 165, 0.12);
+          opacity: 1;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 2px;
+          &:last-child{
+            text-align: right;
+          }
+          &:first-child{
+            text-align: left;
+            padding-left: 0px;
+            width: 50px;
+          }
+        }
+      }
+    }
+    tbody{
+      tr{
+        td{
+          text-align: left;
+          margin: 0px 0px 0px 0px;
+          font-size: 15px;
+          line-height:normal;
+          color: rgb(47, 43, 61, 0.7);
+          font-weight: 400;
+          padding: 10px 10px 10px 10px;
+          text-transform: none;
+          border-bottom: 1px solid rgb(165, 165, 165, 0.12);
+          &:last-child{
+            text-align: right;
+          }
+          &:first-child{
+            text-align: left;
+            padding-left: 0px;
+            width: 50px;
+          }
+          &.textBg1{
+            color: rgb(115, 103, 240);
+          }
+        }
+      }
+    }
+  }
+  .orderfooter{
+    width: 40%;
+    tr{
+      &:last-child{
+        td{
+          font-weight: bold;
+        }
+      }
+      td{
+        margin: 0px 0px 0px 0px;
+        font-size: 14px;
+        line-height:normal;
+        color: rgb(47, 43, 61, 0.7);
+        font-weight: 400;
+        padding: 8px 10px 8px 10px;
+        text-transform: none;
+        
+        &:first-child{
+          text-align: right;
+        }
+        &:last-child{
+          text-align: right;
+        }
+      }
+    }
+  }
+  .orderfooter-logo{
+    width: 100%;
+    tr{
+      td{
+        .orderfooter-block{
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          .orderfooter-block-2{
+            padding-left: 15px;
+            padding-right: 15px;
+            font-weight: bold;
+            color: rgb(47, 43, 61, 1);
+            font-size: 18px;
+          }
+          .orderfooter-block-3{
+            text-align: left;
+            color: rgb(47, 43, 61, 0.7);
+            font-size: 16px;
+            font-weight: bold;
+          }
+        }
+      }
+    }
+  }
+}
+
+</style>
