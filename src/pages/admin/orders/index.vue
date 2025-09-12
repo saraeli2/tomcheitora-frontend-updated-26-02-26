@@ -33,6 +33,7 @@ const selectedStatus = ref()
 const selectedRows = ref([])
 const selectedSale = ref(props.saleid)
 const searchText = ref('')
+const selectedPaymentStatusStatus = ref()
 
 // Data table options
 const itemsPerPage = ref(25)
@@ -118,6 +119,7 @@ const {
     sale: selectedSale,
     search: searchQuery,
     status: selectedStatus,
+    paymentStatus: selectedPaymentStatusStatus,
     itemsPerPage,
     page,
     sortBy,
@@ -309,6 +311,21 @@ const deleteOrder = async id => {
                     clearable
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedPaymentStatusStatus"
+                    :items="[
+                      { value: 'Dues', title: 'Dues' },
+                      { value: 'Refund', title: 'Refund' },
+                    ]"
+                    :placeholder="$t('Payment Status')"
+                    clearable
+                  />
+                </VCol>
               </VRow>
             </VCardText>
           </VExpansionPanelText>
@@ -378,7 +395,8 @@ const deleteOrder = async id => {
 
         <!-- amountDifference -->
         <template #[`item.amountDifference`]="{ item }">
-          {{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}
+          <span class="lesspaid" v-if="item.amountDifference && item.amountDifference > 0">{{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}</span>
+          <span class="overpaid" v-else-if="item.amountDifference && item.amountDifference < 0">{{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}</span>
         </template>
 
         <!-- status -->

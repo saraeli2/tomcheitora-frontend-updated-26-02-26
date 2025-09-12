@@ -285,16 +285,7 @@ const currentTab = ref('statistics')
           {{ $t('Created At') }}: {{ formatDateWithTime(saleData.createdAt) }}, {{ $t('Updated At') }}: {{ formatDateWithTime(saleData.updatedAt) }}
         </div>
       </div>
-      <div class="d-flex gap-4">
-        <VBtn
-          v-if="can('admin-delete-sales', 'Delete Sales')"
-          variant="tonal"
-          color="error"
-          @click="deleteSale"
-        >
-          {{ $t('Delete Sale') }}
-        </VBtn>
-      </div>
+      
     </div>
     <!-- 👉 Sale Details  -->
     <VTabs

@@ -1656,3 +1656,9 @@ button.px-4.py-2.bg-primary.text-white.rounded[disabled] {
    background-color: #32A744 !important;
    color: #fff !important;
 }
+.v-table > .v-table__wrapper > table tr.v-data-table__tr .lesspaid {
+    color: #f00;
+}
+.v-table > .v-table__wrapper > table tr.v-data-table__tr .overpaid {
+    color: green;
+}

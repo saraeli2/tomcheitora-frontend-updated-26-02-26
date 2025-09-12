@@ -205,6 +205,8 @@ const updateOrder = async () => {
       },
     })
 
+    changedItems.value = []
+
     fetchOrders()
   } catch (err) {
     console.log(err)
@@ -392,6 +394,7 @@ const updateOrder = async () => {
                         v-model.number="item.quantity"
                         min="1"
                         class="w-16 text-center border rounded px-2 py-1"
+                        readonly
                       />
 
                       <button
@@ -468,7 +471,8 @@ const updateOrder = async () => {
                   </tr>
                   <tr>
                     <td class="text-high-emphasis font-weight-medium">
-                      {{ $t('Difference') }}:
+                      <span v-if="orderData.amountDifference" style="color: #f00;">{{ $t('Difference') }}:</span>
+                      <span v-else>{{ $t('Difference') }}:</span>
                     </td>
                     <td class="font-weight-medium">
                       {{ numberFormat(orderData.amountDifference) }}

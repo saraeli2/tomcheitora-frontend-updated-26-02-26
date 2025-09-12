@@ -134,6 +134,7 @@ const submitLoginWithPhone = async() =>{
     },
     onResponseError({ response }) {
       toast.error(response._data.message)
+      showLoader.value = false
     },
   }).then(async response => {
     await nextTick(() => {
