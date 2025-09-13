@@ -573,6 +573,8 @@
   "Select Report": "Select Report",
   "Order Report": "Order Report",
   "Product Report": "Product Report",
+  "Product Sales Report": "Product Sales Report",
+  "Station Users Report": "Station Users Report",
   "בר קוד": "Internal SKU",
   "מק”ט": "Product number",
   "שם מוצר": "Name",
@@ -582,5 +584,10 @@
   "Download PDF": "Download PDF",
   "Send PDF": "Send PDF",
   "We are sending email in": "We are sending email in",
-  "Update Order": "Update Order"
+  "Update Order": "Update Order",
+  "Product Name": "Product Name",
+  "Product Number": "Product Number",
+  "Station Name": "Station Name",
+  "Full Name": "Full Name",
+  "Total Items": "Total Items"
 }

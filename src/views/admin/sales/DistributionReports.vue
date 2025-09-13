@@ -5,6 +5,8 @@ import DiscountOrderReport from '@/views/admin/sales/DiscountOrderReport.vue'
 import SalesReport from '@/views/admin/sales/SalesReport.vue'
 import OrderReport from '@/views/admin/sales/OrderReport.vue'
 import ProductReports from '@/views/admin/sales/ProductReports.vue'
+import ProductSalesReports from '@/views/admin/sales/ProductSalesReports.vue'
+import StationUsersReports from '@/views/admin/sales/StationUsersReports.vue'
 
 const props = defineProps({
   saleid: {
@@ -68,6 +70,14 @@ const tabs = [
   {
     title: t('Product Report'),
     tab: 'product_report',
+  },
+  {
+    title: t('Product Sales Report'),
+    tab: 'product_sales_report',
+  },
+  {
+    title: t('Station Users Report'),
+    tab: 'station_users_report',
   },
   
 ]
@@ -138,6 +148,20 @@ const refreshTab = async tabData => {
 
       <VWindowItem value="product_report">
         <ProductReports
+          :saleid="props.saleid" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+
+      <VWindowItem value="product_sales_report">
+        <ProductSalesReports
+          :saleid="props.saleid" 
+          @tab-data="refreshTab"
+        />
+      </VWindowItem>
+
+      <VWindowItem value="station_users_report">
+        <StationUsersReports
           :saleid="props.saleid" 
           @tab-data="refreshTab"
         />

@@ -568,6 +568,8 @@
   "Select Report": "בחר דוח",
   "Order Report": "דוח הזמנות",
   "Product Report": "דוח מוצרים",
+  "Product Sales Report": "דוח מכירות מוצרים",
+  "Station Users Report": "דוח משתמשי תחנה",
   "בר קוד": "בר קוד",
   "מק”ט": "מק”ט",
   "שם מוצר": "שם מוצר",
@@ -576,5 +578,10 @@
   "Sales Report": "דוח מכירות",
   "Download PDF": "הורד קובץ PDF",
   "Send PDF": "שלח PDF",
-  "We are sending email in": "אנחנו שולחים אימייל"
+  "We are sending email in": "אנחנו שולחים אימייל",
+  "Product Name": "שם מוצר",
+  "Product Number": "מספר מוצר",
+  "Station Name": "שם תחנה",
+  "Full Name": "שם מלא",
+  "Total Items": "סה״כ פריטים"
 }
