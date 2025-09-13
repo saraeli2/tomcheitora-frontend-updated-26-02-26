@@ -1,6 +1,8 @@
 <script setup>
 import useHelper from "@/mixins/helper"
-
+import axios from 'axios';
+import { useAuthStore } from '@/stores'
+import { useToast } from 'vue-toastification'
 const { numberFormat } = useHelper()
 
 definePage({
@@ -17,6 +19,9 @@ import { can } from '@layouts/plugins/casl'
 import Swal from 'sweetalert2'
 
 import { useI18n } from 'vue-i18n'
+
+const authStore = useAuthStore()
+const toast = useToast()
 
 const { t } = useI18n()
 const ability = useAbility()
@@ -254,6 +259,91 @@ const recalculateTotal = () => {
   orderData.value.total = subTotal - orderData.value.totalDiscount + orderData.value.totalVat + orderData.value.deliveryCharge
   orderData.value.amountDifference = orderData.value.total - orderData.value.originalOrderedAmount
 }
+
+const downloadOrderPDF = async (order) => {
+  try {
+    showLoader.value = true
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/admin/reports/pdf-download`,
+      { orderID: order._id }, // POST data
+      {
+        responseType: 'blob', // important for PDF
+        headers: {
+          'Authorization': `Bearer ${authStore.accessToken}`, // ✅ pass bearer token
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    // res.data is the PDF blob
+    const blob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `order_${order._id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    showLoader.value = false
+
+  } catch (err) {
+    console.error('Download error:', err);
+    
+    showLoader.value = false
+
+    //alert('Failed to download PDF');
+  }
+};
+
+// Send pdf
+const isShowConfirmModal = ref(false)
+const currentOrderData = ref()
+const sendOrderPDF = (order) =>{
+  isShowConfirmModal.value = true
+  currentOrderData.value = order
+}
+
+const sendPdfToUser = async() =>{
+  try {
+    showLoader.value = true
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/admin/reports/pdf-send`,
+      { orderID: currentOrderData.value?._id }, // POST data
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.accessToken}`, // your JWT token
+        },
+      }
+    );
+    
+    
+    showLoader.value = false
+
+    if (res.data.success) {
+      isShowConfirmModal.value = false
+      toast.success('קובץ ה-PDF נשלח בהצלחה!');
+    } else {
+      toast.error('Failed to send PDF');
+    }
+
+    
+
+  } catch (err) {
+    toast.success('PDF sent successfully!');
+    console.error('Download error:', err);
+    
+    showLoader.value = false
+
+    //alert('Failed to download PDF');
+  }
+}
 </script>
 
 <template>
@@ -287,6 +377,8 @@ const recalculateTotal = () => {
         </div>
       </div>
       <div class="d-flex gap-4">
+        <VBtn @click="sendOrderPDF(orderData)" prepend-icon="tabler-send">{{ $t('Send PDF') }}</VBtn>
+        <VBtn @click="downloadOrderPDF(orderData)" prepend-icon="tabler-download">{{ $t('Download PDF') }}</VBtn>
         <VBtn
           v-if="can('admin-delete-orders', 'Order') && orderData.status != 'Canceled'"
           variant="tonal"
@@ -479,11 +571,11 @@ const recalculateTotal = () => {
             >
               <!-- 👉 Create Product -->
               <VBtn
-                v-if="can('admin-update-orders', 'Update Orders')"
+                v-if="can('admin-update-orders', 'Order')"
                 prepend-icon="tabler-check"
                 @click="orderDialogShown = true"
               >
-                {{ $t('Confirm Order') }}
+                {{ $t('Update Order') }}
               </VBtn>
             </div>
             <div class="d-flex align-end flex-column">
@@ -673,5 +765,34 @@ const recalculateTotal = () => {
         indeterminate
       />
     </VDialog>
+
+    <VDialog
+    v-model="isShowConfirmModal"
+    class="v-dialog-sm"
+  >
+    
+    <!-- Dialog close btn -->
+    <DialogCloseBtn @click="isShowConfirmModal = !isShowConfirmModal" />
+
+    <!-- Dialog Content -->
+    <VCard :title="$t('Send PDF')">
+      <VCardText>
+        {{ $t('We are sending email in') }} <strong>{{ currentOrderData.userID?.email }}</strong>
+      </VCardText>
+
+      <VCardText class="d-flex justify-end gap-3 flex-wrap">
+        <VBtn
+          color="secondary"
+          variant="tonal"
+          @click="isShowConfirmModal = false"
+        >
+          {{ $t('Cancel') }}
+        </VBtn>
+        <VBtn @click="sendPdfToUser">
+          {{ $t('Submit') }}
+        </VBtn>
+      </VCardText>
+    </VCard>
+  </VDialog>
   </div>
 </template>

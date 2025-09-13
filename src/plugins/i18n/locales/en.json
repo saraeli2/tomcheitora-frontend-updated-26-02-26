@@ -578,5 +578,9 @@
   "שם מוצר": "Name",
   "כמותת שנמכרה": "Sold Count",
   "נשאר במלאי": "Left In Stock",
-  "Sales Report": "Sales Report"
+  "Sales Report": "Sales Report",
+  "Download PDF": "Download PDF",
+  "Send PDF": "Send PDF",
+  "We are sending email in": "We are sending email in",
+  "Update Order": "Update Order"
 }

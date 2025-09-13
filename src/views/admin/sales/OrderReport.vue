@@ -2,6 +2,8 @@
 import { useI18n } from 'vue-i18n'
 import useHelper from "@/mixins/helper";
 import { useToast } from 'vue-toastification'
+import axios from 'axios';
+import { useAuthStore } from '@/stores'
 
 const props = defineProps({
   saleid: {
@@ -11,6 +13,7 @@ const props = defineProps({
 })
 
 const toast = useToast()
+const authStore = useAuthStore()
 
 const { numberFormat } = useHelper()
 
@@ -176,6 +179,90 @@ const resolveStatusVariantAndIcon = status => {
 
 const orderPdf = ref(null)
 const currentOrder = ref(null)
+
+const downloadOrderPDF = async (order) => {
+  try {
+    showLoader.value = true
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/admin/reports/pdf-download`,
+      { orderID: order._id }, // POST data
+      {
+        responseType: 'blob', // important for PDF
+        headers: {
+          'Authorization': `Bearer ${authStore.accessToken}`, // ✅ pass bearer token
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    // res.data is the PDF blob
+    const blob = new Blob([res.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `order_${order._id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    window.URL.revokeObjectURL(url);
+
+    showLoader.value = false
+
+  } catch (err) {
+    console.error('Download error:', err);
+    
+    showLoader.value = false
+
+    //alert('Failed to download PDF');
+  }
+};
+
+// Send pdf
+const isShowConfirmModal = ref(false)
+const currentOrderData = ref()
+const sendOrderPDF = (order) =>{
+  isShowConfirmModal.value = true
+  currentOrderData.value = order
+}
+
+const sendPdfToUser = async() =>{
+  try {
+    showLoader.value = true
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/admin/reports/pdf-send`,
+      { orderID: currentOrderData.value?._id }, // POST data
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authStore.accessToken}`, // your JWT token
+        },
+      }
+    );
+    
+    
+    showLoader.value = false
+
+    if (res.data.success) {
+      isShowConfirmModal.value = false
+      toast.success('קובץ ה-PDF נשלח בהצלחה!');
+    } else {
+      toast.error('Failed to send PDF');
+    }
+
+    
+
+  } catch (err) {
+    console.error('Download error:', err);
+    
+    showLoader.value = false
+
+    alert('Failed to download PDF');
+  }
+}
 </script>
 
 <template>
@@ -341,14 +428,14 @@ const currentOrder = ref(null)
                 <template #prepend>
                   <VIcon icon="tabler-download" />
                 </template>
-                <VListItemTitle>Download PDF</VListItemTitle>
+                <VListItemTitle>{{ $t('Download PDF') }}</VListItemTitle>
               </VListItem>
 
               <VListItem @click="sendOrderPDF(item)">
                 <template #prepend>
                   <VIcon icon="tabler-send" />
                 </template>
-                <VListItemTitle>Send PDF</VListItemTitle>
+                <VListItemTitle>{{ $t('Send PDF') }}</VListItemTitle>
               </VListItem>
             </VList>
           </VMenu>
@@ -374,6 +461,36 @@ const currentOrder = ref(null)
         color="white"
         indeterminate
       />
+  </VDialog>
+
+
+  <VDialog
+    v-model="isShowConfirmModal"
+    class="v-dialog-sm"
+  >
+    
+    <!-- Dialog close btn -->
+    <DialogCloseBtn @click="isShowConfirmModal = !isShowConfirmModal" />
+
+    <!-- Dialog Content -->
+    <VCard :title="$t('Send PDF')">
+      <VCardText>
+        {{ $t('We are sending email in') }} <strong>{{ currentOrderData.userID?.email }}</strong>
+      </VCardText>
+
+      <VCardText class="d-flex justify-end gap-3 flex-wrap">
+        <VBtn
+          color="secondary"
+          variant="tonal"
+          @click="isShowConfirmModal = false"
+        >
+          {{ $t('Cancel') }}
+        </VBtn>
+        <VBtn @click="sendPdfToUser">
+          {{ $t('Submit') }}
+        </VBtn>
+      </VCardText>
+    </VCard>
   </VDialog>
 </template>
 
