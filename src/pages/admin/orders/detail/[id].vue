@@ -494,7 +494,7 @@ const sendPdfToUser = async() =>{
                 <div class="d-flex flex-column align-start">
                   <h6 class="text-h6">
                     <IconBtn
-                      v-if="can('admin-update-orders', 'Update Orders')"
+                      v-if="can('admin-update-orders', 'Order')"
                       class="checkout-item-remove-btn"
                     >
                       <VIcon
@@ -521,7 +521,7 @@ const sendPdfToUser = async() =>{
             <template #[`item.quantity`]="{ item }">
               <div class="text-body-1">
                 <button
-                  v-if="can('admin-update-orders', 'Update Orders')"
+                  v-if="can('admin-update-orders', 'Order')"
                   type="button"
                   class="px-2 py-1 bg-primary text-white rounded"
                   @click="decreaseQuantity(item)"
@@ -537,7 +537,7 @@ const sendPdfToUser = async() =>{
                 >
 
                 <button
-                  v-if="can('admin-update-orders', 'Update Orders')"
+                  v-if="can('admin-update-orders', 'Order')"
                   type="button"
                   class="px-2 py-1 bg-primary text-white rounded"
                   @click="increaseQuantity(item)"

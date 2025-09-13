@@ -74,7 +74,8 @@ const login = async () => {
 
     // ❗ nextTick is required to wait for DOM updates and later redirect
     await nextTick(() => {
-      router.replace(route.query.to ? String(route.query.to) : userData.userRedirectURL)
+      //router.replace(route.query.to ? String(route.query.to) : userData.userRedirectURL)
+      router.replace(userData.userRedirectURL)
     })
   } catch (err) {
     console.error(err)
