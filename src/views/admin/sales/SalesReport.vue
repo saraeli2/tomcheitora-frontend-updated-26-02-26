@@ -18,14 +18,12 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['Order'],
+    action: ['admin-view-sales-reports'],
+    subject: ['View Sales Report'],
     title: 'Sale Reports',
   },
 })
 
-
-import { can } from '@layouts/plugins/casl'
 
 const { t } = useI18n()
 

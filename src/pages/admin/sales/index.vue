@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 definePage({
   meta: {
     action: ['admin-view-sales', 'admin-create-sales'],
-    subject: ['Sales'],
+    subject: ['View Sales', 'Create Sales'],
     title: 'Sales',
   },
 })
@@ -214,7 +214,7 @@ const deleteSale = async id => {
           </div>
           <!-- 👉 Create Sale -->
           <VBtn
-            v-if="can('admin-create-sales', 'Sales')"
+            v-if="can('admin-create-sales', 'Create Sales')"
             prepend-icon="tabler-plus"
             @click="isAddNewSaleDrawerVisible = true"
           >
@@ -228,7 +228,7 @@ const deleteSale = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-sales', 'Sales')"
+        v-if="can('admin-view-sales', 'View Sales')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -267,11 +267,11 @@ const deleteSale = async id => {
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-sales', 'Sales')" />
+      <VDivider v-if="can('admin-view-sales', 'View Sales')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-sales', 'Sales')"
+        v-if="can('admin-view-sales', 'View Sales')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
@@ -289,7 +289,7 @@ const deleteSale = async id => {
           </RouterLink>
 
           <VIcon 
-            v-if="can('admin-update-sales', 'Sales')"
+            v-if="can('admin-update-sales', 'Update Sales')"
             style="margin-left:6px" 
             @click="editSale(item)" class="tabler-pencil" 
           />
@@ -376,7 +376,7 @@ const deleteSale = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-sales', 'Sales')"
+                  v-if="can('admin-update-sales', 'Update Sales')"
                   @click="editSale(item)"
                 >
                   <template #prepend>

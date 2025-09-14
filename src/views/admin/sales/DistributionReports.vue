@@ -23,12 +23,11 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['View Sale Orders'],
+    action: ['admin-view-orders'],
+    subject: ['View Orders'],
     title: 'Sale Reports',
   },
 })
-
 
 import { can } from '@layouts/plugins/casl'
 
@@ -50,34 +49,44 @@ const sortBy = ref()
 const orderBy = ref()
 const selectedStation = ref()
 
-
-
 const currentTab = ref('discount_report')
 
 const tabs = [
   {
     title: t('Discount Report'),
     tab: 'discount_report',
+    subject: 'View Discount Report',
+    action: 'admin-view-discount-reports',
   },
   {
     title: t('Sales Report'),
     tab: 'sales_report',
+    subject: 'View Sales Report',
+    action: 'admin-view-sales-reports',
   },
   {
     title: t('Order Report'),
     tab: 'order_report',
+    subject: 'View Order Report',
+    action: 'admin-view-order-reports',
   },
   {
     title: t('Product Report'),
     tab: 'product_report',
+    subject: 'View Product Report',
+    action: 'admin-view-product-reports',
   },
   {
     title: t('Product Sales Report'),
     tab: 'product_sales_report',
+    subject: 'View Product Sales Report',
+    action: 'admin-view-product-sales-reports',
   },
   {
     title: t('Station Users Report'),
     tab: 'station_users_report',
+    subject: 'View Station Users Report',
+    action: 'admin-view-station-users-reports',
   },
   
 ]
@@ -112,7 +121,10 @@ const refreshTab = async tabData => {
               class="v-tabs-pill"
             >
               <template v-for="item in tabs" :key="item.tab">
-                <VTab :value="item.tab">
+                <VTab
+                    v-if="can(item.action, item.subject)"
+                    :value="item.tab"
+                >
                   {{ $t(item.title) }}
                 </VTab>
               </template>

@@ -15,10 +15,12 @@ const props = defineProps({
 definePage({
   meta: {
     action: ['admin-view-orders', 'admin-create-orders'],
-    subject: ['Order'],
+    subject: ['View Orders', 'Create Orders'],
     title: 'Orders',
   },
 })
+
+import OrderStationDialog from '@/views/admin/orders/OrderStationDialog.vue'
 
 import { can } from '@layouts/plugins/casl'
 
@@ -34,6 +36,7 @@ const selectedRows = ref([])
 const selectedSale = ref(props.saleid)
 const searchText = ref('')
 const selectedPaymentStatusStatus = ref()
+const selectedStation = ref()
 
 // Data table options
 const itemsPerPage = ref(25)
@@ -41,6 +44,8 @@ const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
 const panel = ref()
+const orderDetail = ref()
+const isOrderStationDialogVisible = ref(false)
 
 const updateOptions = options => {
   sortBy.value = options.sortBy[0]?.key
@@ -49,12 +54,21 @@ const updateOptions = options => {
 
 const headers = computed(() => [
   {
+    title: t('Actions'),
+    key: 'actions',
+    sortable: false,
+  },
+  {
     title: t('Order Number'),
     key: 'orderNumber',
   },
   {
     title: t('User'),
     key: 'userID',
+  },
+  {
+    title: t('Station'),
+    key: 'stationID',
   },
   {
     title: t('Total Quantity'),
@@ -103,11 +117,6 @@ const headers = computed(() => [
     title: t('Updated At'),
     key: 'updatedAt',
   },
-  {
-    title: t('Actions'),
-    key: 'actions',
-    sortable: false,
-  },
 ])
 
 const {
@@ -120,6 +129,7 @@ const {
     search: searchQuery,
     status: selectedStatus,
     paymentStatus: selectedPaymentStatusStatus,
+    station: selectedStation,
     itemsPerPage,
     page,
     sortBy,
@@ -166,6 +176,30 @@ const totalOrders = computed(() => customerData.value.total)
 //   value: item._id,
 //   title: `${ item.firstName } ${ item.lastName }`,
 // }))
+
+const commonsync = await $api('/admin/stations/respond-with/extra-options', {
+  query: {
+    sale: selectedSale.value,
+    selected: 1,
+  },
+}).catch(err => console.log(err))
+
+const stationOptions = computed(() => commonsync.stationOptions)
+
+const stations = computed(() => [
+  { value: 'unknown', title: 'Unknown' }, // always first
+  ...stationOptions.value.map(item => ({
+    value: item._id,
+    title: item.name,
+  })),
+])
+
+const dialogStations = computed(() =>
+  stationOptions.value.map(item => ({
+    value: item._id,
+    title: item.name,
+  })),
+)
 
 const resolveStatusVariantAndIcon = status => {
   if (status === 'Processing') {
@@ -226,6 +260,30 @@ const deleteOrder = async id => {
       }
     })  
 }
+
+const editStation = async value => {
+  orderDetail.value = value
+  if(value.userID) {
+    const data = await $api(`/admin/users/${ value.userID._id }`).catch(err => console.log(err))
+
+    orderDetail.value.userDetail = data
+  } else {
+    orderDetail.value.userDetail = {
+      'firstName': '',
+      'lastName': '',
+      'email': '',
+      'phone': '',
+      'cityID': '',
+      'street': '',
+      'houseNumber': '',
+      'address': '',
+      'nationality': '',
+      'israeliIDNumber': '',
+    }
+  }
+  
+  isOrderStationDialogVisible.value = true
+}
 </script>
 
 <template>
@@ -262,7 +320,7 @@ const deleteOrder = async id => {
           </div>
           <!-- 👉 Create Order -->
           <VBtn
-            v-if="can('admin-create-orders', 'Order')"
+            v-if="can('admin-create-orders', 'Create Orders')"
             prepend-icon="tabler-plus"
             :to="{ name: 'admin-orders-create', query: { saleid: selectedSale } }"
           >
@@ -276,7 +334,7 @@ const deleteOrder = async id => {
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-orders', 'Order')"
+        v-if="can('admin-view-orders', 'View Orders')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -326,17 +384,29 @@ const deleteOrder = async id => {
                     clearable
                   />
                 </VCol>
+
+                <VCol
+                  cols="12"
+                  sm="4"
+                >
+                  <AppAutocomplete
+                    v-model="selectedStation"
+                    :items="stations"
+                    :placeholder="$t('Select Station')"
+                    clearable
+                  />
+                </VCol>
               </VRow>
             </VCardText>
           </VExpansionPanelText>
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-orders', 'Order')" />
+      <VDivider v-if="can('admin-view-orders', 'View Orders')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-orders', 'Order')"
+        v-if="can('admin-view-orders', 'View Orders')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
@@ -350,24 +420,34 @@ const deleteOrder = async id => {
         <!-- userID -->
 
         <template #[`item.orderNumber`]="{ item }">
-          <RouterLink
-            v-if="can('admin-view-orders', 'Order') && item.userID"
-            :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }"
-          >
+          <RouterLink :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }">
             {{ item._id }}
           </RouterLink>
-          <span v-else>{{ item._id }}</span>
         </template>
-
 
         <template #[`item.userID`]="{ item }">
           <RouterLink
-            v-if="can('admin-view-users', 'User') && item.userID"
+            v-if="can('admin-view-users', 'View Users') && item.userID"
             :to="{ name: 'admin-users-detail-id', params: { id: item.userID._id } }"
           >
             {{ item.userID.firstName + ' ' + item.userID.lastName }}
           </RouterLink>
           <span v-else>{{ item.userID ? item.userID.firstName + ' ' + item.userID.lastName : '' }}</span>
+        </template>
+
+        <template #[`item.stationID`]="{ item }">
+          <RouterLink
+            v-if="can('admin-view-stations', 'View Stations') && item.stationID"
+            :to="{ name: 'admin-stations-detail-id', params: { id: item.stationID._id } }"
+          >
+            {{ item.stationID.name }}
+          </RouterLink>
+          <span v-else>{{ item.stationID ? item.stationID.name : '' }}</span>
+          <VIcon 
+            v-if="can('admin-update-orders', 'Update Orders')"
+            style="margin-left:6px" 
+            @click="editStation(item)" class="tabler-pencil" 
+          />
         </template>
 
         <!-- quantity -->
@@ -395,8 +475,18 @@ const deleteOrder = async id => {
 
         <!-- amountDifference -->
         <template #[`item.amountDifference`]="{ item }">
-          <span class="lesspaid" v-if="item.amountDifference && item.amountDifference > 0">{{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}</span>
-          <span class="overpaid" v-else-if="item.amountDifference && item.amountDifference < 0">{{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}</span>
+          <span
+            v-if="item.amountDifference && item.amountDifference > 0" 
+            class="lesspaid"
+          >
+            {{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}
+          </span>
+          <span 
+            v-else-if="item.amountDifference && item.amountDifference < 0"
+            class="overpaid"
+          >
+            {{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}
+          </span>
         </template>
 
         <!-- status -->
@@ -438,7 +528,7 @@ const deleteOrder = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-orders', 'Order')"
+                  v-if="can('admin-update-orders', 'Update Orders')"
                   :to="{ name: 'admin-orders-edit-id', params: { id: item._id } }"
                 >
                   <template #prepend>
@@ -448,7 +538,7 @@ const deleteOrder = async id => {
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-orders', 'Order')"
+                  v-if="can('admin-delete-orders', 'Delete Orders')"
                   @click="deleteOrder(item._id)"
                 >
                   <template #prepend>
@@ -472,6 +562,13 @@ const deleteOrder = async id => {
       </VDataTableServer>
     <!-- !SECTION -->
     </VCard>
+    <OrderStationDialog
+      v-if="isOrderStationDialogVisible"
+      v-model:is-dialog-visible="isOrderStationDialogVisible"
+      v-model:stations="dialogStations"
+      v-model:order="orderDetail"
+      @user-data="modifyOrder"
+    />
   </section>
 </template>
 

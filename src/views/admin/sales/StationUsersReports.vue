@@ -15,9 +15,9 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['Order'],
-    title: 'Stations Users Report',
+    action: ['admin-view-station-users-reports'],
+    subject: ['View Station Users Report'],
+    title: 'Station Users Report',
   },
 })
 
@@ -108,7 +108,7 @@ const stationUsersReports = computed(() => (productSaleReportData.value || {}).r
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Stations Users Report') }}
+              {{ $t('Station Users Report') }}
             </h5>
           </VCol>
         </VRow>
@@ -143,7 +143,7 @@ const stationUsersReports = computed(() => (productSaleReportData.value || {}).r
       >
         <template #[`item.israeliID`]="{ item }">
           <RouterLink
-            v-if="can('admin-view-users', 'User') && item.userID"
+            v-if="can('admin-view-users', 'View Users') && item.userID"
             :to="{ name: 'admin-users-detail-id', params: { id: item.userID } }"
           >
             {{ item.israeliID }}
@@ -153,7 +153,7 @@ const stationUsersReports = computed(() => (productSaleReportData.value || {}).r
 
         <template #[`item.fullName`]="{ item }">
           <RouterLink
-            v-if="can('admin-view-users', 'User') && item.userID"
+            v-if="can('admin-view-users', 'View Users') && item.userID"
             :to="{ name: 'admin-users-detail-id', params: { id: item.userID } }"
           >
             {{ item.fullName }}

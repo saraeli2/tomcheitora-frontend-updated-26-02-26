@@ -80,6 +80,10 @@ export const setupGuards = router => {
         }
       }
     } else {
+      if (import.meta.env.VITE_SALE_CLOSED === "true" && to.name !== 'sale-closed') {
+          return { name: 'sale-closed' };
+      }
+      
       const stationRedirect = '/profile/my-account/account'
 
       if (
@@ -93,18 +97,17 @@ export const setupGuards = router => {
         else
           return undefined
       }
-      
-      //console.log(to);
 
       if (!canNavigate(to) && to.matched.length) {
         if (isUserLoggedIn && to.name !== 'not-authorized') {
-          if(to.fullPath != '/logout') {
+          const allowedPaths = ['/logout', '/sale-closed']
+          if (!allowedPaths.includes(to.fullPath)) {
             return { name: 'not-authorized' };
           }
         } else if (!isUserLoggedIn && to.name !== 'login') {
           if(to.fullPath == '/logout') {
             return { name: 'login' };
-          } else {
+          } else if(to.fullPath != '/sale-closed') {
             return { name: 'login', query: { to: to.fullPath } };
           }
         }

@@ -17,14 +17,11 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['View Sale Orders'],
-    title: 'Sale Reports',
+    action: ['admin-view-discount-reports'],
+    subject: ['View Discount Report'],
+    title: 'Discount Reports',
   },
 })
-
-
-import { can } from '@layouts/plugins/casl'
 
 const { t } = useI18n()
 
@@ -109,9 +106,6 @@ const {
 
 const discountReports = computed(() => discountReportData.value.report)
 const totalDisoucntRows = computed(() => discountReportData.value.total)
-
-console.log(discountReports);
-
 </script>
 
 <template>

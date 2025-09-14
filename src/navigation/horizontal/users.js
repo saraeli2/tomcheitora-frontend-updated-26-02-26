@@ -4,6 +4,6 @@ export default [
     icon: { icon: 'tabler-user-shield' },
     to: 'admin-users',
     action: 'admin-view-users',
-    subject: 'User',
+    subject: 'View Users',
   },
 ]

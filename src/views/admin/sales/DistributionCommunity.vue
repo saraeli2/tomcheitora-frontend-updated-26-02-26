@@ -15,7 +15,7 @@ const emit = defineEmits([
 definePage({
   meta: {
     action: ['admin-view-sale-communities', 'admin-create-sale-communities'],
-    subject: ['View Sale Community', 'Create Sale Community'],
+    subject: ['View Sale Communities', 'Create Sale Communities'],
     title: 'Sale Community',
   },
 })

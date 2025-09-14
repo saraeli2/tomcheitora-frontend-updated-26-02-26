@@ -14,8 +14,8 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['Order'],
+    action: ['admin-view-product-reports'],
+    subject: ['View Product Report'],
     title: 'Product Reports',
   },
 })
@@ -38,7 +38,7 @@ const productOptions = computed(() => commonsync.productOptions)
 
 const products = productOptions.value.map(item => ({
   value: item._id,
-  title: item.name,
+  title: `${item.name} (${item.productNumber})`,
 }))
 
 const {

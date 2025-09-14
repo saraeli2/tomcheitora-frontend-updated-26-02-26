@@ -280,7 +280,7 @@ const deleteExcludeProduct = async id => {
         <!-- communityID -->
         <template #[`item.communityID`]="{ item }">
           <RouterLink
-            v-if="can('admin-view-communities', 'View Communities') && item.communityID"
+            v-if="can('admin-view-communities', 'View Community') && item.communityID"
             :to="{ name: 'admin-communities-detail-id', params: { id: item.communityID._id } }"
           >
             {{ item.communityID.name }}

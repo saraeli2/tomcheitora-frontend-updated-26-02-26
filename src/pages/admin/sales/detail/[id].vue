@@ -2,7 +2,7 @@
 definePage({
   meta: {
     action: ['admin-view-sales'],
-    subject: ['Sales'],
+    subject: ['View Sales'],
     navActiveLink: 'admin-sales',
     title: 'Sale Details',
   },
@@ -17,7 +17,6 @@ import DistributionProducts from '@/views/admin/sales/DistributionProducts.vue'
 import ExcludeProducts from '@/views/admin/sales/ExcludeProducts.vue'
 import DistributionStations from '@/views/admin/sales/DistributionStations.vue'
 import DistributionReports from '@/views/admin/sales/DistributionReports.vue'
-
 
 import { can } from '@layouts/plugins/casl'
 
@@ -219,43 +218,43 @@ const tabs = [
   {
     title: 'Statistics',
     tab: 'statistics',
-    subject: 'Statistics',
+    subject: 'View Statistics',
     action: 'admin-view-statistics',
   },
   {
     title: 'Orders',
     tab: 'orders',
-    subject: 'Order',
+    subject: 'View Orders',
     action: 'admin-view-orders',
   },
   {
     title: 'Sale Products',
     tab: 'sale-products',
-    subject: 'Sale Products',
+    subject: 'View Sale Products',
     action: 'admin-view-sale-products',
   },
   {
     title: 'Exclude Products',
     tab: 'exclude-products',
-    subject: 'Exclude Products',
+    subject: 'View Exclude Products',
     action: 'admin-view-exclude-products',
   },
   {
     title: 'Sale Communities',
     tab: 'sale-communities',
-    subject: 'Sale Community',
+    subject: 'View Sale Communities',
     action: 'admin-view-sale-communities',
   },
   {
     title: 'Sale Stations',
     tab: 'sale-stations',
-    subject: 'Sale Stations',
+    subject: 'View Sale Stations',
     action: 'admin-view-sale-stations',
   },
   {
     title: 'Reports',
     tab: 'sale-reports',
-    subject: 'Order',
+    subject: 'View Orders',
     action: 'admin-view-orders',
   },
 ]
@@ -290,7 +289,7 @@ const currentTab = ref('statistics')
           {{ $t('Sale ID') }} #{{ route.params.id }} 
 
           <VIcon 
-            v-if="can('admin-update-sales', 'Sales')"
+            v-if="can('admin-update-sales', 'Update Sales')"
             style="margin-left:6px" 
             class="tabler-pencil" 
             @click="isSaleDialogVisible = !isSaleDialogVisible"
@@ -448,7 +447,7 @@ const currentTab = ref('statistics')
       </VWindowItem>
 
       <VWindowItem
-        v-if="can('admin-view-orders', 'Order')"
+        v-if="can('admin-view-orders', 'View Orders')"
         value="orders"
       >
         <DistributionOrders
@@ -457,7 +456,7 @@ const currentTab = ref('statistics')
         />
       </VWindowItem>
       <VWindowItem
-        v-if="can('admin-view-sale-products', 'Sale Products')"
+        v-if="can('admin-view-sale-products', 'View Sale Products')"
         value="sale-products"
       >
         <DistributionProducts
@@ -466,7 +465,7 @@ const currentTab = ref('statistics')
         />
       </VWindowItem>
       <VWindowItem
-        v-if="can('admin-view-exclude-products', 'Exclude Products')"
+        v-if="can('admin-view-exclude-products', 'View Exclude Products')"
         value="exclude-products"
       >
         <ExcludeProducts
@@ -475,7 +474,7 @@ const currentTab = ref('statistics')
         />
       </VWindowItem>
       <VWindowItem
-        v-if="can('admin-view-sale-communities', 'Sale Community')"
+        v-if="can('admin-view-sale-communities', 'View Sale Communities')"
         value="sale-communities"
       >
         <!--
@@ -490,7 +489,7 @@ const currentTab = ref('statistics')
         />
       </VWindowItem>
       <VWindowItem
-        v-if="can('admin-view-sale-communities', 'Sale Community')"
+        v-if="can('admin-view-sale-communities', 'View Sale Communities')"
         value="sale-stations"
       >
         <DistributionStations
@@ -500,7 +499,7 @@ const currentTab = ref('statistics')
       </VWindowItem>
 
       <VWindowItem
-        v-if="can('admin-view-orders', 'Order')"
+        v-if="can('admin-view-discount-reports', 'View Discount Report') || can('admin-view-sales-reports', 'View Sales Report') || can('admin-view-order-reports', 'View Order Report') || can('admin-view-product-reports', 'View Product Report') || can('admin-view-product-sales-reports', 'View Product Sales Report') || can('admin-view-station-users-reports', 'View Station Users Report')"
         value="sale-reports"
       >
         <DistributionReports

@@ -5,7 +5,7 @@ import Draggable from 'vuedraggable'
 definePage({
   meta: {
     action: ['admin-view-users', 'admin-create-users'],
-    subject: ['User'],
+    subject: ['View Users', 'Create Users'],
     title: 'Users',
   },
 })
@@ -360,7 +360,7 @@ watch(
           </div>
           <!-- 👉 Create User -->
           <VBtn
-            v-if="can('admin-create-users', 'User')"
+            v-if="can('admin-create-users', 'Create Users')"
             prepend-icon="tabler-plus"
             @click="isAddNewUserDialogVisible = true"
           >
@@ -375,7 +375,7 @@ watch(
       <VDivider />
       
       <VExpansionPanels
-        v-if="can('admin-view-users', 'User')"
+        v-if="can('admin-view-users', 'View Users')"
         v-model="panel"
       >
         <VExpansionPanel>
@@ -457,11 +457,11 @@ watch(
         </VExpansionPanel>
       </VExpansionPanels>
 
-      <VDivider v-if="can('admin-view-users', 'User')" />
+      <VDivider v-if="can('admin-view-users', 'View Users')" />
 
       <!-- SECTION Datatable -->
       <VDataTableServer
-        v-if="can('admin-view-users', 'User')"
+        v-if="can('admin-view-users', 'View Users')"
         v-model="selectedRows"
         v-model:items-per-page="itemsPerPage"
         v-model:page="page"
@@ -490,7 +490,7 @@ watch(
           </RouterLink>
 
           <VIcon
-            v-if="can('admin-update-users', 'User')"
+            v-if="can('admin-update-users', 'Update Users')"
             style="margin-left:6px" 
             @click="editUser(item)" class="tabler-pencil" 
           />
@@ -592,7 +592,7 @@ watch(
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-update-users', 'User')"
+                  v-if="can('admin-update-users', 'Update Users')"
                   @click="editUser(item)"
                 >
                   <template #prepend>
@@ -602,7 +602,7 @@ watch(
                 </VListItem>
 
                 <VListItem
-                  v-if="can('admin-delete-users', 'User')"
+                  v-if="can('admin-delete-users', 'Delete Users')"
                   @click="deleteUser(item._id)"
                 >
                   <template #prepend>

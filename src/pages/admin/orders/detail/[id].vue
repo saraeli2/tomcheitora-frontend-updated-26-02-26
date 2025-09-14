@@ -8,7 +8,7 @@ const { numberFormat } = useHelper()
 definePage({
   meta: {
     action: ['admin-view-orders'],
-    subject: ['Order'],
+    subject: ['View Orders'],
     navActiveLink: 'admin-sales',
     title: 'Order Details',
   },
@@ -380,7 +380,7 @@ const sendPdfToUser = async() =>{
         <VBtn @click="sendOrderPDF(orderData)" prepend-icon="tabler-send">{{ $t('Send PDF') }}</VBtn>
         <VBtn @click="downloadOrderPDF(orderData)" prepend-icon="tabler-download">{{ $t('Download PDF') }}</VBtn>
         <VBtn
-          v-if="can('admin-delete-orders', 'Order') && orderData.status != 'Canceled'"
+          v-if="can('admin-delete-orders', 'Delete Orders') && orderData.status != 'Canceled'"
           variant="tonal"
           color="error"
           @click="cancelOrder"
@@ -415,7 +415,7 @@ const sendPdfToUser = async() =>{
                       {{ $t('User') }}:
                       <span class="text-body-1 d-inline-block">
                         <RouterLink
-                          v-if="can('admin-view-users', 'User') && orderData.userID"
+                          v-if="can('admin-view-users', 'View Users') && orderData.userID"
                           :to="{ name: 'admin-users-detail-id', params: { id: orderData.userID._id } }"
                         >
                           {{ orderData.userID.firstName + ' ' + orderData.userID.lastName }}
@@ -452,7 +452,7 @@ const sendPdfToUser = async() =>{
               </VCardText>
 
               <VCardText
-                v-if="can('admin-update-orders', 'Order')"
+                v-if="can('admin-update-orders', 'Update Orders')"
                 class="text-center"
               >
                 <VBtn
@@ -494,7 +494,7 @@ const sendPdfToUser = async() =>{
                 <div class="d-flex flex-column align-start">
                   <h6 class="text-h6">
                     <IconBtn
-                      v-if="can('admin-update-orders', 'Order')"
+                      v-if="can('admin-update-orders', 'Update Orders')"
                       class="checkout-item-remove-btn"
                     >
                       <VIcon
@@ -521,7 +521,7 @@ const sendPdfToUser = async() =>{
             <template #[`item.quantity`]="{ item }">
               <div class="text-body-1">
                 <button
-                  v-if="can('admin-update-orders', 'Order')"
+                  v-if="can('admin-update-orders', 'Update Orders')"
                   type="button"
                   class="px-2 py-1 bg-primary text-white rounded"
                   @click="decreaseQuantity(item)"
@@ -537,7 +537,7 @@ const sendPdfToUser = async() =>{
                 >
 
                 <button
-                  v-if="can('admin-update-orders', 'Order')"
+                  v-if="can('admin-update-orders', 'Update Orders')"
                   type="button"
                   class="px-2 py-1 bg-primary text-white rounded"
                   @click="increaseQuantity(item)"
@@ -571,7 +571,7 @@ const sendPdfToUser = async() =>{
             >
               <!-- 👉 Create Product -->
               <VBtn
-                v-if="can('admin-update-orders', 'Order')"
+                v-if="can('admin-update-orders', 'Update Orders')"
                 prepend-icon="tabler-check"
                 @click="orderDialogShown = true"
               >

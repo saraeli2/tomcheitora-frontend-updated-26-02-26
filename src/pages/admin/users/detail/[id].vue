@@ -2,7 +2,7 @@
 definePage({
   meta: {
     action: ['admin-view-users'],
-    subject: ['User'],
+    subject: ['View Users'],
     navActiveLink: 'admin-users',
     title: 'User Details',
   },
@@ -168,7 +168,7 @@ onMounted( async () => {
       </div>
       <div class="d-flex gap-4">
         <VBtn
-          v-if="can('admin-delete-users', 'User')"
+          v-if="can('admin-delete-users', 'Delete Users')"
           variant="tonal"
           color="error"
           @click="deleteUser"

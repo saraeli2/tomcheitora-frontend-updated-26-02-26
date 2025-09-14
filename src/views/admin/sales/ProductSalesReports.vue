@@ -15,8 +15,8 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['Order'],
+    action: ['admin-view-product-sales-reports'],
+    subject: ['View Product Sales Report'],
     title: 'Product Sales Report',
   },
 })
@@ -58,21 +58,7 @@ const headers = computed(() => [
     sortable: false,
   },
 ])
-
-
-const commonsync = await $api('/admin/stations/respond-with/extra-options', {
-  query: {
-    sale: selectedSale.value,
-    selected: 1,
-  },
-}).catch(err => console.log(err))
-
-const stationOptions = computed(() => commonsync.stationOptions)
-
-const stations = stationOptions.value.map(item => ({
-  value: item._id,
-  title: item.name,
-}))
+ const stations = ref([])
 
 const commonsyncCities = await $api('/admin/settings/commonsync/extra-options').catch(err => console.log(err))
 const cityOptions = computed(() => commonsyncCities.cityOptions)
@@ -81,6 +67,28 @@ const cities = cityOptions.value.map(item => ({
   value: item._id,
   title: `${item.nameHe}`,
 }))
+
+
+// 👉 fetch stations depending on city + sale
+const handleStations = async () => {
+  const commonsync = await $api('/admin/stations/respond-with/extra-options', {
+    query: {
+      sale: selectedSale.value,
+      cities: selectedCities.value, // <-- pass selected cities
+      selected: 1,
+    },
+  }).catch(err => console.log(err))
+
+  stations.value = commonsync.stationOptions.map(item => ({
+    value: item._id,
+    title: item.name,
+  }))
+
+  // Reset station selection if stations no longer match
+  selectedStations.value = selectedStations.value.filter(st =>
+    stations.value.some(opt => opt.value === st)
+  )
+}
 
 const {
   data: productSaleReportData,
@@ -117,12 +125,13 @@ const productSalesReports = computed(() => (productSaleReportData.value || {}).r
             md="6"
           >
             <AppAutocomplete
-              v-model="selectedStations"
-              :items="stations"
-              :placeholder="$t('Select Station')"
-              :label="$t('Station')"
+              v-model="selectedCities"
+              :items="cities"
+              :placeholder="$t('Select City')"
+              :label="$t('City')"
               clearable
               multiple
+              @update:model-value="handleStations"
             />
           </VCol>
           <VCol
@@ -130,10 +139,10 @@ const productSalesReports = computed(() => (productSaleReportData.value || {}).r
             md="6"
           >
             <AppAutocomplete
-              v-model="selectedCities"
-              :items="cities"
-              :placeholder="$t('Select City')"
-              :label="$t('City')"
+              v-model="selectedStations"
+              :items="stations"
+              :placeholder="$t('Select Station')"
+              :label="$t('Station')"
               clearable
               multiple
             />

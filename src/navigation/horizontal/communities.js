@@ -4,6 +4,6 @@ export default [
     icon: { icon: 'tabler-users' },
     to: 'admin-communities',
     action: 'admin-view-communities',
-    subject: 'View Communities',
+    subject: 'View Community',
   },
 ]

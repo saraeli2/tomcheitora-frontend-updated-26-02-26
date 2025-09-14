@@ -23,9 +23,9 @@ const emit = defineEmits([
 
 definePage({
   meta: {
-    action: ['admin-view-sale-orders'],
-    subject: ['View Sale Orders'],
-    title: 'Sale Reports',
+    action: ['admin-view-order-reports'],
+    subject: ['View Order Report'],
+    title: 'Order Report',
   },
 })
 
@@ -338,7 +338,7 @@ const sendPdfToUser = async() =>{
 
       <template #[`item.orderNumber`]="{ item }">
         <RouterLink
-          v-if="can('admin-view-orders', 'Order') && item.userID"
+          v-if="can('admin-view-orders', 'View Orders') && item.userID"
           :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }"
         >
           {{ item._id }}
@@ -349,7 +349,7 @@ const sendPdfToUser = async() =>{
 
       <template #[`item.userID`]="{ item }">
         <RouterLink
-          v-if="can('admin-view-users', 'User') && item.userID"
+          v-if="can('admin-view-users', 'View Users') && item.userID"
           :to="{ name: 'admin-users-detail-id', params: { id: item.userID._id } }"
         >
           {{ item.userID.firstName + ' ' + item.userID.lastName }}
