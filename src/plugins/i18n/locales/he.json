@@ -592,5 +592,7 @@
   "Pack": "לֶאֱרוֹז",
   "weight": "מִשׁקָל",
   "Qty": "כמות",
-  "Enter weight": "הזן משקל"
+  "Enter weight": "הזן משקל",
+  "Received Weight Update": "עדכון משקל שהתקבל",
+  "Update weight": "עדכון משקל"
 }

@@ -598,5 +598,7 @@
   "Pack": "Pack",
   "weight": "weight",
   "Qty": "Qty",
-  "Enter weight": "Enter weight"
+  "Enter weight": "Enter weight",
+  "Received Weight Update": "Received Weight Update",
+  "Update weight": "Update weight"
 }

@@ -239,6 +239,7 @@ const saveReceivedItems = async () => {
                     :key="item.productID._id"
                   >
                     <div
+                      v-if="order.canReceive && item.dynamicInputs.length"
                       class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row"
                       :class="index ? 'border-t' : ''"
                     >
@@ -363,7 +364,7 @@ const saveReceivedItems = async () => {
                     class="mt-4"
                     @click="saveReceivedItems"
                   >
-                    {{ $t('Update Order') }}
+                    {{ $t('Update weight') }}
                   </VBtn>
                 </div>
               </VCol>

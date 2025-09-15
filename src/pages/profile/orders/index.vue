@@ -138,8 +138,8 @@ const totalOrder = computed(() => ordersData.value.total)
               </RouterLink>
 
               <span v-if="item.canReceive">
-                <RouterLink :to="`/profile/orders/${item._id}`" style="background: #28c76f;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
-                {{ $t('Receive items') }}
+                <RouterLink :to="`/profile/orders/${item._id}/received-weight-update`" style="background: #28c76f;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
+                {{ $t('Received Weight Update') }}
                 </RouterLink>
               </span>
             </template>
@@ -190,6 +190,14 @@ const totalOrder = computed(() => ordersData.value.total)
                       :to="`/profile/orders/${item._id}`"
                     >
                       {{ $t('View Order') }}
+                    </VListItem>
+
+                    <VListItem
+                      v-if="item.canReceive"
+                      value="view"
+                      :to="`/profile/orders/${item._id}/received-weight-update`"
+                    >
+                      {{ $t('Received Weight Update') }}
                     </VListItem>
                   </VList>
                 </VMenu>
