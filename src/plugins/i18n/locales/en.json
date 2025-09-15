@@ -592,5 +592,11 @@
   "Export": "Export",
   "Total Items": "Total Items",
   "Add Station": "Add Station",
-  "Order Number": "Order Number"
+  "Order Number": "Order Number",
+  "Receive items": "Receive items",
+  "Received items saved successfully!": "Received items saved successfully!",
+  "Pack": "Pack",
+  "weight": "weight",
+  "Qty": "Qty",
+  "Enter weight": "Enter weight"
 }

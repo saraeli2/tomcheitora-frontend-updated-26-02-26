@@ -136,6 +136,12 @@ const totalOrder = computed(() => ordersData.value.total)
               <RouterLink :to="`/profile/orders/${item._id}`">
                 #{{ item._id }}
               </RouterLink>
+
+              <span v-if="item.canReceive">
+                <RouterLink :to="`/profile/orders/${item._id}`" style="background: #28c76f;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
+                {{ $t('Receive items') }}
+                </RouterLink>
+              </span>
             </template>
 
             <!-- Date -->

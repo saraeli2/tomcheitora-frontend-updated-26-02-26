@@ -156,6 +156,46 @@ const removeItem = index => {
   orderItems.value.splice(index, 1)
   onQtyChange()
 }
+
+const saveReceivedItems = async () => {
+  if (!order.value || !orderItems.value.length) return;
+
+  const receivedInputs = {};
+
+  // Collect all dynamicInputs for items that can receive
+  orderItems.value.forEach(item => {
+    if (item.dynamicInputs && item.dynamicInputs.length) {
+      receivedInputs[item._id] = item.dynamicInputs;
+    }
+  });
+
+  if (Object.keys(receivedInputs).length === 0) {
+    toast.info('No inputs to save.');
+    return;
+  }
+
+  showLoader.value = true;
+
+  try {
+    const res = await $api(`/orders/${order.value._id}/receive`, {
+      method: 'POST',
+      body: { receivedInputs },
+      onResponseError({ response }) {
+        const firstError = Object.values(response._data.errors || {})[0]?.msg;
+        if (firstError) toast.error(firstError);
+        showLoader.value = false;
+      }
+    });
+
+    toast.success(t('Received items saved successfully!'));
+    await fetchOrderAndSyncOrderItems(); // Refresh order items
+    showLoader.value = false;
+  } catch (err) {
+    toast.error(err.message || 'Failed to save received items.');
+    showLoader.value = false;
+  }
+};
+
 </script>
 
 <template>
@@ -216,19 +256,31 @@ const removeItem = index => {
                       </div>
 
                       <div class="d-flex w-100 flex-column flex-md-row">
-                        <div class="d-flex flex-column gap-y-2">
+                        <div class="d-flex flex-column gap-y-2" style="min-width: 200px;">
                           <h6 class="text-h6">
                             {{ item.productID?.name }}
                           </h6>
                           <div v-if="item.variations">
-                            <p v-if="item.variations.size">Size: {{ item.variations.size }}</p>
-                            <p v-if="item.variations.color">Color: {{ item.variations.color }}</p>
-                            <p v-if="item.variations.sleeveLength">Sleeve: {{ item.variations.sleeveLength }}</p>
-                            <p v-if="item.variations.pocket">Pocket: {{ item.variations.pocket }}</p>
+                            <p v-if="item.variations.size">{{ $t('Size') }}: {{ item.variations.size }}</p>
+                            <p v-if="item.variations.color">{{ $t('Color') }}: {{ item.variations.color }}</p>
+                            <p v-if="item.variations.sleeveLength">{{ $t('Sleeve Length') }}: {{ item.variations.sleeveLength }}</p>
+                            <p v-if="item.variations.pocket">{{ $t('Pocket') }}: {{ item.variations.pocket }}</p>
                           </div>
                           <p>
-                            Qty: {{ item.quantity }}
+                            {{ $t('Qty') }}: {{ item.quantity }}
                           </p>
+
+                          <div v-if="order.canReceive && item.dynamicInputs.length" style="max-width: 200px;">
+                            <div v-for="(input, index) in item.dynamicInputs" :key="index" class="mb-4">
+                              <label class="block font-medium mb-1">{{ $t('Pack') }} {{ index+1 }} {{ $t('weight') }}</label>
+                              <AppTextField
+                                type="text"
+                                v-model="item.dynamicInputs[index]"
+                                :placeholder="$t('Enter weight')"
+                                class="border rounded p-1 w-full"
+                              />
+                            </div>
+                          </div>
                         </div>
 
                         <VSpacer />
@@ -302,6 +354,16 @@ const removeItem = index => {
                     to="/profile/checkout"
                   >
                     {{ $t('Edit Order') }}
+                  </VBtn>
+                </div>
+
+                <div v-if="order.canReceive">
+                  <VBtn
+                    block
+                    class="mt-4"
+                    @click="saveReceivedItems"
+                  >
+                    {{ $t('Update Order') }}
                   </VBtn>
                 </div>
               </VCol>

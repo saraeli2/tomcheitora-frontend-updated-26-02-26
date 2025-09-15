@@ -2,116 +2,96 @@ import { useAuthStore } from '@/stores'
 import { canNavigate } from '@layouts/plugins/casl'
 import { themeConfig } from '@themeConfig'
 import useHelper from '@/mixins/helper'
+import axios from 'axios'
 
 const { isAdmin } = useHelper()
 
-export const setupGuards = router => {
-  // 👉 router.beforeEach
-  // Docs: https://router.vuejs.org/guide/advanced/navigation-guards.html#global-before-guards
-  router.beforeEach(to => {
-
-    //console.log(to.meta.public)
-
-    /*
-         * If it's a public route, continue navigation. This kind of pages are allowed to visited by login & non-login users. Basically, without any restrictions.
-         * Examples of public routes are, 404, under maintenance, etc.
-         */
-    // if (to.meta.public)
-    //   return
-
+export const setupGuards = (router) => {
+  router.beforeEach(async (to) => {
     const authStore = useAuthStore()
-    let fuserData = ''
-    let fuserToken = ''
-    let userData = ''
-    let userToken = ''
-    if(authStore) {
-      if(authStore.faccessToken) {
-        fuserData = authStore.fuserData
-        fuserToken = authStore.faccessToken
-      }
-      if(authStore.userToken) {
-        userData = authStore.userData
-        userToken = authStore.accessToken
-      }
-    }
+    const fuserData = authStore?.fuserData || null
+    const fuserToken = authStore?.faccessToken || null
+    const userData = authStore?.userData || null
+    const userToken = authStore?.accessToken || null
 
-    document.title = themeConfig.app.title + ' Panel | ' + to.meta.title
+    document.title = `${themeConfig.app.title} Panel | ${to.meta.title || ''}`
 
-    /**
-    * Check if user is logged in by checking if token & user data exists in local storage
-    * Feel free to update this logic to suit your needs
-    */
     const isUserLoggedIn = !!(fuserData && fuserToken)
     const isAdminLoggedIn = !!(userData && userToken)
 
-    /*
-    If user is logged in and is trying to access login like page, redirect to home
-    else allow visiting the page
-    (WARN: Don't allow executing further by return statement because next code will check for permissions)
-   */
-    
-   // console.log((to.path));
-   //console.log(isUserLoggedIn);
-
+    // Redirect logged-in users from login page
     if ((to.path === '/' || to.path === '/login') && isUserLoggedIn) {
-      return { path: '/profile/my-account/account' }  // 👈 redirect to profile
+      return { path: '/profile/my-account/account' }
     }
 
-    
-
-    if(isAdmin()) {
+    // ---------------------- Admin Routes ----------------------
+    if (isAdmin()) {
+      // Unauthenticated-only route for admin
       if (to.meta.unauthenticatedOnly) {
-        if (isAdminLoggedIn)
-          return '/admin/dashboards'
-        else
-          return undefined
-      }
-      if (!canNavigate(to) && to.matched.length) {
-        if(isAdminLoggedIn) {
-            return { name: 'not-authorized' }
+        if (isAdminLoggedIn && to.name !== 'admin-dashboards') {
+          return { name: 'admin-dashboards' }
         } else {
-            return {
-                name: 'admin-login',
-                query: {
-                    ...to.query,
-                    to: to.fullPath !== '/' ? to.path : undefined,
-                },
-            }
+          return true
         }
       }
-    } else {
-      if (import.meta.env.VITE_SALE_CLOSED === "true" && to.name !== 'sale-closed') {
-          return { name: 'sale-closed' };
-      }
-      
-      const stationRedirect = '/profile/my-account/account'
 
-      if (
-        isUserLoggedIn && !fuserData.stationID && to.path !== '/profile/my-account/account'
-      ) {
-        return { path: '/profile/my-account/account' }
-      }
-      if (to.meta.unauthenticatedOnly) {
-        if (isUserLoggedIn)
-          return '/'
-        else
-          return undefined
-      }
-
-      if (!canNavigate(to) && to.matched.length) {
-        if (isUserLoggedIn && to.name !== 'not-authorized') {
-          const allowedPaths = ['/logout', '/sale-closed']
-          if (!allowedPaths.includes(to.fullPath)) {
-            return { name: 'not-authorized' };
-          }
-        } else if (!isUserLoggedIn && to.name !== 'login') {
-          if(to.fullPath == '/logout') {
-            return { name: 'login' };
-          } else if(to.fullPath != '/sale-closed') {
-            return { name: 'login', query: { to: to.fullPath } };
+      // Permission check
+      try {
+        if (!canNavigate(to) && to.matched.length) {
+          if (isAdminLoggedIn && to.name !== 'not-authorized') {
+            return { name: 'not-authorized' }
+          } else if (!isAdminLoggedIn && to.name !== 'admin-login') {
+            return { name: 'admin-login', query: { to: to.fullPath !== '/' ? to.path : undefined } }
           }
         }
+      } catch (err) {
+        console.warn('CASL Ability not ready', err)
       }
+
+      return true
     }
+
+    // ---------------------- Frontend User Routes ----------------------
+    let saleClosed = false
+    try {
+      const { data } = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/sale-status`)
+      saleClosed = data.saleClosed
+    } catch (err) {
+      console.error('Error fetching sale status', err)
+    }
+
+    // Redirect to sale-closed page
+    if (saleClosed && to.name !== 'sale-closed') {
+      return { name: 'sale-closed' }
+    }
+
+    // Redirect users without station
+    if (isUserLoggedIn && !fuserData?.stationID && to.path !== '/profile/my-account/account') {
+      return { path: '/profile/my-account/account' }
+    }
+
+    // Unauthenticated-only routes for users
+    if (to.meta.unauthenticatedOnly) {
+      if (isUserLoggedIn) return '/'
+      else return true
+    }
+
+    // Permission check
+    try {
+      if (!canNavigate(to) && to.matched.length) {
+        const allowedPaths = ['/logout', '/sale-closed']
+
+        if (isUserLoggedIn && to.name !== 'not-authorized' && !allowedPaths.includes(to.fullPath)) {
+          return { name: 'not-authorized' }
+        } else if (!isUserLoggedIn && to.name !== 'login') {
+          if (to.fullPath === '/logout') return { name: 'login' }
+          else if (to.fullPath !== '/sale-closed') return { name: 'login', query: { to: to.fullPath } }
+        }
+      }
+    } catch (err) {
+      console.warn('CASL Ability not ready', err)
+    }
+
+    return true
   })
 }
