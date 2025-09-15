@@ -138,7 +138,7 @@ const totalOrder = computed(() => ordersData.value.total)
               </RouterLink>
 
               <span v-if="item.canReceive">
-                <RouterLink :to="`/profile/orders/${item._id}/received-weight-update`" style="background: #28c76f;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
+                <RouterLink :to="`/profile/orders/${item._id}/received-weight-update`" style="background: rgb(255 91 24);color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
                 {{ $t('Received Weight Update') }}
                 </RouterLink>
               </span>
