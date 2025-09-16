@@ -101,6 +101,7 @@ const showLoader = ref(false)
 
 
 const isShowPay = ref(false)
+const hasItems = ref(false)
 
 const saveReceivedItems = async () => {
   const receivedInputs = {};
@@ -137,6 +138,8 @@ const saveReceivedItems = async () => {
     });
     fetchOrder()
     loadNedarimIframe()
+
+    hasItems.value = true
     isShowPay.value = true
     toast.success(t('Received items saved successfully!'));
 
@@ -280,6 +283,11 @@ onMounted(async () => {
   if (order.value) {
     await loadNedarimIframe()
   }
+  orderItems.value.forEach(item => {
+    if(item.receivedItem){
+      hasItems.value = true
+    }
+  })
 })
 
 const createTransaction = async payload => {
@@ -398,14 +406,16 @@ const createTransaction = async payload => {
                               <div class="text-primary">
                                 <span style="text-transform: uppercase;">₪</span> {{ item.price }}
                               </div>
-
-                              <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price !== item.quantity * item.price">
-                                <span v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price > item.quantity * item.price" class="text-error">
-                                  {{ $t('Dues') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price - item.quantity * item.price).toFixed(2) }}
-                                </span>
-                                <span v-else class="text-success">
-                                  {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price).toFixed(2) }}
-                                </span>
+                              
+                              <div v-if="hasItems">
+                                <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price !== item.quantity * item.price">
+                                  <span style="white-space: nowrap;" v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price > item.quantity * item.price" class="text-error">
+                                    {{ $t('Dues') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price - item.quantity * item.price).toFixed(2) }}
+                                  </span>
+                                  <span v-else class="text-success" style="white-space: nowrap;">
+                                    {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price).toFixed(2) }}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -425,6 +435,7 @@ const createTransaction = async payload => {
                   lg="4"
                 >
                   <VCard
+                    v-if="hasItems"
                     flat
                     variant="outlined"
                   >
@@ -443,9 +454,9 @@ const createTransaction = async payload => {
                       </div>
                     </VCardText>
 
-                    <VDivider />
+                    <VDivider v-if="hasItems" />
 
-                    <VCardText class="d-flex justify-space-between pa-6">
+                    <VCardText class="d-flex justify-space-between pa-6" v-if="hasItems">
                       <h6 v-if="totalDues > 0" class="text-error text-h6">
                         {{ $t('Total') }}
                       </h6>
