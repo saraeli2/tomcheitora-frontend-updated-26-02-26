@@ -407,7 +407,6 @@ const stations = stationOptions.value.map(item => ({
                   >
                     <AppAutocomplete
                       v-model="orderItem.productID"
-                      :rules="[requiredValidator]"
                       :items="availableProducts(key)"
                       :placeholder="$t('Select Product')"
                       :label="$t('Product')"

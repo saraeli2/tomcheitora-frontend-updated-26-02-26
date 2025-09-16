@@ -969,7 +969,7 @@ const handleAddAddress = async () => {
                       <!-- Iframe container -->
                       <div v-else v-html="nedarimIframeHtml"></div>
 
-                      <VBtn type="submit" :disabled="isClickPayment" class="TextBox">Make Payment</VBtn>
+                      <VBtn type="submit" :disabled="isClickPayment" class="TextBox">{{ $t('Make Payment') }}</VBtn>
 
                       <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
                     </VCol>

@@ -89,6 +89,7 @@ const {
 
 const orders = computed(() => ordersData.value.orders)
 const totalOrder = computed(() => ordersData.value.total)
+const hasReceivable = computed(() => ordersData.value.hasReceivable)
 </script>
 
 <template>
@@ -109,6 +110,12 @@ const totalOrder = computed(() => ordersData.value.total)
             <div class="d-flex justify-space-between flex-wrap align-center gap-4">
               <h5 class="text-h5">
                 {{ $t('Orders placed') }}
+
+                <span v-if="hasReceivable">
+                  <RouterLink :to="`/profile/received-weight-update`" style="background: rgb(255 91 24);color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
+                    {{ $t('Received Weight Update') }}
+                  </RouterLink>
+                </span>
               </h5>
               <!-- <div>
                 <AppTextField
@@ -133,15 +140,12 @@ const totalOrder = computed(() => ordersData.value.total)
           >
             <!-- Order ID -->
             <template #item.order="{ item }">
-              <RouterLink :to="`/profile/orders/${item._id}`">
+              <RouterLink v-if="item?.orderType == 'Weight Adjust'" :to="`/profile/received-weight-update`">
                 #{{ item._id }}
               </RouterLink>
-
-              <span v-if="item.canReceive">
-                <RouterLink :to="`/profile/orders/${item._id}/received-weight-update`" style="background: rgb(255 91 24);color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
-                {{ $t('Received Weight Update') }}
-                </RouterLink>
-              </span>
+              <RouterLink v-else :to="`/profile/orders/${item._id}`">
+                #{{ item._id }} 
+              </RouterLink>
             </template>
 
             <!-- Date -->
@@ -179,25 +183,34 @@ const totalOrder = computed(() => ordersData.value.total)
                 <VMenu activator="parent">
                   <VList>
                     <VListItem
-                      v-if="item.status == 'Pending'"
+                      v-if="item?.orderType == 'Weight Adjust'"
+                      value="view"
+                      to="/profile/received-weight-update"
+                    >
+                      {{ $t('Edit Order') }}
+                    </VListItem>
+                    <VListItem
+                      v-else-if="item.status == 'Pending'"
                       value="view"
                       to="/profile/checkout"
                     >
                       {{ $t('Edit Order') }}
                     </VListItem>
+
                     <VListItem
+                      v-if="item?.orderType == 'Weight Adjust'"
                       value="view"
-                      :to="`/profile/orders/${item._id}`"
+                      to="/profile/received-weight-update"
                     >
                       {{ $t('View Order') }}
                     </VListItem>
 
                     <VListItem
-                      v-if="item.canReceive"
+                      v-else
                       value="view"
-                      :to="`/profile/orders/${item._id}/received-weight-update`"
+                      :to="`/profile/orders/${item._id}`"
                     >
-                      {{ $t('Received Weight Update') }}
+                      {{ $t('View Order') }}
                     </VListItem>
                   </VList>
                 </VMenu>
