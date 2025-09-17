@@ -494,7 +494,7 @@ const sendPdfToUser = async() =>{
                 <div class="d-flex flex-column align-start">
                   <h6 class="text-h6">
                     <IconBtn
-                      v-if="can('admin-update-orders', 'Update Orders')"
+                      v-if="can('admin-update-orders', 'Update Orders') && orderData?.orderType !='Weight Adjust'"
                       class="checkout-item-remove-btn"
                     >
                       <VIcon
@@ -505,14 +505,18 @@ const sendPdfToUser = async() =>{
                         @click="removeProduct(item)"
                       />
                     </IconBtn>
-
-                    <RouterLink
-                      v-if="can('admin-view-products', 'View Products') && item.productID"
-                      :to="{ name: 'admin-products-detail-id', params: { id: item.productID._id } }"
-                    >
-                      {{ item.productID.name }}
-                    </RouterLink>
-                    <span v-else>{{ item.productID ? item.productID.name : '' }}</span>
+                    <span v-if="orderData?.orderType !='Weight Adjust'">
+                      <RouterLink
+                        v-if="can('admin-view-products', 'View Products') && item.productID"
+                        :to="{ name: 'admin-products-detail-id', params: { id: item.productID._id } }"
+                      >
+                        {{ item.productID.name }}
+                      </RouterLink>
+                      <span v-else>{{ item.productID ? item.productID.name : '' }}</span>
+                    </span>
+                    <span v-else-if="orderData?.orderType =='Weight Adjust'">
+                      <span>{{ $t('Weight Items') }}</span>
+                    </span>
                   </h6>
                 </div>
               </div>
@@ -521,7 +525,7 @@ const sendPdfToUser = async() =>{
             <template #[`item.quantity`]="{ item }">
               <div class="text-body-1">
                 <button
-                  v-if="can('admin-update-orders', 'Update Orders')"
+                  v-if="can('admin-update-orders', 'Update Orders') && orderData?.orderType !='Weight Adjust'"
                   type="button"
                   class="px-2 py-1 bg-primary text-white rounded"
                   @click="decreaseQuantity(item)"
@@ -537,7 +541,7 @@ const sendPdfToUser = async() =>{
                 >
 
                 <button
-                  v-if="can('admin-update-orders', 'Update Orders')"
+                  v-if="can('admin-update-orders', 'Update Orders') && orderData?.orderType !='Weight Adjust'"
                   type="button"
                   class="px-2 py-1 bg-primary text-white rounded"
                   @click="increaseQuantity(item)"
@@ -549,7 +553,7 @@ const sendPdfToUser = async() =>{
 
             <template #[`item.price`]="{ item }">
               <div class="text-body-1">
-                {{ item.price }}
+                {{ numberFormat(item.price) }}
               </div>
             </template>
 
@@ -592,7 +596,7 @@ const sendPdfToUser = async() =>{
                   <tr>
                     <td>{{ $t('Vat') }}: </td>
                     <td class="font-weight-medium">
-                      {{ orderData.totalVat }}
+                      {{ numberFormat(orderData.totalVat) }}
                     </td>
                   </tr>
                   <tr>

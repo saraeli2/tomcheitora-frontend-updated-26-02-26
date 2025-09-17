@@ -326,7 +326,7 @@ const createTransaction = async payload => {
         </VCardText>
       </VContainer>
     </div>
-    <VContainer v-if="orderItems && orderItems.length">
+    <VContainer v-if="orderItems && orderItems.length && authStore.fuserData?.israeliIDNumber == '032425852'">
       <div class="checkout-card">
         <VCard>
           <VCardText>
@@ -494,6 +494,16 @@ const createTransaction = async payload => {
             </VForm>
           </VCardText>
           <VDivider />
+        </VCard>
+      </div>
+    </VContainer>
+
+    <VContainer v-else>
+      <div class="checkout-card">
+        <VCard>
+          <VCardText>
+            <h3>{{ $t('You are not eligible to view this page content') }}</h3>
+          </VCardText>
         </VCard>
       </div>
     </VContainer>
