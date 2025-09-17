@@ -114,7 +114,8 @@ const saveReceivedItems = async () => {
         price: item.price,
         quantity: item.quantity,
         productID: item.productID?._id,
-        orderItemId: item._id
+        productID: item.productID?._id,
+        pricePerKilo: item.productID?.pricePerKilo,
       };
     }
   });
@@ -156,10 +157,11 @@ const saveReceivedItems = async () => {
 const totalDues = computed(() => {
   return orderItems.value.reduce((sum, item) => {
     const price = Number(item.price || 0)
+    const pricePerKilo = Number(item.productID?.pricePerKilo || 0)
     const quantity = Number(item.quantity || 0)
     const expectedAmount = quantity * price
     const receivedWeight = (item.dynamicInputs || []).reduce((s, w) => s + Number(w || 0), 0)
-    const receivedAmount = receivedWeight * price
+    const receivedAmount = receivedWeight * pricePerKilo
 
     // positive → extra to pay, negative → return
     return sum + (receivedAmount - expectedAmount)
@@ -383,7 +385,7 @@ const createTransaction = async payload => {
 
                             <div v-if="item.dynamicInputs.length" style="max-width: 200px;">
                               <div v-for="(input, index) in item.dynamicInputs" :key="index" class="mb-4">
-                                <label class="block font-medium mb-1">{{ $t('Pack') }} {{ index+1 }} {{ $t('weight') }}</label>
+                                <label class="block font-medium mb-1">{{ $t('משקל קופסא') }}</label>
                                 <AppTextField
                                   type="number"
                                   v-model="item.dynamicInputs[index]"
@@ -408,12 +410,12 @@ const createTransaction = async payload => {
                               </div>
                               
                               <div v-if="hasItems">
-                                <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price !== item.quantity * item.price">
-                                  <span style="white-space: nowrap;" v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price > item.quantity * item.price" class="text-error">
-                                    {{ $t('Dues') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price - item.quantity * item.price).toFixed(2) }}
+                                <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo !== item.quantity * item.price">
+                                  <span style="white-space: nowrap;" v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo > item.quantity * item.price" class="text-error">
+                                    {{ $t('Dues') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo - item.quantity * item.price).toFixed(2) }}
                                   </span>
                                   <span v-else class="text-success" style="white-space: nowrap;">
-                                    {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.price).toFixed(2) }}
+                                    {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo).toFixed(2) }}
                                   </span>
                                 </div>
                               </div>
@@ -488,6 +490,17 @@ const createTransaction = async payload => {
                     <VBtn v-if="nedarimIframeHtml" type="button" @click="pay" :disabled="isClickPayment" class="TextBox">{{ $t('Make Payment') }}</VBtn>
 
                     <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
+                  </div>
+                  <div v-else-if="order && totalDues < 0 && order.total == totalDues">
+                    <p style="text-align: center; margin-top: 20px;">תודה על העדכון<br>
+בימים הקרובים יתבצע זיכוי לכרטיס אשראי ממנו שילמת<br>
+
+תקבלו הודעו לאחר ביצוע הזיכוי.
+
+</p>
+                  </div>
+                  <div v-else-if="order.total == totalDues">
+                    <p style="text-align: center; margin-top: 20px;">תודה על העדכון</p>
                   </div>
                 </VCol>
               </VRow>

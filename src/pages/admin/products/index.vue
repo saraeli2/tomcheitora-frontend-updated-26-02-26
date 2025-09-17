@@ -169,7 +169,7 @@ const defaultColumns = [
   },
 ]
 
-console.log(defaultColumns);
+//console.log(defaultColumns);
 
 const products = ref([])
 const totalProducts = ref(0)

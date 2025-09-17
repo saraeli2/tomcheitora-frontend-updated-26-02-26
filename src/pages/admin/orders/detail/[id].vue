@@ -515,7 +515,7 @@ const sendPdfToUser = async() =>{
                       <span v-else>{{ item.productID ? item.productID.name : '' }}</span>
                     </span>
                     <span v-else-if="orderData?.orderType =='Weight Adjust'">
-                      <span>{{ $t('Weight Items') }}</span>
+                      <span>{{ $t('עדכון משקלים') }}</span>
                     </span>
                   </h6>
                 </div>
