@@ -328,7 +328,7 @@ const createTransaction = async payload => {
         </VCardText>
       </VContainer>
     </div>
-    <VContainer v-if="orderItems && orderItems.length && authStore.fuserData?.israeliIDNumber == '032425852'">
+    <VContainer v-if="orderItems && orderItems.length">
       <div class="checkout-card">
         <VCard>
           <VCardText>
