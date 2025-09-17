@@ -79,6 +79,8 @@ const props = defineProps({
       quantitytypeID: '',
       purchasePrice: '',
       salePrice: null,
+      pricePerKilo: null,
+      totalWeight: null,
       maxStock: null,
       internalRemarks: '',
       productNumber: '',
@@ -321,6 +323,8 @@ const submit = async () => {
           orderNumber: productData.value.orderNumber,
           purchasePrice: productData.value.purchasePrice ?? 0,
           salePrice: productData.value.salePrice ?? 0,
+          pricePerKilo: productData.value.pricePerKilo ?? null,
+          totalWeight: productData.value.totalWeight ?? null,
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
           quantity: productData.value.quantity,
@@ -371,6 +375,8 @@ const submit = async () => {
           orderNumber: productData.value.orderNumber,
           purchasePrice: productData.value.purchasePrice ?? 0,
           salePrice: productData.value.salePrice ?? 0,
+          pricePerKilo: productData.value.pricePerKilo ?? null,
+          totalWeight: productData.value.totalWeight ?? null,
           maxStock: productData.value.maxStock ?? 0,
           status: productData.value.status,
           categoryIDs: checkedCategories.value,
@@ -452,6 +458,8 @@ const updateProduct = async () => {
       orderNumber: productData.value.orderNumber,
       purchasePrice: productData.value.purchasePrice ?? 0,
       salePrice: productData.value.salePrice ?? 0,
+      pricePerKilo: productData.value.pricePerKilo ?? null,
+      totalWeight: productData.value.totalWeight ?? null,
       maxStock: productData.value.maxStock ?? 0,
       status: productData.value.status,
       quantity: productData.value.quantity,
@@ -524,6 +532,8 @@ const errors = ref({
   orderNumber: undefined,
   purchasePrice: undefined,
   salePrice: undefined,
+  pricePerKilo: undefined,
+  totalWeight: undefined,
   maxStock: undefined,
   status: undefined,
 
@@ -853,6 +863,24 @@ const findCategoryNameById = (id) => {
                 :label="$t('Selling Price')"
                 :placeholder="$t('Selling Price')"
                 :error-messages="errors.salePrice"
+              />
+            </VCol>
+            <!-- 👉 Sale Price -->
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.pricePerKilo"
+                :label="$t('Price per Kilo')"
+                :placeholder="$t('Price per Kilo')"
+                :error-messages="errors.pricePerKilo"
+              />
+            </VCol>
+
+            <VCol cols="12">
+              <AppTextField
+                v-model="productData.totalWeight"
+                :label="$t('Total Weight')"
+                :placeholder="$t('Total Weight')"
+                :error-messages="errors.totalWeight"
               />
             </VCol>
 

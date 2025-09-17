@@ -76,6 +76,16 @@ const defaultColumns = [
     visible: true,
   },
   {
+    title: t('Price per Kilo'),
+    key: 'pricePerKilo',
+    visible: true,
+  },
+  {
+    title: t('Total Weight'),
+    key: 'totalWeight',
+    visible: true,
+  },
+  {
     title: t('Internal serial number'),
     key: 'serial_number',
     visible: true,
@@ -158,6 +168,8 @@ const defaultColumns = [
     visible: true,
   },
 ]
+
+console.log(defaultColumns);
 
 const products = ref([])
 const totalProducts = ref(0)

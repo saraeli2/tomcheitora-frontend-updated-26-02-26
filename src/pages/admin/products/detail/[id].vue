@@ -410,6 +410,24 @@ const showImageDialog = () => {
 
                       <VListItem>
                         <h6 class="text-h6">
+                          {{ $t('Price per Kilo') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.pricePerKilo }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
+                          {{ $t('Total Weight') }}:
+                          <span class="text-body-1 d-inline-block">
+                            {{ productData.totalWeight }}
+                          </span>
+                        </h6>
+                      </VListItem>
+
+                      <VListItem>
+                        <h6 class="text-h6">
                           {{ $t('Quantity') }}:
                           <span class="text-body-1 d-inline-block">
                             {{ productData.quantity }}
