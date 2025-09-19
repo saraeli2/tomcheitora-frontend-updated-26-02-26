@@ -57,7 +57,7 @@ const error = ref(null)
 const fetchProduct = async () => {
   try {
     showLoader.value = true
-    const res = await $api(`/sales/${route.params.id}/products/${route.params.pid}?userID=${authStore.fuserData._id}&saleID=${saleId.value}`)
+    const res = await $api(`/sales/${route.params.id}/products/${route.params.pid}?saleID=${saleId.value}`)
     productData.value = res
     if (res?.quantity) quantity.value = res.quantity
   } catch (err) {
@@ -156,7 +156,7 @@ watch(selectedVariations, () => updateAvailableOptions(), { deep: true })
 // ----------------------
 const {
   data: orderData, execute: fetchOrder,
-} = await useApi(createUrl(`/sales/${ route.params.id }/orders?userId=${authStore.fuserData._id}`))
+} = await useApi(createUrl(`/sales/${ route.params.id }/orders`))
 
 const order = computed(() => orderData.value)
 
@@ -192,7 +192,6 @@ const createOrder = async () => {
         saleID: saleId.value,
         products: orderItems.value,
         status: 'Pending',
-        userID: authStore.fuserData._id,
       },
       onResponseError({ response }) {
         showLoader.value = false
@@ -225,7 +224,6 @@ const updateOrder = async () => {
         saleID: saleId.value,
         orderID: order.value?._id,
         status: order.value.status,
-        userID: authStore.fuserData._id,
         products: orderItems.value,
       },
       onResponseError({ response }) {
@@ -251,7 +249,7 @@ const updateOrder = async () => {
 }
 
 const fetchOrderAndSyncOrderItems = async () => {
-  const freshOrder = await $api(`/sales/${route.params.id}/orders?userId=${authStore.fuserData._id}`)
+  const freshOrder = await $api(`/sales/${route.params.id}/orders`)
   orderItems.value = freshOrder?.orderItems || []
 }
 

@@ -78,12 +78,10 @@ const {
   execute: fetchOrders,
 } = await useApi(createUrl('/orders', {
   query: {
-    q: searchQuery,
     page,
     itemsPerPage,
     sortBy,
-    orderBy,
-    userID: authStore.fuserData._id,
+    orderBy
   },
 }))
 

@@ -5,7 +5,7 @@ definePage({
   meta: {
     action: ['admin-update-orders'],
     subject: ['Update Orders'],
-    navActiveLink: 'admin-orders',
+    navActiveLink: 'admin-sales',
     title: 'Update Order',
   },
 })
@@ -239,7 +239,7 @@ const stations = stationOptions.value.map(item => ({
       >
         <VBreadcrumbs
           class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-          :items="[{ title: $t('Orders'), to: { name: 'admin-orders' }, class: 'text-primary' }, { title: $t('Order Details') + ' ' + orderData._id, to: { name: 'admin-orders-detail-id', params: { id: orderData._id } }, class: 'text-primary' }, { title: $t('Edit Order') }]"
+          :items="[{ title: $t('Orders Weight Update'), to: { name: 'admin-orders-weight-update' }, class: 'text-primary' }, { title: $t('Order Details') + ' ' + orderData._id, to: { name: 'admin-orders-weight-update-detail-id', params: { id: orderData._id } }, class: 'text-primary' }, { title: $t('Edit Order') }]"
         />
       </VCol>
     </VRow>

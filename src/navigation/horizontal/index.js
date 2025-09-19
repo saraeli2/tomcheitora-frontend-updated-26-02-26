@@ -11,5 +11,7 @@ import stations from './stations'
 import sales from './sales'
 import suppliers from './suppliers'
 import users from './users'
+import orders from './orders'
+import orderWeightUpdate from './orderWeightUpdate'
 
-export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...sales, ...suppliers, ...users]
+export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...sales, ...orders, ...orderWeightUpdate, ...suppliers, ...users]

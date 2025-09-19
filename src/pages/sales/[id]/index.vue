@@ -61,8 +61,7 @@ const {
 } = await useApi(
   createUrl(`/sales/${route.params.id}`, {
     query: {
-      categoryIDs: category_ids,
-      communityID: authStore.fuserData.communityID?._id || authStore.fuserData.communityID
+      categoryIDs: category_ids
     },
   })
 )
@@ -142,8 +141,7 @@ async function loadProducts(newPage = 1) {
         categoryIDs: category_ids,
         itemsPerPage: itemsPerPage.value,
         page: newPage,
-        saleId: saleData.value?._id,
-        communityID: authStore.fuserData.communityID?._id || authStore.fuserData.communityID
+        saleId: saleData.value?._id
       },
     }));
 
@@ -187,7 +185,7 @@ onUnmounted(() => window.removeEventListener('scroll', handleWindowScroll))
 const orderItems = ref([])
 const {
   data: orderData, execute: fetchOrder,
-} = await useApi(createUrl(`/sales/${ route.params.id }/orders?userId=${authStore.fuserData._id}`))
+} = await useApi(createUrl(`/sales/${ route.params.id }/orders`))
 
 const order = computed(() => orderData.value)
 
@@ -254,7 +252,6 @@ const createOrder = async () => {
         saleID: saleData.value?._id,
         products: orderItems.value,
         status: 'Pending',
-        userID: authStore.fuserData._id,
       },
       onResponseError({ response }) {
         showLoader.value = false
@@ -286,7 +283,6 @@ const updateOrder = async () => {
         saleID: saleData.value?._id,
         orderID: order.value?._id,
         status: order.value.status,
-        userID: authStore.fuserData._id,
         products: orderItems.value,
       },
       onResponseError({ response }) {

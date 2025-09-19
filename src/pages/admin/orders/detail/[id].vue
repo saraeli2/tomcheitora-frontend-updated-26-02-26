@@ -9,7 +9,7 @@ definePage({
   meta: {
     action: ['admin-view-orders'],
     subject: ['View Orders'],
-    navActiveLink: 'admin-sales',
+    navActiveLink: 'admin-orders',
     title: 'Order Details',
   },
 })
@@ -361,7 +361,7 @@ const sendPdfToUser = async() =>{
         >
           <VBreadcrumbs
             class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-            :items="[{ title: $t('Sales'), to: { name: 'admin-sales' }, class: 'text-primary' }, { title: orderData.saleID.name, to: { name: 'admin-sales-detail-id', params: { id: orderData.saleID._id } }, class: 'text-primary' }, { title: orderData._id }]"
+            :items="[{ title: $t('Orders'), to: { name: 'admin-orders' }, class: 'text-primary' }, { title: orderData._id }]"
           />
         </VCol>
       </VRow>

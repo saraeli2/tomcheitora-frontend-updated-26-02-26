@@ -81,7 +81,6 @@ const {
   query: {
     keyword: searchQuery,
     status: selectedStatus,
-    userID: props.user._id,
     itemsPerPage,
     page,
     sortBy,

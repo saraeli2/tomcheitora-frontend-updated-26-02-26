@@ -48,7 +48,7 @@ const totalKids = ref(0)
 
 async function fetchKids() {
   const response = await $api(`/kids`, {
-    query: { userID: props.user._id, itemsPerPage: itemsPerPage.value, page: page.value },
+    query: { itemsPerPage: itemsPerPage.value, page: page.value },
   })
   kids.value = response.kids || []
   totalKids.value = response.total || 0
@@ -75,7 +75,7 @@ async function saveKids() {
 
     await $api('/kids/bulk-create', {
       method: 'POST',
-      body: { kids: tempKids.value, userID: props.user._id },
+      body: { kids: tempKids.value },
     })
 
     tempKids.value = []

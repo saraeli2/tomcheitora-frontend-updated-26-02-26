@@ -68,7 +68,7 @@ const checkoutSteps = [
 const currentStep = ref(0)
 
 const { data: orderData, execute: fetchOrder } = await useApi(
-  createUrl(`/received-items-list?userID=${authStore?.fuserData?._id}`)
+  createUrl(`/received-items-list`)
 );
 
 //const order = computed(() => orderData.value)
@@ -130,7 +130,7 @@ const saveReceivedItems = async () => {
   try {
     const res = await $api(`/update/received-items`, {
       method: 'POST',
-      body: { receivedInputs, userID: authStore?.fuserData?._id, orderID: order.value?._id || null },
+      body: { receivedInputs, orderID: order.value?._id || null },
       onResponseError({ response }) {
         const firstError = Object.values(response._data.errors || {})[0]?.msg;
         if (firstError) toast.error(firstError);

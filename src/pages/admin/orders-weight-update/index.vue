@@ -89,10 +89,7 @@ const headers = computed(() => [
     title: t('User'),
     key: 'userID',
   },
-  {
-    title: t('Station'),
-    key: 'stationID',
-  },
+  
   {
     title: t('Total Quantity'),
     key: 'quantity',
@@ -101,33 +98,13 @@ const headers = computed(() => [
     title: t('SubTotal'),
     key: 'subTotal',
   },
-  {
-    title: t('Vat'),
-    key: 'totalVat',
-  },
-  {
-    title: t('Discount'),
-    key: 'totalDiscount',
-  },
-  {
-    title: t('Delivery Charge'),
-    key: 'deliveryCharge',
-  },
+  
   {
     title: t('Total Amount'),
     key: 'total',
     sortable: false,
   },
-  {
-    title: t('Original Total Amount'),
-    key: 'originalOrderedAmount',
-    sortable: false,
-  },
-  {
-    title: t('Difference'),
-    key: 'amountDifference',
-    sortable: false,
-  },
+  
   {
     title: t('Status'),
     key: 'status',
@@ -146,7 +123,7 @@ const {
   data: customerData,
   execute: fetchOrders,
   error,
-} = await useApi(createUrl('/admin/orders', {
+} = await useApi(createUrl('/admin/orders-weight-update', {
   query: {
     sale: selectedSale,
     search: searchQuery,
@@ -316,7 +293,7 @@ const editStation = async value => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              {{ $t('Orders') }}
+              {{ $t('Orders Weight Update') }}
             </h5>
           </VCol>
         </VRow>
@@ -342,13 +319,6 @@ const editStation = async value => {
             />
           </div>
           <!-- 👉 Create Order -->
-          <VBtn
-            v-if="can('admin-create-orders', 'Create Orders')"
-            prepend-icon="tabler-plus"
-            :to="{ name: 'admin-orders-create', query: { saleid: selectedSale } }"
-          >
-            {{ $t('Create Order') }}
-          </VBtn>
         </div>
 
         <div class="d-flex align-center flex-wrap gap-4" />
@@ -419,18 +389,6 @@ const editStation = async value => {
                     clearable
                   />
                 </VCol>
-
-                <VCol
-                  cols="12"
-                  sm="4"
-                >
-                  <AppAutocomplete
-                    v-model="selectedStation"
-                    :items="stations"
-                    :placeholder="$t('Select Station')"
-                    clearable
-                  />
-                </VCol>
               </VRow>
             </VCardText>
           </VExpansionPanelText>
@@ -455,7 +413,7 @@ const editStation = async value => {
         <!-- userID -->
 
         <template #[`item.orderNumber`]="{ item }">
-          <RouterLink :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }">
+          <RouterLink :to="{ name: 'admin-orders-weight-update-detail-id', params: { id: item._id } }">
             {{ item._id }}
           </RouterLink>
         </template>
@@ -500,7 +458,8 @@ const editStation = async value => {
 
         <!-- Total -->
         <template #[`item.total`]="{ item }">
-          {{ numberFormat(item.total)}}
+          <span v-if="item.total > 0" class="lesspaid">{{ numberFormat(item.total)}}</span>
+          <span v-else-if="item.total < 0" class="overpaid">{{ numberFormat(item.total)}}</span>
         </template>
 
         <!-- originalOrderedAmount -->
@@ -555,7 +514,7 @@ const editStation = async value => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-                <VListItem :to="{ name: 'admin-orders-detail-id', params: { id: item._id } }">
+                <VListItem :to="{ name: 'admin-orders-weight-update-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
@@ -564,7 +523,7 @@ const editStation = async value => {
 
                 <VListItem
                   v-if="can('admin-update-orders', 'Update Orders')"
-                  :to="{ name: 'admin-orders-edit-id', params: { id: item._id } }"
+                  :to="{ name: 'admin-orders-weight-update-edit-id', params: { id: item._id } }"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />
