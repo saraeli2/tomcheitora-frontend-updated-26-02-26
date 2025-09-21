@@ -501,7 +501,7 @@ const createTransaction = async payload => {
 
 </p>
                   </div>
-                  <div v-else-if="order.total == totalDues">
+                  <div v-else-if="order && order.total == totalDues">
                     <p style="text-align: center; margin-top: 20px;">תודה על העדכון</p>
                   </div>
                 </VCol>
