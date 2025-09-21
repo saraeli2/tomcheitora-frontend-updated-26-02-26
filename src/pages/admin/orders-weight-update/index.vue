@@ -94,10 +94,6 @@ const headers = computed(() => [
     title: t('Total Quantity'),
     key: 'quantity',
   },
-  {
-    title: t('SubTotal'),
-    key: 'subTotal',
-  },
   
   {
     title: t('Total Amount'),
