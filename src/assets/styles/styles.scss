@@ -1662,3 +1662,14 @@ button.px-4.py-2.bg-primary.text-white.rounded[disabled] {
 .v-table > .v-table__wrapper > table tr.v-data-table__tr .overpaid {
     color: green;
 }
+
+.hideArrow input[type=number]::-webkit-outer-spin-button,
+.hideArrow  input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.hideArrow  input[type=number] {
+  -moz-appearance: textfield;
+}

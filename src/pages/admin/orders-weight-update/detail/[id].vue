@@ -466,6 +466,56 @@ onMounted(async () => {
           </VCardText>
           <VDivider />
         </VCard>
+
+        <VCard
+          v-if="transactions.length"
+          class="mb-6"
+          style="margin-top: 30px"
+        >
+          <VCardItem>
+            <template #title>
+              <h5 class="text-h5">
+                {{ $t('Transactions') }}
+              </h5>
+            </template>
+          </VCardItem>
+
+          <VDivider />
+
+          <VDataTable
+            :headers="[
+              { title: t('Transaction ID'), key: 'transactionId' },
+              { title: t('Amount'), key: 'amount' },
+              { title: t('Status'), key: 'paymentStatus' },
+              { title: t('Date'), key: 'transactionTime' }
+            ]"
+            :items="transactions"
+            item-value="transactionId"
+            class="text-no-wrap"
+          >
+            <template #[`item.amount`]="{ item }">
+              {{ item.amount }}
+            </template>
+
+            <template #[`item.currency`]="{ item }">
+              {{ item.currency }}
+            </template>
+
+            <template #[`item.paymentStatus`]="{ item }">
+              <VChip
+                label
+                :color="item.paymentStatus === 'Paid' ? 'success' : item.paymentStatus === 'Failed' ? 'error' : 'warning'"
+                size="small"
+              >
+                {{ item.paymentStatus }}
+              </VChip>
+            </template>
+
+            <template #[`item.transactionTime`]="{ item }">
+              {{ new Date(item.transactionTime).toLocaleString() }}
+            </template>
+          </VDataTable>
+        </VCard>
       </div>
     </VContainer>
     

@@ -154,21 +154,48 @@ const saveReceivedItems = async () => {
 
 
 
+// const totalDues = computed(() => {
+//   const total = orderItems.value.reduce((sum, item) => {
+//     const price = Number(item.price || 0)
+//     const pricePerKilo = Number(item.productID?.pricePerKilo || 0)
+//     const quantity = Number(item.quantity || 0)
+//     const expectedAmount = quantity * price
+//     const receivedWeight = (item.dynamicInputs || []).reduce((s, w) => s + Number(w || 0), 0)
+//     const receivedAmount = receivedWeight * pricePerKilo
+
+//     // positive → extra to pay, negative → return
+//     return sum + (receivedAmount - expectedAmount)
+//   }, 0)
+
+//   return parseFloat(total.toFixed(2))
+// })
+
 const totalDues = computed(() => {
-  const total = orderItems.value.reduce((sum, item) => {
-    const price = Number(item.price || 0)
-    const pricePerKilo = Number(item.productID?.pricePerKilo || 0)
-    const quantity = Number(item.quantity || 0)
+  const total = (orderItems.value || []).reduce((sum, item) => {
+    const price = Number(item?.price) || 0
+    const pricePerKilo = Number(item?.productID?.pricePerKilo) || 0
+    const quantity = Number(item?.quantity) || 0
     const expectedAmount = quantity * price
-    const receivedWeight = (item.dynamicInputs || []).reduce((s, w) => s + Number(w || 0), 0)
+
+    // normalize inputs: ensure it's always an array of clean numbers
+    const inputs = Array.isArray(item?.dynamicInputs) ? item.dynamicInputs : []
+    const numbers = inputs.map(w => Number(w) || 0)
+
+    const hasValidWeight = numbers.some(n => n > 0)
+    if (!hasValidWeight) {
+      return sum // skip item
+    }
+
+    const receivedWeight = numbers.reduce((s, n) => s + n, 0)
     const receivedAmount = receivedWeight * pricePerKilo
 
-    // positive → extra to pay, negative → return
     return sum + (receivedAmount - expectedAmount)
   }, 0)
 
-  return parseFloat(total.toFixed(2))
+  return Number(total.toFixed(2))
 })
+
+
 
 
 
@@ -331,7 +358,7 @@ const createTransaction = async payload => {
       </VContainer>
     </div>
     <VContainer v-if="orderItems && orderItems.length">
-      <div class="checkout-card">
+      <div class="checkout-card hideArrow">
         <VCard>
           <VCardText>
             <VForm 
@@ -411,10 +438,10 @@ const createTransaction = async payload => {
                                 <span style="text-transform: uppercase;">₪</span> {{ item.price }}
                               </div>
                               
-                              <div v-if="hasItems">
+                              <div v-if="item.dynamicInputs && item.dynamicInputs.some(w => Number(w) > 0)">
                                 <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo !== item.quantity * item.price">
                                   <span style="white-space: nowrap;" v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo > item.quantity * item.price" class="text-error">
-                                    {{ $t('Dues') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo - item.quantity * item.price).toFixed(2) }}
+                                    {{ $t('לתשלום') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo - item.quantity * item.price).toFixed(2) }}
                                   </span>
                                   <span v-else class="text-success" style="white-space: nowrap;">
                                     {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo).toFixed(2) }}
@@ -439,7 +466,7 @@ const createTransaction = async payload => {
                   lg="4"
                 >
                   <VCard
-                    v-if="hasItems"
+                    v-if="totalDues"
                     flat
                     variant="outlined"
                   >
@@ -448,19 +475,19 @@ const createTransaction = async payload => {
                     <!-- 👉 Price details -->
                     <VCardText>
                       <h6 class="text-h6 mb-4">
-                        {{ $t('Price Details') }}
+                        {{ $t('פרטים') }}
                       </h6>
                       <div class="d-flex justify-space-between mb-2">
-                        <span v-if="totalDues > 0" class="text-error">{{ $t('Dues') }}</span>
+                        <span v-if="totalDues > 0" class="text-error">{{ $t('לתשלום') }}</span>
                         <span v-else-if="totalDues < 0" class="text-success">{{ $t('Refund') }}</span>
                         <span v-else>{{ $t('No dues') }}</span>
                         <span v-if="totalDues">₪ {{ Math.abs(totalDues).toFixed(2) }}</span>
                       </div>
                     </VCardText>
 
-                    <VDivider v-if="hasItems" />
+                    <VDivider v-if="totalDues" />
 
-                    <VCardText class="d-flex justify-space-between pa-6" v-if="hasItems">
+                    <VCardText class="d-flex justify-space-between pa-6" v-if="totalDues">
                       <h6 v-if="totalDues > 0" class="text-error text-h6">
                         {{ $t('Total') }}
                       </h6>
