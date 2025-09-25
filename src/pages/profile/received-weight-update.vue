@@ -75,6 +75,7 @@ const { data: orderData, execute: fetchOrder } = await useApi(
 
 const orderItemsData = computed(() => orderData.value.allItems)
 const order = computed(() => orderData.value.weightAdjustOrders)
+const transactions = computed(() => orderData.value.transactions)
 
 orderItems.value = orderItemsData.value
 
@@ -295,6 +296,7 @@ const handleIframeMessage = (event) => {
       transactionStatus.value = 'error'
       errorMessage.value = data.Value.Message
       showLoader.value = false
+
     } else {
       errorMessage.value = ''
 
@@ -333,14 +335,11 @@ const createTransaction = async payload => {
         showLoader.value = false
       }
     })
-    currentStep.value = currentStep.value + 1
-    // Navigate to order details page
-    //router.replace(`/profile/orders/${order.value?._id}`)
-    //console.log('Transaction created');
+   
+    window.location.reload()
 
   } catch (err) {
     console.error('Failed to save transaction:', err)
-    //toast.error('Failed to save transaction. Please try again.')
     showLoader.value = false
     transactionStatus.value = 'error'
   }
@@ -421,7 +420,7 @@ const createTransaction = async payload => {
                                   :placeholder="$t('Enter weight')"
                                   class="rounded p-1 w-full"
                                   :rules="[requiredValidator]"
-                                  :disabled="order && order.status!='Pending'"
+                                  :disabled="order && (order.status!='Pending' || transactions.length)"
                                 />
                               </div>
                             </div>
@@ -506,14 +505,16 @@ const createTransaction = async payload => {
                     <VBtn
                       block
                       class="mt-4"
-                      :disabled="order && order.status!='Pending'"
+                      :disabled="order && (order.status!='Pending' || transactions.length)"
                       type="submit"
                     >
                       {{ $t('Update weight') }}
                     </VBtn>
                   </div>
-
-                  <div v-if="order && totalDues > 0 && order.total == totalDues && order.status=='Pending'">
+                  <div v-if="order && transactions.length">
+                    <p style="text-align: center; margin-top: 20px;">תודה על העדכון משקלים</p>
+                  </div>
+                  <div v-else-if="order && totalDues > 0 && order.total == totalDues && order.status=='Pending'">
                     <div v-if="nedarimIframeHtml" v-html="nedarimIframeHtml"></div>
 
                     <VBtn v-if="nedarimIframeHtml" type="button" @click="pay" :disabled="isClickPayment" class="TextBox">{{ $t('Make Payment') }}</VBtn>
