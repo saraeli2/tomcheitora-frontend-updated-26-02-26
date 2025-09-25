@@ -111,7 +111,7 @@ const hasReceivable = computed(() => ordersData.value.hasReceivable)
 
                 <span v-if="hasReceivable">
                   <RouterLink :to="`/profile/received-weight-update`" style="background: rgb(255 91 24);color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
-                    {{ $t('משקל שקיבלתי') }}
+                    {{ $t('עדכון משקלים') }}
                   </RouterLink>
                 </span>
               </h5>
