@@ -187,9 +187,18 @@ const totalDues = computed(() => {
 
     // normalize inputs: ensure it's always an array of clean numbers
     const inputs = Array.isArray(item?.dynamicInputs) ? item.dynamicInputs : []
-    const numbers = inputs.map(w => Number(w) || 0)
+    const numbers = inputs
+      .map(w => w.toString().trim())     // convert to string & trim
+      .filter(w => w !== "")             // skip empty strings
+      .map(w => Number(w))               // convert remaining to numbers
+      .filter(n => !isNaN(n) && n >= 0) // keep only numbers ≥ 0
 
-    const hasValidWeight = numbers.some(n => n > 0)
+    //console.log(numbers)
+
+    const hasValidWeight = numbers.some(n => n >= 0)
+
+    //console.log(hasValidWeight);
+    
     if (!hasValidWeight) {
       return sum // skip item
     }
@@ -428,7 +437,7 @@ const createTransaction = async payload => {
                                   :placeholder="$t('Enter weight')"
                                   class="rounded p-1 w-full"
                                   :rules="[requiredValidator]"
-                                  :disabled="order && (order.status!='Pending' || transactions.length)"
+                                  :disabled="order && (order.status!='Pending' || (transactions && transactions.length))"
                                 />
                               </div>
                             </div>
@@ -509,17 +518,17 @@ const createTransaction = async payload => {
 
                   
 
-                  <div v-if="!transactions.length && order && order.status === 'Pending'">
+                  <div v-if="(!order || order && order.status === 'Pending') && (!transactions || !transactions.length)">
                     <VBtn
                       block
                       class="mt-4"
-                      :disabled="order && (order.status!='Pending' || transactions.length)"
+                      :disabled="order && (order.status!='Pending' || (transactions && transactions.length))"
                       type="submit"
                     >
                       {{ $t('Update weight') }}
                     </VBtn>
                   </div>
-                  <div v-if="order && transactions.length">
+                  <div v-if="order && (transactions && transactions.length)">
                     <p style="text-align: center; margin-top: 20px;"> תודה רבה על העדכון משקלים
 
 <br>התשלום נקלט בהצלחה
