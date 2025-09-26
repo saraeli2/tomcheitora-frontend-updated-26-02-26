@@ -433,7 +433,7 @@ const handleIframeMessage = (event) => {
       errorMessage.value = ''
 
       const payload = {
-        userId: user.value._id,      
+        israeliIDNumber: user.value.israeliIDNumber,      
         orderId: order.value?._id,
         paymentStatus: 'Pending',  
         Value: data.Value         
@@ -526,7 +526,7 @@ const pay = () => {
         Mail: user.value.email,
         Amount: numberFormatForPay(order.value.total),
         Tashlumim: '1',
-        Param1: user.value._id,
+        Param1: user.value.israeliIDNumber,
         Param2: order.value._id,
         CallBack: `${import.meta.env.VITE_API_BASE_URL}/payment/callback`,
         CallBackMailError: import.meta.env.VITE_PAYMENTCHECKEMAIL

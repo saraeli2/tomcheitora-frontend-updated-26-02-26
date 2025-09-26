@@ -43,6 +43,13 @@ const router = useRouter()
 const user = ref()
 user.value = authStore.fuserData
 
+const {
+  data: adminDetail, execute: fetchUsers, error,
+} = await useApi(createUrl(`/get-user-details`))
+
+const userData = computed(() => adminDetail.value)
+//console.log(userData.value)
+
 const checkoutSteps = [
   {
     title: 'Cart',
@@ -258,16 +265,17 @@ const pay = () => {
         PaymentType: 'Ragil', // or HK, CreateToken
         Currency: '1',
         Zeout: order.value?.orderNumber,
-        FirstName: user.value.firstName,
-        LastName: user.value.lastName,
-        Street: user.value.street,
-        City: user.value.cityID,
-        Phone: user.value.phone,
-        Mail: user.value.email,
+        FirstName: userData.value.firstName,
+        LastName: userData.value.lastName,
+        Street: userData.value.street,
+        City: userData.value.cityID?.nameHe,
+        Phone: userData.value.phone,
+        Mail: userData.value.email,
         Amount: numberFormatForPay(order.value.total),
         Tashlumim: '1',
-        Param1: user.value._id,
+        Param1: userData.value.israeliIDNumber,
         Param2: order.value._id,
+        Comment: 'עדכון משקל',
         CallBack: `${import.meta.env.VITE_API_BASE_URL}/payment/callback`,
         CallBackMailError: import.meta.env.VITE_PAYMENTCHECKEMAIL
       },
@@ -301,7 +309,7 @@ const handleIframeMessage = (event) => {
       errorMessage.value = ''
 
       const payload = {
-        userId: user.value._id,      
+        israeliIDNumber: userData.value.israeliIDNumber,      
         orderId: order.value?._id,
         paymentStatus: 'Pending',  
         Value: data.Value         
@@ -501,7 +509,7 @@ const createTransaction = async payload => {
 
                   
 
-                  <div>
+                  <div v-if="!transactions.length && order && order.status === 'Pending'">
                     <VBtn
                       block
                       class="mt-4"
@@ -512,7 +520,11 @@ const createTransaction = async payload => {
                     </VBtn>
                   </div>
                   <div v-if="order && transactions.length">
-                    <p style="text-align: center; margin-top: 20px;">תודה על העדכון משקלים</p>
+                    <p style="text-align: center; margin-top: 20px;"> תודה רבה על העדכון משקלים
+
+<br>התשלום נקלט בהצלחה
+<br>מספר אישור: {{ transactions[0].transactionId }}
+</p>
                   </div>
                   <div v-else-if="order && totalDues > 0 && order.total == totalDues && order.status=='Pending'">
                     <div v-if="nedarimIframeHtml" v-html="nedarimIframeHtml"></div>
@@ -522,15 +534,14 @@ const createTransaction = async payload => {
                     <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
                   </div>
                   <div v-else-if="order && totalDues < 0 && order.total == totalDues">
-                    <p style="text-align: center; margin-top: 20px;">תודה על העדכון<br>
-בימים הקרובים יתבצע זיכוי לכרטיס אשראי ממנו שילמת<br>
+                    <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים <br>
 
-תקבלו הודעו לאחר ביצוע הזיכוי.
+אנחנו נבצע לכם זיכוי לכרטיס אשראי שבאמצעותינו בצעתם את ההזמנה בהקדם האפשרי<br>
 
-</p>
+תודה רבה</p>
                   </div>
                   <div v-else-if="order && order.total == totalDues">
-                    <p style="text-align: center; margin-top: 20px;">תודה על העדכון</p>
+                    <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים</p>
                   </div>
                 </VCol>
               </VRow>
