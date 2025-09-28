@@ -383,7 +383,7 @@ onMounted(async () => {
                               <div v-if="hasItems">
                                 <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo !== item.quantity * item.price">
                                   <span style="white-space: nowrap;" v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo > item.quantity * item.price" class="text-error">
-                                    {{ $t('Dues') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo - item.quantity * item.price).toFixed(2) }}
+                                    {{ $t('לתשלום') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo - item.quantity * item.price).toFixed(2) }}
                                   </span>
                                   <span v-else class="text-success" style="white-space: nowrap;">
                                     {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo).toFixed(2) }}
@@ -420,7 +420,7 @@ onMounted(async () => {
                         {{ $t('Price Details') }}
                       </h6>
                       <div class="d-flex justify-space-between mb-2">
-                        <span v-if="totalDues > 0" class="text-error">{{ $t('Dues') }}</span>
+                        <span v-if="totalDues > 0" class="text-error">{{ $t('לתשלום') }}</span>
                         <span v-else-if="totalDues < 0" class="text-success">{{ $t('Refund') }}</span>
                         <span v-else>{{ $t('No dues') }}</span>
                         <span v-if="totalDues">₪ {{ Math.abs(totalDues).toFixed(2) }}</span>
