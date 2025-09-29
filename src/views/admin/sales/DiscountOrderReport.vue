@@ -1,6 +1,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import useHelper from "@/mixins/helper";
+import { utils, writeFile } from 'xlsx'
 
 const props = defineProps({
   saleid: {
@@ -106,6 +107,81 @@ const {
 
 const discountReports = computed(() => discountReportData.value.report)
 const totalDisoucntRows = computed(() => discountReportData.value.total)
+
+
+
+const downloadDiscountReport = async () => {
+  try {
+    const response = await $api(`/admin/reports/discount-report/export`, {
+      responseType: 'json',
+      params: {
+        sale: props.saleid, // pass selected sale ID
+      },
+    })
+
+    
+
+    // Updated: JSON comes from response.data
+    const discountData = response;
+
+    //console.log(response)
+
+    if (!discountData || !discountData.length) {
+      Swal.fire({
+        icon: 'info',
+        title: 'No Discount Data',
+        text: 'There are no discount records to export.',
+      });
+      return;
+    }
+    // Define headers in desired order
+    const worksheet = utils.aoa_to_sheet([
+      [
+        'שם מלא',
+        'ת.ז.',
+        'כתובת',
+        'עיר',
+        'טלפון 1',
+        'טלפון 2',
+        'מייל',
+        'הנחה'
+      ]
+    ]);
+
+    // Map backend data directly
+    const data = discountData.map(item => ({
+      'שם מלא': item.fullName,
+      'ת.ז.': item.israeliIDNumber,
+      'כתובת': item.address,
+      'עיר': item.city,
+      'טלפון 1': item.phone,
+      'טלפון 2': item.phone2,
+      'מייל': item.email,
+      'הנחה': Number(item.totalDiscount).toFixed(2)
+    }));
+
+    // Append JSON data to sheet
+    utils.sheet_add_json(worksheet, data, { skipHeader: true, origin: -1 });
+
+    // Set column widths
+    worksheet['!cols'] = new Array(8).fill({ wch: 25 });
+
+    // Create workbook and append sheet
+    const workbook = utils.book_new();
+    utils.book_append_sheet(workbook, worksheet, 'DiscountReport');
+
+    // Save XLSX file
+    writeFile(workbook, 'DiscountReport.xlsx', { compression: true });
+  } catch (err) {
+    console.error('Failed to download Discount Report XLSX:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Export Failed',
+      text: 'Could not download discount report XLSX.',
+    });
+  }
+};
+
 </script>
 
 <template>
@@ -141,6 +217,14 @@ const totalDisoucntRows = computed(() => discountReportData.value.total)
               @update:model-value="itemsPerPage = parseInt($event, 10)"
             />
           </div>
+
+          <VBtn
+            prepend-icon="tabler-download"
+            color="primary"
+            @click="downloadDiscountReport"
+          >
+            {{ $t('Export') }}
+          </VBtn>
         </div>
       </VCardText>
       <VDivider />
@@ -163,7 +247,7 @@ const totalDisoucntRows = computed(() => discountReportData.value.total)
 
         <!-- time -->
         <template #[`item.FullName`]="{ item }">
-          {{ item.user?.firstName }} {{ item.user?.lasttName }}
+          {{ item.user?.firstName }} {{ item.user?.lastName }}
         </template>
 
         <!-- Created At -->
