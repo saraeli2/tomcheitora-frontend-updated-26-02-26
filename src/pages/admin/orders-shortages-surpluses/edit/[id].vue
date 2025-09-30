@@ -5,7 +5,7 @@ definePage({
   meta: {
     action: ['admin-update-orders'],
     subject: ['Update Orders'],
-    navActiveLink: 'admin-orders-weight-update',
+    navActiveLink: 'admin-orders-shortages-surpluses',
     title: 'Update Order',
   },
 })
@@ -168,7 +168,7 @@ const submit = async () => {
       refForm.value?.reset()
       refForm.value?.resetValidation()
       toast.success("Successfully saved")
-      router.push({ name: 'admin-orders-weight-update-detail-id', params: { id: route.params.id } })
+      router.push({ name: 'admin-orders-shortages-surpluses-detail-id', params: { id: route.params.id } })
     })
   } catch (err) {
     console.log(err)
@@ -239,7 +239,7 @@ const stations = stationOptions.value.map(item => ({
       >
         <VBreadcrumbs
           class="px-0 pb-2 pt-0 help-center-breadcrumbs"
-          :items="[{ title: $t('Orders Weight Update'), to: { name: 'admin-orders-weight-update' }, class: 'text-primary' }, { title: $t('Order Details') + ' ' + orderData._id, to: { name: 'admin-orders-weight-update-detail-id', params: { id: orderData._id } }, class: 'text-primary' }, { title: $t('Edit Order') }]"
+          :items="[{ title: 'עדכון חוסרים\עודפים', to: { name: 'admin-orders-shortages-surpluses' }, class: 'text-primary' }, { title: $t('Order Details') + ' ' + orderData._id, to: { name: 'admin-orders-weight-update-detail-id', params: { id: orderData._id } }, class: 'text-primary' }, { title: $t('Edit Order') }]"
         />
       </VCol>
     </VRow>

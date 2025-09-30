@@ -24,7 +24,7 @@ const { t } = useI18n()
 const searchQuery = ref('')
 
 // Data table options
-const itemsPerPage = ref(10)
+const itemsPerPage = ref(20)
 const page = ref(1)
 const sortBy = ref()
 const orderBy = ref()
@@ -88,6 +88,9 @@ const {
 const orders = computed(() => ordersData.value.orders)
 const totalOrder = computed(() => ordersData.value.total)
 const hasReceivable = computed(() => ordersData.value.hasReceivable)
+
+const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
+
 </script>
 
 <template>
@@ -112,6 +115,12 @@ const hasReceivable = computed(() => ordersData.value.hasReceivable)
                 <span v-if="hasReceivable">
                   <RouterLink :to="`/profile/received-weight-update`" style="background: rgb(255 91 24);color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
                     {{ $t('עדכון משקלים') }}
+                  </RouterLink>
+                </span>
+
+                <span v-if="hasReceivedFormItem && authStore.fuserData?._id == '68ba867f8c2ffa6da3fb3892'">
+                  <RouterLink :to="`/profile/received-items-report`" style="background: #32A744;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
+                    עדכון חוסרים\עודפים
                   </RouterLink>
                 </span>
               </h5>
@@ -139,6 +148,9 @@ const hasReceivable = computed(() => ordersData.value.hasReceivable)
             <!-- Order ID -->
             <template #item.order="{ item }">
               <RouterLink v-if="item?.orderType == 'Weight Adjust'" :to="`/profile/received-weight-update`">
+                #{{ item._id }}
+              </RouterLink>
+              <RouterLink v-else-if="item?.orderType == 'Received Items Form'" :to="`/profile/received-items-report`">
                 #{{ item._id }}
               </RouterLink>
               <RouterLink v-else :to="`/profile/orders/${item._id}`">
@@ -187,6 +199,14 @@ const hasReceivable = computed(() => ordersData.value.hasReceivable)
                     >
                       {{ $t('Edit Order') }}
                     </VListItem>
+
+                    <VListItem
+                      v-else-if="item?.orderType == 'Received Items Form'"
+                      value="view"
+                      to="/profile/received-items-report"
+                    >
+                      {{ $t('Edit Order') }}
+                    </VListItem>
                     <VListItem
                       v-else-if="item.status == 'Pending'"
                       value="view"
@@ -199,6 +219,14 @@ const hasReceivable = computed(() => ordersData.value.hasReceivable)
                       v-if="item?.orderType == 'Weight Adjust'"
                       value="view"
                       to="/profile/received-weight-update"
+                    >
+                      {{ $t('View Order') }}
+                    </VListItem>
+
+                    <VListItem
+                      v-else-if="item?.orderType == 'Received Items Form'"
+                      value="view"
+                      to="/profile/received-items-report"
                     >
                       {{ $t('View Order') }}
                     </VListItem>

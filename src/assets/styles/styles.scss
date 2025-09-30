@@ -1669,7 +1669,39 @@ button.px-4.py-2.bg-primary.text-white.rounded[disabled] {
   margin: 0;
 }
 
+.recived_items_report input[type=number]::-webkit-outer-spin-button,
+.recived_items_report  input[type=number]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.recived_items_report  input[type=number] {
+  -moz-appearance: textfield;
+}
+
 /* Firefox */
 .hideArrow  input[type=number] {
   -moz-appearance: textfield;
+}
+
+
+.recived_items_report tr.bg-gray-50 {
+    background-color: #F9FAFB;
+}
+
+.recived_items_report th.bg-light,
+.recived_items_report td.bg-light {
+    background: #F5F5F5;
+}
+.recived_items_report .v-table th{
+  font-size: 14px;
+}
+.recived_items_report.admin_area .v-container {
+    max-width: 100%;
+}
+.bg-light2 .app-text-field.flex-grow-1.rounded.p-1.w-full {
+    background-color: #fff;
+}
+th.bg-light2, td.bg-light2 {
+    background-color: #ddddec;
 }

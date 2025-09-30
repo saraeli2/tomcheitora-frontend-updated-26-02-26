@@ -13,5 +13,6 @@ import suppliers from './suppliers'
 import users from './users'
 import orders from './orders'
 import orderWeightUpdate from './orderWeightUpdate'
+import orderReceivedForm from './orderReceivedForm'
 
-export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...sales, ...orders, ...orderWeightUpdate, ...suppliers, ...users]
+export default [...dashboards, ...admins, ...communities, ...distributionmanagers, ...groups, ...manufacturers, ...products, ...roles, ...settings, ...stations, ...sales, ...orders, ...orderWeightUpdate, ...orderReceivedForm, ...suppliers, ...users]
