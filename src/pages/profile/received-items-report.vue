@@ -133,6 +133,37 @@ const dues = (item) => {
   const receivedSum = totalReceived(item);
   return receivedSum - item.totalQuantity;
 }
+
+const totals = computed(() => {
+  let due = 0      // customer must pay
+  let refund = 0   // customer will receive
+
+  orderItems.value.forEach(item => {
+    const received = item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0)
+    const ordered  = Number(item.totalQuantity || 0)
+    const price    = Number(item.price || 0)
+
+    if (item.weightUpdateItem) {
+      // ---- weight based ----
+      const unitPrice = Number(item.pricePerKilo || item.price || 0)
+      const diff = received * unitPrice - ordered * price
+      if (diff > 0) due += diff
+      else if (diff < 0) refund += Math.abs(diff)
+    } else {
+      // ---- normal items ----
+      const qtyDiff = received - ordered
+      if (!item.wantRefund && qtyDiff > 0) {
+        // received more → pay
+        due += qtyDiff * price
+      } else if (qtyDiff < 0) {
+        // received less → refund
+        refund += Math.abs(qtyDiff) * price
+      }
+    }
+  })
+
+  return { due, refund }
+})
 </script>
 
 <template>
@@ -223,14 +254,14 @@ const dues = (item) => {
               <td>
                 <!-- Weight based items -->
                 <div v-if="item.weightUpdateItem && item.receivedInputs.some(w => Number(w) > 0)">
-                  <div v-if="item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.pricePerKilo !== item.totalQuantity * item.price">
+                  <div v-if="item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * (item.pricePerKilo || item.price) !== item.totalQuantity * item.price">
                     <span
-                      v-if="item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.pricePerKilo > item.totalQuantity * item.price"
+                      v-if="item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * (item.pricePerKilo || item.price) > item.totalQuantity * item.price"
                       class="text-error"
                       style="white-space: nowrap;"
                     >
                       {{ $t('לתשלום') }}: ₪
-                      {{ (item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.pricePerKilo - item.totalQuantity * item.price).toFixed(2) }}
+                      {{ (item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * (item.pricePerKilo || item.price) - item.totalQuantity * item.price).toFixed(2) }}
                     </span>
                     <span
                       v-else
@@ -238,7 +269,7 @@ const dues = (item) => {
                       style="white-space: nowrap;"
                     >
                       {{ $t('Refund') }}: ₪
-                      {{ (item.totalQuantity * item.price - item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.pricePerKilo).toFixed(2) }}
+                      {{ ( (Number(item.totalQuantity || 0) * Number(item.price || 0)) - (item.receivedInputs.reduce((sum, w) => sum + Number(w || 0), 0) * Number((item.pricePerKilo || item.price) || 0)) ).toFixed(2) }}
                     </span>
                   </div>
                 </div>
@@ -278,7 +309,32 @@ const dues = (item) => {
 
         <!-- Totals -->
         <VCard class="mt-6 pa-4">
-          
+          <VRow justify="space-between">
+            <VCol cols="auto">
+              <strong>{{ $t('Total to Pay') }}:</strong>
+            </VCol>
+            <VCol cols="auto" class="text-error">
+              ₪{{ numberFormat(totals.due) }}
+            </VCol>
+          </VRow>
+
+          <VRow justify="space-between">
+            <VCol cols="auto">
+              <strong>{{ $t('Total Refund') }}:</strong>
+            </VCol>
+            <VCol cols="auto" class="text-success">
+              ₪{{ numberFormat(totals.refund) }}
+            </VCol>
+          </VRow>
+
+          <VRow justify="space-between">
+            <VCol cols="auto">
+              <strong>{{ $t('Total') }}:</strong>
+            </VCol>
+            <VCol cols="auto" class="text-success">
+              ₪{{ numberFormat(totals.due - totals.refund) }}
+            </VCol>
+          </VRow>
         </VCard>
 
         <VBtn type="submit" class="mt-4">{{ $t('שליחה') }}</VBtn>
