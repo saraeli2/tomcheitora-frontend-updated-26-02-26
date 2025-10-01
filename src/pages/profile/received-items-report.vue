@@ -44,14 +44,25 @@ const deliveryCharge = computed(() => orderData.value.deliveryCharge)
 const originalTotal = computed(() => orderData.value.total)
 const originalDiscount = computed(() => orderData.value.totalDiscount)
 
+//console.log(order.value)
+
 orderItems.value = orderItemsData.value
 
 if(order.value){
   remarks.value = order.value?.comment
 }
 
-onMounted(() => {
+const {
+  data: adminDetail, execute: fetchUsers, error,
+} = await useApi(createUrl(`/get-user-details`))
+
+const user = computed(() => adminDetail.value)
+
+onMounted(async () => {
   loadOrderItems(orderItemsData.value)
+  if (order.value) {
+    await loadNedarimIframe()
+  }
 })
 
 const loadOrderItems = (items) => {
@@ -70,26 +81,32 @@ const loadOrderItems = (items) => {
 
     return {
       ...item,
+      rowID: item.productID,
       receivedInputs,
-      wantRefund: item.receivedItem?.wantRefund ?? false
+      wantRefund: item.wantRefund ?? false
     }
   })
 }
 
 const showLoader = ref(false)
 
-const saveReceivedItemsForm = async () => {
+const saveReceivedItemsForm = () => {
+  refForm.value?.validate().then(({ valid: isValid }) => {
+    if (isValid)
+      saveReceivedItemsFormSubmit()
+  })
+}
+
+const saveReceivedItemsFormSubmit = async () => {
+  //console.log(orderItems.value);
   try {
     const receivedInputs = {}
 
     orderItems.value.forEach(item => {
-      if (item.received !== undefined && item.received !== null) {
-        receivedInputs[item._id] = {
-          values: [item.received.toString()],
-          productID: item.productID?._id,
-          refund: item.refund || 0,  // 👈 add this
-          wantRefund: item.wantRefund ? true : false
-        }
+      receivedInputs[item.rowID] = {
+        values: item.receivedInputs.map(String),
+        productID: item.productID?._id,
+        wantRefund: item.wantRefund ? true : false
       }
     })
 
@@ -101,7 +118,7 @@ const saveReceivedItemsForm = async () => {
     const payload = {
       orderID: order.value?._id || null,
       receivedInputs,
-      remarks: remarks.value || ''
+      diff: parseFloat(recalculated.value.diff)  // send the calculated diff
     }
 
     showLoader.value = true
@@ -113,9 +130,6 @@ const saveReceivedItemsForm = async () => {
 
     await fetchOrder()
     toast.success('Received items saved successfully!')
-
-    // optionally reload data or navigate
-    // await fetchOrder()
   } catch (err) {
     console.error(err)
     toast.error(err.message || 'Failed to save received items form.')
@@ -206,10 +220,141 @@ const recalculated = computed(() => {
     diff: diff.toFixed(2),
   }
 })
+
+
+// For payment
+const transactionStatus = ref('') // success, error, or ''
+const errorMessage = ref('')
+const loadNedarimIframe = async () => {
+  try {
+    showLoader.value = true
+
+    const res = await axios.post(
+      `${import.meta.env.VITE_API_BASE_URL}/payment/iframe`,
+      {
+        firstName: user.value.firstName,
+        lastName: user.value.lastName,
+        email: user.value.email,
+        street: user.value.street,
+        uniqueKey: order.value?.orderNumber,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${authStore.faccessToken}`,  // 👈 frontend token
+        },
+      }
+    )
+
+    nedarimIframeHtml.value = res.data.iframeHtml
+  } catch (err) {
+    console.error('Failed to load payment iframe:', err)
+    toast.error('Payment page could not be loaded.')
+  } finally {
+    showLoader.value = false
+  }
+
+  window.addEventListener('message', handleIframeMessage, false)
+}
+
+const isClickPayment = ref(false)
+
+const pay = () => {
+  
+  isClickPayment.value = true;
+  //showLoader.value = true
+
+  const iframeWindow = document.getElementById('NedarimFrame').contentWindow
+
+  iframeWindow.postMessage(
+    {
+      Name: 'FinishTransaction2',
+      Value: {
+        Mosad: import.meta.env.VITE_NEDARIM_TERMINAL,
+        ApiValid: import.meta.env.VITE_NEDARIM_API_PASS,
+        PaymentType: 'Ragil', // or HK, CreateToken
+        Currency: '1',
+        Zeout: order.value?.orderNumber,
+        FirstName: user.value.firstName,
+        LastName: user.value.lastName,
+        Street: user.value.street,
+        City: user.value.cityID?.nameHe,
+        Phone: user.value.phone,
+        Mail: user.value.email,
+        Amount: numberFormatForPay(order.value.total),
+        Tashlumim: '1',
+        Param1: user.value.israeliIDNumber,
+        Param2: order.value._id,
+        Comment: 'עדכון חוסרים\עודפים',
+        CallBack: `${import.meta.env.VITE_API_BASE_URL}/payment/callback`,
+        CallBackMailError: import.meta.env.VITE_PAYMENTCHECKEMAIL
+      },
+    },
+    '*'
+  )
+}
+
+const nedarimIframeHtml = ref('')
+
+const handleIframeMessage = (event) => {
+  const data = event.data
+  showLoader.value = false
+
+  //onsole.log(data);
+
+  if (data.Name === 'Height') {
+    document.getElementById('NedarimFrame').style.height =
+      parseInt(data.Value) + 15 + 'px'
+  }
+
+  if (data.Name === 'TransactionResponse') {
+    isClickPayment.value = false
+
+    if (data.Value.Status === 'Error') {
+      transactionStatus.value = 'error'
+      errorMessage.value = data.Value.Message
+      showLoader.value = false
+
+    } else {
+      errorMessage.value = ''
+
+      const payload = {
+        israeliIDNumber: user.value.israeliIDNumber,      
+        orderId: order.value?._id,
+        paymentStatus: 'Pending',  
+        Value: data.Value         
+      }
+
+      createTransaction(payload)
+    }
+  }
+}
+
+
+const createTransaction = async payload => {
+  showLoader.value = false
+  try {
+    const response = await $api('/transactions', {
+      method: 'POST',
+      body: payload,
+      credentials: 'include',
+      onResponseError({ response }) {
+        //toast.error(response?._data?.message || 'Failed to save transaction')
+        showLoader.value = false
+      }
+    })
+   
+    window.location.reload()
+
+  } catch (err) {
+    console.error('Failed to save transaction:', err)
+    showLoader.value = false
+    transactionStatus.value = 'error'
+  }
+}
 </script>
 
 <template>
-  <div class="checkout-page product-page recived_items_report" v-if="authStore.fuserData?._id == '68ba867f8c2ffa6da3fb3892'">
+  <div class="checkout-page product-page recived_items_report">
     <Navbar />
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
@@ -219,7 +364,7 @@ const recalculated = computed(() => {
       </VContainer>
     </div>
 
-    <VContainer v-if="orderItems.length">
+    <VContainer v-if="orderItems.length && user.allowedIsraelUser">
       <VForm ref="refForm" v-model="isFormValid" @submit.prevent="saveReceivedItemsForm">
         <VTable dense>
           <thead>
@@ -404,7 +549,7 @@ const recalculated = computed(() => {
                 <VCol cols="auto">
                   <strong>{{ $t('Discount') }}:</strong>
                 </VCol>
-                <VCol cols="auto" class="text-success">
+                <VCol cols="auto">
                   ₪{{ numberFormat(recalculated.newDiscount) }}
                 </VCol>
               </VRow>
@@ -446,8 +591,33 @@ const recalculated = computed(() => {
           </VRow>
         </VCard>
 
-        <VBtn type="submit" class="mt-4">{{ $t('שליחה') }}</VBtn>
+        <VBtn v-if="(!order || order && order.status === 'Pending') && (!transactions || !transactions.length)" type="submit" class="mt-4">{{ $t('שליחה') }}</VBtn>
       </VForm>
+
+      <div v-if="order && (transactions && transactions.length)">
+        <p style="text-align: center; margin-top: 20px;"> תודה רבה על העדכון משקלים
+
+<br>התשלום נקלט בהצלחה
+<br>מספר אישור: {{ transactions[0].transactionId }}
+</p>
+      </div>
+      <div v-else-if="order && recalculated.diff > 0 && order.total == recalculated.diff && order.status=='Pending'">
+        <div v-if="nedarimIframeHtml" v-html="nedarimIframeHtml"></div>
+
+        <VBtn v-if="nedarimIframeHtml" type="button" @click="pay" :disabled="isClickPayment" class="TextBox">{{ $t('Make Payment') }}</VBtn>
+
+        <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
+      </div>
+      <div v-else-if="order && recalculated.diff < 0 && order.total == recalculated.diff">
+        <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים <br>
+
+אנחנו נבצע לכם זיכוי לכרטיס אשראי שבאמצעותינו בצעתם את ההזמנה בהקדם האפשרי<br>
+
+תודה רבה</p>
+      </div>
+      <div v-else-if="order && order.total == recalculated.diff">
+        <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים</p>
+      </div>
     </VContainer>
 
     <VContainer v-else>

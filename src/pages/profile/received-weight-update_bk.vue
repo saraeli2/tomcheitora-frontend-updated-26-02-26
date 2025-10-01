@@ -373,7 +373,195 @@ const createTransaction = async payload => {
         </VCardText>
       </VContainer>
     </div>
-    <VContainer>
+    <VContainer v-if="orderItems && orderItems.length">
+      <div class="checkout-card hideArrow">
+        <VCard>
+          <VCardText>
+            <VForm 
+              ref="refForm"
+              v-model="isFormValid"
+              @submit.prevent="onSubmit"
+            >
+              <VRow v-if="orderItems">
+                <VCol
+                  cols="12"
+                  lg="8"
+                >
+                  <div
+                    v-if="orderItems.length"
+                    class="border rounded"
+                  >
+                    <template
+                      v-for="(item, index) in orderItems"
+                      :key="item.productID._id"
+                    >
+                      <div
+                        v-if="item.dynamicInputs.length"
+                        class="d-flex align-center gap-4 pa-6 position-relative flex-column flex-sm-row"
+                        :class="index ? 'border-t' : ''"
+                      >
+                        <div v-if="item.productID?.image">
+                          <VImg
+                            width="140"
+                            :src="item.productID?.image"
+                          />
+                        </div>
+                        <div v-else>
+                          <VImg
+                            width="140"
+                            src="/images/no-img.jpg"
+                          />
+                        </div>
+
+                        <div class="d-flex w-100 flex-column flex-md-row">
+                          <div class="d-flex flex-column gap-y-2" style="min-width: 200px;">
+                            <h6 class="text-h6">
+                              {{ item.productID?.name }}
+                            </h6>
+                            <div v-if="item.variations">
+                              <p v-if="item.variations.size">{{ $t('Size') }}: {{ item.variations.size }}</p>
+                              <p v-if="item.variations.color">{{ $t('Color') }}: {{ item.variations.color }}</p>
+                              <p v-if="item.variations.sleeveLength">{{ $t('Sleeve Length') }}: {{ item.variations.sleeveLength }}</p>
+                              <p v-if="item.variations.pocket">{{ $t('Pocket') }}: {{ item.variations.pocket }}</p>
+                            </div>
+                            <p>
+                              {{ $t('Qty') }}: {{ item.quantity }}
+                            </p>
+
+                            <div v-if="item.dynamicInputs.length" style="max-width: 200px;">
+                              <div v-for="(input, index) in item.dynamicInputs" :key="index" class="mb-4">
+                                <label class="block font-medium mb-1">{{ $t('משקל קופסא') }}</label>
+                                <AppTextField
+                                  type="number"
+                                  v-model="item.dynamicInputs[index]"
+                                  :placeholder="$t('Enter weight')"
+                                  class="rounded p-1 w-full"
+                                  :rules="[requiredValidator]"
+                                  :disabled="order && (order.status!='Pending' || (transactions && transactions.length))"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <VSpacer />
+
+                          <div
+                            class="d-flex flex-column mt-5 text-start text-md-end"
+                            :class="$vuetify.display.mdAndDown ? 'gap-2' : 'gap-4'"
+                          >
+                            <div class="d-flex text-base align-self-md-end" style="flex-direction: column;">
+                              <div class="text-primary">
+                                <span style="text-transform: uppercase;">₪</span> {{ item.price }}
+                              </div>
+                              
+                              <div v-if="item.dynamicInputs && item.dynamicInputs.some(w => Number(w) > 0)">
+                                <div v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo !== item.quantity * item.price">
+                                  <span style="white-space: nowrap;" v-if="item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo > item.quantity * item.price" class="text-error">
+                                    {{ $t('לתשלום') }}: ₪ {{ (item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo - item.quantity * item.price).toFixed(2) }}
+                                  </span>
+                                  <span v-else class="text-success" style="white-space: nowrap;">
+                                    {{ $t('Refund') }}: ₪ {{ (item.quantity * item.price - item.dynamicInputs.reduce((sum, w) => sum + Number(w || 0), 0) * item.productID?.pricePerKilo).toFixed(2) }}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </div>
+
+                  <!-- 👉 Empty Cart -->
+                  <div v-else>
+                    <VImg :src="emptyCartImg" />
+                  </div>
+                </VCol>
+
+                <VCol
+                  cols="12"
+                  lg="4"
+                >
+                  <VCard
+                    v-if="totalDues"
+                    flat
+                    variant="outlined"
+                  >
+                    
+
+                    <!-- 👉 Price details -->
+                    <VCardText>
+                      <h6 class="text-h6 mb-4">
+                        {{ $t('פרטים') }}
+                      </h6>
+                      <div class="d-flex justify-space-between mb-2">
+                        <span v-if="totalDues > 0" class="text-error">{{ $t('לתשלום') }}</span>
+                        <span v-else-if="totalDues < 0" class="text-success">{{ $t('Refund') }}</span>
+                        <span v-else>{{ $t('No dues') }}</span>
+                        <span v-if="totalDues">₪ {{ Math.abs(totalDues).toFixed(2) }}</span>
+                      </div>
+                    </VCardText>
+
+                    <VDivider v-if="totalDues" />
+
+                    <VCardText class="d-flex justify-space-between pa-6" v-if="totalDues">
+                      <h6 v-if="totalDues > 0" class="text-error text-h6">
+                        {{ $t('Total') }}
+                      </h6>
+                      <h6 v-else-if="totalDues < 0" class="text-success text-h6">
+                        {{ $t('Total') }}
+                      </h6>
+                      <h6 class="text-h6" v-if="totalDues">
+                        ₪ {{ Math.abs(totalDues).toFixed(2) }}
+                      </h6>
+                    </VCardText>
+                  </VCard>
+
+                  
+
+                  <div v-if="(!order || order && order.status === 'Pending') && (!transactions || !transactions.length)">
+                    <VBtn
+                      block
+                      class="mt-4"
+                      :disabled="order && (order.status!='Pending' || (transactions && transactions.length))"
+                      type="submit"
+                    >
+                      {{ $t('Update weight') }}
+                    </VBtn>
+                  </div>
+                  <div v-if="order && (transactions && transactions.length)">
+                    <p style="text-align: center; margin-top: 20px;"> תודה רבה על העדכון משקלים
+
+<br>התשלום נקלט בהצלחה
+<br>מספר אישור: {{ transactions[0].transactionId }}
+</p>
+                  </div>
+                  <div v-else-if="order && totalDues > 0 && order.total == totalDues && order.status=='Pending'">
+                    <div v-if="nedarimIframeHtml" v-html="nedarimIframeHtml"></div>
+
+                    <VBtn v-if="nedarimIframeHtml" type="button" @click="pay" :disabled="isClickPayment" class="TextBox">{{ $t('Make Payment') }}</VBtn>
+
+                    <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
+                  </div>
+                  <div v-else-if="order && totalDues < 0 && order.total == totalDues">
+                    <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים <br>
+
+אנחנו נבצע לכם זיכוי לכרטיס אשראי שבאמצעותינו בצעתם את ההזמנה בהקדם האפשרי<br>
+
+תודה רבה</p>
+                  </div>
+                  <div v-else-if="order && order.total == totalDues">
+                    <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים</p>
+                  </div>
+                </VCol>
+              </VRow>
+            </VForm>
+          </VCardText>
+          <VDivider />
+        </VCard>
+      </div>
+    </VContainer>
+
+    <VContainer v-else>
       <div class="checkout-card">
         <VCard>
           <VCardText>

@@ -34,6 +34,12 @@ const updateOptions = options => {
   orderBy.value = options.sortBy[0]?.order
 }
 
+const {
+  data: adminDetail, execute: fetchUsers, error,
+} = await useApi(createUrl(`/get-user-details`))
+
+const userData = computed(() => adminDetail.value)
+
 const headers = [
   {
     title: t('Order'),
@@ -118,11 +124,11 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                   </RouterLink>
                 </span> -->
 
-                <!-- <span v-if="hasReceivedFormItem && authStore.fuserData?._id == '68ba867f8c2ffa6da3fb3892'">
+                <span v-if="(hasReceivable || hasReceivedFormItem) && userData.allowedIsraelUser">
                   <RouterLink :to="`/profile/received-items-report`" style="background: #32A744;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
                     עדכון חוסרים\עודפים
                   </RouterLink>
-                </span> -->
+                </span>
               </h5>
               <!-- <div>
                 <AppTextField
@@ -150,7 +156,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
               <RouterLink v-if="item?.orderType == 'Weight Adjust'" :to="`#`">
                 #{{ item._id }}
               </RouterLink>
-              <RouterLink v-else-if="item?.orderType == 'Received Items Form'" :to="`#`">
+              <RouterLink v-else-if="item?.orderType == 'Received Items Form'" :to="`/profile/received-items-report`">
                 #{{ item._id }}
               </RouterLink>
               <RouterLink v-else :to="`/profile/orders/${item._id}`">
@@ -203,7 +209,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     <VListItem
                       v-else-if="item?.orderType == 'Received Items Form'"
                       value="view"
-                      to="#"
+                      to="/profile/received-items-report"
                     >
                       {{ $t('Edit Order') }}
                     </VListItem>
@@ -226,7 +232,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     <VListItem
                       v-else-if="item?.orderType == 'Received Items Form'"
                       value="view"
-                      to="#"
+                      to="/profile/received-items-report"
                     >
                       {{ $t('View Order') }}
                     </VListItem>
