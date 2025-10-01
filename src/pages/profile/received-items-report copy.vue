@@ -168,48 +168,10 @@ const totals = computed(() => {
 
   return { due, refund }
 })
-
-const recalculated = computed(() => {
-  let newSubTotal = 0
-
-  orderItems.value.forEach(item => {
-    const received = item.receivedInputs.reduce((sum, v) => sum + Number(v || 0), 0)
-    const ordered  = Number(item.totalQuantity || 0)
-    const price    = Number(item.price || 0)
-
-    if (item.weightUpdateItem) {
-      newSubTotal += received * Number(item.pricePerKilo || item.price || 0)
-    } else {
-      //newSubTotal += received * Number(item.price || 0)
-      const effectiveQty = item.wantRefund && received > ordered ? ordered : received
-      newSubTotal += effectiveQty * price
-    }
-  })
-
-  // Calculate percentage discount
-  const percentageDiscount = (newSubTotal * (orderData.value.discountPercentage || 0)) / 100
-  const fixedDiscount = Number(orderData.value.discountFixed || 0)
-
-  // Apply cap rule
-  const newDiscount = Math.min(percentageDiscount, fixedDiscount)
-
-  // Final total
-  const newFinalTotal = newSubTotal - newDiscount + Number(deliveryCharge.value || 0)
-
-  // Difference from original
-  const diff = newFinalTotal - originalTotal.value
-
-  return {
-    newSubTotal: newSubTotal.toFixed(2),
-    newDiscount: newDiscount.toFixed(2),
-    newFinalTotal: newFinalTotal.toFixed(2),
-    diff: diff.toFixed(2),
-  }
-})
 </script>
 
 <template>
-  <div class="checkout-page product-page recived_items_report" v-if="authStore.fuserData?._id == '68ba867f8c2ffa6da3fb3892'">
+  <div class="checkout-page product-page recived_items_report">
     <Navbar />
     <div class="subpage-banner landing-hero landing-hero-light-bg">
       <VContainer>
@@ -393,52 +355,32 @@ const recalculated = computed(() => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Final to Total') }}:</strong>
+                  <strong>{{ $t('Total to Pay') }}:</strong>
                 </VCol>
-                <VCol cols="auto">
-                  ₪{{ numberFormat(recalculated.newSubTotal) }}
+                <VCol cols="auto" class="text-error">
+                  ₪{{ numberFormat(totals.due) }}
                 </VCol>
               </VRow>
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Discount') }}:</strong>
+                  <strong>{{ $t('Total Refund') }}:</strong>
                 </VCol>
                 <VCol cols="auto" class="text-success">
-                  ₪{{ numberFormat(recalculated.newDiscount) }}
+                  ₪{{ numberFormat(totals.refund) }}
                 </VCol>
               </VRow>
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Final total') }}:</strong>
+                  <strong>{{ $t('Total') }}:</strong>
                 </VCol>
-                <VCol cols="auto">
-                  ₪{{ numberFormat(recalculated.newFinalTotal) }}
-                </VCol>
-              </VRow>
-
-              <VDivider class="my-5" />
-
-              <VRow justify="space-between">
-                <VCol cols="auto" v-if="Number(recalculated.diff) < 0">
-                  <strong class="text-success">{{ $t('Refund') }}:</strong>
-                </VCol>
-                <VCol cols="auto" v-else-if="Number(recalculated.diff) > 0">
-                  <strong class="text-error">{{ $t('לתשלום') }}:</strong>
-                </VCol>
-                <VCol cols="auto" v-else>
-                  <strong class="text-error">{{ $t('Total') }}:</strong>
-                </VCol>
-                <VCol
-                  cols="auto"
-                  :class="Number(recalculated.diff) < 0 ? 'text-success' : 'text-error'"
-                >
-                  <template v-if="Number(recalculated.diff) < 0">
-                    -₪{{ numberFormat(Math.abs(recalculated.diff)) }}
+                <VCol cols="auto" :class="(totals.due - totals.refund) < 0 ? 'text-success' : 'text-error'">
+                  <template v-if="(totals.due - totals.refund) < 0">
+                    -₪{{ numberFormat(Math.abs(totals.due - totals.refund)) }}
                   </template>
                   <template v-else>
-                    ₪{{ numberFormat(recalculated.diff) }}
+                    ₪{{ numberFormat(totals.due - totals.refund) }}
                   </template>
                 </VCol>
               </VRow>

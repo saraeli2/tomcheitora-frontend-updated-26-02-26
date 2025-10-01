@@ -112,17 +112,17 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
               <h5 class="text-h5">
                 {{ $t('Orders placed') }}
 
-                <span v-if="hasReceivable">
+                <!-- <span v-if="hasReceivable">
                   <RouterLink :to="`/profile/received-weight-update`" style="background: rgb(255 91 24);color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
                     {{ $t('עדכון משקלים') }}
                   </RouterLink>
-                </span>
+                </span> -->
 
-                <span v-if="hasReceivedFormItem && authStore.fuserData?._id == '68ba867f8c2ffa6da3fb3892'">
+                <!-- <span v-if="hasReceivedFormItem && authStore.fuserData?._id == '68ba867f8c2ffa6da3fb3892'">
                   <RouterLink :to="`/profile/received-items-report`" style="background: #32A744;color: #fff !important;margin: 0 10px;display: inline-block;padding: 4px 10px;border-radius: 3px;">
                     עדכון חוסרים\עודפים
                   </RouterLink>
-                </span>
+                </span> -->
               </h5>
               <!-- <div>
                 <AppTextField
@@ -147,10 +147,10 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
           >
             <!-- Order ID -->
             <template #item.order="{ item }">
-              <RouterLink v-if="item?.orderType == 'Weight Adjust'" :to="`/profile/received-weight-update`">
+              <RouterLink v-if="item?.orderType == 'Weight Adjust'" :to="`#`">
                 #{{ item._id }}
               </RouterLink>
-              <RouterLink v-else-if="item?.orderType == 'Received Items Form'" :to="`/profile/received-items-report`">
+              <RouterLink v-else-if="item?.orderType == 'Received Items Form'" :to="`#`">
                 #{{ item._id }}
               </RouterLink>
               <RouterLink v-else :to="`/profile/orders/${item._id}`">
@@ -195,7 +195,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     <VListItem
                       v-if="item?.orderType == 'Weight Adjust'"
                       value="view"
-                      to="/profile/received-weight-update"
+                      to="#"
                     >
                       {{ $t('Edit Order') }}
                     </VListItem>
@@ -203,7 +203,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     <VListItem
                       v-else-if="item?.orderType == 'Received Items Form'"
                       value="view"
-                      to="/profile/received-items-report"
+                      to="#"
                     >
                       {{ $t('Edit Order') }}
                     </VListItem>
@@ -218,7 +218,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     <VListItem
                       v-if="item?.orderType == 'Weight Adjust'"
                       value="view"
-                      to="/profile/received-weight-update"
+                      to="#"
                     >
                       {{ $t('View Order') }}
                     </VListItem>
@@ -226,7 +226,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     <VListItem
                       v-else-if="item?.orderType == 'Received Items Form'"
                       value="view"
-                      to="/profile/received-items-report"
+                      to="#"
                     >
                       {{ $t('View Order') }}
                     </VListItem>
