@@ -1726,3 +1726,9 @@ th.bg-light2, td.bg-light2 {
 .product-page .v-field--variant-outlined.v-field--error .v-field__outline__end {
     border-color: #f00 !important;
 }
+
+.paymentPage .v-container.page_container {
+    min-height: calc(100vh - 290px);
+    padding-top: 30px;
+    padding-bottom: 30px;
+}

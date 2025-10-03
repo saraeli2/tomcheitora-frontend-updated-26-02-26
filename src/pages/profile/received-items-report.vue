@@ -7,6 +7,7 @@ definePage({
     title: 'Checkout'
   },
 })
+import { useRouter } from 'vue-router'
 import useHelper from "@/mixins/helper";
 import Footer from '@/views/front-pages/front-page-footer.vue'
 import Navbar from '@/views/front-pages/front-page-navbar.vue'
@@ -29,6 +30,7 @@ const orderItems = ref([])
 const isFormValid = ref(false)
 const refForm = ref()
 const remarks = ref()
+const router = useRouter()
 
 const { data: orderData, execute: fetchOrder } = await useApi(
   createUrl(`/received-items-reports`)
@@ -118,7 +120,13 @@ const saveReceivedItemsFormSubmit = async () => {
     const payload = {
       orderID: order.value?._id || null,
       receivedInputs,
-      diff: parseFloat(recalculated.value.diff)  // send the calculated diff
+      diff: parseFloat(recalculated.value.diff),
+      orderItems: orderItems.value,
+      recalculated: recalculated.value,
+      orginalSubtotal: orginalSubtotal.value,
+      originalDiscount: originalDiscount.value,
+      deliveryCharge: deliveryCharge.value,
+      originalTotal: originalTotal.value,
     }
 
     showLoader.value = true
@@ -129,7 +137,11 @@ const saveReceivedItemsFormSubmit = async () => {
     })
 
     await fetchOrder()
-    toast.success('Received items saved successfully!')
+    //toast.success('Received items saved successfully!')
+    if(order.value.total != 0){
+      router.replace(`/profile/payment-refund`)
+    }
+    
   } catch (err) {
     console.error(err)
     toast.error(err.message || 'Failed to save received items form.')
@@ -214,7 +226,7 @@ const recalculated = computed(() => {
   const diff = newFinalTotal - originalTotal.value
 
   return {
-    newSubTotal: newSubTotal.toFixed(2),
+    newSubTotal: (newSubTotal + Number(deliveryCharge.value || 0)).toFixed(2),
     newDiscount: newDiscount.toFixed(2),
     newFinalTotal: newFinalTotal.toFixed(2),
     diff: diff.toFixed(2),
@@ -413,6 +425,7 @@ const createTransaction = async payload => {
                       class="rounded p-1 w-full"
                       :rules="[requiredValidator]"
                       placeholder="Box Weight"
+                      :disabled="order"
                     />
                   </div>
                 </div>
@@ -423,6 +436,7 @@ const createTransaction = async payload => {
                     class="rounded p-1 w-full"
                     :rules="[requiredValidator]"
                     placeholder="Quantity"
+                    :disabled="order"
                   />
                 </div>
               </td>
@@ -487,6 +501,7 @@ const createTransaction = async payload => {
                   v-if="!item.weightUpdateItem && item.receivedInputs.reduce((sum, v) => sum + Number(v || 0), 0) > item.totalQuantity"
                   v-model="item.wantRefund"
                   :label="$t('ברצוני להחזיר')"
+                  :disabled="order"
                 />
               </td>
             </tr>
@@ -500,7 +515,7 @@ const createTransaction = async payload => {
             <VCol md="6">
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Total Payed') }}:</strong>
+                  <strong>{{ $t('סה”כ במקור') }}:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(orginalSubtotal) }}
@@ -509,7 +524,7 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Original Discount') }}:</strong>
+                  <strong>{{ $t('הנחה שהתקבלה') }}:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(originalDiscount) }}
@@ -518,7 +533,7 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Delivery Payed') }}:</strong>
+                  <strong>{{ $t('משלוח') }}:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(deliveryCharge) }}
@@ -527,7 +542,7 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Original payed') }}:</strong>
+                  <strong>{{ $t('שולם במקור') }}:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(originalTotal) }}
@@ -538,7 +553,7 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Final to Total') }}:</strong>
+                  <strong>{{ $t('סה”כ') }}:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(recalculated.newSubTotal) }}
@@ -547,7 +562,7 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Discount') }}:</strong>
+                  <strong>הנחה:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(recalculated.newDiscount) }}
@@ -556,7 +571,7 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto">
-                  <strong>{{ $t('Final total') }}:</strong>
+                  <strong>{{ $t('סה”כ הזמנות') }}:</strong>
                 </VCol>
                 <VCol cols="auto">
                   ₪{{ numberFormat(recalculated.newFinalTotal) }}
@@ -567,13 +582,13 @@ const createTransaction = async payload => {
 
               <VRow justify="space-between">
                 <VCol cols="auto" v-if="Number(recalculated.diff) < 0">
-                  <strong class="text-success">{{ $t('Refund') }}:</strong>
+                  <strong class="text-success">הפרש תשלום\זיכוי:</strong>
                 </VCol>
                 <VCol cols="auto" v-else-if="Number(recalculated.diff) > 0">
-                  <strong class="text-error">{{ $t('לתשלום') }}:</strong>
+                  <strong class="text-error">הפרש תשלום\זיכוי:</strong>
                 </VCol>
                 <VCol cols="auto" v-else>
-                  <strong class="text-error">{{ $t('Total') }}:</strong>
+                  <strong class="text-error">הפרש תשלום\זיכוי:</strong>
                 </VCol>
                 <VCol
                   cols="auto"
@@ -591,32 +606,43 @@ const createTransaction = async payload => {
           </VRow>
         </VCard>
 
-        <VBtn v-if="(!order || order && order.status === 'Pending') && (!transactions || !transactions.length)" type="submit" class="mt-4">{{ $t('שליחה') }}</VBtn>
+        <div class="button_wrapper text-center">
+          <VBtn v-if="!order && recalculated.diff > 0" type="submit" class="mt-4">
+            לתשלום
+          </VBtn>
+          <VBtn v-if="!order && recalculated.diff <= 0" type="submit" class="mt-4">
+            המשך
+          </VBtn>
+        </div>
       </VForm>
+      <div class="button_wrapper text-center" v-if="order && recalculated.diff > 0 && (!transactions || !transactions.length)">
+        <VBtn type="button" to="/profile/payment-refund" class="mt-4">
+          לתשלום
+        </VBtn>
+      </div>
 
       <div v-if="order && (transactions && transactions.length)">
-        <p style="text-align: center; margin-top: 20px;"> תודה רבה על העדכון משקלים
+        <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון פריטים
 
 <br>התשלום נקלט בהצלחה
 <br>מספר אישור: {{ transactions[0].transactionId }}
+<br>בברכת חג שמח, תומכי תורה
 </p>
       </div>
-      <div v-else-if="order && recalculated.diff > 0 && order.total == recalculated.diff && order.status=='Pending'">
-        <div v-if="nedarimIframeHtml" v-html="nedarimIframeHtml"></div>
-
-        <VBtn v-if="nedarimIframeHtml" type="button" @click="pay" :disabled="isClickPayment" class="TextBox">{{ $t('Make Payment') }}</VBtn>
-
-        <div v-if="errorMessage" style="color: #f00">{{ errorMessage }}</div>
-      </div>
-      <div v-else-if="order && recalculated.diff < 0 && order.total == recalculated.diff">
-        <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים <br>
-
+      
+      <div v-else-if="order && recalculated.diff < 0">
+        <p style="text-align: center; margin-top: 20px;"><br>תודה רבה על העדכון משקלים
+<br>
 אנחנו נבצע לכם זיכוי לכרטיס אשראי שבאמצעותינו בצעתם את ההזמנה בהקדם האפשרי<br>
+
+בברכת חג שמח, תומכי תורה<br>
 
 תודה רבה</p>
       </div>
-      <div v-else-if="order && order.total == recalculated.diff">
-        <p style="text-align: center; margin-top: 20px;">תודה רבה על העדכון משקלים</p>
+      <div v-else-if="order && order.total == 0">
+        <p style="text-align: center; margin-top: 20px;">
+      תודה רבה כל העדכון
+              <br>בברכת חג שמח, תומכי תורה</p>
       </div>
     </VContainer>
 
