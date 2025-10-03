@@ -1699,9 +1699,30 @@ button.px-4.py-2.bg-primary.text-white.rounded[disabled] {
 .recived_items_report.admin_area .v-container {
     max-width: 100%;
 }
-.bg-light2 .app-text-field.flex-grow-1.rounded.p-1.w-full {
-    background-color: #fff;
-}
+// .bg-light2 .app-text-field.flex-grow-1.rounded.p-1.w-full {
+//     background-color: #fff;
+// }
 th.bg-light2, td.bg-light2 {
     background-color: #ddddec;
+}
+
+
+.bg-light2 .app-text-field.flex-grow-1.rounded.p-1.w-full .v-input__control {
+    background-color: #fff;
+    border-radius: 6px !important;
+}
+.recived_items_report tr td {
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+.recived_items_report .v-input__details{
+  padding: 3px 0 3px !important;
+}
+
+.product-page .v-field--variant-outlined.v-field--error .v-field__outline__start, 
+.product-page .v-field--variant-outlined.v-field--error .v-field__outline__notch::before, 
+.product-page .v-field--variant-outlined.v-field--error .v-field__outline__notch::after, 
+.product-page .v-field--variant-outlined.v-field--error .v-field__outline__end {
+    border-color: #f00 !important;
 }
