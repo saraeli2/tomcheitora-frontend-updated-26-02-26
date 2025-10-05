@@ -105,15 +105,9 @@ const errors = ref({
 })
 
 const validSale = ref(false)
-const now = new Date()
+
 if(order.value){
-  const end = new Date(order.value.lockTime)
-
-  const isValidTime = now <= end
-
-  if (isValidTime) {
-    validSale.value = true
-  }
+  validSale.value = order.value.orderEditable
 }
 
 

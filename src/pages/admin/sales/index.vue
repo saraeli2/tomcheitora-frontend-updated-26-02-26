@@ -51,6 +51,22 @@ const headers = computed(() => [
     key: 'endDate',
   },
   {
+    title: t('Order Open Duration'),
+    key: 'openDuration',
+  },
+  {
+    title: t('Payment Paying Duration'),
+    key: 'payingDuration',
+  },
+  {
+    title: t('Order Closing Time'),
+    key: 'closingTime',
+  },
+  {
+    title: t('Extended Payments Time'),
+    key: 'extendPaymentTime',
+  },
+  {
     title: t('Delivery Charge'),
     key: 'deliveryCharge',
   },
@@ -303,6 +319,11 @@ const deleteSale = async id => {
         <!-- endDate -->
         <template #[`item.endDate`]="{ item }">
           {{ formatDateWithTime(item.endDate) }}
+        </template>
+
+        <!-- extendPaymentTime -->
+        <template #[`item.extendPaymentTime`]="{ item }">
+          {{ item.extendPaymentTime ? formatDate(item.extendPaymentTime) : '' }}
         </template>
 
         <!-- endDate -->

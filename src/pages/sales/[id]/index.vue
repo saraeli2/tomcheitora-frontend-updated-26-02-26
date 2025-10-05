@@ -636,9 +636,9 @@ async function safeFetchSales() {
 
                         <div class="action_block" v-if="!isShowChildCat">
                           <div v-if="getProductStatus(product.productID?._id)" class="flex items-center space-x-2">
-                            <button @click="decrementCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">-</button>
+                            <button :disabled="!order?.orderEditable" @click="decrementCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">-</button>
                             <span>{{ orderItems.find(item => item.productID === product.productID?._id)?.quantity }}</span>
-                            <button @click="addToCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">+</button>
+                            <button :disabled="!order?.orderEditable" @click="addToCart(product.productID?._id)" class="px-2 py-1 bg-primary text-white rounded">+</button>
                           </div>
 
                           <div v-else>

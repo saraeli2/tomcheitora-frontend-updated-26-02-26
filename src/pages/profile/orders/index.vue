@@ -214,7 +214,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                       {{ $t('Edit Order') }}
                     </VListItem>
                     <VListItem
-                      v-else-if="item.status == 'Pending'"
+                      v-else-if="item.status == 'Pending' && item.orderEditable"
                       value="view"
                       to="/profile/checkout"
                     >

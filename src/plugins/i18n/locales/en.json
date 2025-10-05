@@ -610,5 +610,9 @@
   "משקל קופסא": "Box Weight",
   "לתשלום": "Dues",
   "Total to Pay": "Total to Pay",
-  "Total Refund": "Total Refund"
+  "Total Refund": "Total Refund",
+  "Order Open Duration (In Hours)": "Order Open Duration (In Hours)",
+  "Payment Paying Duration (In Hours)": "Payment Paying Duration (In Hours)",
+  "Order Closing Time (In Hours)": "Order Closing Time (In Hours)",
+  "Extended Payments Time": "Extended Payments Time"
 }

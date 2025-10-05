@@ -101,14 +101,10 @@ const errors = ref({
 })
 
 const validSale = ref(false)
-const now = new Date()
-const end = new Date(order.value.lockTime)
-
-const isValidTime = now <= end
-
-if (isValidTime) {
-  validSale.value = true
+if(order.value){
+  validSale.value = order.value.orderEditable
 }
+
 const showLoader = ref(false)
 
 const onQtyChange = async () => {
@@ -295,7 +291,7 @@ const removeItem = index => {
                   </VCardText>
                 </VCard>
 
-                <div v-if="order.status == 'Pending'">
+                <div v-if="order.status == 'Pending' && validSale">
                   <VBtn
                     block
                     class="mt-4"

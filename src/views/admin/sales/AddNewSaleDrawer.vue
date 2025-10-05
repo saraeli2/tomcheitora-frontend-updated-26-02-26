@@ -16,6 +16,10 @@ const props = defineProps({
       name: '',
       startDate: '',
       endDate: '',
+      openDuration: '',
+      payingDuration: '',
+      closingTime: '',
+      extendPaymentTime: '',
       status: 'Pending',
       deliveryCharge: '',
       firstReminder: '',
@@ -54,6 +58,10 @@ const submit = async () => {
           name: saleData.value.name,
           startDate: saleData.value.startDate,
           endDate: saleData.value.endDate,
+          openDuration: saleData.value.openDuration,
+          payingDuration: saleData.value.payingDuration,
+          closingTime: saleData.value.closingTime,
+          extendPaymentTime: saleData.value.extendPaymentTime,
           status: saleData.value.status,
           deliveryCharge: saleData.value.deliveryCharge,
           firstReminder: saleData.value.firstReminder,
@@ -70,6 +78,10 @@ const submit = async () => {
           name: saleData.value.name,
           startDate: saleData.value.startDate,
           endDate: saleData.value.endDate,
+          openDuration: saleData.value.openDuration,
+          payingDuration: saleData.value.payingDuration,
+          closingTime: saleData.value.closingTime,
+          extendPaymentTime: saleData.value.extendPaymentTime,
           status: saleData.value.status,
           deliveryCharge: saleData.value.deliveryCharge,
           firstReminder: saleData.value.firstReminder,
@@ -113,6 +125,10 @@ const errors = ref({
   name: undefined,
   startDate: undefined,
   endDate: undefined,
+  openDuration: undefined,
+  payingDuration: undefined,
+  closingTime: undefined,
+  extendPaymentTime: undefined,
   status: undefined,
 })
 </script>
@@ -192,6 +208,50 @@ const errors = ref({
                   :label="$t('Delivery Charge')"
                   :placeholder="$t('Delivery Charge')"
                   :error-messages="errors.deliveryCharge"
+                />
+              </VCol>
+
+              <!-- 👉 Order Open Duration -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="saleData.openDuration"
+                  :rules="[numericValidator]"
+                  :label="$t('Order Open Duration (In Hours)')"
+                  :placeholder="$t('Order Open Duration')"
+                  :error-messages="errors.openDuration"
+                />
+              </VCol>
+
+              <!-- 👉 Payment Paying Duration -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="saleData.payingDuration"
+                  :rules="[numericValidator]"
+                  :label="$t('Payment Paying Duration (In Hours)')"
+                  :placeholder="$t('Payment Paying Duration')"
+                  :error-messages="errors.payingDuration"
+                />
+              </VCol>
+
+              <!-- 👉 Order Closing Time -->
+              <VCol cols="12">
+                <AppTextField
+                  v-model="saleData.closingTime"
+                  :rules="[numericValidator]"
+                  :label="$t('Order Closing Time (In Hours)')"
+                  :placeholder="$t('Order Closing Time')"
+                  :error-messages="errors.closingTime"
+                />
+              </VCol>
+
+              <!-- 👉 Extended Payments Time -->
+              <VCol cols="12">
+                <AppDateTimePicker
+                  v-model="saleData.extendPaymentTime"
+                  :label="$t('Extended Payments Time')"
+                  :placeholder="$t('Extended Payments Time')"
+                  :config="{ enableTime: true, dateFormat: 'Y-m-d' }"
+                  :error-messages="errors.extendPaymentTime"
                 />
               </VCol>
 
