@@ -81,22 +81,27 @@ const headers = computed(() => [
     key: 'actions',
     sortable: false,
   },
+  
   {
-    title: t('Full name'),
+    title: t('Order Number'),
+    key: 'orderNumber',
+  },
+  {
+    title: t('שם מלא'),
     key: 'fullName',
   },
   {
-    title: t('Israeli ID'),
+    title: t('ת.ז.'),
     key: 'israeliID',
   },
   
   {
-    title: t('Phone'),
+    title: t('טלפון'),
     key: 'phone',
   },
   
   {
-    title: t('Phone 2'),
+    title: t('טלפון 2'),
     key: 'phone2',
     sortable: false,
   },
@@ -110,11 +115,11 @@ const headers = computed(() => [
     key: 'status',
   },
   {
-    title: t('Created At'),
+    title: t('תאריך מילוי'),
     key: 'createdAt',
   },
   {
-    title: t('Refund \ Due'),
+    title: t('תשלום\\זיכוי'),
     key: 'refundDue',
   },
 ])
@@ -293,7 +298,7 @@ const editStation = async value => {
         <VRow>
           <VCol cols="12">
             <h5 class="text-h5 mb-1">
-              חוסרים\עודפים
+              {{ $t('Received Items report') }}
             </h5>
           </VCol>
         </VRow>
@@ -413,7 +418,7 @@ const editStation = async value => {
         <!-- userID -->
 
         <template #[`item.orderNumber`]="{ item }">
-          <RouterLink :to="{ name: 'admin-orders-weight-update-detail-id', params: { id: item._id } }">
+          <RouterLink :to="{ name: 'admin-orders-received-items-report-detail-id', params: { id: item._id } }">
             {{ item._id }}
           </RouterLink>
         </template>
@@ -446,39 +451,12 @@ const editStation = async value => {
 
         
 
-        <template #[`item.subTotal`]="{ item }">
-          {{ numberFormat(item.subTotal)}}
-        </template>
-
-        <template #[`item.totalDiscount`]="{ item }">
-          {{ numberFormat(item.totalDiscount)}}
-        </template>
+        
 
         <!-- Total -->
-        <template #[`item.total`]="{ item }">
+        <template #[`item.refundDue`]="{ item }">
           <span v-if="item.total > 0" class="lesspaid">{{ numberFormat(item.total)}}</span>
           <span v-else-if="item.total < 0" class="overpaid">{{ numberFormat(item.total)}}</span>
-        </template>
-
-        <!-- originalOrderedAmount -->
-        <template #[`item.originalOrderedAmount`]="{ item }">
-          {{ numberFormat(item.originalOrderedAmount)}}
-        </template>
-
-        <!-- amountDifference -->
-        <template #[`item.amountDifference`]="{ item }">
-          <span
-            v-if="item.amountDifference && item.amountDifference > 0" 
-            class="lesspaid"
-          >
-            {{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}
-          </span>
-          <span 
-            v-else-if="item.amountDifference && item.amountDifference < 0"
-            class="overpaid"
-          >
-            {{ item.amountDifference ? numberFormat(item.amountDifference) : ''}}
-          </span>
         </template>
 
         <!-- status -->
@@ -512,7 +490,7 @@ const editStation = async value => {
             <VIcon icon="tabler-dots-vertical" />
             <VMenu activator="parent">
               <VList>
-                <VListItem :to="{ name: 'admin-orders-shortages-surpluses-detail-id', params: { id: item._id } }">
+                <VListItem :to="{ name: 'admin-orders-received-items-report-detail-id', params: { id: item._id } }">
                   <template #prepend>
                     <VIcon icon="tabler-eye" />
                   </template>
@@ -521,7 +499,7 @@ const editStation = async value => {
 
                 <VListItem
                   v-if="can('admin-update-orders', 'Update Orders')"
-                  :to="{ name: 'admin-orders-shortages-surpluses-edit-id', params: { id: item._id } }"
+                  :to="{ name: 'admin-orders-received-items-report-edit-id', params: { id: item._id } }"
                 >
                   <template #prepend>
                     <VIcon icon="tabler-pencil" />

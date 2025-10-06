@@ -1,8 +1,8 @@
 export default [
   {
-    title: 'חוסרים\עודפים',
+    title: 'Received Items report',
     icon: { icon: 'tabler-currency-dollar' },
-    to: 'admin-orders-shortages-surpluses',
+    to: 'admin-orders-received-items-report',
     action: 'admin-view-orders',
     subject: 'Order',
   },
