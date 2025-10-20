@@ -43,7 +43,7 @@ const {
   data: stationDetail, execute: fetchStations, error,
 } = await useApi(createUrl(`/admin/stations/${ route.params.id }`))
 
-if(error.value == 'Unauthorized') {
+if(error.value) {
 // Remove "accessToken" from cookie
   localStorage.removeItem('userData')
   localStorage.removeItem('accessToken')

@@ -44,7 +44,7 @@ const {
   data: supplierDetail, execute: fetchSuppliers, error,
 } = await useApi(createUrl(`/admin/suppliers/${ route.params.id }`))
 
-if(error.value == 'Unauthorized') {
+if(error.value) {
 // Remove "accessToken" from cookie
   localStorage.removeItem('userData')
   localStorage.removeItem('accessToken')
