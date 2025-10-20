@@ -17,8 +17,6 @@ import { ofetch } from 'ofetch'
 import useHelper from '@/mixins/helper'
 import Cookies from 'js-cookie'
 
-const router = useRouter()
-
 const { isAdmin } = useHelper()
 const authStore = useAuthStore()
 
@@ -43,6 +41,38 @@ export const $api = ofetch.create({
       }
     }
     
-  }
+  },
+  async onResponseError({ response }) {
+    const authStore = useAuthStore()
+    const status = response?.status
+
+    console.log(status);
+
+    if (status === 401 || status === 419 || status === 403 || status === 500) {
+      // Clear user session
+      if(isAdmin()) {
+        localStorage.removeItem('userData')
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('userAbilityRules')
+
+        const authStore = useAuthStore()
+        authStore.$reset?.() // reset pinia store if defined
+
+        // Redirect to login
+        window.location.href = '/admin/login'
+      }else{
+        localStorage.removeItem('fuserData')
+        localStorage.removeItem('faccessToken')
+        localStorage.removeItem('fuserAbilityRules')
+
+        const authStore = useAuthStore()
+        authStore.$reset?.() // reset pinia store if defined
+
+        // Redirect to login
+        window.location.href = '/login'
+      }
+      
+    }
+  },
 })
 

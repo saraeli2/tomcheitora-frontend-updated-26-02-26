@@ -66,8 +66,20 @@ const checkoutSteps = [
 const currentStep = ref(0)
 
 const {
-  data: orderData, execute: fetchOrder,
+  data: orderData, execute: fetchOrder, error
 } = await useApi(createUrl(`/orders/${ route.params.id }`))
+
+if(error.value){
+  localStorage.removeItem('fuserData')
+  localStorage.removeItem('faccessToken')
+  localStorage.removeItem('fuserAbilityRules')
+
+  const authStore = useAuthStore()
+  authStore.$reset?.() // reset pinia store if defined
+
+  // Redirect to login
+  window.location.href = '/login'
+}
 
 //const order = computed(() => orderData.value)
 

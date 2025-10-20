@@ -32,9 +32,21 @@ const refForm = ref()
 const remarks = ref()
 const router = useRouter()
 
-const { data: orderData, execute: fetchOrder } = await useApi(
+const { data: orderData, execute: fetchOrder, error } = await useApi(
   createUrl(`/received-items-reports`)
 );
+
+if(error.value){
+  localStorage.removeItem('fuserData')
+  localStorage.removeItem('faccessToken')
+  localStorage.removeItem('fuserAbilityRules')
+
+  const authStore = useAuthStore()
+  authStore.$reset?.() // reset pinia store if defined
+
+  // Redirect to login
+  window.location.href = '/login'
+}
 
 //const order = computed(() => orderData.value)
 
@@ -55,7 +67,7 @@ if(order.value){
 }
 
 const {
-  data: adminDetail, execute: fetchUsers, error,
+  data: adminDetail, execute: fetchUsers,
 } = await useApi(createUrl(`/get-user-details`))
 
 const user = computed(() => adminDetail.value)

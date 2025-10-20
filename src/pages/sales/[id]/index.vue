@@ -58,6 +58,7 @@ const {
   data: saleDetail,
   execute: fetchSales,
   onFetchResponse,
+  error
 } = await useApi(
   createUrl(`/sales/${route.params.id}`, {
     query: {
@@ -65,6 +66,20 @@ const {
     },
   })
 )
+
+//console.log(error.value);
+
+if(error.value){
+  localStorage.removeItem('fuserData')
+  localStorage.removeItem('faccessToken')
+  localStorage.removeItem('fuserAbilityRules')
+
+  const authStore = useAuthStore()
+  authStore.$reset?.() // reset pinia store if defined
+
+  // Redirect to login
+  window.location.href = '/login'
+}
 
 watch(selectedCategories, (newVal) => {
 

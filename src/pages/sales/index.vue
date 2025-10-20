@@ -40,6 +40,18 @@ const {
   data: saleData, execute: fetchSales, error,
 } = await useApi(createUrl(`/sales`))
 
+if(error.value){
+  localStorage.removeItem('fuserData')
+  localStorage.removeItem('faccessToken')
+  localStorage.removeItem('fuserAbilityRules')
+
+  const authStore = useAuthStore()
+  authStore.$reset?.() // reset pinia store if defined
+
+  // Redirect to login
+  window.location.href = '/login'
+}
+
 const sales = saleData.value.data
 
 if (sales.length > 0) {
