@@ -193,3 +193,18 @@
 .v-switch .v-selection-control:not(.v-selection-control--dirty) .v-switch__thumb {
   color: #fff !important;
 }
+
+.disabled-link {
+  background: #ccc;
+  color: #666 !important;
+  margin: 0 10px;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 3px;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+.disabled-wrapper {
+  display: inline-block;
+  cursor: not-allowed;
+}
