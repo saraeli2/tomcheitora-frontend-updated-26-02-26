@@ -141,13 +141,17 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     (hasReceivable || hasReceivedFormItem) &&
                     userData.allowedIsraelUser
                   "
-                  class="disabled-wrapper"
-                  title="לא זמין יותר"
                 >
-                  <a
-                    href="javascript:void(0)"
-                    class="disabled-link"
-                    tabindex="-1"
+                  <RouterLink
+                    :to="`/profile/received-items-report`"
+                    style="
+                      background: #32a744;
+                      color: #fff !important;
+                      margin: 0 10px;
+                      display: inline-block;
+                      padding: 4px 10px;
+                      border-radius: 3px;
+                    "
                   >
                     עדכון חוסרים/עודפים
                   </a>
