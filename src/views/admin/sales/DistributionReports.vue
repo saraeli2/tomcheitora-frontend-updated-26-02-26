@@ -4,7 +4,7 @@ import useHelper from "@/mixins/helper";
 import DiscountOrderReport from '@/views/admin/sales/DiscountOrderReport.vue'
 import SalesReport from '@/views/admin/sales/SalesReport.vue'
 import OrderReport from '@/views/admin/sales/OrderReport.vue'
-import ProductReports from '@/views/admin/sales/ProductReports.vue'
+import ProductReports from '@/views/admin/sales/productReports.vue'
 import ProductSalesReports from '@/views/admin/sales/ProductSalesReports.vue'
 import StationUsersReports from '@/views/admin/sales/StationUsersReports.vue'
 
