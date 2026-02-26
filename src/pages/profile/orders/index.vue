@@ -154,7 +154,7 @@ const hasReceivedFormItem = computed(() => ordersData.value.hasReceivedFormItem)
                     "
                   >
                     עדכון חוסרים/עודפים
-                  </a>
+                  </RouterLink>
                 </span>
               </h5>
               <!-- <div>
